@@ -1,0 +1,13 @@
+﻿{
+    "Version": "Test To Override",
+    "Configurations": {
+        "Config3": {
+            "Type": "System.Nullable`1[System.DateTime]",
+            "Value": "2015-11-24T01:03:03.002Z"
+        },
+        "Config4": {
+            "Type": "System.Nullable`1[System.DateTime]",
+            "Value": undefined
+        }
+    }
+}

@@ -1,0 +1,20 @@
+﻿{
+    "Version": "Test",
+    "Configurations": {
+        "Config1": {
+            "Type": "System.Guid",
+            "Value": "D5B76C79-62C9-4DD5-B623-3AF8753AF43E"
+        },
+        "Config2": {
+            "Type": "System.Collections.Generic.Dictionary`2[System.String,System.Collections.Generic.List`1[System.Collections.Generic.List`1[System.String]]]",
+            "Value": {
+                "A": [ [ "A1", "A2" ] ],
+                "B": [ [ "A1", "A2" ] ]
+            }
+        },
+        "Config3": {
+            "Type": "System.Nullable`1[System.DateTime]",
+            "Value":  undefined
+        }
+    }
+}
