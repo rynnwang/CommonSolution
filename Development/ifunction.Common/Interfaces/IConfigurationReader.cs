@@ -24,7 +24,7 @@ namespace ifunction
         /// Gets the configuration belongs.
         /// </summary>
         /// <value>The configuration belongs.</value>
-        Dictionary<string,string> ConfigurationBelongs { get; }
+        Dictionary<string, string> ConfigurationBelongs { get; }
 
         /// <summary>
         /// Gets the configuration.
@@ -44,10 +44,14 @@ namespace ifunction
         string GetConfiguration(string key, string defaultValue = null);
 
         /// <summary>
+        /// Gets the values.
+        /// </summary>
+        /// <returns>IEnumerable&lt;KeyValuePair&lt;System.String, System.Object&gt;&gt;.</returns>
+        IEnumerable<KeyValuePair<string, object>> GetValues();
+
+        /// <summary>
         /// Refreshes the settings.
         /// </summary>
         void RefreshSettings();
-
-
     }
 }

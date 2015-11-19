@@ -78,7 +78,7 @@ namespace ifunction.AOP
 
                 if (Framework.ApiTracking != null)
                 {
-                    Framework.ApiTracking.LogExceptionAsync(newException, this.ServerIdentifier, this.GetSelfServerIdentifier());
+                    Framework.ApiTracking.LogExceptionAsync(newException, this.ServerIdentifier, EnvironmentCore.ServerName);
                 }
             }
 

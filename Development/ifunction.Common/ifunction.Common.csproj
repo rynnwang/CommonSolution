@@ -334,6 +334,7 @@
     <Folder Include="Model\Provisioning\" />
     <Folder Include="RFC\RFC5545\" />
     <Folder Include="Utility\ActiveDirectory\" />
+    <Folder Include="Utility\SystemStatus\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

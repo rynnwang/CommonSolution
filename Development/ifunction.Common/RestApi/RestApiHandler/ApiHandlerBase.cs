@@ -157,7 +157,7 @@ namespace ifunction.RestApi
 
                 if (runtimeContext.Version.Equals(BuildInFeatureVersionKeyword, StringComparison.OrdinalIgnoreCase))
                 {
-                    var buildInResult = ProcessBuildInFeature(runtimeContext);
+                    var buildInResult = ProcessBuildInFeature(runtimeContext, context.Request.IsLocal);
                     PackageOutput(context.Response, buildInResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings.EnableOutputFullExceptionInfo);
                 }
                 else
@@ -190,7 +190,7 @@ namespace ifunction.RestApi
                         }
 
                         eventLog.ResourceName = runtimeContext.ResourceName;
-                        eventLog.ServerIdentifier = this.GetSelfServerIdentifier();
+                        eventLog.ServerIdentifier = EnvironmentCore.ServerName;
                         eventLog.UserIdentifier = runtimeContext.UserIdentifier;
 
                         var clientIdentifierHeaderKey = settings.ClientIdentifierHeaderKey;
@@ -235,7 +235,7 @@ namespace ifunction.RestApi
             catch (Exception ex)
             {
                 var apiTracking = settings?.ApiTracking;
-                var baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiInstance?.GetType().FullName, this.GetSelfServerIdentifier());
+                var baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiInstance?.GetType().FullName, EnvironmentCore.ServerName);
 
                 if (apiTracking != null && eventLog != null)
                 {
@@ -264,8 +264,9 @@ namespace ifunction.RestApi
         /// Processes the build in feature.
         /// </summary>
         /// <param name="runtimeContext">The runtime context.</param>
+        /// <param name="isLocalhost">The is localhost.</param>
         /// <returns>System.Object.</returns>
-        protected virtual object ProcessBuildInFeature(RuntimeContext runtimeContext)
+        protected virtual object ProcessBuildInFeature(RuntimeContext runtimeContext, bool isLocalhost)
         {
             object result = null;
 

@@ -274,7 +274,7 @@ namespace ifunction.RestApi
         /// </summary>
         /// <param name="runtimeContext">The runtime context.</param>
         /// <returns>System.Object.</returns>
-        protected override object ProcessBuildInFeature(RuntimeContext runtimeContext)
+        protected override object ProcessBuildInFeature(RuntimeContext runtimeContext, bool isLocalhost)
         {
             object result = null;
 
@@ -283,10 +283,22 @@ namespace ifunction.RestApi
                 case "apilist":
                     result = routes.Keys.Select(x => x.TrimEnd('/') + "/").ToList();
                     break;
+                case "configuration":
+                    if (isLocalhost)
+                    {
+                        result = Framework.configurationReader.GetValues();
+                    }
+                    break;
+                case "memory":
+                    if (isLocalhost)
+                    {
+                        result = string.Format("{0}: {1} bytes", EnvironmentCore.ServerName, EnvironmentCore.TotalMemory);
+                    }
+                    break;
                 default: break;
             }
 
-            return result ?? base.ProcessBuildInFeature(runtimeContext);
+            return result ?? base.ProcessBuildInFeature(runtimeContext, isLocalhost);
         }
 
         /// <summary>

@@ -14,7 +14,7 @@ namespace ifunction.Model
         /// Gets or sets the assembly version.
         /// </summary>
         /// <value>The assembly version.</value>
-        public Dictionary<string, Version> AssemblyVersion { get; set; }
+        public Dictionary<string, object> AssemblyVersion { get; set; }
 
         /// <summary>
         /// Gets or sets the server environment.
@@ -33,7 +33,7 @@ namespace ifunction.Model
         /// </summary>
         public ServiceVersion()
         {
-            this.AssemblyVersion = new Dictionary<string, Version>();
+            this.AssemblyVersion = new Dictionary<string, object>();
         }
 
         /// <summary>

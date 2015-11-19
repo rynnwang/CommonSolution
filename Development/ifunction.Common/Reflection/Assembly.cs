@@ -1029,16 +1029,22 @@ namespace ifunction
                 }
             }
         }
+        #endregion
+
+        #region Assembly Attributes
+
+        /// <summary>
+        /// Gets the component attribute.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        /// <returns>Beyova.ProgrammingIntelligence.BeyovaComponentAttribute.</returns>
+        public static BeyovaComponentAttribute GetComponentAttribute(this Assembly assembly)
+        {
+            return assembly?.GetCustomAttribute<BeyovaComponentAttribute>();
+        }
+
+        #endregion
     }
 
-    #endregion
 
-    #region Assembly Attributes
-
-    public static BeyovaComponentAttribute GetComponentAttribute(this Assembly assembly)
-    {
-
-    }
-
-    #endregion
 }

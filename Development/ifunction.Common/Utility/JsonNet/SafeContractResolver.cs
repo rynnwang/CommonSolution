@@ -17,15 +17,15 @@ namespace ifunction
         /// <summary>
         /// The HTTP request ignore properties
         /// </summary>
-        protected static string[] httpRequestIgnoreProperties = new string[] { 
+        protected static string[] httpRequestIgnoreProperties = new string[] {
         "HttpContext","ServerVariables","Browser","HtmlTextWriter","ClrVersion","TagWriter","EcmaScriptVersion","MSDomVersion","W3CDomVersion","Unvalidated","Params"
         };
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SafeContractResolver"/> class.
+        /// Initializes a new instance of the <see cref="SafeContractResolver" /> class.
         /// </summary>
         public SafeContractResolver()
-            : base(true)
+            : base()
         {
         }
 

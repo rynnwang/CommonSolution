@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web.UI.WebControls;
@@ -37,47 +39,42 @@ namespace ifunction.Configuration
         /// <summary>
         /// The XML node_ root node name
         /// </summary>
-        public const string XmlNode_RootNodeName = "Configurations";
+        public const string Node_RootNodeName = "Configurations";
 
         /// <summary>
         /// The XML node_ object item
         /// </summary>
-        public const string XmlNode_ObjectItem = "Object";
+        public const string Node_ObjectItem = "Object";
 
         /// <summary>
         /// The XML node_ method item
         /// </summary>
-        public const string XmlNode_MethodItem = "Method";
+        public const string Node_MethodItem = "Method";
 
         /// <summary>
         /// The XML attribute_ type
         /// </summary>
-        public const string XmlAttribute_Type = "Type";
+        public const string Attribute_Type = "Type";
 
         /// <summary>
         /// The XML attribute_ version
         /// </summary>
-        public const string XmlAttribute_Version = "Version";
+        public const string Attribute_Version = "Version";
 
         /// <summary>
         /// The XML attribute_ value
         /// </summary>
-        public const string XmlAttribute_Value = "Value";
+        public const string Attribute_Value = "Value";
 
         /// <summary>
         /// The XML attribute_ name
         /// </summary>
-        public const string XmlAttribute_Name = "Name";
+        public const string Attribute_Name = "Name";
 
         /// <summary>
         /// The configuration key_ SQL connection
         /// </summary>
         private const string ConfigurationKey_SqlConnection = "SqlConnection";
-
-        /// <summary>
-        /// The configuration key_ server identifier
-        /// </summary>
-        private const string ConfigurationKey_ServerIdentifier = "ServerIdentifier";
 
         #endregion
 
@@ -105,15 +102,6 @@ namespace ifunction.Configuration
         public string SqlConnection
         {
             get { return GetConfiguration(ConfigurationKey_SqlConnection); }
-        }
-
-        /// <summary>
-        /// Gets the server identifier.
-        /// </summary>
-        /// <value>The server identifier.</value>
-        public string ServerIdentifier
-        {
-            get { return GetConfiguration(ConfigurationKey_ServerIdentifier); }
         }
 
         /// <summary>
@@ -255,7 +243,7 @@ namespace ifunction.Configuration
                     var root = JObject.Parse(jsonString);
                     root.CheckNullObject("root");
 
-                    var version = root.GetValue(XmlAttribute_Version).Value<string>();
+                    var version = root.GetValue(Attribute_Version).Value<string>();
 
                     foreach (JProperty one in root.GetValue("Configurations").Children())
                     {
@@ -290,7 +278,7 @@ namespace ifunction.Configuration
 
                 var key = itemNode.Name;
                 var valueNode = itemNode.Value;
-                var typeFullName = valueNode.SelectToken(XmlAttribute_Type).Value<string>();
+                var typeFullName = valueNode.SelectToken(Attribute_Type).Value<string>();
 
                 if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(typeFullName))
                 {
@@ -298,7 +286,7 @@ namespace ifunction.Configuration
 
                     if (objectType != null)
                     {
-                        var valueObject = valueNode.SelectToken(XmlAttribute_Value).ToObject(objectType);
+                        var valueObject = valueNode.SelectToken(Attribute_Value).ToObject(objectType);
                         container.Merge(key, new ConfigurationItem { Value = valueObject, Source = valueSource });
                     }
                 }
@@ -355,6 +343,15 @@ namespace ifunction.Configuration
             }
 
             File.WriteAllText(GetConfigurationFilePath(), JsonConvert.SerializeObject(root));
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
+        public IEnumerable<KeyValuePair<string, object>> GetValues()
+        {
+            return settings.Select(x => { return new KeyValuePair<string, object>(x.Key, x.Value.Value); });
         }
 
         #endregion

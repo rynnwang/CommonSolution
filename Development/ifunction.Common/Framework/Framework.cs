@@ -17,7 +17,7 @@ namespace ifunction
         /// <summary>
         /// The configuration reader
         /// </summary>
-        private static IConfigurationReader configurationReader = null;
+        internal static IConfigurationReader configurationReader = null;
 
         #region Public
 
@@ -39,7 +39,9 @@ namespace ifunction
                         && !info.Name.StartsWith("System.")
                         && info.Name != "mscorlib")
                     {
-                        result.AssemblyVersion.Merge(info.Name, info.Version);
+                        var beyovaComponent = one.GetComponentAttribute();
+
+                        result.AssemblyVersion.Merge(info.Name, beyovaComponent == null ? info.Version : new { Version = info.Version, Component = beyovaComponent.ToString() } as object);
                     }
                 }
 

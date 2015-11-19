@@ -27,6 +27,11 @@ namespace ifunction
         public static readonly int ApplicationId;
 
         /// <summary>
+        /// The server name
+        /// </summary>
+        public static readonly string ServerName;
+
+        /// <summary>
         /// Initializes static members of the <see cref="EnvironmentCore"/> class.
         /// </summary>
         static EnvironmentCore()
@@ -36,8 +41,25 @@ namespace ifunction
                 : AppDomain.CurrentDomain.BaseDirectory;
 
             LogDirectory = Path.Combine(ApplicationBaseDirectory, "logs");
-
             ApplicationId = System.AppDomain.CurrentDomain.Id;
+
+            try
+            {
+                ServerName = Environment.MachineName;
+            }
+            catch { ServerName = "Unknown"; }
+        }
+
+        /// <summary>
+        /// Gets the total memory. Unit: bytes
+        /// </summary>
+        /// <value>The total memory.</value>
+        public static long TotalMemory
+        {
+            get
+            {
+                return GC.GetTotalMemory(false);
+            }
         }
     }
 }

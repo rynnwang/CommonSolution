@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ifunction;
 
 namespace Beyova.ProgrammingIntelligence
 {
@@ -33,6 +34,15 @@ namespace Beyova.ProgrammingIntelligence
         {
             this.Version = version;
             this.Id = id;
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+        public override string ToString()
+        {
+            return string.Format("{0}: {1}", Id.SafeToString("Not specified"), Version);
         }
     }
 }

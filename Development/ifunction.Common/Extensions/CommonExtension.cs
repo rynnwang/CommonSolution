@@ -145,7 +145,7 @@ namespace ifunction
 
             return false;
         }
-        
+
         /// <summary>
         /// Copies the inherited property value to.
         /// </summary>
@@ -1680,26 +1680,5 @@ namespace ifunction
         }
 
         #endregion
-
-        /// <summary>
-        /// Gets the self server identifier.
-        /// <remarks>
-        /// This method would try to get configuration value from AppConfig.xml/ServerIdentifier. 
-        /// If it is null or empty, use <c>System.Environment.MachineName</c> instead.
-        /// </remarks>
-        /// </summary>
-        /// <param name="anyObject">Any object.</param>
-        /// <returns>System.String.</returns>
-        public static string GetSelfServerIdentifier(this object anyObject)
-        {
-            try
-            {
-                return Framework.GetConfiguration("ServerIdentifier").SafeToString(Environment.MachineName);
-            }
-            catch
-            {
-                return "Unknown";
-            }
-        }
     }
 }
