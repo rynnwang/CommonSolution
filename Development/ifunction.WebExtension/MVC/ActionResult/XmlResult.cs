@@ -51,7 +51,7 @@ namespace ifunction.WebExtension
 
             if (xmlElement == null)
             {
-                IToXml toXml = this.Data as IToXml;
+                IXmlSerializable toXml = this.Data as IXmlSerializable;
 
                 if (toXml != null)
                 {

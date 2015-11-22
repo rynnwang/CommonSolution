@@ -31,10 +31,10 @@ namespace ifunction.DeveloperModule
         public string Token { get; set; }
 
         /// <summary>
-        /// Gets or sets the azure connection string.
+        /// Gets or sets the azure storage connection string.
         /// </summary>
-        /// <value>The azure connection string.</value>
-        public string AzureConnectionString { get; set; }
+        /// <value>The azure storage connection string.</value>
+        public string AzureStorageConnectionString { get; set; }
 
         /// <summary>
         /// Gets or sets the SQL connection string.

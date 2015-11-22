@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
 {
@@ -43,6 +44,15 @@ namespace Beyova.ProgrammingIntelligence
         {
             this.ApiOperations = new List<ApiOperationDefinition>();
             this.ApiDataContracts = new List<ApiDataContractDefinition>();
+        }
+
+        /// <summary>
+        /// Fills the property values by JToken.
+        /// </summary>
+        /// <param name="jToken">The j token.</param>
+        public override void FillPropertyValuesByJToken(JToken jToken)
+        {
+            base.FillPropertyValuesByJToken(jToken);
         }
     }
 }

@@ -500,6 +500,54 @@ namespace ifunction
         }
 
         /// <summary>
+        /// Subs the string after first match.
+        /// </summary>
+        /// <param name="original">The original.</param>
+        /// <param name="firstMatch">The first match.</param>
+        /// <returns>System.String.</returns>
+        public static string SubStringAfterFirstMatch(this string original, string firstMatch)
+        {
+            if (!string.IsNullOrWhiteSpace(original) && !string.IsNullOrWhiteSpace(firstMatch))
+            {
+                var index = original.IndexOf(firstMatch, StringComparison.Ordinal);
+                if (index == original.Length)
+                {
+                    return string.Empty;
+                }
+                else if (index >= 0)
+                {
+                    return original.Substring(index);
+                }
+            }
+
+            return original;
+        }
+
+        /// <summary>
+        /// Subs the string after last match.
+        /// </summary>
+        /// <param name="original">The original.</param>
+        /// <param name="lastMatch">The last match.</param>
+        /// <returns>System.String.</returns>
+        public static string SubStringAfterLastMatch(this string original, string lastMatch)
+        {
+            if (!string.IsNullOrWhiteSpace(original) && !string.IsNullOrWhiteSpace(lastMatch))
+            {
+                var index = original.LastIndexOf(lastMatch, StringComparison.Ordinal);
+                if (index == original.Length)
+                {
+                    return string.Empty;
+                }
+                else if (index >= 0)
+                {
+                    return original.Substring(index);
+                }
+            }
+
+            return original;
+        }
+
+        /// <summary>
         /// Subs the string before first match.
         /// </summary>
         /// <param name="original">The original.</param>
@@ -764,7 +812,7 @@ namespace ifunction
         /// <param name="regex">The regex.</param>
         /// <param name="input">The input.</param>
         /// <returns>Match.</returns>
-        public static Match SafeMatch(this Regex regex,string input)
+        public static Match SafeMatch(this Regex regex, string input)
         {
             return regex == null ? null : regex.Match(input);
         }

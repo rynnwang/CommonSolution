@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ifunction.Common, Version=2.0.0.0, Culture=neutral, PublicKeyToken=4e9b350525e23afa, processorArchitecture=MSIL">
-      <HintPath>..\packages\ifunction.Common.2.21.11\lib\ifunction.Common.dll</HintPath>
+      <HintPath>..\packages\ifunction.Common.2.25.1\lib\ifunction.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Azure.KeyVault.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">

@@ -7,14 +7,13 @@ using Beyova.ProgrammingIntelligence;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ifunction.Common")]
-[assembly: AssemblyInformationalVersion("2.25.0")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Beyova Co.,Ltd.")]
 [assembly: AssemblyProduct("Beyova.Common")]
-[assembly: AssemblyCopyright("All Rights reserved.")]
+[assembly: AssemblyCopyright("Allrghts reserved.")]
 [assembly: AssemblyTrademark("Beyova")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.Common", "2.25.1")]
+[assembly: BeyovaComponent("Beyova.Common", "2.25.2")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

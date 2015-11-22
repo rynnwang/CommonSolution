@@ -6,13 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 using ifunction;
 using ifunction.RestApi;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
     /// Class AbstractApiContractDescription.
     /// </summary>
-    public abstract class AbstractApiContractDescription
+    [JsonConverter(typeof(ApiContractDefinitionJsonConverter))]
+    public abstract class AbstractApiContractDescription : IApiContractDescription, IJsonSerializable
     {
         #region Properties
 
@@ -34,6 +37,18 @@ namespace Beyova.ProgrammingIntelligence
         /// <value>The type.</value>
         public ApiContractType Type { get; protected set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is obsoleted.
+        /// </summary>
+        /// <value><c>true</c> if this instance is obsoleted; otherwise, <c>false</c>.</value>
+        public bool IsObsoleted { get; set; }
+
+        /// <summary>
+        /// Gets or sets the obsolete description.
+        /// </summary>
+        /// <value>The obsolete description.</value>
+        public string ObsoleteDescription { get; set; }
+
         #endregion
 
         /// <summary>
@@ -45,44 +60,28 @@ namespace Beyova.ProgrammingIntelligence
             this.Type = type;
         }
 
-        #region Static methods
-
         /// <summary>
-        /// Parses the API contract definition.
+        /// To the JToken.
         /// </summary>
-        /// <param name="interfaceOrInstanceType">Type of the interface or instance.</param>
-        /// <returns>ApiContractDefinition.</returns>
-        public static ApiContractDefinition ParseApiContractDefinition(Type interfaceOrInstanceType)
+        /// <returns>JToken.</returns>
+        public virtual JToken ToJToken()
         {
-            try
-            {
-                return interfaceOrInstanceType.ParseApiContractDefinition();
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("ParseApiContractDefinition", interfaceOrInstanceType);
-            }
+            return this.ToJson();
         }
 
-
         /// <summary>
-        /// Parses the API model.
+        /// Fills the property values by JToken.
         /// </summary>
-        /// <param name="classOrStructType">Type of the class or structure.</param>
-        /// <returns>ApiModelDefinition.</returns>
-        public static ApiDataContractDefinition ParseApiDataContract(Type classOrStructType)
+        /// <param name="jToken">The j token.</param>
+        public virtual void FillPropertyValuesByJToken(JToken jToken)
         {
-            try
+            if (jToken != null)
             {
-                //return classOrStructType.ParseApiDataContract();
-                return null;
+                this.Namespace = jToken.Value<string>("Namespace");
+                this.Name = jToken.Value<string>("Name");
+                this.IsObsoleted = jToken.Value<bool>("IsObsoleted");
+                this.ObsoleteDescription = jToken.Value<string>("ObsoleteDescription");
             }
-            catch (Exception ex)
-            {
-                throw ex.Handle("ParseApiDataContract", classOrStructType);
-            }
-        }
-
-        #endregion
+        }        
     }
 }

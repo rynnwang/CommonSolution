@@ -60,5 +60,15 @@ namespace Beyova.ProgrammingIntelligence
         {
             return this.ToString().GetHashCode();
         }
+
+        /// <summary>
+        /// Fills the property values by JToken.
+        /// </summary>
+        /// <param name="jToken">The j token.</param>
+        public override void FillPropertyValuesByJToken(JToken jToken)
+        {
+            base.FillPropertyValuesByJToken(jToken);
+            this.IsNullable = jToken.Value<bool>("IsNullable");
+        }
     }
 }

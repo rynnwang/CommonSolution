@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.Windows.Forms;
 using Beyova.ProgrammingIntelligence;
 
 namespace ifunction
@@ -511,21 +509,6 @@ namespace ifunction
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Gets the full name.
-        /// </summary>
-        /// <param name="methodBase">The method base.</param>
-        /// <returns>System.String.</returns>
-        public static string GetFullName(this MethodBase methodBase)
-        {
-            if (methodBase != null)
-            {
-                return string.Format("{0}.{1}", methodBase.GetType().FullName, methodBase.Name);
-            }
-
-            return string.Empty;
         }
 
         #endregion
@@ -1041,6 +1024,36 @@ namespace ifunction
         public static BeyovaComponentAttribute GetComponentAttribute(this Assembly assembly)
         {
             return assembly?.GetCustomAttribute<BeyovaComponentAttribute>();
+        }
+
+        #endregion
+
+        #region GetFullName
+
+        /// <summary>
+        /// Gets the full name.
+        /// </summary>
+        /// <param name="methodBase">The method base.</param>
+        /// <param name="requiredAttribute">The required attribute.</param>
+        /// <returns>System.String.</returns>
+        public static string GetFullName(this MethodBase methodBase, Type requiredAttribute = null)
+        {
+            return (methodBase != null && (requiredAttribute == null || methodBase.GetCustomAttribute(requiredAttribute) != null)) ?
+                string.Format("{0}.{1}", methodBase.GetType().FullName, methodBase.Name)
+                : string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the full name.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="requiredAttribute">The required attribute.</param>
+        /// <returns>System.String.</returns>
+        public static string GetFullName(this Type type, Type requiredAttribute = null)
+        {
+            return (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null)) ?
+           type.FullName
+            : string.Empty;
         }
 
         #endregion

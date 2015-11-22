@@ -8,15 +8,21 @@ using Newtonsoft.Json.Linq;
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
-    /// Class ObjectDataContractDefinition.
+    /// Class ComplexObjectDataContractDefinition.
     /// </summary>
-    public class ObjectDataContractDefinition : ApiDataContractDefinition
+    public class ComplexObjectDataContractDefinition : ApiDataContractDefinition
     {
+        /// <summary>
+        /// Gets or sets the inherition.
+        /// </summary>
+        /// <value>The inherition.</value>
+        public List<ApiContractReference> Inherition { get; set; }
+
         /// <summary>
         /// Gets or sets the children.
         /// </summary>
         /// <value>The children.</value>
-        public Dictionary<string, ApiDataContractDefinition> Children { get; set; }
+        public Dictionary<string, ApiContractReference> Children { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is nullable.
@@ -35,12 +41,13 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectDataContractDefinition"/> class.
+        /// Initializes a new instance of the <see cref="ComplexObjectDataContractDefinition"/> class.
         /// </summary>
-        public ObjectDataContractDefinition()
+        public ComplexObjectDataContractDefinition()
             : base(ApiContractDataType.ComplexObject)
         {
-            this.Children = new Dictionary<string, ApiDataContractDefinition>();
+            this.Children = new Dictionary<string, ApiContractReference>();
+            this.Inherition = new List<ApiContractReference>();
         }
     }
 }

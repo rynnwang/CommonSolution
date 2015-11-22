@@ -53,28 +53,28 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         Uri = 9,
         /// <summary>
-        /// Value indicating it is enum
-        /// </summary>
-        Enum = 10,
-        /// <summary>
         /// Value indicating it is binary
         /// </summary>
-        Binary = 11,
+        Binary = 10,
+        /// <summary>
+        /// Value indicating it is enum
+        /// </summary>
+        Enum = 16,
         /// <summary>
         /// Value indicating it is array
         /// </summary>
-        Array = 16,
+        Array = 17,
         /// <summary>
         /// Value indicating it is dictionary
         /// </summary>
-        Dictionary = 17,
+        Dictionary = 18,
         /// <summary>
         /// Value indicating it is complex object
         /// </summary>
-        ComplexObject = 18,
+        ComplexObject = 19,
         /// <summary>
-        /// Any json
+        /// The dynamic object
         /// </summary>
-        AnyJson = 19
+        DynamicObject = 20
     }
 }

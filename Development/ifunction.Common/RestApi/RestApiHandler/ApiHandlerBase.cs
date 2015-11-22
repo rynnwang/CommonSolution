@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Routing;
+using Beyova.ProgrammingIntelligence;
 using ifunction.ApiTracking.Model;
 using ifunction.ExceptionSystem;
 using Newtonsoft.Json;
@@ -274,6 +275,9 @@ namespace ifunction.RestApi
             {
                 case "server":
                     result = Framework.AboutService();
+                    break;
+                case "contract":
+                    result = ApiContract.GetApiContract(runtimeContext.Parameter1);
                     break;
                 default: break;
             }

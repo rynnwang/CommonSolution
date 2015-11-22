@@ -16,13 +16,13 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets or sets the type of the key.
         /// </summary>
         /// <value>The type of the key.</value>
-        public ApiDataContractDefinition KeyType { get; set; }
+        public ApiContractReference KeyType { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the value.
         /// </summary>
         /// <value>The type of the value.</value>
-        public ApiDataContractDefinition ValueType { get; set; }
+        public ApiContractReference ValueType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is nullable.

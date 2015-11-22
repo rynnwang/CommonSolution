@@ -8,9 +8,9 @@ using Newtonsoft.Json.Linq;
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
-    /// Class JsonDataContractDefinition.
+    /// Class DynamicObjectDataContractDefinition.
     /// </summary>
-    public class JsonDataContractDefinition : ApiDataContractDefinition
+    public class DynamicObjectDataContractDefinition : ApiDataContractDefinition
     {
         /// <summary>
         /// Gets or sets a value indicating whether this instance is nullable.
@@ -29,10 +29,10 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JsonDataContractDefinition"/> class.
+        /// Initializes a new instance of the <see cref="ObjectDataContractDefinition"/> class.
         /// </summary>
-        public JsonDataContractDefinition()
-            : base(ApiContractDataType.AnyJson)
+        public DynamicObjectDataContractDefinition()
+            : base(ApiContractDataType.DynamicObject)
         {
         }
     }

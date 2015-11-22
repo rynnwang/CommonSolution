@@ -15,7 +15,7 @@ namespace ifunction.Model
     /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     [XmlRoot("Dictionary")]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, System.Xml.Serialization.IXmlSerializable
     {
         /// <summary>
         /// The XML_ key
