@@ -41,6 +41,7 @@ namespace Beyova.ProgrammingIntelligence
         public ApiOperationDefinition()
             : base(ApiContractType.ApiOperation)
         {
+            this.Parameters = new Dictionary<string, ApiContractReference>();
         }
     }
 }

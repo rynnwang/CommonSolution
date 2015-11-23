@@ -50,7 +50,7 @@ namespace Beyova.ProgrammingIntelligence
             IApiContractDescription apiContract = value as IApiContractDescription;
             if (apiContract != null)
             {
-                serializer.Serialize(writer, apiContract.ToJToken());
+                serializer.Serialize(writer, apiContract);
             }
         }
 

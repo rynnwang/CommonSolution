@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class ArrayListDataContractDefinition.
     /// </summary>
-    public class ArrayListDataContractDefinition : ApiDataContractDefinition
+    public class ArrayListDataContractDefinition : ApiDataContractDefinition,ICloneable
     {
         /// <summary>
         /// Gets or sets the type of the value.
@@ -40,6 +40,23 @@ namespace Beyova.ProgrammingIntelligence
         public ArrayListDataContractDefinition()
             : base(ApiContractDataType.Array)
         {
+        }
+
+        /// <summary>
+        /// Creates a new object that is a copy of the current instance.
+        /// </summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public override object Clone()
+        {
+            return new ArrayListDataContractDefinition
+            {
+                IsObsoleted = this.IsObsoleted,
+                ObsoleteDescription = this.ObsoleteDescription,
+                Name = this.Name,
+                Namespace = this.Namespace,
+                IsNullable = this.IsNullable,
+                ValueType=this.ValueType
+            };
         }
     }
 }

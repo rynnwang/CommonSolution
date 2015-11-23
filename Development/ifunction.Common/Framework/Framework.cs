@@ -35,10 +35,9 @@ namespace ifunction
                 foreach (var one in assemblies)
                 {
                     var info = one.GetName();
-                    if (!info.Name.StartsWith("Microsoft.")
-                        && !info.Name.StartsWith("System.")
-                        && info.Name != "mscorlib")
-                    {
+
+                    if (!info.IsSystemAssembly())
+                    {                   
                         var beyovaComponent = one.GetComponentAttribute();
 
                         result.AssemblyVersion.Merge(info.Name, beyovaComponent == null ? info.Version : new { Version = info.Version, Component = beyovaComponent.ToString() } as object);

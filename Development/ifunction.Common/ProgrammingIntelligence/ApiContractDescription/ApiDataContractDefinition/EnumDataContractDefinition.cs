@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class EnumDataContractDefinition.
     /// </summary>
-    public class EnumDataContractDefinition : ApiDataContractDefinition
+    public class EnumDataContractDefinition : ApiDataContractDefinition, ICloneable
     {
         /// <summary>
         /// Gets or sets the enum values.
@@ -24,6 +24,23 @@ namespace Beyova.ProgrammingIntelligence
         public EnumDataContractDefinition()
             : base(ApiContractDataType.Enum)
         {
+        }
+
+        /// <summary>
+        /// Creates a new object that is a copy of the current instance.
+        /// </summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public override object Clone()
+        {
+            return new EnumDataContractDefinition
+            {
+                IsObsoleted = this.IsObsoleted,
+                ObsoleteDescription = this.ObsoleteDescription,
+                Name = this.Name,
+                Namespace = this.Namespace,
+                Type = this.Type,
+                IsNullable = this.IsNullable
+            };
         }
     }
 }

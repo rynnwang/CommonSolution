@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class ApiDataContractDefinition.
     /// </summary>
-    public abstract class ApiDataContractDefinition : AbstractApiContractDescription
+    public abstract class ApiDataContractDefinition : AbstractApiContractDescription,ICloneable
     {
         /// <summary>
         /// Gets or sets the type of the data.
@@ -70,5 +70,11 @@ namespace Beyova.ProgrammingIntelligence
             base.FillPropertyValuesByJToken(jToken);
             this.IsNullable = jToken.Value<bool>("IsNullable");
         }
+
+        /// <summary>
+        /// Creates a new object that is a copy of the current instance.
+        /// </summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public abstract object Clone();
     }
 }

@@ -68,6 +68,31 @@ namespace ifunction
             return anyAssembly != null ? anyAssembly.GetName().GetPublicKeyToken().ToHex() : string.Empty;
         }
 
+        /// <summary>
+        /// Determines whether [is system assembly] [the specified assembly].
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool IsSystemAssembly(this Assembly assembly)
+        {
+            var info = assembly?.GetName();
+            return info == null ? false : info.IsSystemAssembly();
+        }
+
+        /// <summary>
+        /// Determines whether [is system assembly] [the specified assembly name].
+        /// </summary>
+        /// <param name="assemblyName">Name of the assembly.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool IsSystemAssembly(this AssemblyName assemblyName)
+        {
+            return assemblyName != null
+                && (assemblyName.Name.StartsWith("Microsoft.")
+                    || assemblyName.Name.StartsWith("System.")
+                    || assemblyName.Name.Equals("system", StringComparison.OrdinalIgnoreCase)
+                    || assemblyName.Name.Equals("mscorlib", StringComparison.OrdinalIgnoreCase));
+        }
+
         #region Property Info
 
         /// <summary>
@@ -542,7 +567,7 @@ namespace ifunction
         /// <returns><c>true</c> if the specified type is dictionary; otherwise, <c>false</c>.</returns>
         public static bool IsDictionary(this Type type)
         {
-            return type != null && type.GetInterface("IDictionary") != null;
+            return type != null && type.InheritsFrom(typeof(IDictionary<,>));
         }
 
         /// <summary>
@@ -552,7 +577,7 @@ namespace ifunction
         /// <returns><c>true</c> if the specified type is collection; otherwise, <c>false</c>.</returns>
         public static bool IsCollection(this Type type)
         {
-            return type != null && type.GetInterface("ICollection") != null;
+            return type != null && type.InheritsFrom(typeof(ICollection<>));
         }
 
         /// <summary>
@@ -599,7 +624,7 @@ namespace ifunction
         /// <returns><c>true</c> if [is simple type] [the specified type]; otherwise, <c>false</c>.</returns>
         public static bool IsSimpleType(this Type type)
         {
-            return type != null && (type.IsPrimitive || (typeof(string) == type) || typeof(Guid) == type);
+            return type != null && (type.IsPrimitive || (typeof(string) == type) || typeof(Guid) == type || typeof(DateTime) == type || typeof(decimal) == type || typeof(TimeSpan) == type || typeof(Uri) == type);
         }
 
         /// <summary>

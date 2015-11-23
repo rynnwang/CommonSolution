@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class DictionaryDataContractDefinition.
     /// </summary>
-    public class DictionaryDataContractDefinition : ApiDataContractDefinition
+    public class DictionaryDataContractDefinition : ApiDataContractDefinition, ICloneable
     {
         /// <summary>
         /// Gets or sets the type of the key.
@@ -46,6 +46,24 @@ namespace Beyova.ProgrammingIntelligence
         public DictionaryDataContractDefinition()
                     : base(ApiContractDataType.Dictionary)
         {
+        }
+
+        /// <summary>
+        /// Creates a new object that is a copy of the current instance.
+        /// </summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public override object Clone()
+        {
+            return new DictionaryDataContractDefinition
+            {
+                IsObsoleted = this.IsObsoleted,
+                ObsoleteDescription = this.ObsoleteDescription,
+                Name = this.Name,
+                Namespace = this.Namespace,
+                KeyType = this.KeyType,
+                ValueType = this.ValueType,
+                IsNullable = this.IsNullable
+            };
         }
     }
 }

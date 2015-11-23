@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class DynamicObjectDataContractDefinition.
     /// </summary>
-    public class DynamicObjectDataContractDefinition : ApiDataContractDefinition
+    public class DynamicObjectDataContractDefinition : ApiDataContractDefinition, ICloneable
     {
         /// <summary>
         /// Gets or sets a value indicating whether this instance is nullable.
@@ -34,6 +34,22 @@ namespace Beyova.ProgrammingIntelligence
         public DynamicObjectDataContractDefinition()
                     : base(ApiContractDataType.DynamicObject)
         {
+        }
+
+        /// <summary>
+        /// Creates a new object that is a copy of the current instance.
+        /// </summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public override object Clone()
+        {
+            return new DynamicObjectDataContractDefinition
+            {
+                IsObsoleted = this.IsObsoleted,
+                ObsoleteDescription = this.ObsoleteDescription,
+                Name = this.Name,
+                Namespace = this.Namespace,
+                IsNullable = this.IsNullable
+            };
         }
     }
 }

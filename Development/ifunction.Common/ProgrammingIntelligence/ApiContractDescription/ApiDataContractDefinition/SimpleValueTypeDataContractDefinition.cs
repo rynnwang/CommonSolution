@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class SimpleValueTypeDataContractDefinition.
     /// </summary>
-    public class SimpleValueTypeDataContractDefinition : ApiDataContractDefinition
+    public class SimpleValueTypeDataContractDefinition : ApiDataContractDefinition, ICloneable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleValueTypeDataContractDefinition" /> class.
@@ -80,5 +80,23 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         /// <value>The binary data contract definition.</value>
         public static SimpleValueTypeDataContractDefinition BinaryDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Binary); } }
+
+
+        /// <summary>
+        /// Creates a new object that is a copy of the current instance.
+        /// </summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public override object Clone()
+        {
+            return new SimpleValueTypeDataContractDefinition(this.DataType)
+            {
+                IsObsoleted = this.IsObsoleted,
+                ObsoleteDescription = this.ObsoleteDescription,
+                Name = this.Name,
+                Namespace = this.Namespace,
+                Type = this.Type,
+                IsNullable = this.IsNullable
+            };
+        }
     }
 }

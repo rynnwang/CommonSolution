@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class ComplexObjectDataContractDefinition.
     /// </summary>
-    public class ComplexObjectDataContractDefinition : ApiDataContractDefinition
+    public class ComplexObjectDataContractDefinition : ApiDataContractDefinition, ICloneable
     {
         /// <summary>
         /// Gets or sets the inherition.
@@ -48,6 +48,24 @@ namespace Beyova.ProgrammingIntelligence
         {
             this.Children = new Dictionary<string, ApiContractReference>();
             this.Inherition = new List<ApiContractReference>();
+        }
+
+        /// <summary>
+        /// Creates a new object that is a copy of the current instance.
+        /// </summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public override object Clone()
+        {
+            return new ComplexObjectDataContractDefinition
+            {
+                IsObsoleted = this.IsObsoleted,
+                ObsoleteDescription = this.ObsoleteDescription,
+                Name = this.Name,
+                Namespace = this.Namespace,
+                Inherition = this.Inherition,
+                Children = this.Children,
+                IsNullable = this.IsNullable
+            };
         }
     }
 }
