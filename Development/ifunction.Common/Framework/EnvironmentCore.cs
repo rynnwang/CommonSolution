@@ -47,7 +47,7 @@ namespace ifunction
             {
                 ServerName = Environment.MachineName;
             }
-            catch { ServerName = "Unknown"; }
+            catch { ServerName = "Undefined"; }
         }
 
         /// <summary>

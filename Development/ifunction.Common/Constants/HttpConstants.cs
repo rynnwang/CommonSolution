@@ -92,6 +92,10 @@
             public const string SERVERHANDLETIME = "X-SERVER-HANDLE-UTC-TIME";
 
             /// <summary>
+            /// </summary>
+            public const string SERVERNAME = "X-SERVER-NAME";
+
+            /// <summary>
             /// The original
             /// </summary>
             public const string ORIGINAL = "X-BA-ORIGINAL";

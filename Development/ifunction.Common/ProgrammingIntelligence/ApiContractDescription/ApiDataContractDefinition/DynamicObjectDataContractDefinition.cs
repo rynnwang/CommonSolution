@@ -29,10 +29,10 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectDataContractDefinition"/> class.
+        /// Initializes a new instance of the <see cref="DynamicObjectDataContractDefinition" /> class.
         /// </summary>
         public DynamicObjectDataContractDefinition()
-            : base(ApiContractDataType.DynamicObject)
+                    : base(ApiContractDataType.DynamicObject)
         {
         }
     }

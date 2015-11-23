@@ -133,6 +133,8 @@ namespace ifunction.RestApi
             RuntimeContext runtimeContext = null;
 
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERHANDLETIME, entryStamp.ToFullDateTimeTzString());
+            context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
+
             var acceptEncoding = context.Request.Headers["Accept-Encoding"].SafeToLower();
 
             try

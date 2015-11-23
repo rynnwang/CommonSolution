@@ -273,6 +273,7 @@ namespace ifunction.RestApi
         /// Processes the build in feature.
         /// </summary>
         /// <param name="runtimeContext">The runtime context.</param>
+        /// <param name="isLocalhost">The is localhost.</param>
         /// <returns>System.Object.</returns>
         protected override object ProcessBuildInFeature(RuntimeContext runtimeContext, bool isLocalhost)
         {

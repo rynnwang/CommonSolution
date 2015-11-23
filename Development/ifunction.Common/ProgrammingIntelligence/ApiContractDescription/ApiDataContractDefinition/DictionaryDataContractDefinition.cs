@@ -41,10 +41,10 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectDataContractDefinition"/> class.
+        /// Initializes a new instance of the <see cref="DictionaryDataContractDefinition" /> class.
         /// </summary>
         public DictionaryDataContractDefinition()
-            : base(ApiContractDataType.Dictionary)
+                    : base(ApiContractDataType.Dictionary)
         {
         }
     }
