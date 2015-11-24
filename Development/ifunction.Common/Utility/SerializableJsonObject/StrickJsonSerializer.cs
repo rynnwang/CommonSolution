@@ -30,7 +30,7 @@ namespace ifunction
         /// <param name="indentedFormat">if set to <c>true</c> [indented format].</param>
         /// <param name="ignoreNullFields">if set to <c>true</c> [ignore null fields].</param>
         /// <returns>XElement.</returns>
-        public static string ToJson<T>(this object anyObject, bool indentedFormat = true, bool ignoreNullFields = false)
+        public static string ToStickJson<T>(this object anyObject, bool indentedFormat = true, bool ignoreNullFields = false)
         {
             StringBuilder builder = new StringBuilder();
             JsonWriter writer = new JsonTextWriter(new StringWriter(builder))

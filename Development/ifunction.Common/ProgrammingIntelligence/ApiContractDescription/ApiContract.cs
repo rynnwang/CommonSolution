@@ -367,7 +367,7 @@ namespace Beyova.ProgrammingIntelligence
                     else if (classOrStructType.IsCollection())
                     {
                         var arrayContract = classOrStructType.CreateDataContract<ArrayListDataContractDefinition>();
-                        apiDataContracts.Add(classOrStructType.GetFullName(), arrayContract);
+                        apiDataContracts.Add(arrayContract.UniqueName, arrayContract);
 
                         var valueType = classOrStructType.IsGenericType ? classOrStructType.GetGenericArguments().FirstOrDefault() : typeof(DynamicObject);
 
@@ -378,7 +378,7 @@ namespace Beyova.ProgrammingIntelligence
                     else if (classOrStructType.IsDictionary())
                     {
                         var dictionaryContract = classOrStructType.CreateDataContract<DictionaryDataContractDefinition>();
-                        apiDataContracts.Add(classOrStructType.GetFullName(), dictionaryContract);
+                        apiDataContracts.Add(dictionaryContract.UniqueName, dictionaryContract);
 
                         var genericTypes = classOrStructType.GetGenericArguments();
 
@@ -392,7 +392,7 @@ namespace Beyova.ProgrammingIntelligence
                         var dynamicConract = classOrStructType.CreateDataContract<DynamicObjectDataContractDefinition>();
                         dynamicConract.FillBasicTypeInfo(classOrStructType);
 
-                        apiDataContracts.Add(classOrStructType.GetFullName(), dynamicConract);
+                        apiDataContracts.Add(dynamicConract.GetFullName(), dynamicConract);
                         result = dynamicConract;
                     }
                     else
@@ -432,6 +432,7 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="type">The type.</param>
+        /// <param name="uniqueName">Name of the unique.</param>
         /// <returns>T.</returns>
         private static T CreateDataContract<T>(this Type type) where T : ApiDataContractDefinition, new()
         {
@@ -440,6 +441,7 @@ namespace Beyova.ProgrammingIntelligence
                 var result = new T();
                 result.Name = type.Name;
                 result.Namespace = type.Namespace;
+                result.UniqueName = type.GetFullName();
 
                 return result;
             }
@@ -593,7 +595,7 @@ namespace Beyova.ProgrammingIntelligence
 
                     if (methodInfo.ReturnType != typeof(void))
                     {
-                        result.ReturnValue = null;
+                        result.ReturnValue = methodInfo.ReturnType.ParseToApiDataContractDefinition().AsReference();
                     }
 
                     foreach (var one in methodInfo.GetParameters())
@@ -703,7 +705,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <returns>Beyova.ProgrammingIntelligence.ApiContractReference.</returns>
         internal static ApiContractReference AsReference(this ApiDataContractDefinition definition)
         {
-            return definition == null ? null : new ApiContractReference { ReferenceName = string.Format("{0}.{1}", definition.Namespace, definition.Name).Trim('.') };
+            return definition == null ? null : new ApiContractReference { ReferenceName = definition.UniqueName };
         }
 
         #endregion

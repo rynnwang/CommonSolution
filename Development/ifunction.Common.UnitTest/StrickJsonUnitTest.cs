@@ -43,7 +43,7 @@ namespace ifunction.Common.UnitTest
                 AnotherString = "AString"
             };
 
-            var x = StrickJsonSerializer.ToJson<ClassA>(obj);
+            var x = StrickJsonSerializer.ToStickJson<ClassA>(obj);
             Assert.IsNotNull(x);
 
 

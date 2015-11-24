@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ifunction;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
@@ -10,8 +11,14 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class ApiDataContractDefinition.
     /// </summary>
-    public abstract class ApiDataContractDefinition : AbstractApiContractDescription,ICloneable
+    public abstract class ApiDataContractDefinition : AbstractApiContractDescription, ICloneable
     {
+        /// <summary>
+        /// Gets or sets the name of the unique.
+        /// </summary>
+        /// <value>The name of the unique.</value>
+        public string UniqueName { get; set; }
+
         /// <summary>
         /// Gets or sets the type of the data.
         /// </summary>
@@ -25,8 +32,9 @@ namespace Beyova.ProgrammingIntelligence
         public virtual bool IsNullable { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiDataContractDefinition"/> class.
+        /// Initializes a new instance of the <see cref="ApiDataContractDefinition" /> class.
         /// </summary>
+        /// <param name="dataType">Type of the data.</param>
         protected ApiDataContractDefinition(ApiContractDataType dataType)
             : base(ApiContractType.DataContract)
         {
@@ -39,7 +47,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return string.Format("{0}/{1}", this.Namespace, this.Name);
+            return this.UniqueName.SafeToString(string.Format("{0}.{1}", this.Namespace, this.Name));
         }
 
         /// <summary>

@@ -74,7 +74,10 @@ namespace Beyova.ProgrammingIntelligence
                     break;
                 case ApiContractType.DataContract:
                     var dataType = jsonObject.GetProperty("DataType").Value<ApiContractDataType>();
-                    result = CreateApiDataContractDefinitionInstance(dataType);
+                    var uniqueName = jsonObject.GetProperty("UniqueName").Value<string>();
+                    var dataContractDefinition = CreateApiDataContractDefinitionInstance(dataType);
+                    dataContractDefinition.UniqueName = uniqueName;
+                    result = dataContractDefinition;
                     break;
                 default:
                     break;

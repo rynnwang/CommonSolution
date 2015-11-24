@@ -1064,7 +1064,7 @@ namespace ifunction
         public static string GetFullName(this MethodBase methodBase, Type requiredAttribute = null)
         {
             return (methodBase != null && (requiredAttribute == null || methodBase.GetCustomAttribute(requiredAttribute) != null)) ?
-                string.Format("{0}.{1}", methodBase.GetType().FullName, methodBase.Name)
+                string.Format("{0}.{1}", methodBase.DeclaringType.GetFullName(), methodBase.Name)
                 : string.Empty;
         }
 
@@ -1076,9 +1076,26 @@ namespace ifunction
         /// <returns>System.String.</returns>
         public static string GetFullName(this Type type, Type requiredAttribute = null)
         {
-            return (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null)) ?
-           type.FullName
-            : string.Empty;
+            if (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null))
+            {
+                return type.ToCodeLook(true);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Gets the full name.
+        /// </summary>
+        /// <param name="apiContractDescription">The API contract description.</param>
+        /// <returns>System.String.</returns>
+        public static string GetFullName(this IApiContractDescription apiContractDescription)
+        {
+            return apiContractDescription != null ?
+               string.Format("{0}.{1}", apiContractDescription.Namespace, apiContractDescription.Name)
+               : string.Empty;
         }
 
         #endregion

@@ -19,7 +19,8 @@ namespace ifunction
         public static readonly IsoDateTimeConverter IsoDateTimeConverter = new IsoDateTimeConverter
         {
             DateTimeFormat = CommonExtension.fullDateTimeTZFormat,
-            DateTimeStyles = DateTimeStyles.AdjustToUniversal
+            DateTimeStyles = DateTimeStyles.AdjustToUniversal,
+            Culture = CultureInfo.InvariantCulture
         };
 
         #region Json
@@ -32,9 +33,19 @@ namespace ifunction
         /// <param name="indentedFormat">The indented format.</param>
         /// <param name="converters">The converters.</param>
         /// <returns>System.String.</returns>
-        public static string ToJson(this object anyObject, bool indentedFormat = true, params JsonConverter[] converters)
+        public static string ToJson(this object anyObject, bool indentedFormat, params JsonConverter[] converters)
         {
-            return JsonConvert.SerializeObject(anyObject, indentedFormat ? Formatting.Indented : Formatting.None,converters == null ? IsoDateTimeConverter.AsArray() : converters);
+            return JsonConvert.SerializeObject(anyObject, indentedFormat ? Formatting.Indented : Formatting.None, converters == null ? IsoDateTimeConverter.AsArray() : converters);
+        }
+
+        /// <summary>
+        /// To the json.
+        /// </summary>
+        /// <param name="anyObject">Any object.</param>
+        /// <returns>System.String.</returns>
+        public static string ToJson(this object anyObject)
+        {
+            return JsonConvert.SerializeObject(anyObject, Formatting.Indented, IsoDateTimeConverter.AsArray());
         }
 
         /// <summary>
