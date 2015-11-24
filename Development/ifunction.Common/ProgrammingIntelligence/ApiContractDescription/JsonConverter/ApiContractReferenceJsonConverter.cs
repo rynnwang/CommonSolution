@@ -33,7 +33,7 @@ namespace Beyova.ProgrammingIntelligence
             var jsonObject = JToken.Load(reader);
             return new ApiContractReference
             {
-                ReferenceName = jsonObject.Value<string>()
+                ReferenceName = jsonObject.Value<string>().TrimStart('$')
             };
         }
 
@@ -46,7 +46,7 @@ namespace Beyova.ProgrammingIntelligence
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var reference = value as ApiContractReference;
-            serializer.Serialize(writer, reference?.ReferenceName);
+            serializer.Serialize(writer, "$" + reference?.ReferenceName);
         }
     }
 }

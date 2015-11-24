@@ -10,7 +10,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class ArrayListDataContractDefinition.
     /// </summary>
-    public class ArrayListDataContractDefinition : ApiDataContractDefinition,ICloneable
+    public class ArrayListDataContractDefinition : ApiDataContractDefinition, ICloneable
     {
         /// <summary>
         /// Gets or sets the type of the value.
@@ -54,8 +54,9 @@ namespace Beyova.ProgrammingIntelligence
                 ObsoleteDescription = this.ObsoleteDescription,
                 Name = this.Name,
                 Namespace = this.Namespace,
+                UniqueName = this.UniqueName,
                 IsNullable = this.IsNullable,
-                ValueType=this.ValueType
+                ValueType = this.ValueType
             };
         }
     }

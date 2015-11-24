@@ -61,12 +61,36 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
-        /// To the JToken.
+        /// Writes the json.
         /// </summary>
-        /// <returns>JToken.</returns>
-        public virtual JToken ToJToken()
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        public virtual void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            return this.ToJson();
+            AbstractApiContractDescription contractDefinition = value as AbstractApiContractDescription;
+
+            if (contractDefinition != null)
+            {
+                writer.WriteStartObject();
+
+                writer.WritePropertyName("Namespace");
+                serializer.Serialize(writer, contractDefinition.Namespace);
+
+                writer.WritePropertyName("Name");
+                serializer.Serialize(writer, contractDefinition.Name);
+
+                writer.WritePropertyName("IsObsoleted");
+                serializer.Serialize(writer, contractDefinition.IsObsoleted);
+
+                writer.WritePropertyName("ObsoleteDescription");
+                serializer.Serialize(writer, contractDefinition.ObsoleteDescription);
+
+                writer.WritePropertyName("Type");
+                serializer.Serialize(writer, contractDefinition.Type);
+
+                writer.WriteEndObject();
+            }
         }
 
         /// <summary>
@@ -82,6 +106,6 @@ namespace Beyova.ProgrammingIntelligence
                 this.IsObsoleted = jToken.Value<bool>("IsObsoleted");
                 this.ObsoleteDescription = jToken.Value<string>("ObsoleteDescription");
             }
-        }        
+        }
     }
 }

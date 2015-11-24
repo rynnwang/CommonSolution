@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ifunction
@@ -9,10 +10,12 @@ namespace ifunction
     public interface IJsonSerializable
     {
         /// <summary>
-        /// To the JToken.
+        /// Writes the json.
         /// </summary>
-        /// <returns>JToken.</returns>
-        JToken ToJToken();
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        void WriteJson(JsonWriter writer, object value, JsonSerializer serializer);
 
         /// <summary>
         /// Fills the property values by JToken.

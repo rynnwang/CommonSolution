@@ -47,11 +47,15 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="serializer">The serializer.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            IApiContractDescription apiContract = value as IApiContractDescription;
-            if (apiContract != null)
+            writer.WriteStartObject();
+
+            foreach (var one in value.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Instance))
             {
-                serializer.Serialize(writer, apiContract);
+                writer.WritePropertyName(one.Name);
+                serializer.Serialize(writer, one.GetValue(value));
             }
+
+            writer.WriteEndObject();
         }
 
         /// <summary>
