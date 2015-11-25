@@ -60,7 +60,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="writer">The writer.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The serializer.</param>
-        public void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public virtual void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             AbstractApiContractDescription contractDefinition = value as AbstractApiContractDescription;
 

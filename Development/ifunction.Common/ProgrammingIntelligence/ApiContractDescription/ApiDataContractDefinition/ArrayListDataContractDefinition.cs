@@ -23,7 +23,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Initializes a new instance of the <see cref="ArrayListDataContractDefinition"/> class.
         /// </summary>
         public ArrayListDataContractDefinition()
-            : base(ApiContractDataType.Array, true, true)
+            : base(ApiContractDataType.Array, false, true)
         {
         }
 

@@ -83,6 +83,36 @@ namespace Beyova.ProgrammingIntelligence
         public static SimpleValueTypeDataContractDefinition BinaryDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Binary); } }
 
         /// <summary>
+        /// Writes the json.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var definition = value as SimpleValueTypeDataContractDefinition;
+
+            if (definition != null)
+            {
+                serializer.Serialize(writer, definition.DataType.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Fills the property values by JToken.
+        /// </summary>
+        /// <param name="jToken">The j token.</param>
+        public override void FillPropertyValuesByJToken(JToken jToken)
+        {
+            ApiContractDataType type;
+
+            if (Enum.TryParse<ApiContractDataType>(jToken.Value<string>("DataType"), out type))
+            {
+                this.DataType = type;
+            }
+        }
+
+        /// <summary>
         /// Writes the customized json.
         /// </summary>
         /// <param name="writer">The writer.</param>

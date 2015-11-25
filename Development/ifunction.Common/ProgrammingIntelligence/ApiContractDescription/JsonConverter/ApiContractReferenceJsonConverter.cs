@@ -31,10 +31,10 @@ namespace Beyova.ProgrammingIntelligence
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var jsonObject = JToken.Load(reader);
-            return new ApiContractReference
+            return jsonObject.Type == JTokenType.String ? new ApiContractReference
             {
                 ReferenceName = jsonObject.Value<string>().TrimStart('$')
-            };
+            } : jsonObject.Value<ApiContractReference>();
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Beyova.ProgrammingIntelligence
             var reference = value as ApiContractReference;
             var instance = reference?.ReferenceInstance;
 
-            serializer.Serialize(writer, (instance != null && instance.DataType.DisplayAsReferenceName()) ? ("$" + reference?.ReferenceName) : reference?.ReferenceName);
+            serializer.Serialize(writer, (instance != null && instance.DisplayAsReference) ? ("$" + reference?.ReferenceName) : instance as object);
         }
     }
 }
