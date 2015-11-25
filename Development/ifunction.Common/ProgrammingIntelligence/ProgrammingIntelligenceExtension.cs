@@ -45,16 +45,17 @@ namespace Beyova.ProgrammingIntelligence
                 {
                     return AdjustTypeToDefinitionStandard(type.GetNullableType());
                 }
-                else if (type.IsCollection())
-                {
-                    var genericTypes = type.GetGenericArguments();
-                    var newType = typeof(List<>);
-                    return newType.MakeGenericType(genericTypes);
-                }
+                // Must check dictionary before checking collection
                 else if (type.IsDictionary())
                 {
                     var genericTypes = type.GetGenericArguments();
                     var newType = typeof(Dictionary<,>);
+                    return newType.MakeGenericType(genericTypes);
+                }
+                else if (type.IsCollection())
+                {
+                    var genericTypes = type.GetGenericArguments();
+                    var newType = typeof(List<>);
                     return newType.MakeGenericType(genericTypes);
                 }
                 else if (type.InheritsFrom(typeof(JToken)))

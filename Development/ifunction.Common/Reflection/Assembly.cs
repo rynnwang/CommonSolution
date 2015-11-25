@@ -567,17 +567,18 @@ namespace ifunction
         /// <returns><c>true</c> if the specified type is dictionary; otherwise, <c>false</c>.</returns>
         public static bool IsDictionary(this Type type)
         {
-            return type != null && type.InheritsFrom(typeof(IDictionary<,>));
+            return type != null && type.HasInterface(typeof(IDictionary<,>));
         }
 
         /// <summary>
         /// Determines whether the specified type is collection.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <returns><c>true</c> if the specified type is collection; otherwise, <c>false</c>.</returns>
+        /// <returns>
+        ///   <c>true</c> if the specified type is collection; otherwise, <c>false</c>.</returns>
         public static bool IsCollection(this Type type)
         {
-            return type != null && type.InheritsFrom(typeof(ICollection<>));
+            return type != null && type.HasInterface(typeof(ICollection<>));
         }
 
         /// <summary>
@@ -614,7 +615,9 @@ namespace ifunction
         /// <returns><c>true</c> if inherits from specific type, <c>false</c> otherwise.</returns>
         public static bool InheritsFrom(this Type type, Type inheritedType)
         {
-            return type != null && inheritedType != null && inheritedType.IsAssignableFrom(type);
+            return type != null && inheritedType != null && (inheritedType.IsAssignableFrom(type) || (
+                type.IsGenericType && type.GetGenericTypeDefinition() == inheritedType
+                ));
         }
 
         /// <summary>
@@ -673,6 +676,17 @@ namespace ifunction
         public static bool HasAttribute(this Type type, Attribute attribute, bool inherit = true)
         {
             return type?.GetCustomAttribute(attribute.GetType(), inherit) != null;
+        }
+
+        /// <summary>
+        /// Determines whether the specified type has interface.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="interfaceType">Type of the interface.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool HasInterface(this Type type, Type interfaceType)
+        {
+            return type != null && interfaceType != null && type.GetInterface(interfaceType.Name) != null;
         }
 
         /// <summary>
@@ -1079,7 +1093,7 @@ namespace ifunction
         {
             if (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null))
             {
-                return type.ToCodeLook(false, ":");
+                return type.ToCodeLook(true, ".");
             }
             else
             {

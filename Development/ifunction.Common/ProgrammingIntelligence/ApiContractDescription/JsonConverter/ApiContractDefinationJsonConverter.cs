@@ -47,18 +47,24 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="serializer">The serializer.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            writer.WriteStartObject();
+            var jsonSerializable = value as IJsonSerializable;
 
-            foreach (var one in value.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Instance))
+            if (jsonSerializable != null)
             {
-                if (one.Name != "Namespace")
+                jsonSerializable.WriteJson(writer, value, serializer);
+            }
+            else
+            {
+                writer.WriteStartObject();
+
+                foreach (var one in value.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Instance))
                 {
                     writer.WritePropertyName(one.Name);
                     serializer.Serialize(writer, one.GetValue(value));
                 }
-            }
 
-            writer.WriteEndObject();
+                writer.WriteEndObject();
+            }
         }
 
         /// <summary>
@@ -81,9 +87,7 @@ namespace Beyova.ProgrammingIntelligence
                     break;
                 case ApiContractType.DataContract:
                     var dataType = jsonObject.GetProperty("DataType").Value<ApiContractDataType>();
-                    var uniqueName = jsonObject.GetProperty("UniqueName").Value<string>();
                     var dataContractDefinition = CreateApiDataContractDefinitionInstance(dataType);
-                    dataContractDefinition.UniqueName = uniqueName;
                     result = dataContractDefinition;
                     break;
                 default:
@@ -117,7 +121,7 @@ namespace Beyova.ProgrammingIntelligence
                         result = new ComplexObjectDataContractDefinition();
                         break;
                     case ApiContractDataType.DynamicObject:
-                        result = new DynamicObjectDataContractDefinition();
+                        result = DynamicObjectDataContractDefinition.GetDynamicObjectDataContractDefinition();
                         break;
                     case ApiContractDataType.Dictionary:
                         result = new DictionaryDataContractDefinition();
@@ -132,7 +136,7 @@ namespace Beyova.ProgrammingIntelligence
                     case ApiContractDataType.String:
                     case ApiContractDataType.TimeSpan:
                     case ApiContractDataType.Uri:
-                        result = new SimpleValueTypeDataContractDefinition(dataType);
+                        result = ApiContract.GetSimpleValueTypeDataContractDefinition(dataType);
                         break;
                     case ApiContractDataType.Undefined:
                     default:

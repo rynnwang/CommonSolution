@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
@@ -10,14 +11,14 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class SimpleValueTypeDataContractDefinition.
     /// </summary>
-    public class SimpleValueTypeDataContractDefinition : ApiDataContractDefinition, ICloneable
+    public class SimpleValueTypeDataContractDefinition : ApiDataContractDefinition
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SimpleValueTypeDataContractDefinition" /> class.
         /// </summary>
         /// <param name="contractType">Type of the contract.</param>
-        internal SimpleValueTypeDataContractDefinition(ApiContractDataType contractType)
-            : base(contractType)
+        protected SimpleValueTypeDataContractDefinition(ApiContractDataType contractType)
+            : base(contractType, false, true)
         {
         }
 
@@ -25,7 +26,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets the string data contract definition.
         /// </summary>
         /// <value>The string data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition StringDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.String) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition StringDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.String); } }
 
         /// <summary>
         /// Gets the integer data contract definition.
@@ -37,43 +38,43 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets the float data contract definition.
         /// </summary>
         /// <value>The float data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition FloatDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Float) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition FloatDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Float); } }
 
         /// <summary>
         /// Gets the unique identifier data contract definition.
         /// </summary>
         /// <value>The unique identifier data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition GuidDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Guid) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition GuidDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Guid); } }
 
         /// <summary>
         /// Gets the URI data contract definition.
         /// </summary>
         /// <value>The URI data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition UriDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Uri) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition UriDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Uri); } }
 
         /// <summary>
         /// Gets the date time data contract definition.
         /// </summary>
         /// <value>The date time data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition DateTimeDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.DateTime) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition DateTimeDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.DateTime); } }
 
         /// <summary>
         /// Gets the boolean data contract definition.
         /// </summary>
         /// <value>The boolean data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition BooleanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Boolean) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition BooleanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Boolean); } }
 
         /// <summary>
         /// Gets the decimal data contract definition.
         /// </summary>
         /// <value>The decimal data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition DecimalDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Decimal) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition DecimalDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Decimal); } }
 
         /// <summary>
         /// Gets the time span data contract definition.
         /// </summary>
         /// <value>The time span data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition TimeSpanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.TimeSpan) { IsNullable = true }; } }
+        public static SimpleValueTypeDataContractDefinition TimeSpanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.TimeSpan); } }
 
         /// <summary>
         /// Gets the binary data contract definition.
@@ -81,23 +82,15 @@ namespace Beyova.ProgrammingIntelligence
         /// <value>The binary data contract definition.</value>
         public static SimpleValueTypeDataContractDefinition BinaryDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Binary); } }
 
-
         /// <summary>
-        /// Creates a new object that is a copy of the current instance.
+        /// Writes the customized json.
         /// </summary>
-        /// <returns>A new object that is a copy of this instance.</returns>
-        public override object Clone()
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        protected override void WriteCustomizedJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            return new SimpleValueTypeDataContractDefinition(this.DataType)
-            {
-                IsObsoleted = this.IsObsoleted,
-                ObsoleteDescription = this.ObsoleteDescription,
-                Name = this.Name,
-                UniqueName = this.UniqueName,
-                Namespace = this.Namespace,
-                Type = this.Type,
-                IsNullable = this.IsNullable
-            };
+            //Do nothing
         }
     }
 }

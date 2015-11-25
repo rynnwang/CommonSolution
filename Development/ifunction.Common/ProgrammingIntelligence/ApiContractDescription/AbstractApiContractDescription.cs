@@ -23,7 +23,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets or sets the namespace.
         /// </summary>
         /// <value>The namespace.</value>
-        public string Namespace { get; set; }
+        public virtual string Namespace { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the primary.
@@ -36,12 +36,6 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         /// <value>The type.</value>
         public ApiContractType Type { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this instance is obsoleted.
-        /// </summary>
-        /// <value><c>true</c> if this instance is obsoleted; otherwise, <c>false</c>.</value>
-        public bool IsObsoleted { get; set; }
 
         /// <summary>
         /// Gets or sets the obsolete description.
@@ -66,7 +60,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="writer">The writer.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The serializer.</param>
-        public virtual void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             AbstractApiContractDescription contractDefinition = value as AbstractApiContractDescription;
 
@@ -80,18 +74,25 @@ namespace Beyova.ProgrammingIntelligence
                 writer.WritePropertyName("Name");
                 serializer.Serialize(writer, contractDefinition.Name);
 
-                writer.WritePropertyName("IsObsoleted");
-                serializer.Serialize(writer, contractDefinition.IsObsoleted);
-
                 writer.WritePropertyName("ObsoleteDescription");
                 serializer.Serialize(writer, contractDefinition.ObsoleteDescription);
 
                 writer.WritePropertyName("Type");
                 serializer.Serialize(writer, contractDefinition.Type);
 
+                WriteCustomizedJson(writer, value, serializer);
+
                 writer.WriteEndObject();
             }
         }
+
+        /// <summary>
+        /// Writes the customized json.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        protected abstract void WriteCustomizedJson(JsonWriter writer, object value, JsonSerializer serializer);
 
         /// <summary>
         /// Fills the property values by JToken.
@@ -103,7 +104,6 @@ namespace Beyova.ProgrammingIntelligence
             {
                 this.Namespace = jToken.Value<string>("Namespace");
                 this.Name = jToken.Value<string>("Name");
-                this.IsObsoleted = jToken.Value<bool>("IsObsoleted");
                 this.ObsoleteDescription = jToken.Value<string>("ObsoleteDescription");
             }
         }

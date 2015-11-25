@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
 {
@@ -42,6 +44,45 @@ namespace Beyova.ProgrammingIntelligence
             : base(ApiContractType.ApiOperation)
         {
             this.Parameters = new Dictionary<string, ApiContractReference>();
+        }
+
+        /// <summary>
+        /// Writes the customized json.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        protected override void WriteCustomizedJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            ApiOperationDefinition definition = value as ApiOperationDefinition;
+
+            if (definition != null)
+            {
+                writer.WritePropertyName("TokenRequired");
+                serializer.Serialize(writer, definition.TokenRequired);
+
+                writer.WritePropertyName("Description");
+                serializer.Serialize(writer, definition.Description);
+
+                writer.WritePropertyName("ReturnValue");
+                serializer.Serialize(writer, definition.ReturnValue);
+
+                writer.WritePropertyName("Parameters");
+                serializer.Serialize(writer, definition.Parameters);
+            }
+        }
+
+        /// <summary>
+        /// Fills the property values by JToken.
+        /// </summary>
+        /// <param name="jToken">The j token.</param>
+        public override void FillPropertyValuesByJToken(JToken jToken)
+        {
+            base.FillPropertyValuesByJToken(jToken);
+            this.TokenRequired = jToken.Value<bool?>("TokenRequired");
+            this.Description = jToken.Value<List<string>>("Description");
+            this.ReturnValue = jToken.Value<ApiContractReference>("ReturnValue");
+            this.Parameters = jToken.Value<Dictionary<string, ApiContractReference>>("Parameters");
         }
     }
 }

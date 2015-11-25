@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ifunction;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
@@ -11,13 +12,29 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class ApiDataContractDefinition.
     /// </summary>
-    public abstract class ApiDataContractDefinition : AbstractApiContractDescription, ICloneable
+    public abstract class ApiDataContractDefinition : AbstractApiContractDescription
     {
         /// <summary>
-        /// Gets or sets the name of the unique.
+        /// The _namespace
         /// </summary>
-        /// <value>The name of the unique.</value>
-        public string UniqueName { get; set; }
+        protected string _namespace;
+
+        /// <summary>
+        /// Gets or sets the namespace.
+        /// </summary>
+        /// <value>The namespace.</value>
+        public override string Namespace
+        {
+            get
+            {
+                return this.OmitNamespace ? null : _namespace.SafeToString();
+            }
+
+            set
+            {
+                this._namespace = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the type of the data.
@@ -26,19 +43,30 @@ namespace Beyova.ProgrammingIntelligence
         public ApiContractDataType DataType { get; protected set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance is nullable.
+        /// Gets or sets a value indicating whether [display as reference].
         /// </summary>
-        /// <value><c>true</c> if this instance is nullable; otherwise, <c>false</c>.</value>
-        public virtual bool IsNullable { get; set; }
+        /// <value><c>true</c> if [display as reference]; otherwise, <c>false</c>.</value>
+        [JsonIgnore]
+        public bool DisplayAsReference { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [omit namespace].
+        /// </summary>
+        /// <value><c>true</c> if [omit namespace]; otherwise, <c>false</c>.</value>
+        [JsonIgnore]
+        public bool OmitNamespace { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiDataContractDefinition" /> class.
         /// </summary>
         /// <param name="dataType">Type of the data.</param>
-        protected ApiDataContractDefinition(ApiContractDataType dataType)
+        /// <param name="displayAsReference">if set to <c>true</c> [display as reference].</param>
+        protected ApiDataContractDefinition(ApiContractDataType dataType, bool displayAsReference, bool omitNamespace)
             : base(ApiContractType.DataContract)
         {
             this.DataType = dataType;
+            this.DisplayAsReference = displayAsReference;
+            this.OmitNamespace = omitNamespace;
         }
 
         /// <summary>
@@ -47,7 +75,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return this.UniqueName.SafeToString(string.Format("{0}.{1}", this.Namespace, this.Name));
+            return OmitNamespace ? this.DataType.ToString() : string.Format("{0}.{1}", this.Namespace, this.Name);
         }
 
         /// <summary>
@@ -76,13 +104,6 @@ namespace Beyova.ProgrammingIntelligence
         public override void FillPropertyValuesByJToken(JToken jToken)
         {
             base.FillPropertyValuesByJToken(jToken);
-            this.IsNullable = jToken.Value<bool>("IsNullable");
         }
-
-        /// <summary>
-        /// Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>A new object that is a copy of this instance.</returns>
-        public abstract object Clone();
     }
 }

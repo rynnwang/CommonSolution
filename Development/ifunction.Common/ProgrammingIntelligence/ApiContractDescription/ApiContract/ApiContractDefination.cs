@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
@@ -53,6 +54,37 @@ namespace Beyova.ProgrammingIntelligence
         public override void FillPropertyValuesByJToken(JToken jToken)
         {
             base.FillPropertyValuesByJToken(jToken);
+            this.Version = jToken.Value<string>("Version");
+            this.TokenRequired = jToken.Value<bool?>("TokenRequired");
+
+            this.ApiDataContracts = jToken.Value<List<ApiDataContractDefinition>>("ApiDataContracts");
+            this.ApiOperations = jToken.Value<List<ApiOperationDefinition>>("ApiOperations");
+        }
+
+        /// <summary>
+        /// Writes the customized json.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        protected override void WriteCustomizedJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            ApiContractDefinition definition = value as ApiContractDefinition;
+
+            if (definition != null)
+            {
+                writer.WritePropertyName("TokenRequired");
+                serializer.Serialize(writer, definition.TokenRequired);
+
+                writer.WritePropertyName("Version");
+                serializer.Serialize(writer, definition.Version);
+
+                writer.WritePropertyName("ApiDataContracts");
+                serializer.Serialize(writer, definition.ApiDataContracts);
+
+                writer.WritePropertyName("ApiOperations");
+                serializer.Serialize(writer, definition.ApiOperations);
+            }
         }
     }
 }

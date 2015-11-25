@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
@@ -10,7 +11,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class EnumDataContractDefinition.
     /// </summary>
-    public class EnumDataContractDefinition : ApiDataContractDefinition, ICloneable
+    public class EnumDataContractDefinition : ApiDataContractDefinition
     {
         /// <summary>
         /// Gets or sets the enum values.
@@ -22,26 +23,35 @@ namespace Beyova.ProgrammingIntelligence
         /// Initializes a new instance of the <see cref="EnumDataContractDefinition"/> class.
         /// </summary>
         public EnumDataContractDefinition()
-            : base(ApiContractDataType.Enum)
+            : base(ApiContractDataType.Enum, true, false)
         {
         }
 
         /// <summary>
-        /// Creates a new object that is a copy of the current instance.
+        /// Writes the customized json.
         /// </summary>
-        /// <returns>A new object that is a copy of this instance.</returns>
-        public override object Clone()
+        /// <param name="writer">The writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The serializer.</param>
+        protected override void WriteCustomizedJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            return new EnumDataContractDefinition
+            EnumDataContractDefinition definition = value as EnumDataContractDefinition;
+
+            if (definition != null)
             {
-                IsObsoleted = this.IsObsoleted,
-                ObsoleteDescription = this.ObsoleteDescription,
-                Name = this.Name,
-                UniqueName = this.UniqueName,
-                Namespace = this.Namespace,
-                Type = this.Type,
-                IsNullable = this.IsNullable
-            };
+                writer.WritePropertyName("EnumValues");
+                serializer.Serialize(writer, definition.EnumValues);
+            }
+        }
+
+        /// <summary>
+        /// Fills the property values by JToken.
+        /// </summary>
+        /// <param name="jToken">The j token.</param>
+        public override void FillPropertyValuesByJToken(JToken jToken)
+        {
+            base.FillPropertyValuesByJToken(jToken);
+            this.EnumValues = jToken.Value<Dictionary<long, string>>("EnumValues");
         }
     }
 }
