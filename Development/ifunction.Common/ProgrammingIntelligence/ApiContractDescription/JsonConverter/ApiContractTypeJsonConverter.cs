@@ -50,8 +50,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="serializer">The serializer.</param>
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var enumValue = value as IConvertible;
-            serializer.Serialize(writer, enumValue.ToInt64(CultureInfo.InvariantCulture));
+            serializer.Serialize(writer, value.ToString());
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Enum ApiContractType
     /// </summary>
-    [JsonConverter(typeof(ApiContractType))]
+    [JsonConverter(typeof(ApiContractTypeJsonConverter))]
     public enum ApiContractType
     {
         /// <summary>

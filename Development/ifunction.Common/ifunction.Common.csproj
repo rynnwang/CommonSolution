@@ -115,6 +115,8 @@
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiContract.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiContractReference.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\IApiContractDescription.cs" />
+    <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractTypeJsonConverter.cs" />
+    <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractDataTypeJsonConverter.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractReferenceJsonConverter.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractDefinationJsonConverter.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiDataContractDefinition\DictionaryDataContractDefinition.cs" />

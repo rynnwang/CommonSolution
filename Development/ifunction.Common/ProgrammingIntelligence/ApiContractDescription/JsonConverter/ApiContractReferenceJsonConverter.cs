@@ -46,7 +46,9 @@ namespace Beyova.ProgrammingIntelligence
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var reference = value as ApiContractReference;
-            serializer.Serialize(writer, "$" + reference?.ReferenceName);
+            var instance = reference?.ReferenceInstance;
+
+            serializer.Serialize(writer, (instance != null && instance.DataType.DisplayAsReferenceName()) ? ("$" + reference?.ReferenceName) : reference?.ReferenceName);
         }
     }
 }

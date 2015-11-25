@@ -51,8 +51,11 @@ namespace Beyova.ProgrammingIntelligence
 
             foreach (var one in value.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.Instance))
             {
-                writer.WritePropertyName(one.Name);
-                serializer.Serialize(writer, one.GetValue(value));
+                if (one.Name != "Namespace")
+                {
+                    writer.WritePropertyName(one.Name);
+                    serializer.Serialize(writer, one.GetValue(value));
+                }
             }
 
             writer.WriteEndObject();
