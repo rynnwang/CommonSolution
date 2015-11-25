@@ -47,6 +47,7 @@ namespace Beyova.ProgrammingIntelligence
                 IsObsoleted = this.IsObsoleted,
                 ObsoleteDescription = this.ObsoleteDescription,
                 Name = this.Name,
+                UniqueName = this.UniqueName,
                 Namespace = this.Namespace,
                 IsNullable = this.IsNullable
             };

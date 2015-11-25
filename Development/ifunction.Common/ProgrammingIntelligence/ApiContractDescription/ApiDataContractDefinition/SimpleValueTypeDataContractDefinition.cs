@@ -37,43 +37,43 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets the float data contract definition.
         /// </summary>
         /// <value>The float data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition FloatDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Float); } }
+        public static SimpleValueTypeDataContractDefinition FloatDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Float) { IsNullable = true }; } }
 
         /// <summary>
         /// Gets the unique identifier data contract definition.
         /// </summary>
         /// <value>The unique identifier data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition GuidDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Guid); } }
+        public static SimpleValueTypeDataContractDefinition GuidDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Guid) { IsNullable = true }; } }
 
         /// <summary>
         /// Gets the URI data contract definition.
         /// </summary>
         /// <value>The URI data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition UriDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Uri); } }
+        public static SimpleValueTypeDataContractDefinition UriDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Uri) { IsNullable = true }; } }
 
         /// <summary>
         /// Gets the date time data contract definition.
         /// </summary>
         /// <value>The date time data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition DateTimeDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.DateTime); } }
+        public static SimpleValueTypeDataContractDefinition DateTimeDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.DateTime) { IsNullable = true }; } }
 
         /// <summary>
         /// Gets the boolean data contract definition.
         /// </summary>
         /// <value>The boolean data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition BooleanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Boolean); } }
+        public static SimpleValueTypeDataContractDefinition BooleanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Boolean) { IsNullable = true }; } }
 
         /// <summary>
         /// Gets the decimal data contract definition.
         /// </summary>
         /// <value>The decimal data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition DecimalDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Decimal); } }
+        public static SimpleValueTypeDataContractDefinition DecimalDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Decimal) { IsNullable = true }; } }
 
         /// <summary>
         /// Gets the time span data contract definition.
         /// </summary>
         /// <value>The time span data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition TimeSpanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.TimeSpan); } }
+        public static SimpleValueTypeDataContractDefinition TimeSpanDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.TimeSpan) { IsNullable = true }; } }
 
         /// <summary>
         /// Gets the binary data contract definition.
@@ -93,6 +93,7 @@ namespace Beyova.ProgrammingIntelligence
                 IsObsoleted = this.IsObsoleted,
                 ObsoleteDescription = this.ObsoleteDescription,
                 Name = this.Name,
+                UniqueName = this.UniqueName,
                 Namespace = this.Namespace,
                 Type = this.Type,
                 IsNullable = this.IsNullable

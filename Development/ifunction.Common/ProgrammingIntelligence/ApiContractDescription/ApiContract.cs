@@ -313,6 +313,15 @@ namespace Beyova.ProgrammingIntelligence
                         apiDataContracts.Add(classOrStructType.GetFullName(), result);
                         return result;
                     }
+                    else if (classOrStructType.IsEnum)
+                    {
+                        var enumDataContractDefinition = classOrStructType.CreateDataContract<EnumDataContractDefinition>();
+                        enumDataContractDefinition.FillBasicTypeInfo(classOrStructType);
+
+                        apiDataContracts.Add(enumDataContractDefinition.UniqueName, enumDataContractDefinition);
+
+                        return enumDataContractDefinition;
+                    }
                     else if (classOrStructType.IsSimpleType())
                     {
                         ApiContractDataType dataType = ApiContractDataType.Undefined;
@@ -360,7 +369,8 @@ namespace Beyova.ProgrammingIntelligence
 
                         var simpleValueTypeDataContractDefinition = new SimpleValueTypeDataContractDefinition(dataType);
                         simpleValueTypeDataContractDefinition.FillBasicTypeInfo(classOrStructType);
-                        apiDataContracts.Add(classOrStructType.GetFullName(), simpleValueTypeDataContractDefinition);
+                        simpleValueTypeDataContractDefinition.UniqueName = classOrStructType.GetFullName();
+                        apiDataContracts.Add(simpleValueTypeDataContractDefinition.UniqueName, simpleValueTypeDataContractDefinition);
 
                         return simpleValueTypeDataContractDefinition;
                     }
