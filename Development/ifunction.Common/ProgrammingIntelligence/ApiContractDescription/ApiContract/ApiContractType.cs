@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ifunction;
+using Newtonsoft.Json;
 
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
     /// Enum ApiContractType
     /// </summary>
+    [JsonConverter(typeof(ApiContractType))]
     public enum ApiContractType
     {
         /// <summary>

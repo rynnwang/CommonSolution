@@ -53,7 +53,7 @@ namespace Beyova.ProgrammingIntelligence
 
                         if (apiContract != null)
                         {
-                            apiContracts.Add(type.GetFullName(), apiContract);
+                            apiContracts.Add(type.GetContractDefinitionFullName(), apiContract);
                         }
                     }
                 }
@@ -105,7 +105,7 @@ namespace Beyova.ProgrammingIntelligence
 
             if (interfaceOrInstanceType != null)
             {
-                var fullName = interfaceOrInstanceType.GetFullName();
+                var fullName = interfaceOrInstanceType.GetContractDefinitionFullName();
 
                 if (!apiContracts.ContainsKey(fullName))
                 {
@@ -143,7 +143,7 @@ namespace Beyova.ProgrammingIntelligence
 
             if (classOrStructType != null)
             {
-                var fullName = classOrStructType.GetFullName();
+                var fullName = classOrStructType.GetContractDefinitionFullName();
                 if (!apiDataContracts.ContainsKey(fullName))
                 {
                     lock (lockerForSet)
@@ -290,7 +290,12 @@ namespace Beyova.ProgrammingIntelligence
             {
                 ApiDataContractDefinition result = null;
 
-                if (apiDataContracts.TryGetValue(classOrStructType.GetFullName(), out result))
+                if (classOrStructType.IsNullable())
+                {
+                    return InitializeApiDataContractDefinition(classOrStructType.GetNullableType());
+                }
+
+                if (apiDataContracts.TryGetValue(classOrStructType.GetContractDefinitionFullName(), out result))
                 {
                     return result;
                 }
@@ -299,21 +304,13 @@ namespace Beyova.ProgrammingIntelligence
                 {
                     return null;
                 }
-                else if (apiDataContracts.TryGetValue(classOrStructType.GetFullName(), out result))
+                else if (apiDataContracts.TryGetValue(classOrStructType.GetContractDefinitionFullName(), out result))
                 {
                     return result;
                 }
                 else
                 {
-                    if (classOrStructType.IsNullable())
-                    {
-                        result = InitializeApiDataContractDefinition(classOrStructType.GetNullableType()).Clone() as ApiDataContractDefinition;
-
-                        result.IsNullable = true;
-                        apiDataContracts.Add(classOrStructType.GetFullName(), result);
-                        return result;
-                    }
-                    else if (classOrStructType.IsEnum)
+                    if (classOrStructType.IsEnum)
                     {
                         var enumDataContractDefinition = classOrStructType.CreateDataContract<EnumDataContractDefinition>();
                         enumDataContractDefinition.FillBasicTypeInfo(classOrStructType);
@@ -369,7 +366,7 @@ namespace Beyova.ProgrammingIntelligence
 
                         var simpleValueTypeDataContractDefinition = new SimpleValueTypeDataContractDefinition(dataType);
                         simpleValueTypeDataContractDefinition.FillBasicTypeInfo(classOrStructType);
-                        simpleValueTypeDataContractDefinition.UniqueName = classOrStructType.GetFullName();
+                        simpleValueTypeDataContractDefinition.UniqueName = classOrStructType.GetContractDefinitionFullName();
                         apiDataContracts.Add(simpleValueTypeDataContractDefinition.UniqueName, simpleValueTypeDataContractDefinition);
 
                         return simpleValueTypeDataContractDefinition;
@@ -410,7 +407,7 @@ namespace Beyova.ProgrammingIntelligence
                         var complexObjectContract = classOrStructType.CreateDataContract<ComplexObjectDataContractDefinition>();
                         complexObjectContract.FillBasicTypeInfo(classOrStructType);
 
-                        apiDataContracts.Add(classOrStructType.GetFullName(), complexObjectContract);
+                        apiDataContracts.Add(classOrStructType.GetContractDefinitionFullName(), complexObjectContract);
 
                         foreach (var field in classOrStructType.GetActualAffectedFields())
                         {
@@ -442,7 +439,6 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="type">The type.</param>
-        /// <param name="uniqueName">Name of the unique.</param>
         /// <returns>T.</returns>
         private static T CreateDataContract<T>(this Type type) where T : ApiDataContractDefinition, new()
         {
@@ -451,7 +447,7 @@ namespace Beyova.ProgrammingIntelligence
                 var result = new T();
                 result.Name = type.Name;
                 result.Namespace = type.Namespace;
-                result.UniqueName = type.GetFullName();
+                result.UniqueName = type.GetContractDefinitionFullName();
 
                 return result;
             }
@@ -544,16 +540,6 @@ namespace Beyova.ProgrammingIntelligence
             }
 
             return operationDefinition;
-        }
-
-        /// <summary>
-        /// Gets the name of the API operation unique.
-        /// </summary>
-        /// <param name="apiMethod">The API method.</param>
-        /// <returns>System.String.</returns>
-        internal static string GetApiOperationUniqueName(this MethodInfo apiMethod)
-        {
-            return apiMethod.GetFullName();
         }
 
         /// <summary>

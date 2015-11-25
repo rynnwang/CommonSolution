@@ -680,8 +680,9 @@ namespace ifunction
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="includingNamespace">The including namespace.</param>
+        /// <param name="seperator">The seperator.</param>
         /// <returns>System.String.</returns>
-        public static string ToCodeLook(this Type type, bool includingNamespace = false)
+        public static string ToCodeLook(this Type type, bool includingNamespace = false, string seperator = ".")
         {
             string result = string.Empty;
 
@@ -703,7 +704,7 @@ namespace ifunction
                         builder.RemoveLast();
                     }
                     result = includingNamespace ?
-                            string.Format("{0}.{1}<{2}>", type.Namespace, type.Name.SubStringBeforeFirstMatch('`'), builder) :
+                            string.Format("{0}{1}{2}<{3}>", type.Namespace, seperator, type.Name.SubStringBeforeFirstMatch('`'), builder) :
                             string.Format("{0}<{1}>", type.Name.SubStringBeforeFirstMatch('`'), builder);
                 }
                 else
@@ -1078,7 +1079,38 @@ namespace ifunction
         {
             if (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null))
             {
-                return type.ToCodeLook(true);
+                return type.ToCodeLook(false, ":");
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Gets the full name of the contract definition.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="requiredAttribute">The required attribute.</param>
+        /// <returns>System.String.</returns>
+        public static string GetContractDefinitionFullName(this Type type, Type requiredAttribute = null)
+        {
+            if (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null))
+            {
+                if (type.IsCollection())
+                {
+                    var genericTypes = type.GetGenericArguments();
+                    type = typeof(List<>);
+                    type.MakeGenericType(genericTypes);
+                }
+                else if (type.IsDictionary())
+                {
+                    var genericTypes = type.GetGenericArguments();
+                    type = typeof(Dictionary<,>);
+                    type.MakeGenericType(genericTypes);
+                }
+
+                return type.ToCodeLook(false, ":");
             }
             else
             {
