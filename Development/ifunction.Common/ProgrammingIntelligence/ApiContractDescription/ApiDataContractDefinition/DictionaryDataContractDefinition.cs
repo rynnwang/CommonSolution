@@ -17,13 +17,13 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets or sets the type of the key.
         /// </summary>
         /// <value>The type of the key.</value>
-        public ApiContractReference KeyType { get; set; }
+        public ApiDataContractDefinition KeyType { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the value.
         /// </summary>
         /// <value>The type of the value.</value>
-        public ApiContractReference ValueType { get; set; }
+        public ApiDataContractDefinition ValueType { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionaryDataContractDefinition" /> class.
@@ -60,8 +60,8 @@ namespace Beyova.ProgrammingIntelligence
         {
             base.FillPropertyValuesByJToken(jToken);
 
-            this.KeyType = jToken.Value<ApiContractReference>("KeyType");
-            this.ValueType = jToken.Value<ApiContractReference>("ValueType");
+            this.KeyType = jToken.Value<ApiDataContractDefinition>("KeyType");
+            this.ValueType = jToken.Value<ApiDataContractDefinition>("ValueType");
         }
     }
 }

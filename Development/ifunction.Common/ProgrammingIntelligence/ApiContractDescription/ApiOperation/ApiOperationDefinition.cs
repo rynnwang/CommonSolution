@@ -17,13 +17,13 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets or sets the parameters.
         /// </summary>
         /// <value>The parameters.</value>
-        public Dictionary<string, ApiContractReference> Parameters { get; set; }
+        public Dictionary<string, ApiDataContractDefinition> Parameters { get; set; }
 
         /// <summary>
         /// Gets or sets the return value.
         /// </summary>
         /// <value>The return value.</value>
-        public ApiContractReference ReturnValue { get; set; }
+        public ApiDataContractDefinition ReturnValue { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [token required].
@@ -41,9 +41,9 @@ namespace Beyova.ProgrammingIntelligence
         /// Initializes a new instance of the <see cref="ApiOperationDefinition"/> class.
         /// </summary>
         public ApiOperationDefinition()
-            : base(ApiContractType.ApiOperation)
+            : base()
         {
-            this.Parameters = new Dictionary<string, ApiContractReference>();
+            this.Parameters = new Dictionary<string, ApiDataContractDefinition>();
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace Beyova.ProgrammingIntelligence
             base.FillPropertyValuesByJToken(jToken);
             this.TokenRequired = jToken.Value<bool?>("TokenRequired");
             this.Description = jToken.Value<List<string>>("Description");
-            this.ReturnValue = jToken.Value<ApiContractReference>("ReturnValue");
-            this.Parameters = jToken.Value<Dictionary<string, ApiContractReference>>("Parameters");
+            this.ReturnValue = jToken.Value<ApiDataContractDefinition>("ReturnValue");
+            this.Parameters = jToken.Value<Dictionary<string, ApiDataContractDefinition>>("Parameters");
         }
     }
 }

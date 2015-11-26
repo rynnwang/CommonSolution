@@ -18,6 +18,7 @@ namespace ifunction.AutoConfigurator
             }
             string folder = args[0];
             string configuration = args[1];
+
             try
             {
                 Run(args[0], args[1]);

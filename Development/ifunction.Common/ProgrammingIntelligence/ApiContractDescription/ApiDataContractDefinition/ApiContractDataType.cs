@@ -27,9 +27,9 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         Integer = 2,
         /// <summary>
-        /// Value indicating it is float
+        /// Value indicating it is single
         /// </summary>
-        Float = 3,
+        Single = 3,
         /// <summary>
         /// Value indicating it is decimal
         /// </summary>

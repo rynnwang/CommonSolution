@@ -32,24 +32,21 @@ namespace ifunction.Configuration
             /// </summary>
             /// <value>The source.</value>
             public string Source { get; set; }
+
+            /// <summary>
+            /// Gets or sets the assembly.
+            /// </summary>
+            /// <value>The assembly.</value>
+            public string Assembly { get; set; }
+
+            /// <summary>
+            /// Gets or sets the name.
+            /// </summary>
+            /// <value>The name.</value>
+            public string Name { get; set; }
         }
 
         #region Constants
-
-        /// <summary>
-        /// The XML node_ root node name
-        /// </summary>
-        public const string Node_RootNodeName = "Configurations";
-
-        /// <summary>
-        /// The XML node_ object item
-        /// </summary>
-        public const string Node_ObjectItem = "Object";
-
-        /// <summary>
-        /// The XML node_ method item
-        /// </summary>
-        public const string Node_MethodItem = "Method";
 
         /// <summary>
         /// The XML attribute_ type

@@ -17,7 +17,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets or sets the type of the value.
         /// </summary>
         /// <value>The type of the value.</value>
-        public ApiContractReference ValueType { get; set; }
+        public ApiDataContractDefinition ValueType { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ArrayListDataContractDefinition"/> class.
@@ -51,7 +51,7 @@ namespace Beyova.ProgrammingIntelligence
         public override void FillPropertyValuesByJToken(JToken jToken)
         {
             base.FillPropertyValuesByJToken(jToken);
-            this.ValueType = jToken.Value<ApiContractReference>("ValueType");
+            this.ValueType = jToken.Value<ApiDataContractDefinition>("ValueType");
         }
     }
 }

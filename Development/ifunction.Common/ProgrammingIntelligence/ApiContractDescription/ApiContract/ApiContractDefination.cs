@@ -41,7 +41,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Initializes a new instance of the <see cref="ApiContractDefinition"/> class.
         /// </summary>
         public ApiContractDefinition()
-            : base(ApiContractType.ApiContract)
+            : base()
         {
             this.ApiOperations = new List<ApiOperationDefinition>();
             this.ApiDataContracts = new List<ApiDataContractDefinition>();

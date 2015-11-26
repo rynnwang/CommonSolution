@@ -14,8 +14,7 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class AbstractApiContractDescription.
     /// </summary>
-    [JsonConverter(typeof(ApiContractDefinitionJsonConverter))]
-    public abstract class AbstractApiContractDescription : IApiContractDescription, IJsonSerializable
+    public abstract class AbstractApiContractDescription : IJsonSerializable
     {
         #region Properties
 
@@ -29,13 +28,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets or sets the name of the primary.
         /// </summary>
         /// <value>The name of the primary.</value>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type.
-        /// </summary>
-        /// <value>The type.</value>
-        public ApiContractType Type { get; protected set; }
+        public virtual string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the obsolete description.
@@ -44,15 +37,6 @@ namespace Beyova.ProgrammingIntelligence
         public string ObsoleteDescription { get; set; }
 
         #endregion
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AbstractApiContractDescription"/> class.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        protected AbstractApiContractDescription(ApiContractType type)
-        {
-            this.Type = type;
-        }
 
         /// <summary>
         /// Writes the json.
@@ -68,17 +52,17 @@ namespace Beyova.ProgrammingIntelligence
             {
                 writer.WriteStartObject();
 
-                writer.WritePropertyName("Namespace");
-                serializer.Serialize(writer, contractDefinition.Namespace);
+                if (!string.IsNullOrWhiteSpace(contractDefinition.Namespace))
+                {
+                    writer.WritePropertyName("Namespace");
+                    serializer.Serialize(writer, contractDefinition.Namespace);
+                }
 
                 writer.WritePropertyName("Name");
                 serializer.Serialize(writer, contractDefinition.Name);
 
-                writer.WritePropertyName("ObsoleteDescription");
-                serializer.Serialize(writer, contractDefinition.ObsoleteDescription);
-
-                writer.WritePropertyName("Type");
-                serializer.Serialize(writer, contractDefinition.Type);
+                //writer.WritePropertyName("ObsoleteDescription");
+                //serializer.Serialize(writer, contractDefinition.ObsoleteDescription);
 
                 WriteCustomizedJson(writer, value, serializer);
 

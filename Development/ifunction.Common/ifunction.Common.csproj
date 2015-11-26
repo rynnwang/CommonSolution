@@ -113,12 +113,11 @@
     <Compile Include="Interfaces\IJsonSerializable.cs" />
     <Compile Include="Interfaces\IXmlSerializable.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiContract.cs" />
+    <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiContractProperty.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiContractReference.cs" />
-    <Compile Include="ProgrammingIntelligence\ApiContractDescription\IApiContractDescription.cs" />
-    <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractTypeJsonConverter.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractDataTypeJsonConverter.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractReferenceJsonConverter.cs" />
-    <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiContractDefinationJsonConverter.cs" />
+    <Compile Include="ProgrammingIntelligence\ApiContractDescription\JsonConverter\ApiDataContractDefinitionJsonConverter.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiDataContractDefinition\DictionaryDataContractDefinition.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiDataContractDefinition\DynamicObjectDataContractDefinition.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiDataContractDefinition\ComplexObjectDataContractDefinition.cs" />
@@ -215,7 +214,6 @@
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiDataContractDefinition\ApiDataContractDefinition.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiOperation\ApiOperationDefinition.cs" />
     <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaComponentAttribute.cs" />
-    <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiContract\ApiContractType.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\ApiContract\ApiContractDefination.cs" />
     <Compile Include="ProgrammingIntelligence\ApiContractDescription\AbstractApiContractDescription.cs" />
     <Compile Include="ProgrammingIntelligence\Writer\ApiContractCodeWriter.cs" />

@@ -23,7 +23,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets or sets the children.
         /// </summary>
         /// <value>The children.</value>
-        public Dictionary<string, ApiContractReference> Children { get; set; }
+        public Dictionary<string, ApiDataContractDefinition> Children { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ComplexObjectDataContractDefinition"/> class.
@@ -31,7 +31,7 @@ namespace Beyova.ProgrammingIntelligence
         public ComplexObjectDataContractDefinition()
             : base(ApiContractDataType.ComplexObject, true, false)
         {
-            this.Children = new Dictionary<string, ApiContractReference>();
+            this.Children = new Dictionary<string, ApiDataContractDefinition>();
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Beyova.ProgrammingIntelligence
         {
             base.FillPropertyValuesByJToken(jToken);
 
-            this.Children = jToken.Value<Dictionary<string, ApiContractReference>>("Children");
+            this.Children = jToken.Value<Dictionary<string, ApiDataContractDefinition>>("Children");
             this.Inherition = jToken.Value<ComplexObjectDataContractDefinition>("Inherition");
         }
     }

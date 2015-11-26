@@ -1132,18 +1132,6 @@ namespace ifunction
         //    }
         //}
 
-        /// <summary>
-        /// Gets the full name.
-        /// </summary>
-        /// <param name="apiContractDescription">The API contract description.</param>
-        /// <returns>System.String.</returns>
-        public static string GetFullName(this IApiContractDescription apiContractDescription)
-        {
-            return apiContractDescription != null ?
-               string.Format("{0}.{1}", apiContractDescription.Namespace, apiContractDescription.Name)
-               : string.Empty;
-        }
-
         #endregion
     }
 

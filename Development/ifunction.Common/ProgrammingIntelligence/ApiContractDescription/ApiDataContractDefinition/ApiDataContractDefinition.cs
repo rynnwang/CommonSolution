@@ -12,12 +12,18 @@ namespace Beyova.ProgrammingIntelligence
     /// <summary>
     /// Class ApiDataContractDefinition.
     /// </summary>
+    [JsonConverter(typeof(ApiDataContractDefinitionJsonConverter))]
     public abstract class ApiDataContractDefinition : AbstractApiContractDescription
     {
         /// <summary>
         /// The _namespace
         /// </summary>
         protected string _namespace;
+
+        /// <summary>
+        /// The _name
+        /// </summary>
+        protected string _name;
 
         /// <summary>
         /// Gets or sets the namespace.
@@ -33,6 +39,23 @@ namespace Beyova.ProgrammingIntelligence
             set
             {
                 this._namespace = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the primary.
+        /// </summary>
+        /// <value>The name of the primary.</value>
+        public override string Name
+        {
+            get
+            {
+                return this.DisplayAsReference ? _name.SafeToString() : this.DataType.ToString();
+            }
+
+            set
+            {
+                _name = value;
             }
         }
 
@@ -61,8 +84,9 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         /// <param name="dataType">Type of the data.</param>
         /// <param name="displayAsReference">if set to <c>true</c> [display as reference].</param>
+        /// <param name="omitNamespace">if set to <c>true</c> [omit namespace].</param>
         protected ApiDataContractDefinition(ApiContractDataType dataType, bool displayAsReference, bool omitNamespace)
-            : base(ApiContractType.DataContract)
+            : base()
         {
             this.DataType = dataType;
             this.DisplayAsReference = displayAsReference;
@@ -95,15 +119,6 @@ namespace Beyova.ProgrammingIntelligence
         public override int GetHashCode()
         {
             return this.ToString().GetHashCode();
-        }
-
-        /// <summary>
-        /// Fills the property values by JToken.
-        /// </summary>
-        /// <param name="jToken">The j token.</param>
-        public override void FillPropertyValuesByJToken(JToken jToken)
-        {
-            base.FillPropertyValuesByJToken(jToken);
         }
     }
 }

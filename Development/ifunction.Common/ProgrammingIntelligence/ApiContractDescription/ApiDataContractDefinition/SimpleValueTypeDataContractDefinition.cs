@@ -20,6 +20,7 @@ namespace Beyova.ProgrammingIntelligence
         protected SimpleValueTypeDataContractDefinition(ApiContractDataType contractType)
             : base(contractType, false, true)
         {
+            this.Name = contractType.ToString();
         }
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Gets the float data contract definition.
         /// </summary>
         /// <value>The float data contract definition.</value>
-        public static SimpleValueTypeDataContractDefinition FloatDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Float); } }
+        public static SimpleValueTypeDataContractDefinition FloatDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Single); } }
 
         /// <summary>
         /// Gets the unique identifier data contract definition.
@@ -82,35 +83,35 @@ namespace Beyova.ProgrammingIntelligence
         /// <value>The binary data contract definition.</value>
         public static SimpleValueTypeDataContractDefinition BinaryDataContractDefinition { get { return new SimpleValueTypeDataContractDefinition(ApiContractDataType.Binary); } }
 
-        /// <summary>
-        /// Writes the json.
-        /// </summary>
-        /// <param name="writer">The writer.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="serializer">The serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            var definition = value as SimpleValueTypeDataContractDefinition;
+        ///// <summary>
+        ///// Writes the json.
+        ///// </summary>
+        ///// <param name="writer">The writer.</param>
+        ///// <param name="value">The value.</param>
+        ///// <param name="serializer">The serializer.</param>
+        //public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        //{
+        //    var definition = value as SimpleValueTypeDataContractDefinition;
 
-            if (definition != null)
-            {
-                serializer.Serialize(writer, definition.DataType.ToString());
-            }
-        }
+        //    if (definition != null)
+        //    {
+        //        serializer.Serialize(writer, definition.DataType.ToString());
+        //    }
+        //}
 
-        /// <summary>
-        /// Fills the property values by JToken.
-        /// </summary>
-        /// <param name="jToken">The j token.</param>
-        public override void FillPropertyValuesByJToken(JToken jToken)
-        {
-            ApiContractDataType type;
+        ///// <summary>
+        ///// Fills the property values by JToken.
+        ///// </summary>
+        ///// <param name="jToken">The j token.</param>
+        //public override void FillPropertyValuesByJToken(JToken jToken)
+        //{
+        //    ApiContractDataType type;
 
-            if (Enum.TryParse<ApiContractDataType>(jToken.Value<string>("DataType"), out type))
-            {
-                this.DataType = type;
-            }
-        }
+        //    if (Enum.TryParse<ApiContractDataType>(jToken.Value<string>("DataType"), out type))
+        //    {
+        //        this.DataType = type;
+        //    }
+        //}
 
         /// <summary>
         /// Writes the customized json.

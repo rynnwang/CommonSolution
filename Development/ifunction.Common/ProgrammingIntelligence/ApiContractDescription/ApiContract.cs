@@ -38,6 +38,11 @@ namespace Beyova.ProgrammingIntelligence
         private static Dictionary<string, ApiDataContractDefinition> simpleApiDataContracts = new Dictionary<string, ApiDataContractDefinition>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
+        /// The container API data contracts
+        /// </summary>
+        private static Dictionary<string, ApiDataContractDefinition> containerApiDataContracts = new Dictionary<string, ApiDataContractDefinition>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
         /// The locker for set
         /// </summary>
         private static object lockerForSet = new object();
@@ -53,7 +58,7 @@ namespace Beyova.ProgrammingIntelligence
             simpleApiDataContracts.Add(ApiContractDataType.Boolean.ToString(), SimpleValueTypeDataContractDefinition.BooleanDataContractDefinition);
             simpleApiDataContracts.Add(ApiContractDataType.DateTime.ToString(), SimpleValueTypeDataContractDefinition.DateTimeDataContractDefinition);
             simpleApiDataContracts.Add(ApiContractDataType.Decimal.ToString(), SimpleValueTypeDataContractDefinition.DecimalDataContractDefinition);
-            simpleApiDataContracts.Add(ApiContractDataType.Float.ToString(), SimpleValueTypeDataContractDefinition.FloatDataContractDefinition);
+            simpleApiDataContracts.Add(ApiContractDataType.Single.ToString(), SimpleValueTypeDataContractDefinition.FloatDataContractDefinition);
             simpleApiDataContracts.Add(ApiContractDataType.Guid.ToString(), SimpleValueTypeDataContractDefinition.GuidDataContractDefinition);
             simpleApiDataContracts.Add(ApiContractDataType.Integer.ToString(), SimpleValueTypeDataContractDefinition.IntegerDataContractDefinition);
             simpleApiDataContracts.Add(ApiContractDataType.String.ToString(), SimpleValueTypeDataContractDefinition.StringDataContractDefinition);
@@ -330,173 +335,6 @@ namespace Beyova.ProgrammingIntelligence
             }
         }
 
-        /// <summary>
-        /// Initializes the API data contract definition.
-        /// </summary>
-        /// <param name="classOrStructType">Type of the class or structure.</param>
-        /// <returns>Beyova.ProgrammingIntelligence.ApiDataContractDefinition.</returns>
-        private static ApiDataContractDefinition InitializeApiDataContractDefinition(this Type classOrStructType)
-        {
-            try
-            {
-                ApiDataContractDefinition result = null;
-
-                classOrStructType = classOrStructType.AdjustTypeToDefinitionStandard();
-
-                if (GetApiDataContractDefinition(classOrStructType, out result))
-                {
-                    return result;
-                }
-
-                if (classOrStructType == null)
-                {
-                    return null;
-                }
-
-                if (classOrStructType.IsEnum)
-                {
-                    var enumDataContractDefinition = classOrStructType.CreateDataContract<EnumDataContractDefinition>();
-                    enumDataContractDefinition.FillBasicTypeInfo(classOrStructType);
-
-                    apiDataContracts.Add(enumDataContractDefinition.ToString(), enumDataContractDefinition);
-
-                    return enumDataContractDefinition;
-                }
-                else if (classOrStructType.IsSimpleType())
-                {
-                    ApiContractDataType dataType = ApiContractDataType.Undefined;
-
-                    switch (classOrStructType.Name.ToLowerInvariant())
-                    {
-                        case "guid":
-                            dataType = ApiContractDataType.Guid;
-                            break;
-                        case "timespan":
-                            dataType = ApiContractDataType.TimeSpan;
-                            break;
-                        case "boolean":
-                            dataType = ApiContractDataType.Boolean;
-                            break;
-                        case "byte":
-                        case "sbyte":
-                            dataType = ApiContractDataType.Binary;
-                            break;
-                        case "string":
-                        case "char":
-                            dataType = ApiContractDataType.String;
-                            break;
-                        case "uint16":
-                        case "int16":
-                        case "uint32":
-                        case "int32":
-                        case "uint64":
-                        case "int64":
-                            dataType = ApiContractDataType.Integer;
-                            break;
-                        case "single":
-                        case "double":
-                            dataType = ApiContractDataType.Float;
-                            break;
-                        case "decimal":
-                            dataType = ApiContractDataType.Decimal;
-                            break;
-                        case "datetime":
-                            dataType = ApiContractDataType.DateTime;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    return simpleApiDataContracts[dataType.ToString()];
-                }
-                // Must check dictionary before checking collection
-                else if (classOrStructType.IsDictionary())
-                {
-                    var dictionaryContract = classOrStructType.CreateDataContract<DictionaryDataContractDefinition>();
-                    var genericTypes = classOrStructType.GetGenericArguments();
-                    dictionaryContract.KeyType = genericTypes[0].ParseToApiDataContractDefinition().AsReference();
-                    dictionaryContract.ValueType = genericTypes[1].ParseToApiDataContractDefinition().AsReference();
-
-                    result = dictionaryContract;
-                }
-                else if (classOrStructType.IsCollection())
-                {
-                    var arrayContract = classOrStructType.CreateDataContract<ArrayListDataContractDefinition>();
-                    var valueType = classOrStructType.IsGenericType ? classOrStructType.GetGenericArguments().FirstOrDefault() : typeof(DynamicObject);
-                    arrayContract.ValueType = valueType.ParseToApiDataContractDefinition().AsReference();
-                    result = arrayContract;
-                }
-                else if (classOrStructType.InheritsFrom(typeof(JToken)) || typeof(DynamicObject) == classOrStructType)
-                {
-                    result = DynamicObjectDataContractDefinition.GetDynamicObjectDataContractDefinition();
-                }
-                else
-                {
-                    var complexObjectContract = classOrStructType.CreateDataContract<ComplexObjectDataContractDefinition>();
-                    complexObjectContract.FillBasicTypeInfo(classOrStructType);
-
-                    apiDataContracts.Add(classOrStructType.GetFullName(), complexObjectContract);
-
-                    foreach (var field in classOrStructType.GetActualAffectedFields())
-                    {
-                        complexObjectContract.Children.Add(field.Name, field.FieldType.ParseToApiDataContractDefinition().AsReference());
-                    }
-
-                    foreach (var property in classOrStructType.GetActualAffectedProperties())
-                    {
-                        complexObjectContract.Children.Add(property.Name, property.PropertyType.ParseToApiDataContractDefinition().AsReference());
-                    }
-
-                    if (classOrStructType.BaseType != null && classOrStructType.BaseType != typeof(object))
-                    {
-                        var baseDefinition = InitializeApiDataContractDefinition(classOrStructType.BaseType);
-                        var complexBaseDefinition = baseDefinition as ComplexObjectDataContractDefinition;
-
-                        if (baseDefinition != null && complexBaseDefinition == null)
-                        {
-                            throw new InvalidObjectException(classOrStructType.GetFullName(), reason: "Invalid inherition", hintMessage: "Api Contract does not support one complex contract inherits a un-complex contract due to JSON rules.");
-                        }
-
-                        if (complexBaseDefinition != null)
-                        {
-                            complexObjectContract.Inherition = complexBaseDefinition;
-                        }
-                    }
-
-                    result = complexObjectContract;
-                }
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("InitializeApiDataContractDefinition", new
-                {
-                    type = classOrStructType?.FullName
-                });
-            }
-        }
-
-        /// <summary>
-        /// Creates the data contract.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="type">The type.</param>
-        /// <returns>T.</returns>
-        private static T CreateDataContract<T>(this Type type) where T : ApiDataContractDefinition, new()
-        {
-            if (type != null)
-            {
-                var result = new T();
-                result.Name = type.Name;
-                result.Namespace = type.Namespace;
-
-                return result;
-            }
-
-            return null;
-        }
-
         #endregion
 
         #region ApiContractDefinition
@@ -626,12 +464,12 @@ namespace Beyova.ProgrammingIntelligence
 
                     if (methodInfo.ReturnType != typeof(void))
                     {
-                        result.ReturnValue = methodInfo.ReturnType.ParseToApiDataContractDefinition().AsReference();
+                        result.ReturnValue = methodInfo.ReturnType.ParseToApiDataContractDefinition();
                     }
 
                     foreach (var one in methodInfo.GetParameters())
                     {
-                        result.Parameters.Add(one.Name, one.ParameterType.ParseToApiDataContractDefinition().AsReference());
+                        result.Parameters.Add(one.Name, one.ParameterType.ParseToApiDataContractDefinition());
                     }
 
                     apiOperations.Add(methodInfo.GetFullName(), result);
@@ -650,6 +488,176 @@ namespace Beyova.ProgrammingIntelligence
             }
         }
 
+        /// <summary>
+        /// Initializes the API data contract definition.
+        /// </summary>
+        /// <param name="classOrStructType">Type of the class or structure.</param>
+        /// <returns>Beyova.ProgrammingIntelligence.ApiDataContractDefinition.</returns>
+        private static ApiDataContractDefinition InitializeApiDataContractDefinition(this Type classOrStructType)
+        {
+            try
+            {
+                ApiDataContractDefinition result = null;
+
+                classOrStructType = classOrStructType.AdjustTypeToDefinitionStandard();
+
+                if (classOrStructType == null)
+                {
+                    return null;
+                }
+                // Must check dictionary before checking collection
+                else if (classOrStructType.IsDictionary())
+                {
+                    var dictionaryContract = classOrStructType.CreateDataContract<DictionaryDataContractDefinition>();
+                    var genericTypes = classOrStructType.GetGenericArguments();
+                    dictionaryContract.KeyType = genericTypes[0].InitializeApiDataContractDefinition();
+                    dictionaryContract.ValueType = genericTypes[1].InitializeApiDataContractDefinition();
+
+                    result = dictionaryContract;
+                }
+                else if (classOrStructType.IsCollection())
+                {
+                    var arrayContract = classOrStructType.CreateDataContract<ArrayListDataContractDefinition>();
+                    var valueType = classOrStructType.IsGenericType ? classOrStructType.GetGenericArguments().FirstOrDefault() : typeof(DynamicObject);
+                    arrayContract.ValueType = valueType.InitializeApiDataContractDefinition();
+                    result = arrayContract;
+                }
+                else if (classOrStructType.IsSimpleType())
+                {
+                    ApiContractDataType dataType = ApiContractDataType.Undefined;
+
+                    switch (classOrStructType.Name.ToLowerInvariant())
+                    {
+                        case "guid":
+                            dataType = ApiContractDataType.Guid;
+                            break;
+                        case "timespan":
+                            dataType = ApiContractDataType.TimeSpan;
+                            break;
+                        case "boolean":
+                            dataType = ApiContractDataType.Boolean;
+                            break;
+                        case "byte":
+                        case "sbyte":
+                            dataType = ApiContractDataType.Binary;
+                            break;
+                        case "string":
+                        case "char":
+                            dataType = ApiContractDataType.String;
+                            break;
+                        case "uint16":
+                        case "int16":
+                        case "uint32":
+                        case "int32":
+                        case "uint64":
+                        case "int64":
+                            dataType = ApiContractDataType.Integer;
+                            break;
+                        case "single":
+                        case "double":
+                            dataType = ApiContractDataType.Single;
+                            break;
+                        case "decimal":
+                            dataType = ApiContractDataType.Decimal;
+                            break;
+                        case "datetime":
+                            dataType = ApiContractDataType.DateTime;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    return simpleApiDataContracts[dataType.ToString()];
+                }
+                else if (classOrStructType.InheritsFrom(typeof(JToken)) || typeof(DynamicObject) == classOrStructType)
+                {
+                    result = DynamicObjectDataContractDefinition.GetDynamicObjectDataContractDefinition();
+                }
+                else
+                {
+                    if (GetApiDataContractDefinition(classOrStructType, out result))
+                    {
+                        return result;
+                    }
+
+                    if (classOrStructType.IsEnum)
+                    {
+                        var enumDataContractDefinition = classOrStructType.CreateDataContract<EnumDataContractDefinition>();
+                        enumDataContractDefinition.FillBasicTypeInfo(classOrStructType);
+
+                        apiDataContracts.Add(enumDataContractDefinition.ToString(), enumDataContractDefinition);
+
+                        return enumDataContractDefinition;
+                    }
+
+                    else
+                    {
+                        var complexObjectContract = classOrStructType.CreateDataContract<ComplexObjectDataContractDefinition>();
+                        complexObjectContract.FillBasicTypeInfo(classOrStructType);
+
+                        apiDataContracts.Add(classOrStructType.GetFullName(), complexObjectContract);
+
+                        foreach (var field in classOrStructType.GetActualAffectedFields())
+                        {
+                            complexObjectContract.Children.Add(field.Name, field.FieldType.ParseToApiDataContractDefinition());
+                        }
+
+                        foreach (var property in classOrStructType.GetActualAffectedProperties())
+                        {
+                            complexObjectContract.Children.Add(property.Name, property.PropertyType.ParseToApiDataContractDefinition());
+                        }
+
+                        if (classOrStructType.BaseType != null && classOrStructType.BaseType != typeof(object))
+                        {
+                            var baseDefinition = InitializeApiDataContractDefinition(classOrStructType.BaseType);
+                            var complexBaseDefinition = baseDefinition as ComplexObjectDataContractDefinition;
+
+                            if (baseDefinition != null && complexBaseDefinition == null)
+                            {
+                                throw new InvalidObjectException(classOrStructType.GetFullName(), reason: "Invalid inherition", hintMessage: "Api Contract does not support one complex contract inherits a un-complex contract due to JSON rules.");
+                            }
+
+                            if (complexBaseDefinition != null)
+                            {
+                                complexObjectContract.Inherition = complexBaseDefinition;
+                            }
+                        }
+
+                        result = complexObjectContract;
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("InitializeApiDataContractDefinition", new
+                {
+                    type = classOrStructType?.FullName
+                });
+            }
+        }
+
+        /// <summary>
+        /// Creates the data contract.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <returns>T.</returns>
+        private static T CreateDataContract<T>(this Type type) where T : ApiDataContractDefinition, new()
+        {
+            if (type != null)
+            {
+                var result = new T();
+                result.Name = type.Name;
+                result.Namespace = type.Namespace;
+
+                return result;
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region ApiDataContractDefinition
@@ -659,37 +667,11 @@ namespace Beyova.ProgrammingIntelligence
         /// </summary>
         /// <param name="dataContractFullName">Full name of the data contract.</param>
         /// <returns>Beyova.ProgrammingIntelligence.ApiDataContractDefinition.</returns>
-        public static ApiDataContractDefinition GetApiDataContractDefinition(string dataContractFullName)
+        internal static ApiDataContractDefinition GetApiDataContractDefinitionByReference(string dataContractFullName)
         {
             ApiDataContractDefinition contractDefinition = null;
 
-            if (!string.IsNullOrWhiteSpace(dataContractFullName))
-            {
-                if (!apiContracts.ContainsKey(dataContractFullName))
-                {
-                    lock (lockerForSet)
-                    {
-                        if (!apiContracts.ContainsKey(dataContractFullName))
-                        {
-                            try
-                            {
-                                var type = ReflectionExtension.SmartGetType(dataContractFullName);
-
-                                if (type != null)
-                                {
-                                    contractDefinition = InitializeApiDataContractDefinition(type);
-                                }
-
-                                return contractDefinition;
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex.Handle("GetApiDataContractDefinition", dataContractFullName);
-                            }
-                        }
-                    }
-                }
-            }
+            apiDataContracts.TryGetValue(dataContractFullName, out contractDefinition);
 
             return contractDefinition;
         }
@@ -732,15 +714,15 @@ namespace Beyova.ProgrammingIntelligence
             }
         }
 
-        /// <summary>
-        /// As the reference.
-        /// </summary>
-        /// <param name="definition">The definition.</param>
-        /// <returns>Beyova.ProgrammingIntelligence.ApiContractReference.</returns>
-        internal static ApiContractReference AsReference(this ApiDataContractDefinition definition)
-        {
-            return definition == null ? null : new ApiContractReference { ReferenceName = definition.ToString() };
-        }
+        ///// <summary>
+        ///// As the reference.
+        ///// </summary>
+        ///// <param name="definition">The definition.</param>
+        ///// <returns>Beyova.ProgrammingIntelligence.ApiContractReference.</returns>
+        //internal static ApiContractReference AsReference(this ApiDataContractDefinition definition)
+        //{
+        //    return definition == null ? null : new ApiContractReference { ReferenceName = definition.ToString() };
+        //}
 
         #endregion
     }

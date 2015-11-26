@@ -6,9 +6,9 @@ using Newtonsoft.Json.Linq;
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
-    /// Class ApiContractDefinitionJsonConverter.
+    /// Class ApiDataContractDefinitionJsonConverter.
     /// </summary>
-    public class ApiContractDefinitionJsonConverter : JsonConverter
+    public class ApiDataContractDefinitionJsonConverter : JsonConverter
     {
         /// <summary>
         /// Determines whether this instance can convert the specified object type.
@@ -17,7 +17,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <returns><c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.</returns>
         public override bool CanConvert(Type objectType)
         {
-            return objectType != null && objectType.InheritsFrom(typeof(AbstractApiContractDescription));
+            return objectType != null && objectType.InheritsFrom(typeof(ApiDataContractDefinition));
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Beyova.ProgrammingIntelligence
             JObject jsonObject = JObject.Load(reader);
             if (jsonObject != null)
             {
-                var type = jsonObject.GetProperty("Type").Value<ApiContractType>();
+                return ReadApiContractDefinition(jsonObject);
             }
 
             return null;
@@ -70,29 +70,15 @@ namespace Beyova.ProgrammingIntelligence
         /// <summary>
         /// Reads the API contract definition.
         /// </summary>
-        /// <param name="contractType">Type of the contract.</param>
         /// <param name="jsonObject">The json object.</param>
         /// <returns>IApiContractDescription.</returns>
-        protected IApiContractDescription ReadApiContractDefinition(ApiContractType contractType, JObject jsonObject)
+        protected ApiDataContractDefinition ReadApiContractDefinition(JObject jsonObject)
         {
-            IApiContractDescription result = null;
+            ApiDataContractDefinition result = null;
 
-            switch (contractType)
-            {
-                case ApiContractType.ApiContract:
-                    result = new ApiContractDefinition();
-                    break;
-                case ApiContractType.ApiOperation:
-                    result = new ApiOperationDefinition();
-                    break;
-                case ApiContractType.DataContract:
-                    var dataType = jsonObject.GetProperty("DataType").Value<ApiContractDataType>();
-                    var dataContractDefinition = CreateApiDataContractDefinitionInstance(dataType);
-                    result = dataContractDefinition;
-                    break;
-                default:
-                    break;
-            }
+            var dataType = jsonObject.GetProperty("DataType").Value<ApiContractDataType>();
+            var dataContractDefinition = CreateApiDataContractDefinitionInstance(dataType);
+            result = dataContractDefinition;
 
             result?.FillPropertyValuesByJToken(jsonObject);
             return result;
@@ -130,7 +116,7 @@ namespace Beyova.ProgrammingIntelligence
                     case ApiContractDataType.Boolean:
                     case ApiContractDataType.DateTime:
                     case ApiContractDataType.Decimal:
-                    case ApiContractDataType.Float:
+                    case ApiContractDataType.Single:
                     case ApiContractDataType.Guid:
                     case ApiContractDataType.Integer:
                     case ApiContractDataType.String:
