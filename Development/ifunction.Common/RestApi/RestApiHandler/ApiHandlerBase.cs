@@ -278,9 +278,6 @@ namespace ifunction.RestApi
                 case "server":
                     result = Framework.AboutService();
                     break;
-                case "contract":
-                    result = ApiContract.GetApiContract(runtimeContext.Parameter1);
-                    break;
                 default: break;
             }
 
