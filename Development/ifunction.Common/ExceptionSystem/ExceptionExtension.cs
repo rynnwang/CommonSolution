@@ -432,6 +432,8 @@ namespace ifunction
                             return new DataConflictException(data == null ? string.Empty : data.GetType().ToString(), "State", exception, operatorIdentity, data) as BaseException;
                         case 60403:
                             return new OperationForbiddenException(operationName, sqlException.Message, sqlException, operatorIdentity, data) as BaseException;
+                        case 60404:
+                            return new ResourceNotFoundException(sqlException.Message, operatorIdentity, minor: null, innerException: null, data: data) as BaseException;
                         default:
                             return new OperationFailureException(operationName, exception, data) as BaseException;
                     }

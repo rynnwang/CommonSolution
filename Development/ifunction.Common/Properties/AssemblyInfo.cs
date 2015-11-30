@@ -8,13 +8,13 @@ using Beyova.ProgrammingIntelligence;
 // associated with an assembly.
 [assembly: AssemblyTitle("ifunction.Common")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyDescription("Final Version in ifunction. No matter any more.")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("Beyova Co.,Ltd.")]
 [assembly: AssemblyProduct("Beyova.Common")]
 [assembly: AssemblyCopyright("Allrghts reserved.")]
 [assembly: AssemblyTrademark("Beyova")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.Common", "2.25.5")]
+[assembly: BeyovaComponent("Beyova.Common", "2.25.6")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

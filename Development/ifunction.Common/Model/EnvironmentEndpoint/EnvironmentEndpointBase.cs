@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ifunction;
 using ifunction.RestApi;
 
-namespace ifunction.DeveloperModule
+namespace ifunction.Model
 {
     /// <summary>
-    /// Class EnvironmentEndpoint.
+    /// Class EnvironmentEndpointBase.
     /// </summary>
-    public class EnvironmentEndpoint : ApiEndpoint
+    public class EnvironmentEndpointBase : ApiEndpoint, IIdentifier
     {
         /// <summary>
         /// Gets or sets the name.
@@ -22,7 +23,7 @@ namespace ifunction.DeveloperModule
         /// Gets or sets the environment.
         /// </summary>
         /// <value>The environment.</value>
-        public DeploymentEnvironment Environment { get; set; }
+        public string Environment { get; set; }
 
         /// <summary>
         /// Gets or sets the token.
@@ -43,9 +44,15 @@ namespace ifunction.DeveloperModule
         public string SqlConnectionString { get; set; }
 
         /// <summary>
-        /// Gets or sets the mongo database connection string.
+        /// Gets or sets the mongo connection string.
         /// </summary>
-        /// <value>The mongo database connection string.</value>
-        public string MongoDbConnectionString { get; set; }
+        /// <value>The mongo connection string.</value>
+        public string MongoConnectionString { get; set; }
+
+        /// <summary>
+        /// Gets or sets the key.
+        /// </summary>
+        /// <value>The key.</value>
+        public Guid? Key { get; set; }
     }
 }

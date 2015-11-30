@@ -99,8 +99,6 @@
     <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
     <Compile Include="ApiTracking\ApiTrackingRestClient.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
-    <Compile Include="DeveloperModule\DeveloperModule.cs" />
-    <Compile Include="Diff\DiffExtension.cs" />
     <Compile Include="ExceptionSystem\Model\FriendlyHint.cs" />
     <Compile Include="ExceptionSystem\Model\SimpleExceptionInfo.cs" />
     <Compile Include="Extensions\IOExtension.cs" />
@@ -149,9 +147,9 @@
     <Compile Include="Model\App\AppVersionBase.cs" />
     <Compile Include="Model\AuthenticationProfile\SecurityChannel.cs" />
     <Compile Include="Model\AuthenticationProfile\SessionCriteria.cs" />
-    <Compile Include="Model\Deployment\MsBuildTask.cs" />
-    <Compile Include="Model\DeveloperModule\DeploymentEnvironment.cs" />
-    <Compile Include="Model\DeveloperModule\EnvironmentEndpoint.cs" />
+    <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpoint.cs" />
+    <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpointBase.cs" />
+    <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpointCriteria.cs" />
     <Compile Include="Model\Maintenance\MaintanenceJobLog.cs" />
     <Compile Include="Model\PathKeyDictionary.cs" />
     <Compile Include="Model\ServiceCredential.cs" />
@@ -169,9 +167,6 @@
     <Compile Include="Model\BinaryStorage\BinaryStorageMetaData.cs" />
     <Compile Include="Model\BinaryStorage\BinaryStorageObject.cs" />
     <Compile Include="Model\BinaryStorage\BinaryStorageMetaDataCriteria.cs" />
-    <Compile Include="Model\CommonFilter\KeyValueFilter.cs" />
-    <Compile Include="Model\CommonFilter\FilterOperator.cs" />
-    <Compile Include="Diff\DiffResult.cs" />
     <Compile Include="Model\Geography\CountryInfo.cs" />
     <Compile Include="Model\Geography\CountryInfoCriteria.cs" />
     <Compile Include="Model\Geography\GeographyInfo.cs" />
@@ -193,7 +188,6 @@
     <Compile Include="Model\ApiTracking\Grouping\ExceptionGroupStatistic.cs" />
     <Compile Include="Model\ApiTracking\TimeUnit.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ExceptionStatisticCriteria.cs" />
-    <Compile Include="Diff\ValueDiffResult.cs" />
     <Compile Include="Model\Maintenance\MaintanenceJob.cs" />
     <Compile Include="Model\WorkflowState.cs" />
     <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaComponentAttribute.cs" />
@@ -314,10 +308,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DeveloperModule\CommonFeatureInterfaces\" />
     <Folder Include="Model\Provisioning\" />
-    <Folder Include="ProgrammingIntelligence\Interfaces\" />
-    <Folder Include="ProgrammingIntelligence\Writer\" />
     <Folder Include="RFC\RFC5545\" />
     <Folder Include="Utility\ActiveDirectory\" />
     <Folder Include="Utility\SystemStatus\" />

@@ -1101,37 +1101,6 @@ namespace ifunction
             }
         }
 
-        /// <summary>
-        /// Gets the full name of the contract definition.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="requiredAttribute">The required attribute.</param>
-        /// <returns>System.String.</returns>
-        //public static string GetContractDefinitionFullName(this Type type, Type requiredAttribute = null)
-        //{
-        //    if (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null))
-        //    {
-        //        if (type.IsCollection())
-        //        {
-        //            var genericTypes = type.GetGenericArguments();
-        //            type = typeof(List<>);
-        //            type.MakeGenericType(genericTypes);
-        //        }
-        //        else if (type.IsDictionary())
-        //        {
-        //            var genericTypes = type.GetGenericArguments();
-        //            type = typeof(Dictionary<,>);
-        //            type.MakeGenericType(genericTypes);
-        //        }
-
-        //        return type.ToCodeLook(false, ":");
-        //    }
-        //    else
-        //    {
-        //        return string.Empty;
-        //    }
-        //}
-
         #endregion
     }
 
