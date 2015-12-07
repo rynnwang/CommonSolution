@@ -132,13 +132,21 @@ namespace ifunction.RestApi
                     httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TOKEN, Token);
                 }
 
-                var originalIpAddress = ContextHelper.ApiContext.IpAddress.SafeToString();
+                var currentApiContext = ContextHelper.ApiContext;
+
+                var originalIpAddress = currentApiContext.IpAddress.SafeToString();
                 if (!string.IsNullOrWhiteSpace(originalIpAddress))
                 {
                     httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.ORIGINAL, originalIpAddress);
                 }
 
-                var userAgent = ContextHelper.ApiContext.UserAgent.SafeToString();
+                var traceId = currentApiContext.TraceId.SafeToString();
+                if (!string.IsNullOrWhiteSpace(traceId))
+                {
+                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TRACEID, traceId);
+                }
+
+                var userAgent = currentApiContext.UserAgent.SafeToString();
                 if (!string.IsNullOrWhiteSpace(userAgent))
                 {
                     httpRequest.UserAgent = userAgent;

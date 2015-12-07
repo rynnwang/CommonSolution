@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Routing;
-using Beyova.ProgrammingIntelligence;
 using ifunction.ApiTracking.Model;
 using ifunction.ExceptionSystem;
 using Newtonsoft.Json;
@@ -57,6 +56,12 @@ namespace ifunction.RestApi
         /// <value><c>true</c> if [allow options]; otherwise, <c>false</c>.</value>
         public bool AllowOptions { get; protected set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [allow trace].
+        /// </summary>
+        /// <value><c>true</c> if [allow trace]; otherwise, <c>false</c>.</value>
+        public bool AllowTrace { get; protected set; }
+
         #endregion
 
         /// <summary>
@@ -86,7 +91,8 @@ namespace ifunction.RestApi
         /// </summary>
         /// <param name="defaultApiSettings">The default API settings.</param>
         /// <param name="allowOptions">if set to <c>true</c> [allow options].</param>
-        protected ApiHandlerBase(RestApiSettings defaultApiSettings, bool allowOptions = false)
+        /// <param name="allowTrace">if set to <c>true</c> [allow trace].</param>
+        protected ApiHandlerBase(RestApiSettings defaultApiSettings, bool allowOptions = false, bool allowTrace = false)
         {
             // Ensure it is never null. Default values should be safe.
             DefaultSettings = defaultApiSettings ?? new RestApiSettings
@@ -131,6 +137,7 @@ namespace ifunction.RestApi
             var entryStamp = DateTime.UtcNow;
             RestApiSettings settings = DefaultSettings;
             RuntimeContext runtimeContext = null;
+            string traceId = null;
 
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERHANDLETIME, entryStamp.ToFullDateTimeTzString());
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
@@ -139,6 +146,11 @@ namespace ifunction.RestApi
 
             try
             {
+                if (AllowTrace)
+                {
+                    ContextHelper.ApiContext.TraceId = traceId = context.Request.TryGetHeader(HttpConstants.HttpHeader.TRACEID).SafeToString(Guid.NewGuid().ToString());
+                }
+
                 Prepare(context.Request);
 
                 if (context.Request.HttpMethod.Equals(HttpConstants.HttpMethod.Options, StringComparison.OrdinalIgnoreCase))
@@ -161,7 +173,7 @@ namespace ifunction.RestApi
                 if (runtimeContext.Version.Equals(BuildInFeatureVersionKeyword, StringComparison.OrdinalIgnoreCase))
                 {
                     var buildInResult = ProcessBuildInFeature(runtimeContext, context.Request.IsLocal);
-                    PackageOutput(context.Response, buildInResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings.EnableOutputFullExceptionInfo);
+                    PackageOutput(context.Response, buildInResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings);
                 }
                 else
                 {
@@ -172,6 +184,7 @@ namespace ifunction.RestApi
                             RawUrl = context.Request.RawUrl,
                             EntryStamp = entryStamp,
                             UserAgent = context.Request.UserAgent,
+                            TraceId = traceId,
                             // If request came from ApiTransport or other proxy ways, ORIGINAL stands for the IP ADDRESS from original requester.
                             IpAddress = context.Request.TryGetHeader(HttpConstants.HttpHeader.ORIGINAL).SafeToString(context.Request.UserHostAddress),
                             CultureCode = context.Request.UserLanguages == null ? null : context.Request.UserLanguages.FirstOrDefault()
@@ -224,9 +237,15 @@ namespace ifunction.RestApi
                         }
                         else
                         {
-                            var invokeResult = Invoke(runtimeContext.ApiInstance, runtimeContext.ApiMethod, context.Request, runtimeContext.EntityKey);
+                            string jsonBody;
+                            var invokeResult = Invoke(runtimeContext.ApiInstance, runtimeContext.ApiMethod, context.Request, runtimeContext.EntityKey, out jsonBody);
 
-                            PackageOutput(context.Response, invokeResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings.EnableOutputFullExceptionInfo);
+                            if (eventLog != null && !string.IsNullOrWhiteSpace(jsonBody))
+                            {
+                                eventLog.Content = jsonBody.Length > 50 ? jsonBody : (jsonBody.Substring(0, 40) + "..." + jsonBody.Substring(jsonBody.Length - 6, 6));
+                            }
+
+                            PackageOutput(context.Response, invokeResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings);
                         }
                     }
                     catch (Exception invokeEx)
@@ -245,7 +264,7 @@ namespace ifunction.RestApi
                     eventLog.ExceptionKey = baseException.Key;
                 }
 
-                PackageOutput(context.Response, null, baseException, acceptEncoding, exceptionRestoreEnabled: settings.EnableOutputFullExceptionInfo);
+                PackageOutput(context.Response, null, baseException, acceptEncoding, settings: settings);
             }
             finally
             {
@@ -343,16 +362,17 @@ namespace ifunction.RestApi
         /// If input parameter count is 1 and key is empty or null, invoke using key, try to get JSON object from request body and convert to object for invoke.
         /// </item><item>
         /// If input parameter count more than 1, try read JSON data to match parameters by name (ignore case) in root level, then invoke.
-        /// </item></list></remarks>
-        /// </summary>
+        /// </item></list></remarks></summary>
         /// <param name="instance">The instance.</param>
         /// <param name="methodInfo">The method information.</param>
         /// <param name="httpRequest">The HTTP request.</param>
         /// <param name="key">The key.</param>
+        /// <param name="jsonBody">The json body.</param>
         /// <returns>System.Object.</returns>
-        protected virtual object Invoke(object instance, MethodInfo methodInfo, HttpRequest httpRequest, string key)
+        protected virtual object Invoke(object instance, MethodInfo methodInfo, HttpRequest httpRequest, string key, out string jsonBody)
         {
             var inputParameters = methodInfo.GetParameters();
+            jsonBody = null;
 
             if (!string.IsNullOrWhiteSpace(key) && key.Contains('%'))
             {
@@ -371,7 +391,7 @@ namespace ifunction.RestApi
                 }
                 else
                 {
-                    var json = httpRequest.GetPostJson(Encoding.UTF8);
+                    var json = jsonBody = httpRequest.GetPostJson(Encoding.UTF8);
                     return methodInfo.Invoke(instance, new object[] { DeserializeJsonObject(json, inputParameters[0].ParameterType) });
                 }
             }
@@ -388,7 +408,7 @@ namespace ifunction.RestApi
                     }
                     else
                     {
-                        var json = httpRequest.GetPostJson(Encoding.UTF8);
+                        var json = jsonBody = httpRequest.GetPostJson(Encoding.UTF8);
                         parameters[0] = json.TryConvertJsonToObject();
                         if (parameters[0] == null)
                         {
@@ -404,7 +424,7 @@ namespace ifunction.RestApi
                 }
                 else
                 {
-                    var json = httpRequest.GetPostJson(Encoding.UTF8);
+                    var json = jsonBody = httpRequest.GetPostJson(Encoding.UTF8);
                     var jsonObject = json.IsNullOrWhiteSpace() ? null : JObject.Parse(json);
 
                     if (jsonObject != null)
@@ -478,11 +498,11 @@ namespace ifunction.RestApi
         /// <param name="baseException">The base exception.</param>
         /// <param name="acceptEncoding">Name of the compress.</param>
         /// <param name="noBody">if set to <c>true</c> [no body].</param>
-        /// <param name="exceptionRestoreEnabled">The exception restore enabled.</param>
+        /// <param name="settings">The settings.</param>
         /// <returns>System.Object.</returns>
-        protected virtual void PackageOutput(HttpResponse response, object data, BaseException baseException = null, string acceptEncoding = null, bool noBody = false, bool exceptionRestoreEnabled = false)
+        protected virtual void PackageOutput(HttpResponse response, object data, BaseException baseException = null, string acceptEncoding = null, bool noBody = false, RestApiSettings settings = null)
         {
-            PackageResponse(response, data, baseException, acceptEncoding, noBody, exceptionRestoreEnabled);
+            PackageResponse(response, data, baseException, acceptEncoding, noBody, settings);
         }
 
         /// <summary>
@@ -493,13 +513,13 @@ namespace ifunction.RestApi
         /// <param name="ex">The ex.</param>
         /// <param name="acceptEncoding">Name of the compression.</param>
         /// <param name="noBody">if set to <c>true</c> [no body].</param>
-        /// <param name="exceptionRestoreEnabled">The exception restore enabled.</param>
+        /// <param name="settings">The settings.</param>
         /// <returns>System.Object.</returns>
-        public static void PackageResponse(HttpResponse response, object data, BaseException ex = null, string acceptEncoding = null, bool noBody = false, bool exceptionRestoreEnabled = false)
+        public static void PackageResponse(HttpResponse response, object data, BaseException ex = null, string acceptEncoding = null, bool noBody = false, RestApiSettings settings = null)
         {
             if (response != null)
             {
-                PackageResponse(new HttpResponseWrapper(response), data, ex, acceptEncoding, noBody, exceptionRestoreEnabled);
+                PackageResponse(new HttpResponseWrapper(response), data, ex, acceptEncoding, noBody, settings);
             }
         }
 
@@ -511,38 +531,49 @@ namespace ifunction.RestApi
         /// <param name="ex">The ex.</param>
         /// <param name="acceptEncoding">The accept encoding.</param>
         /// <param name="noBody">if set to <c>true</c> [no body].</param>
-        /// <param name="exceptionRestoreEnabled">The exception restore enabled.</param>
-        public static void PackageResponse(HttpResponseBase response, object data, BaseException ex = null, string acceptEncoding = null, bool noBody = false, bool exceptionRestoreEnabled = false)
+        /// <param name="settings">The settings.</param>
+        public static void PackageResponse(HttpResponseBase response, object data, BaseException ex = null, string acceptEncoding = null, bool noBody = false, RestApiSettings settings = null)
         {
             if (response != null)
             {
-                var objectToReturn = ex != null ? (exceptionRestoreEnabled ? ex.ToExceptionInfo() : new SimpleExceptionInfo
+                if (settings == null)
+                {
+                    settings = new RestApiSettings();
+                }
+
+                var objectToReturn = ex != null ? (settings.EnableOutputFullExceptionInfo ? ex.ToExceptionInfo() : new SimpleExceptionInfo
                 {
                     Message = ex.Hint != null ? (ex.Hint.Message ?? ex.Hint.Cause) : ex.RootCause.Message,
                     Data = data == null ? null : JObject.FromObject(data),
                     Code = ex.Hint?.Code ?? ex.Code
                 } as IExceptionInfo) : data;
 
-                response.Headers.Add(HttpConstants.HttpHeader.SERVERTIME, DateTime.UtcNow.ToFullDateTimeString());
+                response.Headers.Add(HttpConstants.HttpHeader.SERVERTIME, DateTime.UtcNow.ToFullDateTimeTzString());
+                response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ContextHelper.ApiContext.TraceId);
+
                 response.StatusCode = (int)(ex == null ? (noBody ? HttpStatusCode.NoContent : HttpStatusCode.OK) : ex.Code.ToHttpStatusCode());
 
                 if (!noBody)
                 {
                     response.ContentType = "application/json";
-                    acceptEncoding = acceptEncoding.SafeToString().ToLower();
-                    if (acceptEncoding.Contains("gzip"))
+
+                    if (settings.EnableContentCompression)
                     {
-                        response.Filter = new System.IO.Compression.GZipStream(response.Filter,
-                                              System.IO.Compression.CompressionMode.Compress);
-                        response.Headers.Remove(HttpConstants.HttpHeader.ContentEncoding);
-                        response.AppendHeader(HttpConstants.HttpHeader.ContentEncoding, "gzip");
-                    }
-                    else if (acceptEncoding.Contains("deflate"))
-                    {
-                        response.Filter = new System.IO.Compression.DeflateStream(response.Filter,
-                                            System.IO.Compression.CompressionMode.Compress);
-                        response.Headers.Remove(HttpConstants.HttpHeader.ContentEncoding);
-                        response.AppendHeader(HttpConstants.HttpHeader.ContentEncoding, "deflate");
+                        acceptEncoding = acceptEncoding.SafeToString().ToLower();
+                        if (acceptEncoding.Contains("gzip"))
+                        {
+                            response.Filter = new System.IO.Compression.GZipStream(response.Filter,
+                                                  System.IO.Compression.CompressionMode.Compress);
+                            response.Headers.Remove(HttpConstants.HttpHeader.ContentEncoding);
+                            response.AppendHeader(HttpConstants.HttpHeader.ContentEncoding, "gzip");
+                        }
+                        else if (acceptEncoding.Contains("deflate"))
+                        {
+                            response.Filter = new System.IO.Compression.DeflateStream(response.Filter,
+                                                System.IO.Compression.CompressionMode.Compress);
+                            response.Headers.Remove(HttpConstants.HttpHeader.ContentEncoding);
+                            response.AppendHeader(HttpConstants.HttpHeader.ContentEncoding, "deflate");
+                        }
                     }
 
                     response.Write(objectToReturn.ToJson(true, JsonConverters));

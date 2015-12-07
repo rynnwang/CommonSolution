@@ -88,6 +88,18 @@ namespace ifunction.ApiTracking.Model
         public DeviceType? DeviceType { get; set; }
 
         /// <summary>
+        /// Gets or sets the trace identifier.
+        /// </summary>
+        /// <value>The trace identifier.</value>
+        public string TraceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content.
+        /// </summary>
+        /// <value>The content.</value>
+        public string Content { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventLogBase"/> class.
         /// </summary>
         public ApiEventLogBase()

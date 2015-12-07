@@ -71,6 +71,20 @@ namespace ifunction
         }
 
         /// <summary>
+        /// Adds if not null.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        public static void AddIfNotNull(this NameValueCollection collection, string key, string value)
+        {
+            if (collection != null && !string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(value))
+            {
+                collection.Add(key, value);
+            }
+        }
+
+        /// <summary>
         /// Adds if not exists.
         /// </summary>
         /// <typeparam name="T"></typeparam>
