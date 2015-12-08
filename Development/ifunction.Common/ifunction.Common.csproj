@@ -212,9 +212,6 @@
     <Compile Include="Utility\Sandbox\Sandbox.cs" />
     <Compile Include="Utility\SerializableJsonObject\StrickJsonSerializer.cs" />
     <Compile Include="Utility\SerializableJsonObject\JsonXmlSerializer.cs" />
-    <Compile Include="WebSocket\WebSocketIdentifier.cs" />
-    <Compile Include="WebSocket\WebSocketHub.cs" />
-    <Compile Include="WebSocket\WebSocketApiHandlerBase.cs" />
     <Compile Include="RestApi\RestApiTransparentInvoker.cs" />
     <Compile Include="RestApi\RestApiTransparentProxy.cs" />
     <Compile Include="RestApi\RestApiHandler\ApiHandlerBase.cs" />
@@ -296,9 +293,6 @@
     <Compile Include="Utility\JsonNet\SafeContractResolver.cs" />
     <Compile Include="Extensions\EncodingOrSecurityExtension.cs" />
     <Compile Include="Utility\MailSender.cs" />
-    <Compile Include="Utility\PlaceHolder\IPlaceHolderMember.cs" />
-    <Compile Include="Utility\PlaceHolder\StringHolderReplacement.cs" />
-    <Compile Include="Utility\PlaceHolder\StringPlaceHolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ifunction.Common.Signature.pfx" />
@@ -309,8 +303,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Model\Provisioning\" />
-    <Folder Include="RFC\RFC5545\" />
-    <Folder Include="Utility\ActiveDirectory\" />
     <Folder Include="Utility\SystemStatus\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
