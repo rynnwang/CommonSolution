@@ -122,6 +122,8 @@ namespace ifunction.RestApi
 
                 if (ApiContract != null && !string.IsNullOrWhiteSpace(ApiContract.Version))
                 {
+                    var apiContractName = ApiContract.Name.SafeToString(interfaceType.FullName);
+
                     if (ApiContract.Version.SafeToLower().Equals(BuildInFeatureVersionKeyword))
                     {
                         throw new InvalidObjectException("ApiContract.Version", reason: "<buildin> cannot be used as version due to it is used internally.");
@@ -165,7 +167,7 @@ namespace ifunction.RestApi
 
                                 runtimeRoute = new RuntimeRoute(method, interfaceType, instance,
                                     !string.IsNullOrWhiteSpace(apiOperationAttribute.Action),
-                                    tokenRequired != null && tokenRequired.TokenRequired, moduleName, settings, permissions);
+                                    tokenRequired != null && tokenRequired.TokenRequired, moduleName, apiContractName, settings, permissions);
                             }
 
                             if (routes.ContainsKey(routeKey))
@@ -244,6 +246,7 @@ namespace ifunction.RestApi
             // Override out parameters
             result.ApiMethod = runtimeRoute.MethodInfo;
             result.ApiInstance = runtimeRoute.Instance;
+            result.ApiServiceName = runtimeRoute.ServiceName;
             result.IsActionUsed = runtimeRoute.IsActionUsed;
             result.ModuleName = runtimeRoute.ModuleName;
             result.ApiTransportAttribute = runtimeRoute.Transport;

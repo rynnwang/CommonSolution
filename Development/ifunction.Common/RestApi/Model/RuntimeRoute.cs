@@ -49,6 +49,12 @@ namespace ifunction.RestApi
         public object Instance { get; protected set; }
 
         /// <summary>
+        /// Gets or sets the name of the service.
+        /// </summary>
+        /// <value>The name of the service.</value>
+        public string ServiceName { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this instance is action used.
         /// </summary>
         /// <value><c>true</c> if this instance is action used; otherwise, <c>false</c>.</value>
@@ -81,13 +87,15 @@ namespace ifunction.RestApi
         /// <param name="isActionUsed">if set to <c>true</c> [is action used].</param>
         /// <param name="isTokenRequired">if set to <c>true</c> [is token required].</param>
         /// <param name="moduleName">Name of the module.</param>
+        /// <param name="serviceName">Name of the service.</param>
         /// <param name="setting">The setting.</param>
         /// <param name="permissions">The permissions.</param>
-        public RuntimeRoute(MethodInfo methodInfo, Type instanceType, object instance, bool isActionUsed, bool isTokenRequired, string moduleName, RestApiSettings setting, IDictionary<string, ApiPermission> permissions = null)
+        public RuntimeRoute(MethodInfo methodInfo, Type instanceType, object instance, bool isActionUsed, bool isTokenRequired, string moduleName, string serviceName, RestApiSettings setting, IDictionary<string, ApiPermission> permissions = null)
         {
             this.MethodInfo = methodInfo;
             this.Instance = instance;
             this.IsActionUsed = isActionUsed;
+            this.ServiceName = serviceName;
             this.InstanceType = instanceType;
             this.ModuleName = moduleName;
             this.IsTokenRequired = isTokenRequired;

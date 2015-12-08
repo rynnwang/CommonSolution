@@ -104,7 +104,6 @@
     <Compile Include="Extensions\IOExtension.cs" />
     <Compile Include="Extensions\DatabaseExtensionExtension.cs" />
     <Compile Include="Extensions\CompressionExtension.cs" />
-    <Compile Include="Extensions\HtmlHelper.cs" />
     <Compile Include="Extensions\SentenceExtension.cs" />
     <Compile Include="Extensions\ThreadExtension.cs" />
     <Compile Include="Framework\EnvironmentCore.cs" />
@@ -231,7 +230,6 @@
     <Compile Include="Model\ApiTracking\Query\ApiEventCriteria.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiTraceLog.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiEventLog.cs" />
-    <Compile Include="Constants\ThreadKeys.cs" />
     <Compile Include="Model\ApiTracking\Query\ExceptionCriteria.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiTracking.cs" />
     <Compile Include="Framework\BaseDataAccessController.cs" />

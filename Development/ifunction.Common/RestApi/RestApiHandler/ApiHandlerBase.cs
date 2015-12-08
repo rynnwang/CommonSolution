@@ -242,7 +242,7 @@ namespace ifunction.RestApi
 
                             if (eventLog != null && !string.IsNullOrWhiteSpace(jsonBody))
                             {
-                                eventLog.Content = jsonBody.Length > 50 ? jsonBody : (jsonBody.Substring(0, 40) + "..." + jsonBody.Substring(jsonBody.Length - 6, 6));
+                                eventLog.Content = jsonBody.Length > 50 ? ((jsonBody.Substring(0, 40) + "..." + jsonBody.Substring(jsonBody.Length - 6, 6))) : jsonBody;
                             }
 
                             PackageOutput(context.Response, invokeResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings);
@@ -257,7 +257,7 @@ namespace ifunction.RestApi
             catch (Exception ex)
             {
                 var apiTracking = settings?.ApiTracking;
-                var baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiInstance?.GetType().FullName, EnvironmentCore.ServerName);
+                var baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiServiceName, EnvironmentCore.ServerName);
 
                 if (apiTracking != null && eventLog != null)
                 {

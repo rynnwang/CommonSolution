@@ -21,6 +21,12 @@ namespace ifunction.RestApi
         public object ApiInstance { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the API service.
+        /// </summary>
+        /// <value>The name of the API service.</value>
+        public string ApiServiceName { get; set; }
+
+        /// <summary>
         /// Gets or sets the name of the resource.
         /// </summary>
         /// <value>The name of the resource.</value>

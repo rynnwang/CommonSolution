@@ -4,7 +4,6 @@ using System.IO;
 using System.Web;
 using ifunction.ApiTracking;
 using ifunction.Configuration;
-using ifunction.Constants;
 using ifunction.Model;
 
 namespace ifunction
@@ -37,7 +36,7 @@ namespace ifunction
                     var info = one.GetName();
 
                     if (!info.IsSystemAssembly())
-                    {                   
+                    {
                         var beyovaComponent = one.GetComponentAttribute();
 
                         result.AssemblyVersion.Merge(info.Name, beyovaComponent == null ? info.Version : new { Version = info.Version, Component = beyovaComponent.ToString() } as object);
@@ -87,9 +86,9 @@ namespace ifunction
         /// Gets or sets the operator information.
         /// </summary>
         /// <value>The operator information.</value>
-        public static object OperatorInfo
+        public static ICredential OperatorInfo
         {
-            get { return ThreadKeys.CurrentOperator.GetThreadData().SafeToString(); }
+            get { return ContextHelper.CurrentCredential; }
         }
 
         #endregion

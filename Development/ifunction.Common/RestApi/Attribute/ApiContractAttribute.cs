@@ -15,12 +15,21 @@ namespace ifunction.RestApi
         public string Version { get; protected set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiContractAttribute"/> class.
+        /// Gets or sets the name.
+        /// This name is used for as service identifier in <see cref="ifunction.ApiTracking.Model.ApiEventLog"/> model.
+        /// </summary>
+        /// <value>The name.</value>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiContractAttribute" /> class.
         /// </summary>
         /// <param name="version">The version.</param>
-        public ApiContractAttribute(string version)
+        /// <param name="name">The name.</param>
+        public ApiContractAttribute(string version, string name = null)
         {
             this.Version = version;
+            this.Name = name;
         }
     }
 }
