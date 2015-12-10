@@ -4,7 +4,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Web;
 
-namespace ifunction.WebSocket
+namespace Beyova.WebSocketComponent
 {
     /// <summary>
     /// Class WebSocketIdentifier.

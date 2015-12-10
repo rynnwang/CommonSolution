@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{84E5442E-A1B7-4934-8AF1-17458274EE2B}</ProjectGuid>
+    <ProjectGuid>{9472C495-0AC1-491F-80FC-0DB23F74E2E6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Beyova.WebSocket</RootNamespace>
-    <AssemblyName>Beyova.WebSocket</AssemblyName>
+    <RootNamespace>Beyova.Elasticsearch.Logger</RootNamespace>
+    <AssemblyName>Beyova.Elasticsearch.Logger</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,13 +30,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Elasticsearch.Net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Elasticsearch.Net.1.7.1\lib\net45\Elasticsearch.Net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ifunction.Common, Version=2.0.0.0, Culture=neutral, PublicKeyToken=4e9b350525e23afa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ifunction.Common.2.25.9\lib\ifunction.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,19 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ElasticsearchLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebSocket\WebSocketHandler.cs" />
-    <Compile Include="WebSocket\WebSocketHub.cs" />
-    <Compile Include="WebSocket\WebSocketResponseMessage.cs" />
-    <Compile Include="WebSocket\WebSocketRequestMessage.cs" />
-    <Compile Include="WebSocket\WebSocketMessageMeta.cs" />
-    <Compile Include="WebSocket\WebSocketIdentifier.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ifunction.Common\ifunction.Common.csproj">
-      <Project>{9c5a58ff-8f44-451f-9698-2fe2e3f2e7de}</Project>
-      <Name>ifunction.Common</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
