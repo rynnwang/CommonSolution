@@ -32,22 +32,16 @@ namespace ifunction.Model
         public string Token { get; set; }
 
         /// <summary>
-        /// Gets or sets the azure storage connection string.
+        /// Gets or sets the code.
         /// </summary>
-        /// <value>The azure storage connection string.</value>
-        public string AzureStorageConnectionString { get; set; }
+        /// <value>The code.</value>
+        public string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the SQL connection string.
+        /// Gets or sets the connection strings.
         /// </summary>
-        /// <value>The SQL connection string.</value>
-        public string SqlConnectionString { get; set; }
-
-        /// <summary>
-        /// Gets or sets the mongo connection string.
-        /// </summary>
-        /// <value>The mongo connection string.</value>
-        public string MongoConnectionString { get; set; }
+        /// <value>The connection strings.</value>
+        public Dictionary<string, string> ConnectionStrings { get; set; }
 
         /// <summary>
         /// Gets or sets the key.

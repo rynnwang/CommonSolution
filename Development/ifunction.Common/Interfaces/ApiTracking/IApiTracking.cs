@@ -23,9 +23,21 @@ namespace ifunction
         void LogExceptionAsync(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null);
 
         /// <summary>
+        /// Logs the exception asynchronous.
+        /// </summary>
+        /// <param name="exceptionInfo">The exception information.</param>
+        void LogExceptionAsync(ExceptionInfo exceptionInfo);
+
+        /// <summary>
         /// Logs the API trace log asynchronous.
         /// </summary>
         /// <param name="traceLog">The trace log.</param>
         void LogApiTraceLogAsync(ApiTraceLog traceLog);
+
+        /// <summary>
+        /// Logs the message asynchronous.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        void LogMessageAsync(string message);
     }
 }

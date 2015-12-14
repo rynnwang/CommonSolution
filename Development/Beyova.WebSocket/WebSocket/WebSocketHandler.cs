@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Web;
+using ifunction.RestApi;
 
 namespace Beyova.WebSocketComponent
 {
@@ -27,13 +28,17 @@ namespace Beyova.WebSocketComponent
             }
         }
 
+        /// <summary>
+        /// Gets or sets the maximum size of the buffer.
+        /// </summary>
+        /// <value>The maximum size of the buffer.</value>
         public int MaxBufferSize { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketHandlerBase" /> class.
         /// </summary>
         /// <param name="maxBufferSize">Maximum size of the buffer.</param>
-        protected WebSocketHandlerBase(int maxBufferSize)
+        protected WebSocketHandlerBase(int maxBufferSize, RestApiSettings defaultSettings)
         {
             if (maxBufferSize < 32)
             {

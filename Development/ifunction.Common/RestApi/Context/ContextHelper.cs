@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Web;
+using ifunction.ApiTracking.Model;
 using ifunction.Model;
 using ifunction.RestApi;
 
@@ -15,6 +16,11 @@ namespace ifunction
         /// The thread key_ API context
         /// </summary>
         internal const string threadKey_ApiContext = "ApiContext";
+
+        /// <summary>
+        /// The thread key_ trace context
+        /// </summary>
+        internal const string threadKey_TraceContext = "TraceContext";
 
         /// <summary>
         /// Gets the current operator key.
@@ -116,6 +122,32 @@ namespace ifunction
 
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Gets the trace context.
+        /// </summary>
+        /// <value>The trace context.</value>
+        internal static ApiTraceContext TraceContext
+        {
+            get
+            {
+                return threadKey_TraceContext.GetThreadData() as ApiTraceContext;
+            }
+        }
+
+        /// <summary>
+        /// Initializes the API trace context.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="traceId">The trace identifier.</param>
+        /// <returns>ApiTraceContext.</returns>
+        internal static ApiTraceContext InitializeApiTraceContext(RuntimeContext context, string traceId = null)
+        {
+            var result = new ApiTraceContext(context, traceId);
+            threadKey_TraceContext.SetThreadData(result);
+
+            return result;
         }
 
         #region ConsistContext

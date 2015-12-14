@@ -48,12 +48,16 @@ namespace ifunction
         /// <typeparam name="T"></typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="item">The item.</param>
-        public static void AddIfNotNull<T>(this ICollection<T> collection, T item)
+        /// <returns><c>true</c> if succeed to add, <c>false</c> otherwise.</returns>
+        public static bool AddIfNotNull<T>(this ICollection<T> collection, T item)
         {
             if (collection != null && item != null)
             {
                 collection.Add(item);
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>

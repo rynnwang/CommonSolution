@@ -97,8 +97,8 @@
     <Compile Include="AOP\AOPBase\BaseAOPAttribute.cs" />
     <Compile Include="AOP\Exception\HandleExceptionAttribute.cs" />
     <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
-    <Compile Include="ApiTracking\ApiTrackingRestClient.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
+    <Compile Include="RestApi\Context\ApiTraceContext.cs" />
     <Compile Include="ExceptionSystem\Model\FriendlyHint.cs" />
     <Compile Include="ExceptionSystem\Model\SimpleExceptionInfo.cs" />
     <Compile Include="Extensions\IOExtension.cs" />
@@ -202,7 +202,7 @@
     <Compile Include="RestApi\Interface\IWebSocketHub.cs" />
     <Compile Include="RestApi\Interface\IApiTransportAdapter.cs" />
     <Compile Include="RestApi\Model\RuntimeContext.cs" />
-    <Compile Include="RestApi\Model\ApiContext.cs" />
+    <Compile Include="RestApi\Context\ApiContext.cs" />
     <Compile Include="RestApi\RestApiHandler\RestApiEventHandlers.cs" />
     <Compile Include="RestApi\RestApiHandler\RestApiSettings.cs" />
     <Compile Include="ProgrammingIntelligence\Generator\RestApiClientGenerator.cs" />
@@ -286,7 +286,7 @@
     <Compile Include="RestApi\Attribute\TokenRequiredAttribute.cs" />
     <Compile Include="RestApi\RestApiExtension.cs" />
     <Compile Include="Utility\ColorUtility.cs" />
-    <Compile Include="RestApi\ContextHelper.cs" />
+    <Compile Include="RestApi\Context\ContextHelper.cs" />
     <Compile Include="Utility\JsonNet\GuidConverter.cs" />
     <Compile Include="Utility\JsonNet\SafeContractResolver.cs" />
     <Compile Include="Extensions\EncodingOrSecurityExtension.cs" />

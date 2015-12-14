@@ -50,11 +50,14 @@ namespace ifunction.RestApi
                 builder.AppendIndent(' ', 2 * (level + 1));
                 builder.AppendLineWithFormat("Exit: {0}", log.ExitStamp.ToFullDateTimeString());
                 builder.AppendIndent(' ', 2 * (level + 1));
-                builder.AppendLineWithFormat("Parameter data: {0}", log.MethodParameter.ToJson());
+                builder.AppendLineWithFormat("Parameters: {0}", log.MethodParameters.ToJson());
                 builder.AppendIndent(' ', 2 * (level + 1));
                 builder.AppendLineWithFormat("Exception: {0}", log.Exception == null ? "NA" : log.Exception.ToJson());
                 builder.AppendIndent(' ', 2 * (level + 1));
-                builder.AppendLineWithFormat("Inner trace: {0}", ApiTraceLogToString(log.InnerTraceLog, level + 1));
+                foreach (var one in log.InnerTraces)
+                {
+                    builder.AppendLineWithFormat("Inner trace: {0}", ApiTraceLogToString(one, level + 1));
+                }
             }
 
             return builder.ToString();

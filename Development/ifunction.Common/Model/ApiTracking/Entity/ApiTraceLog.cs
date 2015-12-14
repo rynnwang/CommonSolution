@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ifunction.ExceptionSystem;
 
 namespace ifunction.ApiTracking.Model
@@ -21,10 +22,10 @@ namespace ifunction.ApiTracking.Model
         public string MethodFullName { get; set; }
 
         /// <summary>
-        /// Gets or sets the method parameter.
+        /// Gets or sets the method parameters.
         /// </summary>
-        /// <value>The method parameter.</value>
-        public object MethodParameter { get; set; }
+        /// <value>The method parameters.</value>
+        public Dictionary<string, object> MethodParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the entry stamp.
@@ -45,10 +46,10 @@ namespace ifunction.ApiTracking.Model
         public ExceptionInfo Exception { get; set; }
 
         /// <summary>
-        /// Gets or sets the inner trace log.
+        /// Gets or sets the detail.
         /// </summary>
-        /// <value>The inner trace log.</value>
-        public ApiTraceLog InnerTraceLog { get; protected set; }
+        /// <value>The detail.</value>
+        public List<ApiTraceLog> InnerTraces { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiTraceLog"/> class.
@@ -56,25 +57,7 @@ namespace ifunction.ApiTracking.Model
         public ApiTraceLog()
         {
             this.CreatedStamp = DateTime.UtcNow;
-        }
-
-        /// <summary>
-        /// Appends the specified API trace log.
-        /// </summary>
-        /// <param name="apiTraceLog">The API trace log.</param>
-        public void Append(ApiTraceLog apiTraceLog)
-        {
-            if (apiTraceLog != null)
-            {
-                if (this.InnerTraceLog == null)
-                {
-                    this.InnerTraceLog = apiTraceLog;
-                }
-                else
-                {
-                    this.InnerTraceLog.Append(apiTraceLog);
-                }
-            }
+            this.InnerTraces = new List<ApiTraceLog>();
         }
     }
 }

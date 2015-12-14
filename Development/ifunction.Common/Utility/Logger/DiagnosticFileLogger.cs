@@ -89,6 +89,15 @@ namespace ifunction
         }
 
         /// <summary>
+        /// Logs the message.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        public void LogMessage(string content)
+        {
+            WriteContent(content.SafeToString());
+        }
+
+        /// <summary>
         /// Logs the exception.
         /// </summary>
         /// <param name="ex">The ex.</param>
@@ -222,6 +231,27 @@ namespace ifunction
             {
                 Task.Factory.StartNew(() => LogEvent(traceLog));
             }
+        }
+
+        /// <summary>
+        /// Logs the exception asynchronous.
+        /// </summary>
+        /// <param name="exceptionInfo">The exception information.</param>
+        public void LogExceptionAsync(ExceptionInfo exceptionInfo)
+        {
+            if (exceptionInfo != null)
+            {
+                Task.Factory.StartNew(() => WriteContent(exceptionInfo?.ToJson()));
+            }
+        }
+
+        /// <summary>
+        /// Logs the message asynchronous.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void LogMessageAsync(string message)
+        {
+            Task.Factory.StartNew(() => LogMessage(message));
         }
     }
 }

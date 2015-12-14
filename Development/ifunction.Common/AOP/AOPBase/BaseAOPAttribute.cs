@@ -17,11 +17,6 @@ namespace ifunction.AOP
     public abstract class BaseAOPAttribute : ContextAttribute
     {
         /// <summary>
-        /// The current operator identity key
-        /// </summary>
-        protected const string currentOperatorIdentityKey = "CurrentOperatorIdentity";
-
-        /// <summary>
         /// The message delegates
         /// </summary>
         protected MessageProcessDelegates messageDelegates;
@@ -57,7 +52,7 @@ namespace ifunction.AOP
                 string name = string.Empty;
                 if (AppDomain.CurrentDomain != null)
                 {
-                    name = System.AppDomain.CurrentDomain.FriendlyName;
+                    name = AppDomain.CurrentDomain.FriendlyName;
                 }
 
                 if (string.IsNullOrWhiteSpace(name))

@@ -56,12 +56,6 @@ namespace ifunction.RestApi
         /// <value><c>true</c> if [allow options]; otherwise, <c>false</c>.</value>
         public bool AllowOptions { get; protected set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether [allow trace].
-        /// </summary>
-        /// <value><c>true</c> if [allow trace]; otherwise, <c>false</c>.</value>
-        public bool AllowTrace { get; protected set; }
-
         #endregion
 
         /// <summary>
@@ -91,8 +85,7 @@ namespace ifunction.RestApi
         /// </summary>
         /// <param name="defaultApiSettings">The default API settings.</param>
         /// <param name="allowOptions">if set to <c>true</c> [allow options].</param>
-        /// <param name="allowTrace">if set to <c>true</c> [allow trace].</param>
-        protected ApiHandlerBase(RestApiSettings defaultApiSettings, bool allowOptions = false, bool allowTrace = false)
+        protected ApiHandlerBase(RestApiSettings defaultApiSettings, bool allowOptions = false)
         {
             // Ensure it is never null. Default values should be safe.
             DefaultSettings = defaultApiSettings ?? new RestApiSettings
@@ -137,6 +130,7 @@ namespace ifunction.RestApi
             var entryStamp = DateTime.UtcNow;
             RestApiSettings settings = DefaultSettings;
             RuntimeContext runtimeContext = null;
+            ApiTraceContext traceContext = null;
             string traceId = null;
 
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERHANDLETIME, entryStamp.ToFullDateTimeTzString());
@@ -146,10 +140,7 @@ namespace ifunction.RestApi
 
             try
             {
-                if (AllowTrace)
-                {
-                    ContextHelper.ApiContext.TraceId = traceId = context.Request.TryGetHeader(HttpConstants.HttpHeader.TRACEID).SafeToString(Guid.NewGuid().ToString());
-                }
+                traceId = context.Request.TryGetHeader(HttpConstants.HttpHeader.TRACEID);
 
                 Prepare(context.Request);
 
@@ -192,6 +183,11 @@ namespace ifunction.RestApi
                     }
 
                     InitializeContext(context.Request, runtimeContext);
+
+                    if (!string.IsNullOrWhiteSpace(traceId))
+                    {
+                        traceContext = ContextHelper.InitializeApiTraceContext(runtimeContext, traceId);
+                    }
 
                     if (eventLog != null)
                     {
@@ -259,23 +255,45 @@ namespace ifunction.RestApi
                 var apiTracking = settings?.ApiTracking;
                 var baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiServiceName, EnvironmentCore.ServerName);
 
-                if (apiTracking != null && eventLog != null)
+                if (eventLog != null)
                 {
                     eventLog.ExceptionKey = baseException.Key;
+                }
+
+                if (traceContext != null)
+                {
+                    traceContext.Root.Exception = baseException.ToExceptionInfo(runtimeContext?.ApiServiceName, EnvironmentCore.ServerName);
                 }
 
                 PackageOutput(context.Response, null, baseException, acceptEncoding, settings: settings);
             }
             finally
             {
-                if (eventLog != null && settings?.ApiTracking != null)
+                if (settings?.ApiTracking != null)
                 {
-                    try
+                    var exitStamp = DateTime.UtcNow;
+                    if (eventLog != null)
                     {
-                        eventLog.ExitStamp = DateTime.UtcNow;
-                        settings.ApiTracking.LogApiEventAsync(eventLog);
+                        try
+                        {
+                            eventLog.ExitStamp = exitStamp;
+                            settings.ApiTracking.LogApiEventAsync(eventLog);
+                        }
+                        catch { }
                     }
-                    catch { }
+
+                    if (traceContext != null)
+                    {
+                        try
+                        {
+                            var root = traceContext.Root;
+                            root.EntryStamp = entryStamp;
+                            root.ExitStamp = exitStamp;
+
+                            settings.ApiTracking.LogApiTraceLogAsync(root);
+                        }
+                        catch { }
+                    }
                 }
 
                 ThreadExtension.Clear();
@@ -473,10 +491,23 @@ namespace ifunction.RestApi
             var baseException = exception.Handle(null);
             if (apiTrackingExecutor != null)
             {
-                apiTrackingExecutor.LogExceptionAsync(baseException, serviceIdentifier, serverIdentifier);
+                HandleException(apiTrackingExecutor, baseException.ToExceptionInfo(serviceIdentifier, serverIdentifier));
             }
 
             return baseException;
+        }
+
+        /// <summary>
+        /// Handles the exception.
+        /// </summary>
+        /// <param name="apiTrackingExecutor">The API tracking executor.</param>
+        /// <param name="exceptionInfo">The exception information.</param>
+        protected void HandleException(IApiTracking apiTrackingExecutor, ExceptionInfo exceptionInfo)
+        {
+            if (apiTrackingExecutor != null && exceptionInfo != null)
+            {
+                apiTrackingExecutor.LogExceptionAsync(exceptionInfo);
+            }
         }
 
         /// <summary>
@@ -549,7 +580,7 @@ namespace ifunction.RestApi
                 } as IExceptionInfo) : data;
 
                 response.Headers.Add(HttpConstants.HttpHeader.SERVERTIME, DateTime.UtcNow.ToFullDateTimeTzString());
-                response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ContextHelper.ApiContext.TraceId);
+                response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ContextHelper.TraceContext?.TraceId);
 
                 response.StatusCode = (int)(ex == null ? (noBody ? HttpStatusCode.NoContent : HttpStatusCode.OK) : ex.Code.ToHttpStatusCode());
 

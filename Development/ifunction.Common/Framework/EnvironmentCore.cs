@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.IO;
+using System.Reflection;
 using System.Web;
 using ifunction.Model;
 
@@ -32,6 +33,12 @@ namespace ifunction
         public static readonly string ServerName;
 
         /// <summary>
+        /// Gets or sets the name of the application.
+        /// </summary>
+        /// <value>The name of the application.</value>
+        public static readonly string ApplicationName;
+
+        /// <summary>
         /// Initializes static members of the <see cref="EnvironmentCore"/> class.
         /// </summary>
         static EnvironmentCore()
@@ -47,7 +54,21 @@ namespace ifunction
             {
                 ServerName = Environment.MachineName;
             }
-            catch { ServerName = "Undefined"; }
+            catch { ServerName = string.Empty; }
+
+            try
+            {
+                if (AppDomain.CurrentDomain != null)
+                {
+                    ApplicationName = AppDomain.CurrentDomain.FriendlyName;
+                }
+
+                if (string.IsNullOrWhiteSpace(ApplicationName))
+                {
+                    ApplicationName = Assembly.GetEntryAssembly().FullName;
+                }
+            }
+            catch { ApplicationName = string.Empty; }
         }
 
         /// <summary>

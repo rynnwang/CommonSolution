@@ -27,12 +27,6 @@ namespace ifunction.RestApi
         public string Token { get; set; }
 
         /// <summary>
-        /// Gets or sets the trace identifier.
-        /// </summary>
-        /// <value>The trace identifier.</value>
-        public string TraceId { get; set; }
-
-        /// <summary>
         /// Gets or sets the platform.
         /// </summary>
         /// <value>The platform.</value>

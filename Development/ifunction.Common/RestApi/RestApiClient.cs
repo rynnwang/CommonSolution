@@ -140,10 +140,10 @@ namespace ifunction.RestApi
                     httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.ORIGINAL, originalIpAddress);
                 }
 
-                var traceId = currentApiContext.TraceId.SafeToString();
-                if (!string.IsNullOrWhiteSpace(traceId))
+                var currentTraceContext = ContextHelper.TraceContext;
+                if (currentTraceContext != null)
                 {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TRACEID, traceId);
+                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TRACEID, currentTraceContext.TraceId);
                 }
 
                 var userAgent = currentApiContext.UserAgent.SafeToString();
