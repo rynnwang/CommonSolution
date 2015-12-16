@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
 using Elasticsearch.Net.Connection;
-using ifunction;
-using ifunction.ApiTracking.Model;
-using ifunction.ExceptionSystem;
+using Beyova;
+using Beyova.ApiTracking.Model;
+using Beyova.ExceptionSystem;
 
 namespace Beyova.Elasticsearch.Logger
 {
@@ -93,6 +93,44 @@ namespace Beyova.Elasticsearch.Logger
                 catch (Exception ex)
                 {
                     Framework.ApiTracking.LogExceptionAsync(ex.Handle("LogExceptionAsync"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Logs the exception asynchronous.
+        /// </summary>
+        /// <param name="exceptionInfo">The exception information.</param>
+        public void LogExceptionAsync(ExceptionInfo exceptionInfo)
+        {
+            if (elasticsearchClient != null)
+            {
+                try
+                {
+                    elasticsearchClient.IndexAsync(indexName, "Exception", exceptionInfo);
+                }
+                catch (Exception ex)
+                {
+                    Framework.ApiTracking.LogExceptionAsync(ex.Handle("LogExceptionAsync"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Logs the message asynchronous.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void LogMessageAsync(string message)
+        {
+            if (elasticsearchClient != null)
+            {
+                try
+                {
+                    elasticsearchClient.IndexAsync(indexName, "Message", message);
+                }
+                catch (Exception ex)
+                {
+                    Framework.ApiTracking.LogExceptionAsync(ex.Handle("LogMessageAsync"));
                 }
             }
         }

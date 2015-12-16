@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ifunction
+namespace Beyova
 {
     /// <summary>
     /// Interface IPlaceHolderMember

@@ -3,20 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ifunction.Common", "ifunction.Common\ifunction.Common.csproj", "{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{79C9610B-1DFE-4632-AF62-050073BA3E85}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ifunction.Common.UnitTest", "ifunction.Common.UnitTest\ifunction.Common.UnitTest.csproj", "{0933355D-D4B6-405C-B442-C8F6E0A26D37}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ifunction.WebExtension", "ifunction.WebExtension\ifunction.WebExtension.csproj", "{4C33AE75-E72B-4D27-964D-369E963345A8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.AzureExtension", "ifunction.AzureExtension\Beyova.AzureExtension.csproj", "{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.RestApiPortal", "Beyova.RestApiPortal\Beyova.RestApiPortal.csproj", "{17024F7C-6B02-4498-8798-614B54FD37D4}"
 EndProject
@@ -28,28 +20,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Elasticsearch.Logger
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Elasticsearch.Analytics", "Beyova.Elasticsearch.Analytics\Beyova.Elasticsearch.Analytics.csproj", "{1DBDD6D7-05D0-4AE7-9254-E4635BF78058}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Common", "Beyova.Common\Beyova.Common.csproj", "{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.AzureExtension", "Beyova.AzureExtension\Beyova.AzureExtension.csproj", "{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.WebExtension", "Beyova.WebExtension\Beyova.WebExtension.csproj", "{7ED3C3F5-FB77-4E3F-BD02-E6C11E165A92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Common.UnitTest", "Beyova.Common.UnitTest\Beyova.Common.UnitTest.csproj", "{0933355D-D4B6-405C-B442-C8F6E0A26D37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4C33AE75-E72B-4D27-964D-369E963345A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C33AE75-E72B-4D27-964D-369E963345A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C33AE75-E72B-4D27-964D-369E963345A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C33AE75-E72B-4D27-964D-369E963345A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17024F7C-6B02-4498-8798-614B54FD37D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17024F7C-6B02-4498-8798-614B54FD37D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17024F7C-6B02-4498-8798-614B54FD37D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -70,6 +54,22 @@ Global
 		{1DBDD6D7-05D0-4AE7-9254-E4635BF78058}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DBDD6D7-05D0-4AE7-9254-E4635BF78058}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DBDD6D7-05D0-4AE7-9254-E4635BF78058}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17D71314-F555-4CBB-9C42-4C54FA5EB0DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ED3C3F5-FB77-4E3F-BD02-E6C11E165A92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED3C3F5-FB77-4E3F-BD02-E6C11E165A92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED3C3F5-FB77-4E3F-BD02-E6C11E165A92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED3C3F5-FB77-4E3F-BD02-E6C11E165A92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0933355D-D4B6-405C-B442-C8F6E0A26D37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

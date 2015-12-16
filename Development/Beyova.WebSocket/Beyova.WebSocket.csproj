@@ -54,13 +54,13 @@
     <Compile Include="WebSocket\WebSocketIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ifunction.Common\ifunction.Common.csproj">
-      <Project>{9c5a58ff-8f44-451f-9698-2fe2e3f2e7de}</Project>
-      <Name>ifunction.Common</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Beyova.Common\Beyova.Common.csproj">
+      <Project>{9c5a58ff-8f44-451f-9698-2fe2e3f2e7de}</Project>
+      <Name>Beyova.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

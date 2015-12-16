@@ -53,9 +53,9 @@
     <Folder Include="RFC\RFC5545\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ifunction.Common\ifunction.Common.csproj">
+    <ProjectReference Include="..\Beyova.Common\Beyova.Common.csproj">
       <Project>{9c5a58ff-8f44-451f-9698-2fe2e3f2e7de}</Project>
-      <Name>ifunction.Common</Name>
+      <Name>Beyova.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

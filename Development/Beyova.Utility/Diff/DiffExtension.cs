@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ifunction;
+using Beyova;
 
 namespace Beyova.Utility
 {
