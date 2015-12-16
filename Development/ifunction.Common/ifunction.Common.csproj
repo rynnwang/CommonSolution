@@ -81,6 +81,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
@@ -98,6 +99,9 @@
     <Compile Include="AOP\Exception\HandleExceptionAttribute.cs" />
     <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
+    <Compile Include="Extensions\MathExtension.cs" />
+    <Compile Include="Extensions\SystemManagementExtension.cs" />
+    <Compile Include="Model\SystemEnvironment\SystemMemory.cs" />
     <Compile Include="RestApi\Context\ApiTraceContext.cs" />
     <Compile Include="ExceptionSystem\Model\FriendlyHint.cs" />
     <Compile Include="ExceptionSystem\Model\SimpleExceptionInfo.cs" />
@@ -260,7 +264,7 @@
     <Compile Include="Interfaces\IIdentifier.cs" />
     <Compile Include="Model\BaseObject.cs" />
     <Compile Include="Model\BaseCriteria.cs" />
-    <Compile Include="Model\ServiceVersion.cs" />
+    <Compile Include="Model\SystemEnvironment\EnvironmentInfo.cs" />
     <Compile Include="Model\EmailMessage.cs" />
     <Compile Include="Model\TimePin.cs" />
     <Compile Include="Extensions\CollectionExtension.cs" />

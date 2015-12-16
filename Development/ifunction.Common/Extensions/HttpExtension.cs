@@ -536,6 +536,19 @@ namespace ifunction
         }
 
         /// <summary>
+        /// Reads the response asynchronous.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <returns>Task&lt;System.Byte[]&gt;.</returns>
+        public static Task<byte[]> ReadResponseAsync(this HttpWebRequest httpWebRequest)
+        {
+            return httpWebRequest.GetResponseAsync().ContinueWith((responseTask) =>
+            {
+                return responseTask.Result.ReadAsBytes(true);
+            });
+        }
+
+        /// <summary>
         /// Reads as bytes.
         /// </summary>
         /// <param name="webResponse">The web response.</param>

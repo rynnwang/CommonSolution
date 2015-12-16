@@ -24,12 +24,12 @@ namespace ifunction
         /// Abouts the service.
         /// </summary>
         /// <returns>ServiceVersion.</returns>
-        public static ServiceVersion AboutService()
+        public static EnvironmentInfo AboutService()
         {
             try
             {
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                var result = new ServiceVersion();
+                var result = new EnvironmentInfo();
 
                 foreach (var one in assemblies)
                 {
@@ -45,6 +45,8 @@ namespace ifunction
 
                 result.ConfigurationBelongs = configurationReader == null ? new Dictionary<string, string>() : configurationReader.ConfigurationBelongs;
                 result.ServerEnvironment = configurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(configurationReader.SqlConnection);
+                result.MemoryUsage = SystemManagementExtension.GetMemoryUsage();
+                result.CpuUsage = SystemManagementExtension.GetCpuUsage();
 
                 return result;
             }

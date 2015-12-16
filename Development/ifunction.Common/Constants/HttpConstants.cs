@@ -106,6 +106,11 @@
             public const string TRACEID = "X-BA-TRACE-ID";
 
             /// <summary>
+            /// The tracedetail
+            /// </summary>
+            public const string TRACEDETAIL = "X-BA-TRACE-DETAIL";
+
+            /// <summary>
             /// The content encoding
             /// </summary>
             public const string ContentEncoding = "Content-Encoding";

@@ -6,9 +6,9 @@ using System.Text;
 namespace ifunction.Model
 {
     /// <summary>
-    /// Class ServiceVersion.
+    /// Class EnvironmentInfo.
     /// </summary>
-    public class ServiceVersion
+    public class EnvironmentInfo
     {
         /// <summary>
         /// Gets or sets the assembly version.
@@ -29,9 +29,21 @@ namespace ifunction.Model
         public Dictionary<string, string> ConfigurationBelongs { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceVersion"/> class.
+        /// Gets or sets the memory usage.
         /// </summary>
-        public ServiceVersion()
+        /// <value>The memory usage.</value>
+        public long? MemoryUsage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cpu usage.
+        /// </summary>
+        /// <value>The cpu usage.</value>
+        public double? CpuUsage { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnvironmentInfo"/> class.
+        /// </summary>
+        public EnvironmentInfo()
         {
             this.AssemblyVersion = new Dictionary<string, object>();
         }
