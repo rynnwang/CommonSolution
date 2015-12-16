@@ -4,6 +4,8 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Beyova;
+using Beyova.ExceptionSystem;
 
 namespace ifunction.ReflectionCommand
 {
@@ -91,7 +93,7 @@ namespace ifunction.ReflectionCommand
             {
                 string commandKey = null;
 
-                commandLine = commandLine.ToSafeString().Trim();
+                commandLine = commandLine.SafeToString().Trim();
                 var match = regex_CommandLine.Match(commandLine);
 
                 if (match != null && match.Success)
@@ -232,7 +234,7 @@ namespace ifunction.ReflectionCommand
                 else
                 {
                     throw new InvalidCastException(string.Format("Failed to find command: [{0}]",
-                        commandKey.ToSafeString()));
+                        commandKey.SafeToString()));
                 }
             }
             catch (InvalidCastException)
@@ -242,7 +244,7 @@ namespace ifunction.ReflectionCommand
             catch (Exception ex)
             {
                 throw new InvalidCastException(
-                    string.Format("Failed to execute command: [{0}]", commandKey.ToSafeString()), ex);
+                    string.Format("Failed to execute command: [{0}]", commandKey.SafeToString()), ex);
             }
 
             return result;
