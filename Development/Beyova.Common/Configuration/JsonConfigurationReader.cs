@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web.UI.WebControls;
+using Beyova.ProgrammingIntelligence;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -44,6 +45,36 @@ namespace Beyova.Configuration
             /// </summary>
             /// <value>The name.</value>
             public string Name { get; set; }
+
+            /// <summary>
+            /// Gets or sets the environment.
+            /// </summary>
+            /// <value>The environment.</value>
+            public string Environment { get; set; }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether this <see cref="ConfigurationItem"/> is encrypted.
+            /// </summary>
+            /// <value><c>true</c> if encrypted; otherwise, <c>false</c>.</value>
+            public bool Encrypted { get; set; }
+
+            /// <summary>
+            /// Gets or sets the minimum component version required.
+            /// </summary>
+            /// <value>The minimum component version required.</value>
+            public string MinComponentVersionRequired { get; set; }
+
+            /// <summary>
+            /// Gets or sets the maximum component version limited.
+            /// </summary>
+            /// <value>The maximum component version limited.</value>
+            public string MaxComponentVersionLimited { get; set; }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether this instance is active.
+            /// </summary>
+            /// <value><c>true</c> if this instance is active; otherwise, <c>false</c>.</value>
+            public bool IsActive { get; set; }
         }
 
         #region Constants
@@ -54,9 +85,29 @@ namespace Beyova.Configuration
         public const string Attribute_Type = "Type";
 
         /// <summary>
+        /// The attribute_ minimum component version require
+        /// </summary>
+        public const string Attribute_MinComponentVersionRequire = "MinComponentVersionRequired";
+
+        /// <summary>
+        /// The attribute_ maximum component version limited
+        /// </summary>
+        public const string Attribute_MaxComponentVersionLimited = "MaxComponentVersionLimited";
+
+        /// <summary>
         /// The XML attribute_ version
         /// </summary>
         public const string Attribute_Version = "Version";
+
+        /// <summary>
+        /// The attribute_ name
+        /// </summary>
+        public const string Attribute_Name = "Name";
+
+        /// <summary>
+        /// The attribute_ environment
+        /// </summary>
+        public const string Attribute_Environment = "Environment";
 
         /// <summary>
         /// The XML attribute_ value
@@ -64,9 +115,9 @@ namespace Beyova.Configuration
         public const string Attribute_Value = "Value";
 
         /// <summary>
-        /// The XML attribute_ name
+        /// The attribute_ encrypted
         /// </summary>
-        public const string Attribute_Name = "Name";
+        public const string Attribute_Encrypted = "Encrypted";
 
         /// <summary>
         /// The configuration key_ SQL connection
@@ -142,7 +193,7 @@ namespace Beyova.Configuration
         {
             ConfigurationItem configuration = null;
 
-            if (settings.SafeTryGetValue(key, out configuration))
+            if (settings.SafeTryGetValue(key, out configuration) && configuration.IsActive)
             {
                 return (T)configuration.Value;
             }
@@ -159,7 +210,7 @@ namespace Beyova.Configuration
         protected object GetConfigurationAsObject(string key, object defaultValue = null)
         {
             ConfigurationItem configuration = null;
-            return settings.SafeTryGetValue(key, out configuration) ? configuration.Value : defaultValue;
+            return (settings.SafeTryGetValue(key, out configuration) && configuration.IsActive) ? configuration.Value : defaultValue;
         }
 
         /// <summary>
@@ -216,7 +267,8 @@ namespace Beyova.Configuration
 
             if (!string.IsNullOrWhiteSpace(jsonString))
             {
-                InitializeSettings(settingContainer, jsonString, assembly == null ? "AppConfig" : assemblyName, throwException);
+                var beyovaComponent = assembly.GetCustomAttribute<BeyovaComponentAttribute>();
+                InitializeSettings(settingContainer, beyovaComponent, jsonString, assembly == null ? "AppConfig" : assemblyName, throwException);
             }
 
             return settingContainer;
@@ -226,10 +278,11 @@ namespace Beyova.Configuration
         /// Initializes the settings.
         /// </summary>
         /// <param name="settingContainer">The setting container.</param>
+        /// <param name="componentAttribute">The component attribute.</param>
         /// <param name="jsonString">The json string.</param>
         /// <param name="assemblyName">Name of the assembly.</param>
         /// <param name="throwException">if set to <c>true</c> [throw exception].</param>
-        private void InitializeSettings(IDictionary<string, ConfigurationItem> settingContainer, string jsonString, string assemblyName, bool throwException = false)
+        private void InitializeSettings(IDictionary<string, ConfigurationItem> settingContainer, BeyovaComponentAttribute componentAttribute, string jsonString, string assemblyName, bool throwException = false)
         {
             settingContainer.Clear();
 
@@ -240,11 +293,12 @@ namespace Beyova.Configuration
                     var root = JObject.Parse(jsonString);
                     root.CheckNullObject("root");
 
-                    var version = root.GetValue(Attribute_Version).Value<string>();
+                    var name = root.GetValue(Attribute_Name).Value<string>().SafeToString(root.GetValue(Attribute_Version).Value<string>());
+                    var environment = root.GetValue(Attribute_Environment).Value<string>();
 
                     foreach (JProperty one in root.GetValue("Configurations").Children())
                     {
-                        FillObjectCollection(settingContainer, one, string.Format("{0}({1})", assemblyName, version), throwException);
+                        FillObjectCollection(settingContainer, componentAttribute, one, assemblyName, name, environment, throwException);
                     }
                 }
                 catch (Exception ex)
@@ -262,11 +316,14 @@ namespace Beyova.Configuration
         /// Fills the object collection.
         /// </summary>
         /// <param name="container">The container.</param>
+        /// <param name="componentAttribute">The component attribute.</param>
         /// <param name="itemNode">The XML node.</param>
-        /// <param name="valueSource">The value source.</param>
+        /// <param name="assemblyName">Name of the assembly.</param>
+        /// <param name="configurationSourceName">Name of the configuration source.</param>
+        /// <param name="environment">The environment.</param>
         /// <param name="throwException">if set to <c>true</c> [throw exception].</param>
         /// <exception cref="System.InvalidOperationException">Failed to FillObjectCollection, Data:  + xmlNode.ToString() + \n\r</exception>
-        private static void FillObjectCollection(IDictionary<string, ConfigurationItem> container, JProperty itemNode, string valueSource, bool throwException = false)
+        private static void FillObjectCollection(IDictionary<string, ConfigurationItem> container, BeyovaComponentAttribute componentAttribute, JProperty itemNode, string assemblyName, string configurationSourceName, string environment, bool throwException = false)
         {
             try
             {
@@ -276,6 +333,9 @@ namespace Beyova.Configuration
                 var key = itemNode.Name;
                 var valueNode = itemNode.Value;
                 var typeFullName = valueNode.SelectToken(Attribute_Type).Value<string>();
+                var encrypted = (valueNode.SelectToken(Attribute_Encrypted)?.Value<bool>()) ?? false;
+                var minVersion = valueNode.SelectToken(Attribute_MinComponentVersionRequire)?.Value<string>();
+                var maxVersion = valueNode.SelectToken(Attribute_MaxComponentVersionLimited)?.Value<string>();
 
                 if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(typeFullName))
                 {
@@ -283,8 +343,19 @@ namespace Beyova.Configuration
 
                     if (objectType != null)
                     {
-                        var valueObject = valueNode.SelectToken(Attribute_Value).ToObject(objectType);
-                        container.Merge(key, new ConfigurationItem { Value = valueObject, Source = valueSource });
+                        var valueObject = (encrypted ? DecryptObject(valueNode.Value<string>()) : valueNode.SelectToken(Attribute_Value)).ToObject(objectType);
+                        container.Merge(key, new ConfigurationItem
+                        {
+                            Value = valueObject,
+                            Source = configurationSourceName,
+                            IsActive = IsActive(componentAttribute?.Version, minVersion, maxVersion),
+                            Assembly = assemblyName,
+                            MaxComponentVersionLimited = maxVersion,
+                            MinComponentVersionRequired = minVersion,
+                            Encrypted = encrypted,
+                            Environment = environment,
+                            Name = configurationSourceName
+                        });
                     }
                 }
             }
@@ -296,6 +367,61 @@ namespace Beyova.Configuration
                 }
             }
         }
+
+        /// <summary>
+        /// Decrypts the object.
+        /// </summary>
+        /// <param name="jsonString">The json string.</param>
+        /// <returns>Newtonsoft.Json.Linq.JToken.</returns>
+        private static JToken DecryptObject(string jsonString)
+        {
+            return string.IsNullOrWhiteSpace(jsonString) ? null : jsonString.R3DDecrypt3DES();
+        }
+
+        /// <summary>
+        /// Encrypts the object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>System.String.</returns>
+        private static string EncryptObject(object obj)
+        {
+            return obj == null ? null : obj.ToJson(false).R3DEncrypt3DES();
+        }
+
+        /// <summary>
+        /// Determines whether the specified version value is active.
+        /// </summary>
+        /// <param name="versionValue">The version value.</param>
+        /// <param name="minRequired">The minimum required.</param>
+        /// <param name="maxLimited">The maximum limited.</param>
+        /// <returns>System.Boolean.</returns>
+        private static bool IsActive(string versionValue, string minRequired, string maxLimited)
+        {
+            if (!string.IsNullOrWhiteSpace(versionValue))
+            {
+                Version version = null, min = null, max = null;
+
+                try
+                {
+                    version = new Version(versionValue);
+                    min = string.IsNullOrWhiteSpace(minRequired) ? null : new Version(minRequired);
+                    max = string.IsNullOrWhiteSpace(maxLimited) ? null : new Version(maxLimited);
+                }
+                catch { }
+
+                if (version != null)
+                {
+                    if ((min != null && min > version)
+                        || (max != null && max < version))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
 
         #endregion
 
@@ -348,7 +474,7 @@ namespace Beyova.Configuration
         /// <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
         public IEnumerable<KeyValuePair<string, object>> GetValues()
         {
-            return settings.Select(x => { return new KeyValuePair<string, object>(x.Key, x.Value.Value); });
+            return (from item in settings where item.Value.IsActive select new KeyValuePair<string, object>(item.Key, item.Value.Value));
         }
 
         #endregion

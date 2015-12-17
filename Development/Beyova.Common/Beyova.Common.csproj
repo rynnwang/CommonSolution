@@ -8,8 +8,8 @@
     <ProjectGuid>{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ifunction.Common</RootNamespace>
-    <AssemblyName>ifunction.Common</AssemblyName>
+    <RootNamespace>Beyova.Common</RootNamespace>
+    <AssemblyName>Beyova.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -60,7 +60,7 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>bin\Release\ifunction.Common.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Beyova.Common.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
