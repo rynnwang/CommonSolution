@@ -257,7 +257,7 @@ namespace Beyova.Configuration
             var settingContainer = new Dictionary<string, ConfigurationItem>();
             var assemblyName = (assembly != null) ? assembly.GetName().Name : null;
 
-            var configurationPath = GetConfigurationFilePath(assemblyName);
+            var configurationPath = GetConfigurationFilePath(assemblyName.SafeToString("AppConfig"));
             string jsonString = string.Empty;
 
             if (File.Exists(configurationPath))
@@ -293,8 +293,8 @@ namespace Beyova.Configuration
                     var root = JObject.Parse(jsonString);
                     root.CheckNullObject("root");
 
-                    var name = root.GetValue(Attribute_Name).Value<string>().SafeToString(root.GetValue(Attribute_Version).Value<string>());
-                    var environment = root.GetValue(Attribute_Environment).Value<string>();
+                    var name = root.GetValue(Attribute_Name)?.Value<string>().SafeToString(root.GetValue(Attribute_Version)?.Value<string>());
+                    var environment = root.GetValue(Attribute_Environment)?.Value<string>();
 
                     foreach (JProperty one in root.GetValue("Configurations").Children())
                     {
