@@ -29,12 +29,6 @@ namespace Beyova.Configuration
             public object Value { get; set; }
 
             /// <summary>
-            /// Gets or sets the source.
-            /// </summary>
-            /// <value>The source.</value>
-            public string Source { get; set; }
-
-            /// <summary>
             /// Gets or sets the assembly.
             /// </summary>
             /// <value>The assembly.</value>
@@ -164,7 +158,7 @@ namespace Beyova.Configuration
 
                 foreach (var one in settings)
                 {
-                    result.Add(one.Key, one.Value.Source);
+                    result.Add(one.Key, string.Format("Assembly: {0}, Environment: {1}, Name: {2}", one.Value.Assembly, one.Value.Environment, one.Value.Name));
                 }
 
                 return result;
@@ -293,7 +287,8 @@ namespace Beyova.Configuration
                     var root = JObject.Parse(jsonString);
                     root.CheckNullObject("root");
 
-                    var name = root.GetValue(Attribute_Name)?.Value<string>().SafeToString(root.GetValue(Attribute_Version)?.Value<string>());
+                    var name = root.GetValue(Attribute_Name)?.Value<string>();
+                    name = name.SafeToString(root.GetValue(Attribute_Version)?.Value<string>());
                     var environment = root.GetValue(Attribute_Environment)?.Value<string>();
 
                     foreach (JProperty one in root.GetValue("Configurations").Children())
@@ -347,7 +342,6 @@ namespace Beyova.Configuration
                         container.Merge(key, new ConfigurationItem
                         {
                             Value = valueObject,
-                            Source = configurationSourceName,
                             IsActive = IsActive(componentAttribute?.Version, minVersion, maxVersion),
                             Assembly = assemblyName,
                             MaxComponentVersionLimited = maxVersion,

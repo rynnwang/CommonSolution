@@ -194,7 +194,7 @@ namespace ifunction.ReflectionCommand
 
             if (section != null && container != null && section.Name.LocalName.Equals("StaticType"))
             {
-                var type = ReflectionExtension.GetType(section.GetAttributeValue("FullName"));
+                var type = ReflectionExtension.SmartGetType(section.GetAttributeValue("FullName"));
 
                 if (type != null && section.HasElements())
                 {
