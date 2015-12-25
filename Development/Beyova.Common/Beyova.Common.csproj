@@ -148,7 +148,6 @@
     <Compile Include="Model\ApiTracking\Statistic\ApiEventStatistic.cs" />
     <Compile Include="Model\App\AppPlatformBase.cs" />
     <Compile Include="Model\App\AppVersionBase.cs" />
-    <Compile Include="Model\AuthenticationProfile\SecurityChannel.cs" />
     <Compile Include="Model\AuthenticationProfile\SessionCriteria.cs" />
     <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpointCriteria.cs" />
     <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpointBase.cs" />

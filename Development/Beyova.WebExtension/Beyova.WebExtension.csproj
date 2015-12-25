@@ -7,8 +7,8 @@
     <ProjectGuid>{7ED3C3F5-FB77-4E3F-BD02-E6C11E165A92}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ifunction.WebExtension</RootNamespace>
-    <AssemblyName>ifunction.WebExtension</AssemblyName>
+    <RootNamespace>Beyova.WebExtension</RootNamespace>
+    <AssemblyName>Beyova.WebExtension</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
@@ -34,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\ifunction.WebExtension.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Beyova.WebExtension.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">

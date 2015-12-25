@@ -226,6 +226,7 @@ namespace Beyova
         public static void Clear()
         {
             threadKey_ApiContext.SetThreadData(null);
+            threadKey_TraceContext.SetThreadData(null);
         }
 
         /// <summary>

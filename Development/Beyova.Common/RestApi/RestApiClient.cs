@@ -127,30 +127,7 @@ namespace Beyova.RestApi
                 }
 
                 var httpRequest = url.CreateHttpWebRequest(httpMethod.SafeToString("POST"));
-                if (!string.IsNullOrWhiteSpace(Token))
-                {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TOKEN, Token);
-                }
-
-                var currentApiContext = ContextHelper.ApiContext;
-
-                var originalIpAddress = currentApiContext.IpAddress.SafeToString();
-                if (!string.IsNullOrWhiteSpace(originalIpAddress))
-                {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.ORIGINAL, originalIpAddress);
-                }
-
-                var currentTraceContext = ContextHelper.TraceContext;
-                if (currentTraceContext != null)
-                {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TRACEID, currentTraceContext.TraceId);
-                }
-
-                var userAgent = currentApiContext.UserAgent.SafeToString();
-                if (!string.IsNullOrWhiteSpace(userAgent))
-                {
-                    httpRequest.UserAgent = userAgent;
-                }
+                FillAdditionalData(httpRequest);
 
                 if (requestBody != null)
                 {
@@ -273,11 +250,7 @@ namespace Beyova.RestApi
                 }
 
                 var httpRequest = url.CreateHttpWebRequest(httpMethod);
-
-                if (!string.IsNullOrWhiteSpace(Token))
-                {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TOKEN, Token);
-                }
+                FillAdditionalData(httpRequest);
 
                 if (requestBody != null)
                 {
@@ -308,6 +281,41 @@ namespace Beyova.RestApi
             catch (Exception ex)
             {
                 throw ex.Handle("Invoke", new { Method = methodInfo?.GetFullName() });
+            }
+        }
+
+        /// <summary>
+        /// Fills the additional data.
+        /// </summary>
+        /// <param name="httpRequest">The HTTP request.</param>
+        protected void FillAdditionalData(HttpWebRequest httpRequest)
+        {
+            if (httpRequest != null)
+            {
+                if (!string.IsNullOrWhiteSpace(Token))
+                {
+                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TOKEN, Token);
+                }
+
+                var currentApiContext = ContextHelper.ApiContext;
+
+                var originalIpAddress = currentApiContext.IpAddress.SafeToString();
+                if (!string.IsNullOrWhiteSpace(originalIpAddress))
+                {
+                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.ORIGINAL, originalIpAddress);
+                }
+
+                var currentTraceContext = ContextHelper.TraceContext;
+                if (currentTraceContext != null)
+                {
+                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TRACEID, currentTraceContext.TraceId);
+                }
+
+                var userAgent = currentApiContext.UserAgent.SafeToString();
+                if (!string.IsNullOrWhiteSpace(userAgent))
+                {
+                    httpRequest.UserAgent = userAgent;
+                }
             }
         }
     }
