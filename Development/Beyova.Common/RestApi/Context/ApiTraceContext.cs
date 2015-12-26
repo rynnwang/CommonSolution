@@ -39,21 +39,50 @@ namespace Beyova.RestApi
         /// <value>The root.</value>
         public ApiTraceLog Root { get { return Chain[0]; } }
 
+        #region Constructors      
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiTraceContext"/> class.
         /// </summary>
-        /// <param name="context">The context.</param>
         /// <param name="traceId">The trace identifier.</param>
-        internal ApiTraceContext(RuntimeContext context, string traceId = null)
+        internal ApiTraceContext(string traceId)
         {
             this.Chain = new List<ApiTraceLog>();
-            this.Chain.AddIfNotNull(RuntimeContextToTraceLog(context));
             this.TraceId = traceId;
         }
 
+        #endregion
+
+        #region Enter
+
         internal void Enter(MethodInfo method)
         {
+            Enter(method.ToTraceLog());
+        }
 
+        internal void Enter(RuntimeContext context)
+        {
+            Enter(context.ToTraceLog());
+        }
+
+        private void Enter(ApiTraceLog traceLog)
+        {
+            if (traceLog != null)
+            {
+                Chain.Add(traceLog);
+                currentIndex = Chain.Count - 1;
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gets the parent trace log.
+        /// </summary>
+        /// <returns>ApiTraceLog.</returns>
+        private ApiTraceLog GetParentTraceLog()
+        {
+            return currentIndex > 0 ? Chain[(currentIndex - 1)] : null;
         }
 
         /// <summary>
@@ -61,31 +90,13 @@ namespace Beyova.RestApi
         /// </summary>
         internal void Exit()
         {
+            Chain.RemoveFrom(currentIndex);
+
             currentIndex--;
             if (currentIndex < 0)
             {
                 throw new OperationFailureException("Exit", hintMessage: "Exited index is below 0, which indicates Enter and Exit are not mathed.");
             }
-        }
-
-        /// <summary>
-        /// Runtimes the context to trace log.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <returns>Beyova.ApiTracking.Model.ApiTraceLog.</returns>
-        private static ApiTraceLog RuntimeContextToTraceLog(RuntimeContext context)
-        {
-            if (context != null)
-            {
-                return new ApiTraceLog
-                {
-                    MethodFullName = context.ApiMethod?.GetFullName(),
-                    MethodParameters = new Dictionary<string, object> {
-                        { "UrlParameter",context.IsActionUsed ? context.Parameter2 : context.Parameter1} }
-                };
-            }
-
-            return null;
         }
     }
 }

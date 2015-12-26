@@ -144,7 +144,8 @@ namespace Beyova
         /// <returns>ApiTraceContext.</returns>
         internal static ApiTraceContext InitializeApiTraceContext(RuntimeContext context, string traceId = null)
         {
-            var result = new ApiTraceContext(context, traceId);
+            var result = new ApiTraceContext(traceId);
+            result.Enter(context);
             threadKey_TraceContext.SetThreadData(result);
 
             return result;

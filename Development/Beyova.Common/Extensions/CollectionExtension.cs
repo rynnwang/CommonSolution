@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Xml.Linq;
+using Beyova.ExceptionSystem;
 using Beyova.Model;
 
 namespace Beyova
@@ -141,6 +142,65 @@ namespace Beyova
         #endregion
 
         #region IEnumerable, ICollection, IList, IDictionary, HashSet
+
+        /// <summary>
+        /// Subs the collection.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <param name="count">The count.</param>
+        /// <returns>List&lt;T&gt;.</returns>
+        /// <exception cref="InvalidObjectException">
+        /// startIndex
+        /// or
+        /// count
+        /// </exception>
+        public static List<T> SubCollection<T>(this IList<T> collection, int startIndex, int? count = null)
+        {
+            if (collection != null)
+            {
+                if (startIndex < 0 || startIndex >= collection.Count)
+                {
+                    throw new InvalidObjectException("startIndex", data: new { startIndex, collectionCount = collection.Count });
+                }
+
+                if (count != null && (count.Value < 0 || (count.Value + startIndex - 1) > collection.Count))
+                {
+                    throw new InvalidObjectException("count", data: new { count, collectionCount = collection.Count });
+                }
+
+                var result = new List<T>();
+                for (var i = startIndex; i < (count ?? collection.Count); i++)
+                {
+                    result.Add(collection[i]);
+                }
+
+                return result;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Removes from.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="startIndex">The start index.</param>
+        /// <exception cref="InvalidObjectException">startIndex</exception>
+        public static void RemoveFrom<T>(this List<T> list, int startIndex)
+        {
+            if (list != null)
+            {
+                if (startIndex < 0 || startIndex >= list.Count)
+                {
+                    throw new InvalidObjectException("startIndex", data: new { startIndex, collectionCount = list.Count });
+                }
+
+                list.RemoveRange(startIndex, list.Count - startIndex);
+            }
+        }
 
         /// <summary>
         /// Gets the by last index of. (index should >= 1)

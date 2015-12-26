@@ -206,6 +206,7 @@
     <Compile Include="RestApi\Interface\IApiTransportAdapter.cs" />
     <Compile Include="RestApi\Model\RuntimeContext.cs" />
     <Compile Include="RestApi\Context\ApiContext.cs" />
+    <Compile Include="RestApi\ApiTraceExtension.cs" />
     <Compile Include="RestApi\RestApiHandler\RestApiEventHandlers.cs" />
     <Compile Include="RestApi\RestApiHandler\RestApiSettings.cs" />
     <Compile Include="ProgrammingIntelligence\Generator\RestApiClientGenerator.cs" />

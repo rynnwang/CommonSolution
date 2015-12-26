@@ -107,6 +107,36 @@ namespace Beyova
         #region As Text
 
         /// <summary>
+        /// Reads the response as text asynchronous.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <returns>Task&lt;System.String&gt;.</returns>
+        public static Task<string> ReadResponseAsTextAsync(this HttpWebRequest httpWebRequest, Encoding encoding = null, int? timeout = null)
+        {
+            try
+            {
+                httpWebRequest.CheckNullObject("httpWebRequest");
+
+                if (timeout != null)
+                {
+                    httpWebRequest.Timeout = timeout.Value;
+                }
+
+                return httpWebRequest.GetResponseAsync().ContinueWith<string>(responseTask =>
+                                {
+                                    HttpWebResponse webResponse = (HttpWebResponse)responseTask.Result;
+                                    return webResponse.ReadAsText(encoding, true);
+                                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("ReadResponseAsTextAsync");
+            }
+        }
+
+        /// <summary>
         /// Reads the asynchronous response as text.
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
@@ -114,7 +144,7 @@ namespace Beyova
         /// <param name="encoding">The encoding.</param>
         /// <param name="timeout">The timeout.</param>
         /// <exception cref="OperationFailureException">ReadAsyncResponseAsText</exception>
-        public static void ReadAsyncResponseAsText(this HttpWebRequest httpWebRequest, Action<string> callback, Encoding encoding = null, int? timeout = null)
+        public static void ReadResponseAsTextAsync(this HttpWebRequest httpWebRequest, Action<string> callback, Encoding encoding = null, int? timeout = null)
         {
             if (httpWebRequest != null)
             {
@@ -151,7 +181,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ReadAsyncResponseAsText");
+                    throw ex.Handle("ReadResponseAsTextAsync");
                 }
             }
         }
