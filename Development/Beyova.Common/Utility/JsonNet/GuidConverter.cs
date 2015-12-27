@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Beyova
 {
     /// <summary>
-    /// Class SafeContractResolver.
+    /// Class GuidConverter.
     /// </summary>
     public class GuidConverter : JsonConverter
     {
