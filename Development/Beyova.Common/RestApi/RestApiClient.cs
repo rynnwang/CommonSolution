@@ -62,7 +62,7 @@ namespace Beyova.RestApi
         /// Initializes a new instance of the <see cref="RestApiClient" /> class.
         /// </summary>
         /// <param name="baseUrl">The base URL.
-        /// <example>http://xxx.xxx.com/api/</example></param>
+        /// <example>http://xxx.xx/api/</example></param>
         /// <param name="version">The version.</param>
         /// <param name="token">The token.</param>
         /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
@@ -82,6 +82,7 @@ namespace Beyova.RestApi
         {
             this.BaseUrl = baseUrl.SafeToString().TrimEnd('/') + "/";
             this.Token = token;
+            this.EnableExceptionRestore = enableExceptionRestore;
         }
 
         /// <summary>

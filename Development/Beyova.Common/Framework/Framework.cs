@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Web;
-using Beyova.ApiTracking;
 using Beyova.Configuration;
 using Beyova.Model;
 
@@ -46,6 +43,7 @@ namespace Beyova
                 result.ConfigurationBelongs = configurationReader == null ? new Dictionary<string, string>() : configurationReader.ConfigurationBelongs;
                 result.ServerEnvironment = configurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(configurationReader.SqlConnection);
                 result.MemoryUsage = SystemManagementExtension.GetMemoryUsage();
+                result.GCMemory = SystemManagementExtension.GetGCMemory();
                 result.CpuUsage = SystemManagementExtension.GetCpuUsage();
                 result.ServerName = EnvironmentCore.ServerName;
 
