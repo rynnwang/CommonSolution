@@ -101,6 +101,7 @@
     <Compile Include="Constants\HttpConstants.cs" />
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
+    <Compile Include="Model\Geography\GeoInfoBase.cs" />
     <Compile Include="Model\SystemEnvironment\SystemMemory.cs" />
     <Compile Include="RestApi\Context\ApiTraceContext.cs" />
     <Compile Include="ExceptionSystem\Model\FriendlyHint.cs" />

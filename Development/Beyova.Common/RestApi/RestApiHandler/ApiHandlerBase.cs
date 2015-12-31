@@ -178,7 +178,8 @@ namespace Beyova.RestApi
                             TraceId = traceId,
                             // If request came from ApiTransport or other proxy ways, ORIGINAL stands for the IP ADDRESS from original requester.
                             IpAddress = context.Request.TryGetHeader(HttpConstants.HttpHeader.ORIGINAL).SafeToString(context.Request.UserHostAddress),
-                            CultureCode = context.Request.UserLanguages == null ? null : context.Request.UserLanguages.FirstOrDefault()
+                            CultureCode = context.Request.UserLanguages == null ? null : context.Request.UserLanguages.FirstOrDefault(),
+                            ContentLength = context.Request.ContentLength
                         };
                     }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Beyova.Model;
 
 namespace Beyova.ApiTracking.Model
 {
@@ -36,6 +37,12 @@ namespace Beyova.ApiTracking.Model
         /// </summary>
         /// <value>The length.</value>
         public int? ContentLength { get; set; }
+
+        /// <summary>
+        /// Gets or sets the geo information.
+        /// </summary>
+        /// <value>The geo information.</value>
+        public GeoInfoBase GeoInfo { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventLog"/> class.

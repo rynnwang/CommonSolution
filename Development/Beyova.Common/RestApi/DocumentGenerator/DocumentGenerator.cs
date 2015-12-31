@@ -424,7 +424,7 @@ url{
                         //Original declaration
 
                         bodyBuilder.Append("<h3>.NET Declaration</h3>");
-                        bodyBuilder.AppendFormat("<div>{0}</div>", one.ToCodeLook(true));
+                        bodyBuilder.AppendFormat("<div>{0}</div>", one.ToCodeLook(true).ToHtmlEncodedText());
                         bodyBuilder.Append("<hr />");
 
                         //Try append description
@@ -443,7 +443,7 @@ url{
                         var obsolete = one.GetCustomAttribute<ObsoleteAttribute>(true);
                         if (obsolete != null)
                         {
-                            bodyBuilder.AppendFormat("<div style=\"color:red;\"> Obsolete: {0}</div>", obsolete.Message.ToHtmlEncodedText());
+                            bodyBuilder.AppendFormat("<div style=\"color:red;\"> Obsoleted: {0}</div>", obsolete.Message.ToHtmlEncodedText());
                         }
 
                         bodyBuilder.Append("<div>Following sample shows how to use via REST API.</div>");
