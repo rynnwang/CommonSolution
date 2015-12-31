@@ -20,7 +20,7 @@ namespace Beyova.Model
         /// Gets or sets the server environment.
         /// </summary>
         /// <value>The server environment.</value>
-        public string ServerEnvironment { get; set; }
+        public string SqlDatabaseEnvironment { get; set; }
 
         /// <summary>
         /// Gets or sets the configuration belongs.

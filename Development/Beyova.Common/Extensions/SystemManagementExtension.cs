@@ -37,7 +37,7 @@ namespace Beyova
         /// </summary>
         /// <param name="forceFullCollection">if set to <c>true</c> [force full collection].</param>
         /// <returns>System.Nullable&lt;System.Int64&gt;.</returns>
-        public static long? GetGCMemory(bool forceFullCollection = true)
+        public static long? GetGCMemory(bool forceFullCollection = false)
         {
             try
             {

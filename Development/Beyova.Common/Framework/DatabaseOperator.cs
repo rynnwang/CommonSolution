@@ -53,6 +53,25 @@ namespace Beyova
             }
         }
 
+        /// <summary>
+        /// Gets the output parameter.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>SqlParameter.</returns>
+        public SqlParameter GetOutputParameter(string name)
+        {
+            try
+            {
+                name.CheckEmptyString("name");
+
+                return sqlCommand.Parameters[name];
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("GetOutputParameterValue", name);
+            }
+        }
+
         #region Execute procedures
 
         /// <summary>

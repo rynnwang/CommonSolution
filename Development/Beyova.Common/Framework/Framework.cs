@@ -41,7 +41,7 @@ namespace Beyova
                 }
 
                 result.ConfigurationBelongs = configurationReader == null ? new Dictionary<string, string>() : configurationReader.ConfigurationBelongs;
-                result.ServerEnvironment = configurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(configurationReader.SqlConnection);
+                result.SqlDatabaseEnvironment = configurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(configurationReader.SqlConnection);
                 result.MemoryUsage = SystemManagementExtension.GetMemoryUsage();
                 result.GCMemory = SystemManagementExtension.GetGCMemory();
                 result.CpuUsage = SystemManagementExtension.GetCpuUsage();

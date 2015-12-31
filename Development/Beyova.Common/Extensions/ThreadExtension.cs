@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Windows.Forms;
 
 namespace Beyova
 {
     /// <summary>
-    /// 
+    /// Class ThreadExtension.
     /// </summary>
     public static class ThreadExtension
     {
@@ -17,12 +15,10 @@ namespace Beyova
         private static Dictionary<string, object> _threadData;
 
         /// <summary>
-        /// Gets the thead data.
+        /// Gets the thread data.
         /// </summary>
-        /// <value>
-        /// The thead data.
-        /// </value>
-        public static Dictionary<string, object> TheadData
+        /// <value>The thread data.</value>
+        public static Dictionary<string, object> ThreadData
         {
             get
             {
@@ -54,7 +50,7 @@ namespace Beyova
         {
             if (!string.IsNullOrWhiteSpace(key))
             {
-                TheadData.Merge(key, value, true);
+                ThreadData.Merge(key, value, true);
             }
         }
 
@@ -65,7 +61,7 @@ namespace Beyova
         /// <returns></returns>
         public static object GetThreadData(this string key)
         {
-            return (!string.IsNullOrWhiteSpace(key)) ? TheadData.SafeGetValue(key) : null;
+            return (!string.IsNullOrWhiteSpace(key)) ? ThreadData.SafeGetValue(key) : null;
         }
 
         #endregion

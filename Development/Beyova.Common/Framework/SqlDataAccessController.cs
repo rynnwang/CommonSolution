@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Xml.Linq;
@@ -185,10 +186,11 @@ namespace Beyova
         /// </summary>
         /// <param name="columnName">Name of the column.</param>
         /// <param name="parameterObject">The parameter object.</param>
+        /// <param name="direction">The direction.</param>
         /// <returns>SqlParameter.</returns>
-        protected SqlParameter GenerateSqlSpParameter(string columnName, object parameterObject)
+        protected SqlParameter GenerateSqlSpParameter(string columnName, object parameterObject, ParameterDirection direction = ParameterDirection.Input)
         {
-            return new SqlParameter("@" + columnName.Trim(), parameterObject ?? Convert.DBNull);
+            return new SqlParameter("@" + columnName.Trim(), parameterObject ?? Convert.DBNull) { Direction = direction };
         }
 
         /// <summary>
@@ -196,10 +198,11 @@ namespace Beyova
         /// </summary>
         /// <param name="columnName">Name of the column.</param>
         /// <param name="parameterObject">The parameter object.</param>
+        /// <param name="direction">The direction.</param>
         /// <returns>SqlParameter.</returns>
-        protected SqlParameter GenerateSqlSpParameter(string columnName, bool parameterObject)
+        protected SqlParameter GenerateSqlSpParameter(string columnName, bool parameterObject, ParameterDirection direction = ParameterDirection.Input)
         {
-            return GenerateSqlSpParameter(columnName, parameterObject ? 1 : 0);
+            return GenerateSqlSpParameter(columnName, parameterObject ? 1 : 0, direction);
         }
 
         /// <summary>
@@ -207,10 +210,11 @@ namespace Beyova
         /// </summary>
         /// <param name="columnName">Name of the column.</param>
         /// <param name="parameterObject">The parameter object.</param>
+        /// <param name="direction">The direction.</param>
         /// <returns>SqlParameter.</returns>
-        protected SqlParameter GenerateSqlSpParameter(string columnName, XElement parameterObject)
+        protected SqlParameter GenerateSqlSpParameter(string columnName, XElement parameterObject, ParameterDirection direction = ParameterDirection.Input)
         {
-            return GenerateSqlSpParameter(columnName, parameterObject == null ? Convert.DBNull : parameterObject.ToString());
+            return GenerateSqlSpParameter(columnName, parameterObject == null ? Convert.DBNull : parameterObject.ToString(), direction);
         }
 
         /// <summary>
