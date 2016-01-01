@@ -3,8 +3,7 @@ using Beyova.Model;
 using System.Management;
 using System;
 using System.Diagnostics;
-using Beyova;
-using System.Linq;
+using System.IO;
 
 namespace Beyova
 {
@@ -14,22 +13,105 @@ namespace Beyova
     public static class SystemManagementExtension
     {
         /// <summary>
+        /// Gets the machine health.
+        /// </summary>
+        /// <returns>MachineHealth.</returns>
+        public static MachineHealth GetMachineHealth()
+        {
+            return new MachineHealth
+            {
+                MemoryUsage = GetPhysicalMemoryUsage(),
+                CpuUsage = GetCpuUsage(),
+                DiskUsages = GetDiskUsages(),
+                TotalMemory = GetPhysicalTotalMemory(),
+                ServerName = EnvironmentCore.ServerName
+            };
+        }
+
+        /// <summary>
         /// Gets the memory usage. (Unit: byte)
         /// </summary>
         /// <returns>System.Int64.</returns>
-        public static long? GetMemoryUsage()
+        public static long? GetProcessMemoryUsage()
         {
             try
             {
-                var currentProcess = Process.GetCurrentProcess();
-
-                return currentProcess.WorkingSet64;
+                return Process.GetCurrentProcess()?.WorkingSet64;
             }
-            catch
-            {
-            }
+            catch { }
 
             return null;
+        }
+
+        /// <summary>
+        /// Gets the physical memory usage.
+        /// </summary>
+        /// <returns>System.Nullable&lt;System.Int64&gt;.</returns>
+        public static long? GetPhysicalMemoryUsage()
+        {
+            try
+            {
+                long result = 0;
+                var search = new ManagementObjectSearcher("Select AvailableMBytes from Win32_PerfRawData_PerfOS_Memory");
+                foreach (ManagementObject info in search.Get())
+                {
+                    result += (info["AvailableMBytes"].ToString()).ToInt64();
+                }
+
+                return result;
+            }
+            catch { }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the physical total memory.
+        /// </summary>
+        /// <returns>System.Nullable&lt;System.Int64&gt;.</returns>
+        public static long? GetPhysicalTotalMemory()
+        {
+            try
+            {
+                long result = 0;
+                ManagementObjectSearcher search = new ManagementObjectSearcher("Select TotalPhysicalMemory from Win32_LogicalMemoryConfiguration");
+                foreach (ManagementObject info in search.Get())
+                {
+                    result += info["TotalPhysicalMemory"].ToString().ToInt64();
+                }
+
+                return result;
+            }
+            catch { }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the disk usages.
+        /// </summary>
+        /// <returns>List&lt;DiskDriveInfo&gt;.</returns>
+        public static List<DiskDriveInfo> GetDiskUsages()
+        {
+            List<DiskDriveInfo> result = new List<DiskDriveInfo>();
+
+            try
+            {
+                foreach (DriveInfo drive in DriveInfo.GetDrives())
+                {
+                    result.Add(new DiskDriveInfo
+                    {
+                        VolumeLabel = drive.VolumeLabel,
+                        IsReady = drive.IsReady,
+                        Name = drive.Name,
+                        TotalFreeSpace = drive.TotalFreeSpace,
+                        TotalSize = drive.TotalSize
+                    });
+                }
+            }
+            catch { }
+
+            return result;
         }
 
         /// <summary>
@@ -43,9 +125,7 @@ namespace Beyova
             {
                 return GC.GetTotalMemory(true);
             }
-            catch
-            {
-            }
+            catch { }
 
             return null;
         }

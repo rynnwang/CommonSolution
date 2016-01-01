@@ -293,12 +293,6 @@ namespace Beyova.RestApi
                         result = Framework.configurationReader.GetValues();
                     }
                     break;
-                case "memory":
-                    if (isLocalhost)
-                    {
-                        result = string.Format("{0}: {1} bytes", EnvironmentCore.ServerName, EnvironmentCore.TotalMemory);
-                    }
-                    break;
                 default: break;
             }
 

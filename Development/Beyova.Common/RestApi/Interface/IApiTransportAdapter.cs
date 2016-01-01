@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Net;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
-using System.Web;
 
 namespace Beyova.RestApi
 {

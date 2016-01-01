@@ -316,6 +316,9 @@ namespace Beyova.RestApi
                 case "server":
                     result = Framework.AboutService();
                     break;
+                case "machine":
+                    result = SystemManagementExtension.GetMachineHealth();
+                    break;
                 default: break;
             }
 
