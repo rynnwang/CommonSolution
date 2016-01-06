@@ -74,10 +74,10 @@ namespace Beyova
             try
             {
                 long result = 0;
-                ManagementObjectSearcher search = new ManagementObjectSearcher("Select TotalPhysicalMemory from Win32_LogicalMemoryConfiguration");
+                ManagementObjectSearcher search = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
                 foreach (ManagementObject info in search.Get())
                 {
-                    result += info["TotalPhysicalMemory"].ToString().ToInt64();
+                    result += info["Capacity"].ToString().ToInt64();
                 }
 
                 return result;
