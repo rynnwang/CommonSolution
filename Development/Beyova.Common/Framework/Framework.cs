@@ -107,8 +107,15 @@ namespace Beyova
         /// </summary>
         private static void Initialize()
         {
-            configurationReader = GetDefaultConfigurationReader();
-            ApiTracking = DiagnosticFileLogger.CreateOrUpdateDiagnosticFileLogger();
+            try
+            {
+                configurationReader = GetDefaultConfigurationReader();
+                ApiTracking = DiagnosticFileLogger.CreateOrUpdateDiagnosticFileLogger();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("Initialize");
+            }
         }
 
         /// <summary>

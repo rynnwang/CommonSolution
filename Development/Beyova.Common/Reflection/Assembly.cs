@@ -978,7 +978,7 @@ namespace Beyova
 
             foreach (var one in assemblies)
             {
-                if (!one.GetName().Name.StartsWith("system", StringComparison.InvariantCultureIgnoreCase) && !one.GetName().Name.StartsWith("mscorlib", StringComparison.InvariantCultureIgnoreCase))
+                if (!one.GetName().IsSystemAssembly() && !one.IsDynamic)
                 {
                     FillAssemblyDependency(container, one, null, 0);
                 }
@@ -993,6 +993,23 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Tries the load assembly.
+        /// </summary>
+        /// <param name="assemblyName">Name of the assembly.</param>
+        /// <returns>System.Reflection.Assembly.</returns>
+        public static Assembly TryLoadAssembly(this AssemblyName assemblyName)
+        {
+            try
+            {
+                return Assembly.Load(assemblyName);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Fills the assembly dependency.
         /// </summary>
         /// <param name="container">The container.</param>
@@ -1001,55 +1018,67 @@ namespace Beyova
         /// <param name="currentLevel">The current level.</param>
         private static void FillAssemblyDependency(List<AssemblyDependency> container, Assembly assembly, AssemblyDependency lastDependency, int currentLevel)
         {
-            var found = (from item in container where item.Assembly == assembly select item).FirstOrDefault();
-            AssemblyDependency thisDependency = null;
-
-            if (found == null)
+            if(assembly==null || container == null)
             {
-                thisDependency = new AssemblyDependency
-                {
-                    Last = lastDependency,
-                    Assembly = assembly,
-                    Level = currentLevel
-                };
-
-                container.Add(thisDependency);
-            }
-            else
-            {
-                thisDependency = found;
-
-                if (thisDependency.Level > 256)
-                {
-                    return;
-                }
-
-                if (currentLevel > thisDependency.Level)
-                {
-                    thisDependency.Level = currentLevel;
-                    if (thisDependency.Last != null)
-                    {
-                        thisDependency.Last.Next = thisDependency.Next;
-                    }
-
-                    if (thisDependency.Next != null)
-                    {
-                        thisDependency.Next.Last = thisDependency.Last;
-                    }
-
-                    thisDependency.Last = lastDependency;
-                    thisDependency.Next = null;
-                }
+                return;
             }
 
-            thisDependency.ReferencedCount++;
-
-            foreach (var one in assembly.GetReferencedAssemblies())
+            try
             {
-                if (!one.Name.StartsWith("system", StringComparison.InvariantCultureIgnoreCase) && !one.Name.StartsWith("mscorlib", StringComparison.InvariantCultureIgnoreCase))
+                var found = (from item in container where item.Assembly == assembly select item).FirstOrDefault();
+                AssemblyDependency thisDependency = null;
+
+                if (found == null)
                 {
-                    FillAssemblyDependency(container, Assembly.Load(one), thisDependency, currentLevel + 1);
+                    thisDependency = new AssemblyDependency
+                    {
+                        Last = lastDependency,
+                        Assembly = assembly,
+                        Level = currentLevel
+                    };
+
+                    container.Add(thisDependency);
                 }
+                else
+                {
+                    thisDependency = found;
+
+                    if (thisDependency.Level > 256)
+                    {
+                        return;
+                    }
+
+                    if (currentLevel > thisDependency.Level)
+                    {
+                        thisDependency.Level = currentLevel;
+                        if (thisDependency.Last != null)
+                        {
+                            thisDependency.Last.Next = thisDependency.Next;
+                        }
+
+                        if (thisDependency.Next != null)
+                        {
+                            thisDependency.Next.Last = thisDependency.Last;
+                        }
+
+                        thisDependency.Last = lastDependency;
+                        thisDependency.Next = null;
+                    }
+                }
+
+                thisDependency.ReferencedCount++;
+
+                foreach (var one in assembly.GetReferencedAssemblies())
+                {
+                    if (!one.IsSystemAssembly())
+                    {
+                        FillAssemblyDependency(container, one.TryLoadAssembly(), thisDependency, currentLevel + 1);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("FillAssemblyDependency", new { assembly = assembly?.FullName, currentLevel });
             }
         }
         #endregion

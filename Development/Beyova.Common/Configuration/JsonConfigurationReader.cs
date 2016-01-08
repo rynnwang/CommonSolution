@@ -248,24 +248,31 @@ namespace Beyova.Configuration
         /// <returns>Dictionary&lt;System.String, System.Object&gt;.</returns>
         private Dictionary<string, ConfigurationItem> InitializeByAssembly(Assembly assembly, bool throwException = false)
         {
-            var settingContainer = new Dictionary<string, ConfigurationItem>();
-            var assemblyName = (assembly != null) ? assembly.GetName().Name : null;
-
-            var configurationPath = GetConfigurationFilePath(assemblyName.SafeToString("AppConfig"));
-            string jsonString = string.Empty;
-
-            if (File.Exists(configurationPath))
+            try
             {
-                jsonString = File.ReadAllText(configurationPath, Encoding.UTF8);
-            }
+                var settingContainer = new Dictionary<string, ConfigurationItem>();
+                var assemblyName = (assembly != null) ? assembly.GetName().Name : null;
 
-            if (!string.IsNullOrWhiteSpace(jsonString))
+                var configurationPath = GetConfigurationFilePath(assemblyName.SafeToString("AppConfig"));
+                string jsonString = string.Empty;
+
+                if (File.Exists(configurationPath))
+                {
+                    jsonString = File.ReadAllText(configurationPath, Encoding.UTF8);
+                }
+
+                if (!string.IsNullOrWhiteSpace(jsonString))
+                {
+                    var beyovaComponent = assembly.GetCustomAttribute<BeyovaComponentAttribute>();
+                    InitializeSettings(settingContainer, beyovaComponent, jsonString, assembly == null ? "AppConfig" : assemblyName, throwException);
+                }
+
+                return settingContainer;
+            }
+            catch (Exception ex)
             {
-                var beyovaComponent = assembly.GetCustomAttribute<BeyovaComponentAttribute>();
-                InitializeSettings(settingContainer, beyovaComponent, jsonString, assembly == null ? "AppConfig" : assemblyName, throwException);
+                throw ex.Handle("InitializeByAssembly", new { assembly = assembly?.FullName });
             }
-
-            return settingContainer;
         }
 
         /// <summary>
