@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Beyova.ExceptionSystem;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class MaintanenceJobLog.

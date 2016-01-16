@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class GroupCollection.

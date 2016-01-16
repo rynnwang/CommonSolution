@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Web;
-using Beyova.ApiTracking.Model;
-using Beyova.Model;
+using Beyova.ApiTracking;
+using Beyova;
 using Beyova.RestApi;
 
 namespace Beyova

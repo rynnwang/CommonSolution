@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Beyova.ExceptionSystem;
-using Beyova.Model;
+using Beyova;
 using Newtonsoft.Json;
 
 namespace Beyova

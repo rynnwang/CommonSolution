@@ -1,5 +1,5 @@
 ﻿
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Abstract class for base object, with key, created stamp and last updated stamp.

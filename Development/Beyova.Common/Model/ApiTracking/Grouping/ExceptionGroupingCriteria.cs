@@ -1,7 +1,7 @@
 ﻿using System;
 using Beyova.RestApi;
 
-namespace Beyova.ApiTracking.Model
+namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ExceptionGroupingCriteria.

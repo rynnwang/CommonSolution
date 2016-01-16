@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Beyova.ApiTracking.Model;
+using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Struct for TimePin

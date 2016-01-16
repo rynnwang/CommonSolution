@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class DualKeyDictionary.

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Beyova;
-using Beyova.Model;
 using Beyova.RestApi;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class EnvironmentEndpoint.

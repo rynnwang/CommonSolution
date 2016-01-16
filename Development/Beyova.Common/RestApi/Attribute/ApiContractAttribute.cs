@@ -16,7 +16,7 @@ namespace Beyova.RestApi
 
         /// <summary>
         /// Gets or sets the name.
-        /// This name is used for as service identifier in <see cref="Beyova.ApiTracking.Model.ApiEventLog"/> model.
+        /// This name is used for as service identifier in <see cref="Beyova.ApiTracking.ApiEventLog"/> model.
         /// </summary>
         /// <value>The name.</value>
         public string Name { get; set; }

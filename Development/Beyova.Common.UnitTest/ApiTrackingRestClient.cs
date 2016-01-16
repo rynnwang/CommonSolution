@@ -1,6 +1,5 @@
 ﻿using System;
 using Beyova.ApiTracking;
-using Beyova.ApiTracking.Model;
 using Beyova.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;

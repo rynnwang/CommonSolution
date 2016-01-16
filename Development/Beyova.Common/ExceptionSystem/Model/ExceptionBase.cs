@@ -1,4 +1,4 @@
-﻿using Beyova.ApiTracking.Model;
+﻿using Beyova.ApiTracking;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem

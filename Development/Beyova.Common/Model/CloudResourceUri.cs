@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Beyova.ExceptionSystem;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class CloudResourceUri.

@@ -1,4 +1,4 @@
-﻿using Beyova.Model;
+﻿using Beyova;
 
 namespace Beyova.BinaryStorage
 {

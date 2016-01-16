@@ -1,5 +1,5 @@
 ﻿
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class AdminSessionCriteria.

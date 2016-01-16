@@ -1,5 +1,5 @@
 ﻿using System.Data.SqlClient;
-using Beyova.Model;
+using Beyova;
 
 namespace Beyova
 {

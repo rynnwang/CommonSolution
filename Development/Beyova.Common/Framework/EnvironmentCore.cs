@@ -3,7 +3,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
 using System.Web;
-using Beyova.Model;
+using Beyova;
 
 namespace Beyova
 {

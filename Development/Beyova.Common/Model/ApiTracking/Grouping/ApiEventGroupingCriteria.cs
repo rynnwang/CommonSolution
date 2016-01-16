@@ -1,5 +1,5 @@
 ﻿
-namespace Beyova.ApiTracking.Model
+namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ApiEventGroupingCriteria.

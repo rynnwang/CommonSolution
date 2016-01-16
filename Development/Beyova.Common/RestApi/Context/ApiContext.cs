@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Beyova.Model;
+using Beyova;
 
 namespace Beyova.RestApi
 {

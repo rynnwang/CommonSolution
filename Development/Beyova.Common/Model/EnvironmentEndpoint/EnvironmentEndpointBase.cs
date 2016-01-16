@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Beyova;
 using Beyova.RestApi;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class EnvironmentEndpointBase.

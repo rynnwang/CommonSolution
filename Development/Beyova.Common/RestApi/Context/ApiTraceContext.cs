@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using Beyova.ApiTracking.Model;
+using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 
 namespace Beyova.RestApi

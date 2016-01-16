@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Beyova.ExceptionSystem;
 
-namespace Beyova.ApiTracking.Model
+namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ApiTraceLog.

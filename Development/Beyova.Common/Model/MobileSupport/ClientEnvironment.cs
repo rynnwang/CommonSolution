@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class ClientEnvironment

@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using Beyova.ApiTracking.Model;
+using Beyova.ApiTracking;
 
 namespace Beyova.RestApi
 {
@@ -17,7 +17,7 @@ namespace Beyova.RestApi
         /// To the trace log.
         /// </summary>
         /// <param name="context">The context.</param>
-        /// <returns>Beyova.ApiTracking.Model.ApiTraceLog.</returns>
+        /// <returns>Beyova.ApiTracking.ApiTraceLog.</returns>
         internal static ApiTraceLog ToTraceLog(this RuntimeContext context)
         {
             if (context != null)

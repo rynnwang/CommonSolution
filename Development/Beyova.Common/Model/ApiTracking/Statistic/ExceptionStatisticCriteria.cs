@@ -1,7 +1,7 @@
 ﻿using System;
 using Beyova.ExceptionSystem;
 
-namespace Beyova.ApiTracking.Model
+namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ExceptionStatisticCriteria.

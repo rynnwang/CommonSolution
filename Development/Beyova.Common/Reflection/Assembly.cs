@@ -272,7 +272,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the name of the generic type. e.g.: System.Collections.Generic.List`1[Beyova.Model.ServiceCredential]
+        /// Gets the name of the generic type. e.g.: System.Collections.Generic.List`1[Beyova.ServiceCredential]
         /// </summary>
         /// <param name="fullName">The full name.</param>
         /// <param name="genericTypeNames">The generic type names.</param>
@@ -296,7 +296,7 @@ namespace Beyova
 
         /// <summary>
         /// Gets the type smartly. It would find type in all related assemblies. And even if type name is generic based, it can still give right result. 
-        /// e.g.: System.Collections.Generic.List`1[Beyova.Model.ServiceCredential]
+        /// e.g.: System.Collections.Generic.List`1[Beyova.ServiceCredential]
         /// </summary>
         /// <param name="typeName">Name of the type.</param>
         /// <returns>Type.</returns>

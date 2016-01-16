@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Beyova.Model;
+using Beyova;
 using Beyova.RestApi;
 
 namespace Beyova.CommonServiceInterface

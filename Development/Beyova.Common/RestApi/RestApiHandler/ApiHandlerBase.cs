@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Routing;
-using Beyova.ApiTracking.Model;
+using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

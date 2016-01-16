@@ -5,7 +5,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using Beyova.Model;
+using Beyova;
 
 namespace Beyova.WebExtension.HttpLongPolling
 {

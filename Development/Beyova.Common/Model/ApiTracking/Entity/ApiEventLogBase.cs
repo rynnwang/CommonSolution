@@ -1,7 +1,7 @@
 ﻿using System;
-using Beyova.Model;
+using Beyova;
 
-namespace Beyova.ApiTracking.Model
+namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ApiEventLogBase.

@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class AdminRole.

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Beyova.ApiTracking.Model;
+using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 

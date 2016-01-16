@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Beyova.ApiTracking.Model
+namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ApiEventStatisticCriteria.

@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using Beyova.ApiTracking.Model;
+using Beyova.ApiTracking;
 
 namespace Beyova.RestApi
 {

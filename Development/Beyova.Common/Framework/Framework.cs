@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Beyova.Configuration;
-using Beyova.Model;
+using Beyova;
 
 namespace Beyova
 {

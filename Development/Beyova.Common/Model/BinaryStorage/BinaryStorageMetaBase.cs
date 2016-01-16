@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Beyova.Model;
+using Beyova;
 
 namespace Beyova.BinaryStorage
 {

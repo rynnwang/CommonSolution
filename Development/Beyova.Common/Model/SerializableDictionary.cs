@@ -7,7 +7,7 @@ using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class for Serializable Dictionary, which is inherited from <see cref="Dictionary{T1,T2}"/>.

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Beyova.ApiTracking.Model
+namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ExceptionGroupStatistic.

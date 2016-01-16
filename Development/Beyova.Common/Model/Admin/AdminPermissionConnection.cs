@@ -1,7 +1,7 @@
 ﻿using System;
 using Beyova.RestApi;
 
-namespace Beyova.Model
+namespace Beyova
 {
     /// <summary>
     /// Class AdminPermissionConnection.

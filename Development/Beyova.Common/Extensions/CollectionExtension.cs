@@ -7,7 +7,7 @@ using System.Text;
 using System.Web;
 using System.Xml.Linq;
 using Beyova.ExceptionSystem;
-using Beyova.Model;
+using Beyova;
 
 namespace Beyova
 {
