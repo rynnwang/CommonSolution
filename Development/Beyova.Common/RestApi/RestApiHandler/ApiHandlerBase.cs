@@ -130,8 +130,8 @@ namespace Beyova.RestApi
             var entryStamp = DateTime.UtcNow;
             RestApiSettings settings = DefaultSettings;
             RuntimeContext runtimeContext = null;
-            ApiTraceContext traceContext = null;
             string traceId = null;
+            BaseException baseException = null;
 
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERHANDLETIME, entryStamp.ToFullDateTimeTzString());
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
@@ -187,7 +187,7 @@ namespace Beyova.RestApi
 
                     if (!string.IsNullOrWhiteSpace(traceId))
                     {
-                        traceContext = ContextHelper.InitializeApiTraceContext(runtimeContext, traceId);
+                        ApiTraceContext.Initialize(runtimeContext, traceId, entryStamp);
                     }
 
                     if (eventLog != null)
@@ -254,16 +254,11 @@ namespace Beyova.RestApi
             catch (Exception ex)
             {
                 var apiTracking = settings?.ApiTracking;
-                var baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiServiceName, EnvironmentCore.ServerName);
+                baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiServiceName, EnvironmentCore.ServerName);
 
                 if (eventLog != null)
                 {
                     eventLog.ExceptionKey = baseException.Key;
-                }
-
-                if (traceContext != null)
-                {
-                    traceContext.Root.Exception = baseException.ToExceptionInfo(runtimeContext?.ApiServiceName, EnvironmentCore.ServerName);
                 }
 
                 PackageOutput(context.Response, null, baseException, acceptEncoding, settings: settings);
@@ -283,15 +278,13 @@ namespace Beyova.RestApi
                         catch { }
                     }
 
-                    if (traceContext != null)
+                    if (ApiTraceContext.Root != null)
                     {
                         try
                         {
-                            var root = traceContext.Root;
-                            root.EntryStamp = entryStamp;
-                            root.ExitStamp = exitStamp;
+                            ApiTraceContext.Exit(baseException, exitStamp);
 
-                            settings.ApiTracking.LogApiTraceLogAsync(root);
+                            settings.ApiTracking.LogApiTraceLogAsync(ApiTraceContext.GetCurrentTraceLog(true));
                         }
                         catch { }
                     }
@@ -584,7 +577,7 @@ namespace Beyova.RestApi
                 } as IExceptionInfo) : data;
 
                 response.Headers.Add(HttpConstants.HttpHeader.SERVERTIME, DateTime.UtcNow.ToFullDateTimeTzString());
-                response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ContextHelper.TraceContext?.TraceId);
+                response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ApiTraceContext.TraceId);
 
                 response.StatusCode = (int)(ex == null ? (noBody ? HttpStatusCode.NoContent : HttpStatusCode.OK) : ex.Code.ToHttpStatusCode());
 

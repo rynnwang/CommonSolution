@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 
@@ -8,95 +10,139 @@ namespace Beyova.RestApi
     /// <summary>
     /// Class ApiTraceContext.
     /// </summary>
-    public sealed class ApiTraceContext
+    public static class ApiTraceContext
     {
         /// <summary>
-        /// Gets the chain.
+        /// The _current
         /// </summary>
-        /// <value>The chain.</value>
-        public List<ApiTraceLog> Chain { get; private set; }
+        [ThreadStatic]
+        private static RuntimeApiTraceLog _current;
 
         /// <summary>
-        /// The current index
+        /// The _root
         /// </summary>
-        private int currentIndex;
+        [ThreadStatic]
+        private static RuntimeApiTraceLog _root;
 
         /// <summary>
         /// Gets the trace identifier.
         /// </summary>
         /// <value>The trace identifier.</value>
-        public string TraceId { get; private set; }
-
-        /// <summary>
-        /// Gets the current trace.
-        /// </summary>
-        /// <value>The current trace.</value>
-        public ApiTraceLog CurrentTrace { get { return Chain[currentIndex]; } }
+        public static string TraceId
+        {
+            get { return _current?.RawTraceLog?.TraceId; }
+        }
 
         /// <summary>
         /// Gets the root.
         /// </summary>
         /// <value>The root.</value>
-        public ApiTraceLog Root { get { return Chain[0]; } }
-
-        #region Constructors      
+        internal static RuntimeApiTraceLog Root { get { return _root; } }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiTraceContext"/> class.
+        /// Initializes the specified method.
         /// </summary>
+        /// <param name="method">The method.</param>
         /// <param name="traceId">The trace identifier.</param>
-        internal ApiTraceContext(string traceId)
+        public static void Initialize(MethodInfo method, string traceId)
         {
-            this.Chain = new List<ApiTraceLog>();
-            this.TraceId = traceId;
+            var trace = method.ToTraceLog(null);
+            trace.RawTraceLog.TraceId = traceId;
+
+            Enter(trace);
         }
 
-        #endregion
+        /// <summary>
+        /// Initializes the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="traceId">The trace identifier.</param>
+        internal static void Initialize(RuntimeContext context, string traceId, DateTime entryStamp)
+        {
+            var trace = context.ToTraceLog(null);
+            trace.RawTraceLog.TraceId = traceId;
+            trace.RawTraceLog.EntryStamp = entryStamp;
+
+            Enter(trace);
+        }
+
+        /// <summary>
+        /// Disposes this instance.
+        /// </summary>
+        public static void Dispose()
+        {
+            _current = null;
+            _root = null;
+        }
+
+        public static ApiTraceLog GetCurrentTraceLog(bool dispose = false)
+        {
+            //Todo;
+            return null;
+        }
 
         #region Enter
 
-        internal void Enter(MethodInfo method)
+        /// <summary>
+        /// Enters the specified method.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        public static void Enter(MethodInfo method)
         {
-            Enter(method.ToTraceLog());
+            Enter(method.ToTraceLog(_current));
         }
 
-        internal void Enter(RuntimeContext context)
+        /// <summary>
+        /// Enters the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        internal static void Enter(RuntimeContext context)
         {
-            Enter(context.ToTraceLog());
+            Enter(context.ToTraceLog(_current));
         }
 
-        private void Enter(ApiTraceLog traceLog)
+        /// <summary>
+        /// Enters the specified trace log.
+        /// </summary>
+        /// <param name="traceLog">The trace log.</param>
+        internal static void Enter(RuntimeApiTraceLog traceLog)
         {
             if (traceLog != null)
             {
-                Chain.Add(traceLog);
-                currentIndex = Chain.Count - 1;
+                if (_root != null)
+                {
+                    //Todo
+                }
+                else
+                {
+                    _root = _current = traceLog;
+                }
             }
         }
 
         #endregion
 
         /// <summary>
-        /// Gets the parent trace log.
+        /// Exits the specified method message.
         /// </summary>
-        /// <returns>ApiTraceLog.</returns>
-        private ApiTraceLog GetParentTraceLog()
+        /// <param name="methodMessage">The method message.</param>
+        internal static void Exit(IMethodReturnMessage methodMessage)
         {
-            return currentIndex > 0 ? Chain[(currentIndex - 1)] : null;
+            _current.CheckNullObject("_current", new { methodMessage = methodMessage?.MethodName });
+
+            _current.RawTraceLog.ExitStamp = DateTime.UtcNow;
+            _current.RawTraceLog.Exception = methodMessage.Exception.ToExceptionInfo();
         }
 
         /// <summary>
-        /// Exits this instance.
+        /// Exits the specified exception.
         /// </summary>
-        internal void Exit()
+        /// <param name="exception">The exception.</param>
+        public static void Exit(Exception exception = null, DateTime? exitStamp = null)
         {
-            Chain.RemoveFrom(currentIndex);
-
-            currentIndex--;
-            if (currentIndex < 0)
-            {
-                throw new OperationFailureException("Exit", hintMessage: "Exited index is below 0, which indicates Enter and Exit are not mathed.");
-            }
+            _current.CheckNullObject("_current");
+            _current.RawTraceLog.Exception = exception?.ToExceptionInfo();
+            _current.RawTraceLog.ExitStamp = exitStamp ?? DateTime.UtcNow;
         }
     }
 }

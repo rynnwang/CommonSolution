@@ -102,6 +102,7 @@
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
+    <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />
     <Compile Include="Model\SystemEnvironment\MachineHealth.cs" />

@@ -10,6 +10,12 @@ namespace Beyova.ApiTracking
     public class ApiTraceLog
     {
         /// <summary>
+        /// Gets or sets the trace identifier.
+        /// </summary>
+        /// <value>The trace identifier.</value>
+        public string TraceId { get; set; }
+
+        /// <summary>
         /// Gets or sets the created stamp.
         /// </summary>
         /// <value>The created stamp.</value>

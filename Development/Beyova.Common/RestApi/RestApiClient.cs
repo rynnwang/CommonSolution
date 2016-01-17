@@ -293,24 +293,12 @@ namespace Beyova.RestApi
         {
             if (httpRequest != null)
             {
-                if (!string.IsNullOrWhiteSpace(Token))
-                {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TOKEN, Token);
-                }
+                httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TOKEN, Token, ignoreIfNullOrEmpty: true);
 
                 var currentApiContext = ContextHelper.ApiContext;
 
-                var originalIpAddress = currentApiContext.IpAddress.SafeToString();
-                if (!string.IsNullOrWhiteSpace(originalIpAddress))
-                {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.ORIGINAL, originalIpAddress);
-                }
-
-                var currentTraceContext = ContextHelper.TraceContext;
-                if (currentTraceContext != null)
-                {
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TRACEID, currentTraceContext.TraceId);
-                }
+                httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.ORIGINAL, currentApiContext.IpAddress, ignoreIfNullOrEmpty: true);
+                httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.TRACEID, ApiTraceContext.TraceId, ignoreIfNullOrEmpty: true);
 
                 var userAgent = currentApiContext.UserAgent.SafeToString();
                 if (!string.IsNullOrWhiteSpace(userAgent))

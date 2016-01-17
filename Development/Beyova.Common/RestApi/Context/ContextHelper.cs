@@ -124,33 +124,6 @@ namespace Beyova
             }
         }
 
-        /// <summary>
-        /// Gets the trace context.
-        /// </summary>
-        /// <value>The trace context.</value>
-        internal static ApiTraceContext TraceContext
-        {
-            get
-            {
-                return threadKey_TraceContext.GetThreadData() as ApiTraceContext;
-            }
-        }
-
-        /// <summary>
-        /// Initializes the API trace context.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="traceId">The trace identifier.</param>
-        /// <returns>ApiTraceContext.</returns>
-        internal static ApiTraceContext InitializeApiTraceContext(RuntimeContext context, string traceId = null)
-        {
-            var result = new ApiTraceContext(traceId);
-            result.Enter(context);
-            threadKey_TraceContext.SetThreadData(result);
-
-            return result;
-        }
-
         #region ConsistContext
 
         /// <summary>

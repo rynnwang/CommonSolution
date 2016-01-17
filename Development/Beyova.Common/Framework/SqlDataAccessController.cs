@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Xml.Linq;
+using Beyova.AOP;
 
 namespace Beyova
 {
@@ -11,7 +12,7 @@ namespace Beyova
     /// Abstract class for SQL data access controller, which refers an entity in {T} type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SqlDataAccessController<T> : IDisposable
+    public abstract class SqlDataAccessController<T> : AOPInterceptorObject, IDisposable
     {
         /// <summary>
         /// The database operator

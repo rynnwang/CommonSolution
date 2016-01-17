@@ -73,9 +73,9 @@ namespace Beyova.AOP
         {
             IMethodCallMessage call = msg as IMethodCallMessage;
 
-            if (this.messageDelegates != null && this.messageDelegates.MessageCallDelegate != null)
+            if (this.messageDelegates != null && this.messageDelegates.MethodInvokingEvent != null)
             {
-                this.messageDelegates.MessageCallDelegate.Invoke(call);
+                this.messageDelegates.MethodInvokingEvent.Invoke(call);
             }
 
             var methodReturn = this.NextSink.SyncProcessMessage(call);
@@ -83,9 +83,9 @@ namespace Beyova.AOP
             IMethodReturnMessage returnMessage = methodReturn as IMethodReturnMessage;
 
             // To run ReturnMessageDelegate first in case any exception is thrown from ExceptionDelegate to interrupt it.
-            if (this.messageDelegates.ReturnMessageDelegate != null)
+            if (this.messageDelegates.MethodInvokedEvent != null)
             {
-                this.messageDelegates.ReturnMessageDelegate.Invoke(returnMessage);
+                this.messageDelegates.MethodInvokedEvent.Invoke(returnMessage);
             }
 
             Exception exception = null;

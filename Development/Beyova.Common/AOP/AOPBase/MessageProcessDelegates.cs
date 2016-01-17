@@ -6,16 +6,16 @@ namespace Beyova.AOP
     #region Delegate
 
     /// <summary>
-    /// Delegate HandleReturnedMessage
+    /// Delegate AfterMethodInvokeDelegate
     /// </summary>
     /// <param name="returnMessage">The return message.</param>
-    public delegate void ProcessReturnedMessageDelegate(IMethodReturnMessage returnMessage);
+    public delegate void AfterMethodInvokeDelegate(IMethodReturnMessage returnMessage);
 
     /// <summary>
-    /// Delegate HandleMessageCallDelegate
+    /// Delegate BeforeMethodInvokeDelegate
     /// </summary>
     /// <param name="callMessage">The call message.</param>
-    public delegate void ProcessMessageCallDelegate(IMethodCallMessage callMessage);
+    public delegate void BeforeMethodInvokeDelegate(IMethodCallMessage callMessage);
 
     /// <summary>
     /// Delegate HandleExceptionDelegate
@@ -51,18 +51,18 @@ namespace Beyova.AOP
     public class MessageProcessDelegates
     {
         /// <summary>
-        /// Gets or sets the return message delegate.
+        /// Gets or sets the method invoked event.
         /// This delegate would be invoked after real method is invoked.
         /// </summary>
-        /// <value>The return message delegate.</value>
-        public ProcessReturnedMessageDelegate ReturnMessageDelegate { get; set; }
+        /// <value>The method invoked event.</value>
+        public AfterMethodInvokeDelegate MethodInvokedEvent { get; set; }
 
         /// <summary>
-        /// Gets or sets the message call delegate.
+        /// Gets or sets the method invoking event.
         /// This delegate would be invoked before real method is invoked.
         /// </summary>
-        /// <value>The message call delegate.</value>
-        public ProcessMessageCallDelegate MessageCallDelegate { get; set; }
+        /// <value>The method invoking event.</value>
+        public BeforeMethodInvokeDelegate MethodInvokingEvent { get; set; }
 
         /// <summary>
         /// Gets or sets the exception delegate.

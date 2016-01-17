@@ -1870,22 +1870,21 @@ namespace Beyova
         /// <summary>
         /// Safes the set HTTP header.
         /// <remarks>This method would help you to set values for header, especially for those need to be set by property. But following items would be ignored.
-        /// <list type="bullet">
-        /// <item>host</item>
-        /// <item>connection</item>
-        /// <item>close</item>
-        /// <item>content-length</item>
-        /// <item>proxy-connection</item>
-        /// <item>range</item>
-        /// </list></remarks>
+        /// <list type="bullet"><item>host</item><item>connection</item><item>close</item><item>content-length</item><item>proxy-connection</item><item>range</item></list></remarks>
         /// </summary>
         /// <param name="httpRequest">The HTTP request.</param>
         /// <param name="headerKey">The header key.</param>
         /// <param name="value">The value.</param>
-        public static void SafeSetHttpHeader(this HttpWebRequest httpRequest, string headerKey, object value)
+        /// <param name="ignoreIfNullOrEmpty">if set to <c>true</c> [ignore if null or empty].</param>
+        public static void SafeSetHttpHeader(this HttpWebRequest httpRequest, string headerKey, object value, bool ignoreIfNullOrEmpty = false)
         {
             if (httpRequest != null && !string.IsNullOrWhiteSpace(headerKey))
             {
+                if (ignoreIfNullOrEmpty && (value == null || string.IsNullOrWhiteSpace(value.SafeToString())))
+                {
+                    return;
+                }
+
                 switch (headerKey.ToLowerInvariant())
                 {
                     case "accept":
