@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.Remoting.Activation;
 using System.Runtime.Remoting.Contexts;
-using System.Runtime.Remoting.Messaging;
-using System.Runtime.Remoting.Proxies;
-using System.Text;
-using System.Threading;
 
 namespace Beyova.AOP
 {
@@ -49,18 +43,7 @@ namespace Beyova.AOP
         {
             get
             {
-                string name = string.Empty;
-                if (AppDomain.CurrentDomain != null)
-                {
-                    name = AppDomain.CurrentDomain.FriendlyName;
-                }
-
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    name = Assembly.GetEntryAssembly().FullName;
-                }
-
-                return name;
+                return EnvironmentCore.ApplicationName;
             }
         }
     }

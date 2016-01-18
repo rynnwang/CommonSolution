@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
+using Beyova.RestApi;
 
 namespace Beyova.AOP
 {
@@ -73,6 +74,9 @@ namespace Beyova.AOP
         {
             IMethodCallMessage call = msg as IMethodCallMessage;
 
+            //Trace feature
+            ApiTraceContext.Enter(call);
+
             if (this.messageDelegates != null && this.messageDelegates.MethodInvokingEvent != null)
             {
                 this.messageDelegates.MethodInvokingEvent.Invoke(call);
@@ -112,6 +116,9 @@ namespace Beyova.AOP
                     returnMessage = overridedReturnMessage;
                 }
             }
+
+            //Trace
+            ApiTraceContext.Exit(exception);
 
             return returnMessage;
         }

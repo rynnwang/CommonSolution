@@ -45,10 +45,8 @@ namespace Beyova.RestApi
         /// <param name="entryStamp">The entry stamp.</param>
         public static void Initialize(MethodInfo method, string traceId, List<object> parameters, DateTime? entryStamp = null)
         {
-            var trace = method.ToTraceLog(parameters, null, entryStamp);
+            _root = _current = method.ToTraceLog(parameters, null, entryStamp);
             TraceId = traceId;
-
-            Enter(trace);
         }
 
         /// <summary>
@@ -59,10 +57,8 @@ namespace Beyova.RestApi
         /// <param name="entryStamp">The entry stamp.</param>
         internal static void Initialize(RuntimeContext context, string traceId, DateTime? entryStamp = null)
         {
-            var trace = context.ToTraceLog(null, entryStamp);
+            _root = _current = context.ToTraceLog(null, entryStamp);
             TraceId = traceId;
-
-            Enter(trace);
         }
 
         /// <summary>
@@ -155,6 +151,16 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
+        /// Enters the specified method call message.
+        /// </summary>
+        /// <param name="methodCallMessage">The method call message.</param>
+        /// <param name="entryStamp">The entry stamp.</param>
+        internal static void Enter(IMethodCallMessage methodCallMessage, DateTime? entryStamp = null)
+        {
+            Enter(methodCallMessage.ToTraceLog(_current, entryStamp ?? DateTime.UtcNow));
+        }
+
+        /// <summary>
         /// Enters the specified trace log.
         /// </summary>
         /// <param name="traceLog">The trace log.</param>
@@ -167,10 +173,6 @@ namespace Beyova.RestApi
                     traceLog.Parent = _current;
                     _current.Children.Add(traceLog);
                     _current = traceLog;
-                }
-                else
-                {
-                    _root = _current = traceLog;
                 }
             }
         }

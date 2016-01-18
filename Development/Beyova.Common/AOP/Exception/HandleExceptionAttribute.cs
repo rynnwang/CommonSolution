@@ -11,11 +11,6 @@ namespace Beyova.AOP
     public class HandleExceptionAttribute : BaseAOPAttribute
     {
         /// <summary>
-        /// The server identifier
-        /// </summary>
-        public string ServerIdentifier { get; protected set; }
-
-        /// <summary>
         /// The throw exception
         /// </summary>
         public bool ThrowException { get; protected set; }
@@ -23,34 +18,15 @@ namespace Beyova.AOP
         /// <summary>
         /// Initializes a new instance of the <see cref="HandleExceptionAttribute" /> class.
         /// </summary>
-        /// <param name="serverIdentifier">The server identifier.</param>
         /// <param name="throwException">if set to <c>true</c> [throw exception].</param>
-        public HandleExceptionAttribute(string serverIdentifier, bool throwException)
+        public HandleExceptionAttribute(bool throwException = true)
             : base("HandleException", new MessageProcessDelegates
             {
                 MethodArgumentDelegate = GetMethodArguments
             })
         {
             this.messageDelegates.ExceptionDelegate = HandleException;
-            this.ServerIdentifier = serverIdentifier;
             this.ThrowException = throwException;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HandleExceptionAttribute"/> class.
-        /// </summary>
-        /// <param name="throwException">if set to <c>true</c> [throw exception].</param>
-        public HandleExceptionAttribute(bool throwException)
-            : this(string.Empty, throwException)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HandleExceptionAttribute" /> class.
-        /// </summary>
-        public HandleExceptionAttribute()
-            : this(string.Empty, true)
-        {
         }
 
         /// <summary>
@@ -65,7 +41,10 @@ namespace Beyova.AOP
         {
             removeException = false;
 
-            if (returnedMessage == null || exception == null) return null;
+            if (returnedMessage == null || exception == null)
+            {
+                return null;
+            }
 
             var operationName = returnedMessage.MethodName;
             var operatorIdentity = Framework.OperatorInfo.ObjectToString();
@@ -75,11 +54,7 @@ namespace Beyova.AOP
             if (!ThrowException)
             {
                 removeException = true;
-
-                if (Framework.ApiTracking != null)
-                {
-                    Framework.ApiTracking.LogExceptionAsync(newException, this.ServerIdentifier, EnvironmentCore.ServerName);
-                }
+                Framework.ApiTracking?.LogExceptionAsync(newException, EnvironmentCore.ServerName, EnvironmentCore.ServerName);
             }
 
             return newException;
