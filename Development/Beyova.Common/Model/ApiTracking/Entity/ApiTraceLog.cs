@@ -16,12 +16,6 @@ namespace Beyova.ApiTracking
         public string TraceId { get; set; }
 
         /// <summary>
-        /// Gets or sets the created stamp.
-        /// </summary>
-        /// <value>The created stamp.</value>
-        public DateTime CreatedStamp { get; set; }
-
-        /// <summary>
         /// Gets or sets the full name of the method.
         /// </summary>
         /// <value>The full name of the method.</value>
@@ -62,7 +56,6 @@ namespace Beyova.ApiTracking
         /// </summary>
         public ApiTraceLog()
         {
-            this.CreatedStamp = DateTime.UtcNow;
             this.InnerTraces = new List<ApiTraceLog>();
         }
     }

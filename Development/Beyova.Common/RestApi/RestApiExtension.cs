@@ -43,8 +43,6 @@ namespace Beyova.RestApi
 
             if (log != null)
             {
-                builder.AppendIndent(' ', 2 * (level));
-                builder.AppendLineWithFormat("{0}: {1}", log.CreatedStamp.ToFullDateTimeString(), log.MethodFullName);
                 builder.AppendIndent(' ', 2 * (level + 1));
                 builder.AppendLineWithFormat("Entry: {0}", log.EntryStamp.ToFullDateTimeString());
                 builder.AppendIndent(' ', 2 * (level + 1));

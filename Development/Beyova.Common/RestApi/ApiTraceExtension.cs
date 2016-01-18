@@ -19,29 +19,35 @@ namespace Beyova.RestApi
         /// To the trace log.
         /// </summary>
         /// <param name="context">The context.</param>
+        /// <param name="parent">The parent.</param>
+        /// <param name="entryStamp">The entry stamp.</param>
         /// <returns>Beyova.ApiTracking.ApiTraceLog.</returns>
-        internal static RuntimeApiTraceLog ToTraceLog(this RuntimeContext context, RuntimeApiTraceLog parent)
+        internal static RuntimeApiTraceLog ToTraceLog(this RuntimeContext context, RuntimeApiTraceLog parent, DateTime? entryStamp = null)
         {
             if (context != null)
             {
-                return new RuntimeApiTraceLog
-                {
-                    Parent = parent,
-                    RawTraceLog = new ApiTraceLog()
-                    {
-                        MethodFullName = context.ApiMethod?.GetFullName(),
-                        MethodParameters = new Dictionary<string, object> {
-                        { "UrlParameter",context.IsActionUsed ? context.Parameter2 : context.Parameter1} }
-                    }
-                };
+                return new RuntimeApiTraceLog(parent, context.ApiMethod?.GetFullName(), new Dictionary<string, object> {
+                        { "UrlParameter",context.IsActionUsed ? context.Parameter2 : context.Parameter1} },
+                        entryStamp);
             }
 
             return null;
         }
 
-        internal static RuntimeApiTraceLog ToTraceLog(this MethodInfo methodInfo, RuntimeApiTraceLog parent)
+        /// <summary>
+        /// To the trace log.
+        /// </summary>
+        /// <param name="methodInfo">The method information.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <param name="parent">The parent.</param>
+        /// <param name="entryStamp">The entry stamp.</param>
+        /// <returns>Beyova.ApiTracking.RuntimeApiTraceLog.</returns>
+        internal static RuntimeApiTraceLog ToTraceLog(this MethodInfo methodInfo, List<object> parameters, RuntimeApiTraceLog parent, DateTime? entryStamp = null)
         {
-
+            if (methodInfo != null)
+            {
+                return new RuntimeApiTraceLog(parent, methodInfo.GetFullName(), ToMethodParameters(methodInfo, parameters.ToArray()), entryStamp);
+            }
 
             return null;
         }
@@ -51,22 +57,13 @@ namespace Beyova.RestApi
         /// </summary>
         /// <param name="methodCallMessage">The method call message.</param>
         /// <param name="parent">The parent.</param>
+        /// <param name="entryStamp">The entry stamp.</param>
         /// <returns>Beyova.ApiTracking.RuntimeApiTraceLog.</returns>
-        internal static RuntimeApiTraceLog ToTraceLog(this IMethodCallMessage methodCallMessage, RuntimeApiTraceLog parent)
+        internal static RuntimeApiTraceLog ToTraceLog(this IMethodCallMessage methodCallMessage, RuntimeApiTraceLog parent, DateTime? entryStamp = null)
         {
             if (methodCallMessage != null)
             {
-                return new RuntimeApiTraceLog
-                {
-                    Parent = parent,
-                    RawTraceLog = new ApiTraceLog()
-                    {
-                        CreatedStamp = DateTime.UtcNow,
-                        EntryStamp = DateTime.UtcNow,
-                        MethodFullName = methodCallMessage.MethodBase.GetFullName(),
-                        MethodParameters = methodCallMessage.ToMethodParameters()
-                    }
-                };
+                return new RuntimeApiTraceLog(parent, methodCallMessage.MethodBase.GetFullName(), methodCallMessage.ToMethodParameters(), entryStamp);
             }
 
             return null;
