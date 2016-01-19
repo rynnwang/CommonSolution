@@ -14,7 +14,7 @@ using Beyova.ProgrammingIntelligence;
 [assembly: AssemblyCopyright("Allrights reserved.")]
 [assembly: AssemblyTrademark("Beyova")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.AzureExtension", "1.3.3")]
+[assembly: BeyovaComponent("Beyova.AzureExtension", "1.3.4")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

@@ -40,6 +40,11 @@ namespace Beyova.RestApi
         /// </summary>
         internal static Dictionary<string, RestApiSettings> settingsContainer = new Dictionary<string, RestApiSettings>();
 
+        /// <summary>
+        /// The default rest API settings
+        /// </summary>
+        protected static RestApiSettings defaultRestApiSettings = new RestApiSettings();
+
         #endregion
 
         #region Property
@@ -134,7 +139,6 @@ namespace Beyova.RestApi
             BaseException baseException = null;
 
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERHANDLETIME, entryStamp.ToFullDateTimeTzString());
-            context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
 
             var acceptEncoding = context.Request.Headers["Accept-Encoding"].SafeToLower();
 
@@ -566,7 +570,7 @@ namespace Beyova.RestApi
             {
                 if (settings == null)
                 {
-                    settings = new RestApiSettings();
+                    settings = defaultRestApiSettings;
                 }
 
                 var objectToReturn = ex != null ? (settings.EnableOutputFullExceptionInfo ? ex.ToExceptionInfo() : new SimpleExceptionInfo
@@ -576,6 +580,7 @@ namespace Beyova.RestApi
                     Code = ex.Hint?.Code ?? ex.Code
                 } as IExceptionInfo) : data;
 
+                response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
                 response.Headers.Add(HttpConstants.HttpHeader.SERVERTIME, DateTime.UtcNow.ToFullDateTimeTzString());
                 response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ApiTraceContext.TraceId);
 
