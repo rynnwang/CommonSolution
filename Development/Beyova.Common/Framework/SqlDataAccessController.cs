@@ -12,7 +12,7 @@ namespace Beyova
     /// Abstract class for SQL data access controller, which refers an entity in {T} type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SqlDataAccessController<T> : AOPInterceptorObject, IDisposable
+    public abstract class SqlDataAccessController<T> : IDisposable
     {
         /// <summary>
         /// The database operator
