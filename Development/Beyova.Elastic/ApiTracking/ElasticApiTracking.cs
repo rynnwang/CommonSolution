@@ -111,7 +111,7 @@ namespace Beyova.Elastic
         /// Logs the API event asynchronous.
         /// </summary>
         /// <param name="eventLog">The event log.</param>
-        public void LogApiEventAsync(ApiEventLog eventLog)
+        public void LogApiEvent(ApiEventLog eventLog)
         {
             FillLocationInfo(eventLog);
             elasticClient.IndexAsync(apiEventType, eventLog);
@@ -121,7 +121,7 @@ namespace Beyova.Elastic
         /// Logs the API trace log asynchronous.
         /// </summary>
         /// <param name="traceLog">The trace log.</param>
-        public void LogApiTraceLogAsync(ApiTraceLog traceLog)
+        public void LogApiTraceLog(ApiTraceLog traceLog)
         {
             elasticClient.IndexAsync("TraceLog", traceLog);
         }
@@ -130,7 +130,7 @@ namespace Beyova.Elastic
         /// Logs the exception asynchronous.
         /// </summary>
         /// <param name="exceptionInfo">The exception information.</param>
-        public void LogExceptionAsync(ExceptionInfo exceptionInfo)
+        public void LogException(ExceptionInfo exceptionInfo)
         {
             elasticClient.IndexAsync(exceptionType, exceptionInfo);
         }
@@ -141,7 +141,7 @@ namespace Beyova.Elastic
         /// <param name="exception">The exception.</param>
         /// <param name="serviceIdentifier">The service identifier.</param>
         /// <param name="serverIdentifier">The server identifier.</param>
-        public void LogExceptionAsync(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
+        public void LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
         {
             elasticClient.IndexAsync(exceptionType, exception.ToExceptionInfo(serviceIdentifier, serverIdentifier));
         }
@@ -150,7 +150,7 @@ namespace Beyova.Elastic
         /// Logs the message asynchronous.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void LogMessageAsync(string message)
+        public void LogMessage(string message)
         {
             if (string.IsNullOrWhiteSpace(message)) return;
             elasticClient.IndexAsync(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });

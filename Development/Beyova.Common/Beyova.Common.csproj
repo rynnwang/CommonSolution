@@ -103,6 +103,7 @@
     <Compile Include="Extensions\SystemManagementExtension.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
+    <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />
     <Compile Include="Model\SystemEnvironment\MachineHealth.cs" />
@@ -228,7 +229,6 @@
     <Compile Include="Model\SecureSynchronizePackage.cs" />
     <Compile Include="Framework\Framework.cs" />
     <Compile Include="Interfaces\IConfigurationReader.cs" />
-    <Compile Include="Interfaces\IFrameworkInitializer.cs" />
     <Compile Include="Interfaces\ICriteria.cs" />
     <Compile Include="RestApi\Attribute\ApiPermissionAttribute.cs" />
     <Compile Include="RestApi\Attribute\ApiContractAttribute.cs" />

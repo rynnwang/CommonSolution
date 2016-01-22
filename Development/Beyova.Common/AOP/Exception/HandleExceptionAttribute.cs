@@ -54,7 +54,7 @@ namespace Beyova.AOP
             if (!ThrowException)
             {
                 removeException = true;
-                Framework.ApiTracking?.LogExceptionAsync(newException, EnvironmentCore.ServerName, EnvironmentCore.ServerName);
+                Framework.ApiTracking?.LogException(newException, EnvironmentCore.ServerName, EnvironmentCore.ServerName);
             }
 
             return newException;

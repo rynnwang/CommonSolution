@@ -80,11 +80,11 @@ namespace Beyova
         /// Logs the message with time stamp.
         /// </summary>
         /// <param name="content">The content.</param>
-        public void LogMessageWithTimeStamp(string content)
+        private void InternalLogMessageWithTimeStamp(string content)
         {
             if (!string.IsNullOrWhiteSpace(content))
             {
-                WriteContent(string.Format(CultureInfo.InvariantCulture, "[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), content));
+                InternalWriteContent(string.Format(CultureInfo.InvariantCulture, "[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), content));
             }
         }
 
@@ -92,9 +92,9 @@ namespace Beyova
         /// Logs the message.
         /// </summary>
         /// <param name="content">The content.</param>
-        public void LogMessage(string content)
+        private void InternalLogMessage(string content)
         {
-            WriteContent(content.SafeToString());
+            InternalWriteContent(content.SafeToString());
         }
 
         /// <summary>
@@ -103,12 +103,12 @@ namespace Beyova
         /// <param name="ex">The ex.</param>
         /// <param name="data">The data.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        public void LogException(Exception ex, object data = null)
+        private void InternalLogException(Exception ex, object data = null)
         {
             try
             {
                 string errorInfo = ex.FormatToString(data);
-                WriteContent(errorInfo);
+                InternalWriteContent(errorInfo);
             }
             catch { }
         }
@@ -117,7 +117,7 @@ namespace Beyova
         /// Writes the content.
         /// </summary>
         /// <param name="content">The content.</param>
-        private void WriteContent(string content)
+        private void InternalWriteContent(string content)
         {
             traceListener.WriteLine(content);
         }
@@ -127,11 +127,11 @@ namespace Beyova
         /// </summary>
         /// <param name="eventLog">The event log.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        public Guid? LogApiEvent(ApiEventLog eventLog)
+        private Guid? InternalLogApiEvent(ApiEventLog eventLog)
         {
             if (eventLog != null)
             {
-                WriteContent(eventLog.ApiEventLogToString());
+                InternalWriteContent(eventLog.ApiEventLogToString());
                 return eventLog.Key;
             }
 
@@ -145,11 +145,11 @@ namespace Beyova
         /// <param name="serviceIdentifier">The service identifier.</param>
         /// <param name="serverIdentifier">The server identifier.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        public Guid? LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
+        private Guid? InternalLogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
         {
             if (exception != null)
             {
-                WriteContent(exception.FormatToString());
+                InternalWriteContent(exception.FormatToString());
                 return exception.Key;
             }
 
@@ -160,11 +160,11 @@ namespace Beyova
         /// Logs the API trace log.
         /// </summary>
         /// <param name="traceLog">The trace log.</param>
-        public void LogApiTraceLog(ApiTraceLog traceLog)
+        private void InternalLogApiTraceLog(ApiTraceLog traceLog)
         {
             if (traceLog != null)
             {
-                WriteContent(traceLog.ApiTraceLogToString());
+                InternalWriteContent(traceLog.ApiTraceLogToString());
             }
         }
 
@@ -172,11 +172,11 @@ namespace Beyova
         /// Logs the API event asynchronous.
         /// </summary>
         /// <param name="eventLog">The event log.</param>
-        public void LogApiEventAsync(ApiEventLog eventLog)
+        public void LogApiEvent(ApiEventLog eventLog)
         {
             if (eventLog != null)
             {
-                Task.Factory.StartNew(() => LogApiEvent(eventLog));
+                Task.Factory.StartNew(() => InternalLogApiEvent(eventLog));
             }
         }
 
@@ -186,11 +186,11 @@ namespace Beyova
         /// <param name="exception">The exception.</param>
         /// <param name="serviceIdentifier">The service identifier.</param>
         /// <param name="serverIdentifier">The server identifier.</param>
-        public void LogExceptionAsync(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
+        public void LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
         {
             if (exception != null)
             {
-                Task.Factory.StartNew(() => LogException(exception, serviceIdentifier, serverIdentifier));
+                Task.Factory.StartNew(() => InternalLogException(exception, serviceIdentifier, serverIdentifier));
             }
         }
 
@@ -199,11 +199,11 @@ namespace Beyova
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="eventLog">The event log.</param>
-        public void LogEvent<T>(T eventLog)
+        private void InternalLogEvent<T>(T eventLog)
         {
             if (eventLog != null)
             {
-                WriteContent(eventLog.ToJson());
+                InternalWriteContent(eventLog.ToJson());
             }
         }
 
@@ -217,7 +217,7 @@ namespace Beyova
         {
             if (eventLog != null)
             {
-                Task.Factory.StartNew(() => LogEvent(eventLog));
+                Task.Factory.StartNew(() => InternalLogEvent(eventLog));
             }
         }
 
@@ -225,11 +225,11 @@ namespace Beyova
         /// Logs the API trace log asynchronous.
         /// </summary>
         /// <param name="traceLog">The trace log.</param>
-        public void LogApiTraceLogAsync(ApiTraceLog traceLog)
+        public void LogApiTraceLog(ApiTraceLog traceLog)
         {
             if (traceLog != null)
             {
-                Task.Factory.StartNew(() => LogEvent(traceLog));
+                Task.Factory.StartNew(() => InternalLogApiTraceLog(traceLog));
             }
         }
 
@@ -237,11 +237,11 @@ namespace Beyova
         /// Logs the exception asynchronous.
         /// </summary>
         /// <param name="exceptionInfo">The exception information.</param>
-        public void LogExceptionAsync(ExceptionInfo exceptionInfo)
+        public void LogException(ExceptionInfo exceptionInfo)
         {
             if (exceptionInfo != null)
             {
-                Task.Factory.StartNew(() => WriteContent(exceptionInfo?.ToJson()));
+                Task.Factory.StartNew(() => InternalWriteContent(exceptionInfo.ToJson()));
             }
         }
 
@@ -249,9 +249,9 @@ namespace Beyova
         /// Logs the message asynchronous.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void LogMessageAsync(string message)
+        public void LogMessage(string message)
         {
-            Task.Factory.StartNew(() => LogMessage(message));
+            Task.Factory.StartNew(() => InternalLogMessage(message));
         }
     }
 }

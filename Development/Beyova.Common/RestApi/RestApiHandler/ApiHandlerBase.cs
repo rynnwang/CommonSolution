@@ -138,7 +138,7 @@ namespace Beyova.RestApi
             string traceId = null;
             BaseException baseException = null;
 
-            context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERHANDLETIME, entryStamp.ToFullDateTimeTzString());
+            context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERENTRYTIME, entryStamp.ToFullDateTimeTzString());
 
             var acceptEncoding = context.Request.Headers["Accept-Encoding"].SafeToLower();
 
@@ -269,6 +269,7 @@ namespace Beyova.RestApi
             }
             finally
             {
+           
                 if (settings?.ApiTracking != null)
                 {
                     var exitStamp = DateTime.UtcNow;
@@ -277,7 +278,7 @@ namespace Beyova.RestApi
                         try
                         {
                             eventLog.ExitStamp = exitStamp;
-                            settings.ApiTracking.LogApiEventAsync(eventLog);
+                            settings.ApiTracking.LogApiEvent(eventLog);
                         }
                         catch { }
                     }
@@ -288,7 +289,7 @@ namespace Beyova.RestApi
                         {
                             ApiTraceContext.Exit(baseException, exitStamp);
 
-                            settings.ApiTracking.LogApiTraceLogAsync(ApiTraceContext.GetCurrentTraceLog(true));
+                            settings.ApiTracking.LogApiTraceLog(ApiTraceContext.GetCurrentTraceLog(true));
                         }
                         catch { }
                     }
@@ -507,7 +508,7 @@ namespace Beyova.RestApi
         {
             if (apiTrackingExecutor != null && exceptionInfo != null)
             {
-                apiTrackingExecutor.LogExceptionAsync(exceptionInfo);
+                apiTrackingExecutor.LogException(exceptionInfo);
             }
         }
 
@@ -523,7 +524,7 @@ namespace Beyova.RestApi
         #region PackageResponse
 
         /// <summary>
-        /// Packages the output.
+        /// Packages the output. <c>Flush()</c> would be called in this method.
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="data">The data.</param>
@@ -538,7 +539,7 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Packages the response.
+        /// Packages the response. <c>Flush()</c> would be called in this method.
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="data">The data.</param>
@@ -556,7 +557,7 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Packages the response.
+        /// Packages the response. <c>Flush()</c> would be called in this method.
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="data">The data.</param>
@@ -580,8 +581,7 @@ namespace Beyova.RestApi
                     Code = ex.Hint?.Code ?? ex.Code
                 } as IExceptionInfo) : data;
 
-                response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
-                response.Headers.Add(HttpConstants.HttpHeader.SERVERTIME, DateTime.UtcNow.ToFullDateTimeTzString());
+                response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);        
                 response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ApiTraceContext.TraceId);
 
                 response.StatusCode = (int)(ex == null ? (noBody ? HttpStatusCode.NoContent : HttpStatusCode.OK) : ex.Code.ToHttpStatusCode());
@@ -611,6 +611,9 @@ namespace Beyova.RestApi
 
                     response.Write(objectToReturn.ToJson(true, JsonConverters));
                 }
+
+                response.Headers.Add(HttpConstants.HttpHeader.SERVEREXITTIME, DateTime.UtcNow.ToFullDateTimeTzString());
+                response.Flush();
             }
         }
 

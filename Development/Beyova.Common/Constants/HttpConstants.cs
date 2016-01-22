@@ -72,7 +72,7 @@
             public const string TOKEN = "X-BA-TOKEN";
 
             /// <summary>
-            /// The admintoken
+            /// The admin token
             /// </summary>
             public const string ADMINTOKEN = "X-BA-ADMIN-TOKEN";
 
@@ -82,14 +82,14 @@
             public const string CLIENTIDENTIFIER = "X-BA-CLIENT-ID";
 
             /// <summary>
-            /// The server time
+            /// The server exit time
             /// </summary>
-            public const string SERVERTIME = "X-SERVER-UTC-TIME";
+            public const string SERVEREXITTIME = "X-SERVER-EXIT-UTC-TIME";
 
             /// <summary>
-            /// The server handle time
+            /// The server entry time
             /// </summary>
-            public const string SERVERHANDLETIME = "X-SERVER-HANDLE-UTC-TIME";
+            public const string SERVERENTRYTIME = "X-SERVER-ENTRY-UTC-TIME";
 
             /// <summary>
             /// </summary>
@@ -101,12 +101,12 @@
             public const string ORIGINAL = "X-BA-ORIGINAL";
 
             /// <summary>
-            /// The traceid
+            /// The trace ID
             /// </summary>
             public const string TRACEID = "X-BA-TRACE-ID";
 
             /// <summary>
-            /// The tracedetail
+            /// The trace detail
             /// </summary>
             public const string TRACEDETAIL = "X-BA-TRACE-DETAIL";
 

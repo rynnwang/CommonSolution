@@ -684,8 +684,6 @@ namespace Beyova
                     using (var requestStream = httpWebRequest.GetRequestStream())
                     {
                         requestStream.Write(tempBuffer, 0, tempBuffer.Length);
-                        requestStream.Flush();
-                        requestStream.Close();
                     }
 
                     stream.Close();
@@ -761,9 +759,10 @@ namespace Beyova
                 httpWebRequest.Method = method;
                 httpWebRequest.ContentType = "application/x-www-form-urlencoded";
                 httpWebRequest.ContentLength = data.Length;
-                var stream = httpWebRequest.GetRequestStream();
-                stream.Write(data, 0, data.Length);
-                stream.Close();
+                using (var stream = httpWebRequest.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
             }
         }
 
@@ -803,7 +802,7 @@ namespace Beyova
         /// <param name="data">The data.</param>
         /// <param name="encodingToByte">The encoding to byte.</param>
         /// <param name="contentType">Type of the content.</param>
-        private static void InternalFillData(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType)
+        private static void InternalFillData(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType = "application/json")
         {
             byte[] byteArray = null;
 
@@ -883,6 +882,269 @@ namespace Beyova
             }
 
             InternalFillData(httpWebRequest, method, byteArray, contentType);
+        }
+
+        #endregion
+
+        #region Fill Data On HttpWebRequest
+
+        /// <summary>
+        /// Fills the file data.
+        /// <remarks>
+        /// Reference: http://stackoverflow.com/questions/566462/upload-files-with-httpwebrequest-multipart-form-data
+        /// </remarks>
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="postData">The post data.</param>
+        /// <param name="fileCollection">The file collection.
+        /// Key: file name. e.g.: sample.txt
+        /// Value: file data in byte array.</param>
+        /// <param name="paramName">Name of the parameter.</param>
+        public static async Task FillFileDataAsync(this HttpWebRequest httpWebRequest, NameValueCollection postData, Dictionary<string, byte[]> fileCollection, string paramName)
+        {
+            try
+            {
+                var boundary = "----------------------------" + DateTime.Now.Ticks.ToString("x");
+
+                httpWebRequest.ContentType = "multipart/form-data; boundary=" + boundary;
+                httpWebRequest.Method = "POST";
+                httpWebRequest.KeepAlive = true;
+                httpWebRequest.Credentials = CredentialCache.DefaultCredentials;
+
+                using (var stream = new MemoryStream())
+                {
+                    var boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+                    var formDataTemplate = "\r\n--" + boundary + "\r\nContent-Disposition: form-data; name=\"{0}\";\r\n\r\n{1}";
+
+                    if (postData != null)
+                    {
+                        foreach (string key in postData.Keys)
+                        {
+                            var formItem = string.Format(formDataTemplate, key, postData[key]);
+                            var formItemBytes = Encoding.UTF8.GetBytes(formItem);
+                            stream.Write(formItemBytes, 0, formItemBytes.Length);
+                        }
+                    }
+
+                    stream.Write(boundaryBytes, 0, boundaryBytes.Length);
+
+                    const string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n Content-Type: application/octet-stream\r\n\r\n";
+
+                    if (fileCollection != null)
+                    {
+                        foreach (var key in fileCollection.Keys)
+                        {
+                            var header = string.Format(headerTemplate, paramName, key);
+                            var headerBytes = Encoding.UTF8.GetBytes(header);
+                            stream.Write(headerBytes, 0, headerBytes.Length);
+
+                            stream.Write(fileCollection[key], 0, fileCollection[key].Length);
+
+                            stream.Write(boundaryBytes, 0, boundaryBytes.Length);
+                        }
+                    }
+
+                    httpWebRequest.ContentLength = stream.Length;
+                    stream.Position = 0;
+                    var tempBuffer = new byte[stream.Length];
+                    stream.Read(tempBuffer, 0, tempBuffer.Length);
+
+                    using (var requestStream = await httpWebRequest.GetRequestStreamAsync())
+                    {
+                        var task = requestStream.WriteAsync(tempBuffer, 0, tempBuffer.Length);
+                        await task;
+
+                        if (task.Exception == null)
+                        {
+                            await requestStream.FlushAsync();
+                        }
+                    }
+
+                    stream.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("FillFileData", fileCollection);
+            }
+        }
+
+        /// <summary>
+        /// Fills the file data on HTTP web request.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="postData">The post data.</param>
+        /// <param name="fileFullName">Full name of the file.</param>
+        /// <param name="paramName">Name of the param.</param>
+        /// <exception cref="OperationFailureException">FillFileData</exception>
+        public static async Task FillFileDataAsync(this HttpWebRequest httpWebRequest, NameValueCollection postData, string fileFullName, string paramName)
+        {
+            if (httpWebRequest != null && !string.IsNullOrWhiteSpace(fileFullName))
+            {
+                try
+                {
+                    var fileData = File.ReadAllBytes(fileFullName);
+                    var fileName = Path.GetFileName(fileFullName);
+
+                    var fileCollection = new Dictionary<string, byte[]> { { fileName, fileData } };
+
+                    await FillFileDataAsync(httpWebRequest, postData, fileCollection, paramName);
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle("FillFileData", new { fileFullName, paramName });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fills post data on HttpWebRequest.
+        /// </summary>
+        /// <param name="httpWebRequest">The HttpWebRequest instance.</param>
+        /// <param name="method">The method.</param>
+        /// <param name="dataMappings">The data mappings.</param>
+        /// <param name="encoding">The encoding.</param>
+        public static async Task FillDataAsync(this HttpWebRequest httpWebRequest, string method, Dictionary<string, string> dataMappings, Encoding encoding = null)
+        {
+            if (httpWebRequest != null)
+            {
+                if (encoding == null)
+                {
+                    encoding = Encoding.ASCII;
+                }
+
+                var stringBuilder = new StringBuilder();
+                if (dataMappings != null)
+                {
+                    foreach (var key in dataMappings.Keys)
+                    {
+                        var value = dataMappings[key] ?? string.Empty;
+                        stringBuilder.Append(key + "=" + value.Trim() + "&");
+                    }
+
+                }
+                if (stringBuilder.Length > 0)
+                {
+                    stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                }
+
+                var data = encoding.GetBytes(stringBuilder.ToString());
+
+                httpWebRequest.Method = method;
+                httpWebRequest.ContentType = "application/x-www-form-urlencoded";
+                httpWebRequest.ContentLength = data.Length;
+                using (var stream = await httpWebRequest.GetRequestStreamAsync())
+                {
+                    var task = stream.WriteAsync(data, 0, data.Length);
+                    await task;
+
+                    if (task.Exception == null)
+                    {
+                        await stream.FlushAsync();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internals the fill data.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="method">The method.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="contentType">Type of the content.</param>
+        private static async Task InternalFillDataAsync(this HttpWebRequest httpWebRequest, string method, byte[] data, string contentType = "application/json")
+        {
+            if (httpWebRequest != null && data != null)
+            {
+                if (!string.IsNullOrWhiteSpace(method))
+                {
+                    httpWebRequest.Method = method;
+                }
+
+                if (!string.IsNullOrWhiteSpace(contentType))
+                {
+                    httpWebRequest.ContentType = contentType;
+                }
+
+                httpWebRequest.ContentLength = data.Length;
+                using (var dataStream = await httpWebRequest.GetRequestStreamAsync())
+                {
+                    var task = dataStream.WriteAsync(data, 0, data.Length);
+                    await task;
+                    if (task.Exception == null)
+                    {
+                        await dataStream.FlushAsync();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Internals the fill data.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="method">The method.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="encodingToByte">The encoding to byte.</param>
+        /// <param name="contentType">Type of the content.</param>
+        /// <returns>Task.</returns>
+        private static async Task InternalFillDataAsync(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType = "application/json")
+        {
+            byte[] byteArray = null;
+
+            if (!string.IsNullOrWhiteSpace(data))
+            {
+                byteArray = (encodingToByte ?? Encoding.UTF8).GetBytes(data);
+            }
+
+            await InternalFillDataAsync(httpWebRequest, method, byteArray, contentType);
+        }
+
+        /// <summary>
+        /// Fills the data.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="contentType">Type of the content.</param>
+        public static async Task FillDataAsync(this HttpWebRequest httpWebRequest, byte[] data, string contentType = "application/json")
+        {
+            await InternalFillDataAsync(httpWebRequest, null, data, contentType);
+        }
+
+        /// <summary>
+        /// Fills the data.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="contentType">Type of the content.</param>
+        public static async Task FillDataAsync(this HttpWebRequest httpWebRequest, string data, Encoding encoding = null, string contentType = null)
+        {
+            if (!string.IsNullOrWhiteSpace(data))
+            {
+                await InternalFillDataAsync(httpWebRequest, null, (encoding ?? Encoding.UTF8).GetBytes(data), contentType);
+            }
+        }
+
+        /// <summary>
+        /// Fills the data on HTTP web request.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="method">The method.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="encodingToByte">The encoding to byte.</param>
+        /// <param name="contentType">Type of the content.</param>
+        public static async Task FillDataAsync(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType = "application/json")
+        {
+            byte[] byteArray = null;
+
+            if (!string.IsNullOrWhiteSpace(data))
+            {
+                byteArray = (encodingToByte ?? Encoding.UTF8).GetBytes(data);
+            }
+
+            await InternalFillDataAsync(httpWebRequest, method, byteArray, contentType);
         }
 
         #endregion

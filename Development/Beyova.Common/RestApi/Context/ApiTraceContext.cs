@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using Beyova.ApiTracking;
-using Beyova.ExceptionSystem;
 
 namespace Beyova.RestApi
 {
@@ -45,8 +44,11 @@ namespace Beyova.RestApi
         /// <param name="entryStamp">The entry stamp.</param>
         public static void Initialize(MethodInfo method, string traceId, List<object> parameters, DateTime? entryStamp = null)
         {
-            _root = _current = method.ToTraceLog(parameters, null, entryStamp);
-            TraceId = traceId;
+            if (!string.IsNullOrWhiteSpace(traceId))
+            {
+                _root = _current = method.ToTraceLog(parameters, null, entryStamp);
+                TraceId = traceId;
+            }
         }
 
         /// <summary>
@@ -57,8 +59,11 @@ namespace Beyova.RestApi
         /// <param name="entryStamp">The entry stamp.</param>
         internal static void Initialize(RuntimeContext context, string traceId, DateTime? entryStamp = null)
         {
-            _root = _current = context.ToTraceLog(null, entryStamp);
-            TraceId = traceId;
+            if (!string.IsNullOrWhiteSpace(traceId))
+            {
+                _root = _current = context.ToTraceLog(null, entryStamp);
+                TraceId = traceId;
+            }
         }
 
         /// <summary>

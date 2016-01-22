@@ -292,6 +292,10 @@ namespace Beyova.RestApi
                     {
                         result = Framework.configurationReader.GetValues();
                     }
+                    else
+                    {
+                        result = "This API is available at localhost machine.";
+                    }
                     break;
                 default: break;
             }

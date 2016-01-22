@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Beyova
 {
@@ -46,7 +47,7 @@ namespace Beyova
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        public static void SetThreadData(this  string key, object value)
+        public static void SetThreadData(this string key, object value)
         {
             if (!string.IsNullOrWhiteSpace(key))
             {
@@ -65,5 +66,61 @@ namespace Beyova
         }
 
         #endregion
+
+        /// <summary>
+        /// Runs as new background thread.
+        /// </summary>
+        /// <param name="threadStart">The thread start.</param>
+        /// <returns>System.Nullable&lt;System.Int32&gt;.</returns>
+        public static Thread RunAsNewBackgroundThread(this ThreadStart threadStart)
+        {
+            if (threadStart != null)
+            {
+                var thread = new Thread(threadStart) { IsBackground = true };
+                thread.Start();
+                return thread;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Runs as new background thread.
+        /// </summary>
+        /// <param name="threadStart">The thread start.</param>
+        /// <param name="inputParameter">The input parameter.</param>
+        /// <returns>System.Nullable&lt;System.Int32&gt;.</returns>
+        public static Thread RunAsNewBackgroundThread(this ParameterizedThreadStart threadStart, object inputParameter)
+        {
+            if (threadStart != null)
+            {
+                var thread = new Thread(threadStart) { IsBackground = true };
+                thread.Start(inputParameter);
+                return thread;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Runs the thread task.
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        /// <returns><c>true</c> if succeed to run, <c>false</c> otherwise.</returns>
+        public static bool RunThreadTask(this WaitCallback callback)
+        {
+            return callback != null ? ThreadPool.QueueUserWorkItem(callback) : false;
+        }
+
+        /// <summary>
+        /// Runs the thread task.
+        /// </summary>
+        /// <param name="callback">The callback.</param>
+        /// <param name="inputParameter">The input parameter.</param>
+        /// <returns><c>true</c> if succeed to run, <c>false</c> otherwise.</returns>
+        public static bool RunThreadTask(this WaitCallback callback, object inputParameter)
+        {
+            return callback != null ? ThreadPool.QueueUserWorkItem(callback, inputParameter) : false;
+        }
     }
 }

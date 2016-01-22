@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Beyova;
 using Beyova.RestApi;
 
 namespace Beyova.CommonServiceInterface
@@ -21,15 +20,15 @@ namespace Beyova.CommonServiceInterface
         #region Authentication
 
         /// <summary>
-        /// Staffs the login.
+        /// Authenticates the specified request.
         /// </summary>
-        /// <param name="credential">The credential.</param>
-        /// <returns>LoginResult.</returns>
+        /// <param name="request">The request.</param>
+        /// <returns>TAuthenticationResult.</returns>
         [ApiOperation("Token", HttpConstants.HttpMethod.Put)]
-        TAuthenticationResult Authenticate(AccessCredential credential);
+        TAuthenticationResult Authenticate(AuthenticationRequest request);
 
         /// <summary>
-        /// Log Out this instance.
+        /// Log Out.
         /// </summary>
         /// <param name="token">The token.</param>
         [ApiOperation("Token", HttpConstants.HttpMethod.Delete)]
@@ -81,7 +80,6 @@ namespace Beyova.CommonServiceInterface
 
         /// <summary>
         /// Gets the current user profile.
-        /// Only get from Mango But not Odin
         /// </summary>
         /// <param name="userKey">The user key.</param>
         /// <returns>UserLogin.</returns>
