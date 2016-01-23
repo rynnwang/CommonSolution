@@ -225,17 +225,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Ifs the has value then output. If given string is null or empty, return string.empty, otherwise return output.
-        /// </summary>
-        /// <param name="anyObject">Any object.</param>
-        /// <param name="output">The output.</param>
-        /// <returns>System.String.</returns>
-        public static string IfHasValueThenOutput(this string anyObject, string output)
-        {
-            return string.IsNullOrWhiteSpace(anyObject) ? string.Empty : output;
-        }
-
-        /// <summary>
         /// Safes to string.
         /// </summary>
         /// <param name="anyObject">Any object.</param>
@@ -255,16 +244,6 @@ namespace Beyova
         public static string SafeToString(this object anyObject, string defaultString = emptyString)
         {
             return anyObject != null ? anyObject.ToString() : defaultString;
-        }
-
-        /// <summary>
-        /// Determines whether [is null or white space] [the specified any string].
-        /// </summary>
-        /// <param name="anyString">Any string.</param>
-        /// <returns><c>true</c> if [is null or white space] [the specified any string]; otherwise, <c>false</c>.</returns>
-        public static bool IsNullOrWhiteSpace(this string anyString)
-        {
-            return string.IsNullOrWhiteSpace(anyString);
         }
 
         /// <summary>
@@ -929,6 +908,27 @@ namespace Beyova
         public static DateTime JavaScriptLongSecondsToDateTime(this long javaScriptDateTimeSeconds, DateTimeKind dateTimeKind = DateTimeKind.Utc)
         {
             return new DateTime(1970, 1, 1, 0, 0, 0, dateTimeKind).AddSeconds(javaScriptDateTimeSeconds);
+        }
+
+        /// <summary>
+        /// Converts the time zone minute to time zone.
+        /// </summary>
+        /// <param name="timeZone">The time zone.</param>
+        /// <returns>System.String.</returns>
+        public static string ConvertTimeZoneMinuteToTimeZone(this int? timeZone)
+        {
+            return timeZone == null ? string.Empty : ConvertTimeZoneMinuteToTimeZone(timeZone.Value);
+        }
+
+        /// <summary>
+        /// Converts the time zone minute to time zone. Output sample: +08:30
+        /// </summary>
+        /// <param name="timeZone">The time zone.</param>
+        /// <returns>System.String.</returns>
+        public static string ConvertTimeZoneMinuteToTimeZone(this int timeZone)
+        {
+            TimeSpan timespan = new TimeSpan(0, timeZone, 0);
+            return (timeZone > 0 ? "+" : "-") + timespan.ToString("hh:mm");
         }
 
         /// <summary>

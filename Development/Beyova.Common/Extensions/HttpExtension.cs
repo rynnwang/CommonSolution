@@ -113,7 +113,7 @@ namespace Beyova
         /// <param name="encoding">The encoding.</param>
         /// <param name="timeout">The timeout.</param>
         /// <returns>Task&lt;System.String&gt;.</returns>
-        public static Task<string> ReadResponseAsTextAsync(this HttpWebRequest httpWebRequest, Encoding encoding = null, int? timeout = null)
+        public static async Task<string> ReadResponseAsTextAsync(this HttpWebRequest httpWebRequest, Encoding encoding = null, int? timeout = null)
         {
             try
             {
@@ -124,11 +124,8 @@ namespace Beyova
                     httpWebRequest.Timeout = timeout.Value;
                 }
 
-                return httpWebRequest.GetResponseAsync().ContinueWith<string>(responseTask =>
-                                {
-                                    HttpWebResponse webResponse = (HttpWebResponse)responseTask.Result;
-                                    return webResponse.ReadAsText(encoding, true);
-                                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                var response = (HttpWebResponse)(await httpWebRequest.GetResponseAsync());
+                return response.ReadAsText(encoding, true);
             }
             catch (Exception ex)
             {
@@ -143,8 +140,8 @@ namespace Beyova
         /// <param name="callback">The callback.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="timeout">The timeout.</param>
-        /// <exception cref="OperationFailureException">ReadAsyncResponseAsText</exception>
-        public static void ReadResponseAsTextAsync(this HttpWebRequest httpWebRequest, Action<string> callback, Encoding encoding = null, int? timeout = null)
+        /// <exception cref="OperationFailureException">ReadResponseAsTextAsTraditionalAsync</exception>
+        public static void ReadResponseAsTextUsingTraditionalAsync(this HttpWebRequest httpWebRequest, Action<string> callback, Encoding encoding = null, int? timeout = null)
         {
             if (httpWebRequest != null)
             {
@@ -181,7 +178,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ReadResponseAsTextAsync");
+                    throw ex.Handle("ReadResponseAsTextUsingTraditionalAsync");
                 }
             }
         }
@@ -570,12 +567,10 @@ namespace Beyova
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <returns>Task&lt;System.Byte[]&gt;.</returns>
-        public static Task<byte[]> ReadResponseAsync(this HttpWebRequest httpWebRequest)
+        public static async Task<byte[]> ReadResponseAsync(this HttpWebRequest httpWebRequest)
         {
-            return httpWebRequest.GetResponseAsync().ContinueWith((responseTask) =>
-            {
-                return responseTask.Result.ReadAsBytes(true);
-            });
+            var response = (HttpWebResponse)(await httpWebRequest.GetResponseAsync());
+            return response.ReadAsBytes(true);
         }
 
         /// <summary>
@@ -886,7 +881,7 @@ namespace Beyova
 
         #endregion
 
-        #region Fill Data On HttpWebRequest
+        #region Fill Data On HttpWebRequest async
 
         /// <summary>
         /// Fills the file data.
@@ -1162,9 +1157,11 @@ namespace Beyova
 
             if (httpRequest != null)
             {
-                var ms = new MemoryStream();
-                httpRequest.InputStream.CopyTo(ms);
-                data = ms.ToArray();
+                using (var ms = new MemoryStream())
+                {
+                    httpRequest.InputStream.CopyTo(ms);
+                    data = ms.ToArray();
+                }
             }
 
             return data;
@@ -1181,9 +1178,11 @@ namespace Beyova
 
             if (httpRequest != null)
             {
-                var ms = new MemoryStream();
-                httpRequest.InputStream.CopyTo(ms);
-                data = ms.ToArray();
+                using (var ms = new MemoryStream())
+                {
+                    httpRequest.InputStream.CopyTo(ms);
+                    data = ms.ToArray();
+                }
             }
 
             return data;
@@ -1200,9 +1199,11 @@ namespace Beyova
 
             if (httpRequest != null)
             {
-                var ms = new MemoryStream();
-                httpRequest.InputStream.CopyTo(ms);
-                data = ms.ToArray();
+                using (var ms = new MemoryStream())
+                {
+                    httpRequest.InputStream.CopyTo(ms);
+                    data = ms.ToArray();
+                }
             }
 
             return data;

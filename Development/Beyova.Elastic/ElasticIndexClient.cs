@@ -57,14 +57,34 @@ namespace Beyova.Elastic
         /// <param name="type">The type.</param>
         /// <param name="data">The data.</param>
         /// <returns>Task&lt;System.String&gt;.</returns>
-        public Task<string> IndexAsync(string type, object data)
+        public async Task<string> IndexAsync(string type, object data)
         {
             try
             {
                 type.CheckEmptyString("type");
                 data.CheckNullObject("data");
 
-                return BaseClient.IndexAsync(IndexName + IndexSuffix, type, data);
+                return await BaseClient.IndexAsync(IndexName + IndexSuffix, type, data);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("IndexAsync", new { type, data });
+            }
+        }
+
+        /// <summary>
+        /// Indexes the specified type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="data">The data.</param>
+        public void Index(string type, object data)
+        {
+            try
+            {
+                type.CheckEmptyString("type");
+                data.CheckNullObject("data");
+
+                BaseClient.IndexAsync(IndexName + IndexSuffix, type, data);
             }
             catch (Exception ex)
             {

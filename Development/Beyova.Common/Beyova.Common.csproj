@@ -102,6 +102,7 @@
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
+    <Compile Include="Interfaces\IGeographyLocation.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
@@ -149,8 +150,8 @@
     <Compile Include="Model\Admin\AdminUserInfo.cs" />
     <Compile Include="Model\ApiTracking\Statistic\GroupStatistic.cs" />
     <Compile Include="Model\ApiTracking\Statistic\AnalyticStatistic.cs" />
-    <Compile Include="Model\ApiTracking\Statistic\ExceptionStatistic.cs" />
-    <Compile Include="Model\ApiTracking\Statistic\ApiEventStatistic.cs" />
+    <Compile Include="Model\ApiTracking\Statistic\ExceptionGroupStatistic.cs" />
+    <Compile Include="Model\ApiTracking\Statistic\ApiEventGroupStatistic.cs" />
     <Compile Include="Model\App\AppPlatformBase.cs" />
     <Compile Include="Model\App\AppVersionBase.cs" />
     <Compile Include="Model\AuthenticationProfile\SessionCriteria.cs" />
@@ -186,13 +187,11 @@
     <Compile Include="Interfaces\ApiTracking\IAnalyticStatistic.cs" />
     <Compile Include="Interfaces\ApiTracking\IGroupByResult.cs" />
     <Compile Include="Interfaces\ApiTracking\ITimeFrame.cs" />
-    <Compile Include="Model\ApiTracking\Grouping\ApiEventGroupStatistic.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ApiEventStatisticCriteria.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiLogBase.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiEventLogBase.cs" />
     <Compile Include="Model\ApiTracking\TimeInterval.cs" />
     <Compile Include="ExceptionSystem\Model\ExceptionBase.cs" />
-    <Compile Include="Model\ApiTracking\Grouping\ExceptionGroupStatistic.cs" />
     <Compile Include="Model\ApiTracking\TimeUnit.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ExceptionStatisticCriteria.cs" />
     <Compile Include="Model\Maintenance\MaintanenceJob.cs" />
@@ -215,6 +214,7 @@
     <Compile Include="RestApi\RestApiHandler\RestApiEventHandlers.cs" />
     <Compile Include="RestApi\RestApiHandler\RestApiSettings.cs" />
     <Compile Include="ProgrammingIntelligence\Generator\RestApiClientGenerator.cs" />
+    <Compile Include="Framework\DualToken.cs" />
     <Compile Include="Utility\LambdaComparer.cs" />
     <Compile Include="Utility\Logger\DiagnosticFileLogger.cs" />
     <Compile Include="Utility\Sandbox\Sandbox.cs" />
@@ -232,9 +232,9 @@
     <Compile Include="Interfaces\ICriteria.cs" />
     <Compile Include="RestApi\Attribute\ApiPermissionAttribute.cs" />
     <Compile Include="RestApi\Attribute\ApiContractAttribute.cs" />
-    <Compile Include="Model\ApiTracking\Grouping\ExceptionGroupingCriteria.cs" />
+    <Compile Include="Model\ApiTracking\Statistic\ExceptionGroupingCriteria.cs" />
     <Compile Include="RestApi\Model\ApiPermission.cs" />
-    <Compile Include="Model\ApiTracking\Grouping\ApiEventGroupingCriteria.cs" />
+    <Compile Include="Model\ApiTracking\Statistic\ApiEventGroupingCriteria.cs" />
     <Compile Include="Model\ApiTracking\Query\ApiEventCriteria.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiTraceLog.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiEventLog.cs" />

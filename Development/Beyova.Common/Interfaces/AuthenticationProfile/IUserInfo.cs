@@ -47,7 +47,7 @@ namespace Beyova
         string Language { get; set; }
 
         /// <summary>
-        /// Gets or sets the time zone.
+        /// Gets or sets the time zone. Unit: minute
         /// </summary>
         /// <value>The time zone.</value>
         int? TimeZone { get; set; }

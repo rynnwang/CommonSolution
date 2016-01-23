@@ -97,7 +97,8 @@ namespace Beyova.Elastic
                             IsoCode = geoInfo.countryCode,
                             Latitude = geoInfo.latitude,
                             Longitude = geoInfo.longitude,
-                            Name = geoInfo.city.SafeToString(geoInfo.countryName)
+                            CountryName = geoInfo.countryName,
+                            CityName = geoInfo.city
                         };
                     }
                 }
@@ -114,7 +115,7 @@ namespace Beyova.Elastic
         public void LogApiEvent(ApiEventLog eventLog)
         {
             FillLocationInfo(eventLog);
-            elasticClient.IndexAsync(apiEventType, eventLog);
+            elasticClient.Index(apiEventType, eventLog);
         }
 
         /// <summary>
@@ -123,7 +124,7 @@ namespace Beyova.Elastic
         /// <param name="traceLog">The trace log.</param>
         public void LogApiTraceLog(ApiTraceLog traceLog)
         {
-            elasticClient.IndexAsync("TraceLog", traceLog);
+            elasticClient.Index("TraceLog", traceLog);
         }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace Beyova.Elastic
         /// <param name="exceptionInfo">The exception information.</param>
         public void LogException(ExceptionInfo exceptionInfo)
         {
-            elasticClient.IndexAsync(exceptionType, exceptionInfo);
+            elasticClient.Index(exceptionType, exceptionInfo);
         }
 
         /// <summary>
@@ -143,7 +144,7 @@ namespace Beyova.Elastic
         /// <param name="serverIdentifier">The server identifier.</param>
         public void LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
         {
-            elasticClient.IndexAsync(exceptionType, exception.ToExceptionInfo(serviceIdentifier, serverIdentifier));
+            elasticClient.Index(exceptionType, exception.ToExceptionInfo(serviceIdentifier, serverIdentifier));
         }
 
         /// <summary>
@@ -153,7 +154,7 @@ namespace Beyova.Elastic
         public void LogMessage(string message)
         {
             if (string.IsNullOrWhiteSpace(message)) return;
-            elasticClient.IndexAsync(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
+            elasticClient.Index(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
         }
 
         #endregion

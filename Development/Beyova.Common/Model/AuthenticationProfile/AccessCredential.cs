@@ -40,11 +40,11 @@
         /// <returns>The result of the conversion.</returns>
         public static explicit operator string (AccessCredential credential)
         {
-            return credential == null ? string.Empty : string.Format("{0}{1}{2}{3}{4}", credential.AccessIdentifier,
-                credential.Token.IsNullOrWhiteSpace() ? string.Empty : ":",
+            return credential.SafeToString(string.Format("{0}{1}{2}{3}{4}", credential.AccessIdentifier,
+                credential.Token.SafeToString(":"),
                 credential.Token,
-                credential.Domain.IsNullOrWhiteSpace() ? string.Empty : "@",
-                credential.Domain);
+                credential.Domain.SafeToString("@"),
+                credential.Domain));
         }
 
         /// <summary>

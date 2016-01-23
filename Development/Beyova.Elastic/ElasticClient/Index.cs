@@ -19,16 +19,16 @@ namespace Beyova.Elastic
         /// <param name="type">The type.</param>
         /// <param name="data">The data.</param>
         /// <returns>Task&lt;System.String&gt;.</returns>
-        public Task<string> IndexAsync(string indexName, string type, object data)
+        public async Task<string> IndexAsync(string indexName, string type, object data)
         {
             try
             {
                 data.CheckNullObject("data");
 
                 var httpRequest = GetHttpRequestUri(indexName, type).CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
-                httpRequest.FillData(data.ToJson(false), Encoding.UTF8, "application/json");
+                await httpRequest.FillDataAsync(data.ToJson(false), Encoding.UTF8, "application/json");
 
-                return httpRequest.ReadResponseAsTextAsync(Encoding.UTF8);
+                return await httpRequest.ReadResponseAsTextAsync(Encoding.UTF8);
             }
             catch (Exception ex)
             {

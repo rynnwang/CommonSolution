@@ -1,12 +1,17 @@
-﻿using Beyova.ExceptionSystem;
-
+﻿
 namespace Beyova.ApiTracking
 {
     /// <summary>
-    /// Class ExceptionStatistic.
+    /// Class ApiEventGroupStatistic.
     /// </summary>
-    public class ExceptionStatistic : ExceptionBase, IAnalyticStatistic
+    public class ApiEventGroupStatistic : ApiEventLogBase, IGroupByResult
     {
+        /// <summary>
+        /// Gets or sets the display name.
+        /// </summary>
+        /// <value>The display name.</value>
+        public string DisplayName { get; set; }
+
         /// <summary>
         /// Gets or sets the stamp identifier.
         /// </summary>
@@ -20,24 +25,25 @@ namespace Beyova.ApiTracking
         public int Count { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionStatistic"/> class.
+        /// Initializes a new instance of the <see cref="ApiEventGroupStatistic"/> class.
         /// </summary>
-        public ExceptionStatistic()
+        public ApiEventGroupStatistic()
             : this(null)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionStatistic"/> class.
+        /// Initializes a new instance of the <see cref="ApiEventGroupStatistic" /> class.
         /// </summary>
         /// <param name="statistic">The statistic.</param>
-        public ExceptionStatistic(ExceptionStatistic statistic)
+        public ApiEventGroupStatistic(ApiEventGroupStatistic statistic)
             : base(statistic)
         {
             if (statistic != null)
             {
                 this.StampIdentifier = statistic.StampIdentifier;
                 this.Count = statistic.Count;
+                this.DisplayName = statistic.DisplayName;
             }
         }
     }

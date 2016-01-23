@@ -437,7 +437,7 @@ namespace Beyova
         /// <returns>List{System.String}.</returns>
         public static List<string> XmlToList(this string xmlString)
         {
-            return !xmlString.IsNullOrWhiteSpace() ? XElement.Parse(xmlString).XmlToList() : new List<string>();
+            return !string.IsNullOrWhiteSpace(xmlString) ? XElement.Parse(xmlString).XmlToList() : new List<string>();
         }
 
         /// <summary>

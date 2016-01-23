@@ -229,10 +229,11 @@ namespace Beyova.AzureExtension
         /// <returns>BinaryStorageActionCredential.</returns>
         public BinaryStorageActionCredential CreateBlobUriForUpload(string containerName, string blobIdentifier, int expireOffsetInMinute = 10)
         {
-            if (blobIdentifier.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(blobIdentifier))
             {
                 blobIdentifier = Guid.NewGuid().ToString();
             }
+
             return CreateBlobUri(containerName, blobIdentifier, expireOffsetInMinute, SharedAccessBlobPermissions.List | SharedAccessBlobPermissions.Write);
         }
 
@@ -432,10 +433,10 @@ namespace Beyova.AzureExtension
         protected static SharedAccessBlobPolicy CreateSharedAccessBlobPolicy(SharedAccessBlobPermissions permissions, int expireOffsetInMinute = 10)
         {
             return new SharedAccessBlobPolicy()
-               {
-                   SharedAccessExpiryTime = DateTime.UtcNow.AddMinutes(expireOffsetInMinute),
-                   Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Write | SharedAccessBlobPermissions.List
-               };
+            {
+                SharedAccessExpiryTime = DateTime.UtcNow.AddMinutes(expireOffsetInMinute),
+                Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.Write | SharedAccessBlobPermissions.List
+            };
         }
 
         /// <summary>
@@ -507,10 +508,9 @@ namespace Beyova.AzureExtension
                     }
                 }
 
-                var msWrite = new MemoryStream(dataBytes);
-                msWrite.Position = 0;
-                using (msWrite)
+                using (var msWrite = new MemoryStream(dataBytes))
                 {
+                    msWrite.Position = 0;
                     blob.UploadFromStream(msWrite);
                 }
 
@@ -586,16 +586,11 @@ namespace Beyova.AzureExtension
         /// <returns>System.String for ETag.</returns>
         public static string UploadBlobByBlobUri(string blobUri, string content, Encoding encoding = null, BinaryStorageMetaBase meta = null, IDictionary<string, string> metaData = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
             try
             {
                 content.CheckEmptyString("content");
 
-                return UploadBlobByBlobUri(blobUri, encoding.GetBytes(content), meta, metaData);
+                return UploadBlobByBlobUri(blobUri, (encoding ?? Encoding.UTF8).GetBytes(content), meta, metaData);
             }
             catch (Exception ex)
             {
@@ -615,16 +610,11 @@ namespace Beyova.AzureExtension
         /// <returns>System.String for ETag.</returns>
         public static string UploadBlobByContainerUri(string containerUri, string blobIdentifier, string content, Encoding encoding = null, BinaryStorageMetaData meta = null, IDictionary<string, string> metaData = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
             try
             {
                 content.CheckEmptyString("content");
 
-                return UploadBlobByContainerUri(containerUri, blobIdentifier, encoding.GetBytes(content), meta, metaData);
+                return UploadBlobByContainerUri(containerUri, blobIdentifier, (encoding ?? Encoding.UTF8).GetBytes(content), meta, metaData);
             }
             catch (Exception ex)
             {
@@ -804,7 +794,6 @@ namespace Beyova.AzureExtension
         public static byte[] DownloadBlobByContainerUri(string containerUri, string blobIdentifier, out IDictionary<string, string> metaData)
         {
             BinaryStorageMetaData meta;
-
             return DownloadBlobByContainerUri(containerUri, blobIdentifier, true, out meta, out metaData);
         }
 
@@ -937,13 +926,13 @@ namespace Beyova.AzureExtension
                 var blobs = QueryBlob(this.blobClient.GetContainerReference(containerName), contentType, md5, length, limitCount);
                 return (from i in blobs
                         select new BinaryStorageMetaBase
-                            {
-                                Container = containerName,
-                                Identifier = i.Name,
-                                Mime = i.Properties.ContentType,
-                                Name = i.Properties.ContentDisposition.ConvertContentDispositionToName(),
-                                Length = i.Properties.Length
-                            }).ToList();
+                        {
+                            Container = containerName,
+                            Identifier = i.Name,
+                            Mime = i.Properties.ContentType,
+                            Name = i.Properties.ContentDisposition.ConvertContentDispositionToName(),
+                            Length = i.Properties.Length
+                        }).ToList();
             }
             catch (Exception ex)
             {
@@ -1004,7 +993,7 @@ namespace Beyova.AzureExtension
         protected static CloudStorageAccount ConnectionStringToCredential(string storageConnectionString)
         {
             var keyValues = storageConnectionString.SafeToString().ParseToKeyValuePairCollection(';');
-            var useHttps = keyValues.Get("DefaultEndpointsProtocol").Equals("https", StringComparison.InvariantCultureIgnoreCase);
+            var useHttps = keyValues.Get("DefaultEndpointsProtocol")?.Equals("https", StringComparison.InvariantCultureIgnoreCase) ?? false;
             var accountKey = keyValues.Get("AccountKey");
             var accountName = keyValues.Get("AccountName");
             var customBlobDomain = keyValues.Get("CustomBlobDomain");

@@ -269,7 +269,7 @@ namespace Beyova.RestApi
             }
             finally
             {
-           
+
                 if (settings?.ApiTracking != null)
                 {
                     var exitStamp = DateTime.UtcNow;
@@ -445,7 +445,7 @@ namespace Beyova.RestApi
                 else
                 {
                     var json = jsonBody = httpRequest.GetPostJson(Encoding.UTF8);
-                    var jsonObject = json.IsNullOrWhiteSpace() ? null : JObject.Parse(json);
+                    var jsonObject = string.IsNullOrWhiteSpace(json) ? null : JObject.Parse(json);
 
                     if (jsonObject != null)
                     {
@@ -581,7 +581,7 @@ namespace Beyova.RestApi
                     Code = ex.Hint?.Code ?? ex.Code
                 } as IExceptionInfo) : data;
 
-                response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);        
+                response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
                 response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ApiTraceContext.TraceId);
 
                 response.StatusCode = (int)(ex == null ? (noBody ? HttpStatusCode.NoContent : HttpStatusCode.OK) : ex.Code.ToHttpStatusCode());

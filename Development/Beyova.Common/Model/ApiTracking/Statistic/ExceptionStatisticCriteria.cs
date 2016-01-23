@@ -33,10 +33,10 @@ namespace Beyova.ApiTracking
         public DateTime? FromStamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the time zone.
+        /// Gets or sets the time zone. Unit: minute
         /// </summary>
         /// <value>The time zone.</value>
-        public string TimeZone { get; set; }
+        public int? TimeZone { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionStatisticCriteria" /> class.

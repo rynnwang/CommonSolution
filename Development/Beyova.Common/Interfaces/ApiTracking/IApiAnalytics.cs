@@ -10,6 +10,8 @@ namespace Beyova
     /// </summary>
     public interface IApiAnalytics
     {
+        #region Query Entity
+
         /// <summary>
         /// Queries the log API event.
         /// </summary>
@@ -29,6 +31,40 @@ namespace Beyova
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>ApiTraceLog.</returns>
-        ApiTraceLog GetApiTraceLogByKey(Guid? key);       
+        ApiTraceLog GetApiTraceLogByKey(Guid? key);
+
+        #endregion
+
+        #region Time frame based query
+
+        /// <summary>
+        /// Gets the API event statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;ApiEventGroupStatistic&gt;.</returns>
+        List<ApiEventGroupStatistic> GetApiEventStatistic(ApiEventStatisticCriteria criteria);
+
+        /// <summary>
+        /// Gets the API event group statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;ApiEventGroupStatistic&gt;.</returns>
+        List<ApiEventGroupStatistic> GetApiEventGroupStatistic(ApiEventGroupingCriteria criteria);
+
+        /// <summary>
+        /// Gets the API exception statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;ExceptionGroupStatistic&gt;.</returns>
+        List<ExceptionGroupStatistic> GetApiExceptionStatistic(ExceptionStatisticCriteria criteria);
+
+        /// <summary>
+        /// Gets the API exception grouping statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;ExceptionGroupStatistic&gt;.</returns>
+        List<ExceptionGroupStatistic> GetApiExceptionGroupingStatistic(ExceptionGroupingCriteria criteria);
+
+        #endregion
     }
 }

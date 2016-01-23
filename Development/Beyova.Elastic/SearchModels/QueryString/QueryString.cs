@@ -24,7 +24,7 @@ namespace Beyova.Elastic
         /// Gets or sets the time zone. Example: "+08:00"
         /// </summary>
         /// <value>The time zone.</value>
-        public string TimeZone { get; set; }
+        public int? TimeZone { get; set; }
 
         /// <summary>
         /// Gets or sets the order by.
@@ -67,9 +67,9 @@ namespace Beyova.Elastic
                 builder.AppendFormat("from={0}&", this.FromIndex.Value);
             }
 
-            if (!string.IsNullOrWhiteSpace(this.TimeZone))
+            if (this.TimeZone != null)
             {
-                builder.AppendFormat("time_zone={0}&", this.TimeZone.ToUrlEncodedText());
+                builder.AppendFormat("time_zone={0}&", this.TimeZone.ConvertTimeZoneMinuteToTimeZone().ToUrlEncodedText());
             }
 
             if (!string.IsNullOrWhiteSpace(OrderBy))

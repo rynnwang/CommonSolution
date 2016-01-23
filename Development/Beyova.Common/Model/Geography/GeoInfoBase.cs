@@ -18,21 +18,27 @@ namespace Beyova
         public string IsoCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the name.
+        /// Gets or sets the name of the country.
         /// </summary>
-        /// <value>The name.</value>
-        public string Name { get; set; }
+        /// <value>The name of the country.</value>
+        public string CountryName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the city.
+        /// </summary>
+        /// <value>The name of the city.</value>
+        public string CityName { get; set; }
 
         /// <summary>
         /// Gets or sets the latitude.
         /// </summary>
         /// <value>The latitude.</value>
-        public double Latitude { get; set; }
+        public double? Latitude { get; set; }
 
         /// <summary>
         /// Gets or sets the longitude.
         /// </summary>
         /// <value>The longitude.</value>
-        public double Longitude { get; set; }
+        public double? Longitude { get; set; }
     }
 }

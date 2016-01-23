@@ -5,7 +5,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Beyova.ExceptionSystem;
-using Beyova;
 using Newtonsoft.Json;
 
 namespace Beyova
@@ -441,7 +440,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("RsaDecrypt", publicKey);
+                throw ex.Handle("RsaDecrypt", new { publicKey, dwKeySize });
             }
         }
 
@@ -461,7 +460,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("RsaDecrypt", new { content, privateKey });
+                throw ex.Handle("RsaDecrypt", new { content, privateKey, dwKeySize });
             }
         }
 
@@ -646,7 +645,6 @@ namespace Beyova
                     DES.Padding = PaddingMode.PKCS7;
 
                     ICryptoTransform DESEncrypt = DES.CreateEncryptor();
-
 
                     byte[] buffer = encoding.GetBytes(content);
                     buffer = DESEncrypt.TransformFinalBlock(buffer, 0, buffer.Length);

@@ -20,9 +20,9 @@ namespace Beyova.ApiTracking
         DateTime? ToStamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the time zone.
+        /// Gets or sets the time zone. Unit: minute
         /// </summary>
         /// <value>The time zone.</value>
-        string TimeZone { get; set; }
+        int? TimeZone { get; set; }
     }
 }
