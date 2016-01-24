@@ -58,6 +58,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="LDAPUnitTest.cs" />
     <Compile Include="ApiContractSerializationUnitTest.cs" />
     <Compile Include="StrickJsonUnitTest.cs" />
     <Compile Include="JsonXmlSerializerUnitTest.cs" />
