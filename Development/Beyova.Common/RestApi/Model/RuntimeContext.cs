@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Beyova.RestApi
@@ -115,5 +116,11 @@ namespace Beyova.RestApi
                 return IsActionUsed ? Parameter1 : null;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the additional header keys.
+        /// </summary>
+        /// <value>The additional header keys.</value>
+        public List<string> AdditionalHeaderKeys { get; set; }
     }
 }

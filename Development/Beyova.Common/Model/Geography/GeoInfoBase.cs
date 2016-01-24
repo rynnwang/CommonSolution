@@ -9,7 +9,7 @@ namespace Beyova
     /// <summary>
     /// Class GeoInfoBase.
     /// </summary>
-    public class GeoInfoBase
+    public class GeoInfoBase : IGeographyLocation
     {
         /// <summary>
         /// Gets or sets the iso code.

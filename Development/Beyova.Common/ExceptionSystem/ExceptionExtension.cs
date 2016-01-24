@@ -528,6 +528,8 @@ namespace Beyova
                     key = baseException != null ? baseException.Key : Guid.NewGuid();
                 }
 
+                serverIdentifier = serverIdentifier.SafeToString(EnvironmentCore.ServerName);
+
                 var exceptionInfo = new ExceptionInfo
                 {
                     ExceptionType = exception.GetType().FullName,

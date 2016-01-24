@@ -153,7 +153,11 @@ namespace Beyova.Elastic
         /// <param name="message">The message.</param>
         public void LogMessage(string message)
         {
-            if (string.IsNullOrWhiteSpace(message)) return;
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
             elasticClient.Index(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
         }
 

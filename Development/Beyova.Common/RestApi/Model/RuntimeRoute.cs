@@ -73,6 +73,12 @@ namespace Beyova.RestApi
         public IDictionary<string, ApiPermission> Permissions { get; protected set; }
 
         /// <summary>
+        /// Gets or sets the header keys.
+        /// </summary>
+        /// <value>The header keys.</value>
+        public List<string> HeaderKeys { get; protected set; }
+
+        /// <summary>
         /// Gets or sets the setting.
         /// </summary>
         /// <value>The setting.</value>
@@ -90,7 +96,8 @@ namespace Beyova.RestApi
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="setting">The setting.</param>
         /// <param name="permissions">The permissions.</param>
-        public RuntimeRoute(MethodInfo methodInfo, Type instanceType, object instance, bool isActionUsed, bool isTokenRequired, string moduleName, string serviceName, RestApiSettings setting, IDictionary<string, ApiPermission> permissions = null)
+        /// <param name="headerKeys">The header keys.</param>
+        public RuntimeRoute(MethodInfo methodInfo, Type instanceType, object instance, bool isActionUsed, bool isTokenRequired, string moduleName, string serviceName, RestApiSettings setting, IDictionary<string, ApiPermission> permissions = null, List<string> headerKeys = null)
         {
             this.MethodInfo = methodInfo;
             this.Instance = instance;
@@ -100,8 +107,8 @@ namespace Beyova.RestApi
             this.ModuleName = moduleName;
             this.IsTokenRequired = isTokenRequired;
             this.Setting = setting;
-
-            Permissions = permissions;
+            this.Permissions = permissions;
+            this.HeaderKeys = headerKeys;
         }
 
         /// <summary>

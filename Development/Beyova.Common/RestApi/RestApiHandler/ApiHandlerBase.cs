@@ -172,6 +172,17 @@ namespace Beyova.RestApi
                 }
                 else
                 {
+                    //Initialize additional header keys
+                    if (runtimeContext.AdditionalHeaderKeys.HasItem())
+                    {
+                        var currentApiContext = ContextHelper.ApiContext;
+
+                        foreach (var one in runtimeContext.AdditionalHeaderKeys)
+                        {
+                            currentApiContext.AdditionalHeaders.Merge(one, context.Request.TryGetHeader(one));
+                        }
+                    }
+
                     if (settings != null && settings.ApiTracking != null && settings.TrackingEvent)
                     {
                         eventLog = new ApiEventLog
@@ -258,7 +269,9 @@ namespace Beyova.RestApi
             catch (Exception ex)
             {
                 var apiTracking = settings?.ApiTracking;
-                baseException = HandleException(apiTracking ?? Framework.ApiTracking, ex, runtimeContext?.ApiServiceName, EnvironmentCore.ServerName);
+                baseException = ex.Handle("ProcessRequest", new { Uri = context.Request.Url.ToString() });
+
+                (apiTracking ?? Framework.ApiTracking).LogException(baseException.ToExceptionInfo(runtimeContext?.ApiServiceName, EnvironmentCore.ServerName));
 
                 if (eventLog != null)
                 {
@@ -477,38 +490,6 @@ namespace Beyova.RestApi
                     var httpRequest = request.CopyHttpRequestToHttpWebRequest(apiTransportAttribute.DestinationHost, apiTransportAttribute.ApiTransportAdapter.RewriteHeader);
                     httpRequest.GetResponse().TransportHttpResponse(response);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Handles the exception.
-        /// </summary>
-        /// <param name="apiTrackingExecutor">The API tracking executor.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="serviceIdentifier">The service identifier.</param>
-        /// <param name="serverIdentifier">The server identifier.</param>
-        /// <returns>Exception log key.</returns>
-        protected virtual BaseException HandleException(IApiTracking apiTrackingExecutor, Exception exception, string serviceIdentifier, string serverIdentifier)
-        {
-            var baseException = exception.Handle(null);
-            if (apiTrackingExecutor != null)
-            {
-                HandleException(apiTrackingExecutor, baseException.ToExceptionInfo(serviceIdentifier, serverIdentifier));
-            }
-
-            return baseException;
-        }
-
-        /// <summary>
-        /// Handles the exception.
-        /// </summary>
-        /// <param name="apiTrackingExecutor">The API tracking executor.</param>
-        /// <param name="exceptionInfo">The exception information.</param>
-        protected void HandleException(IApiTracking apiTrackingExecutor, ExceptionInfo exceptionInfo)
-        {
-            if (apiTrackingExecutor != null && exceptionInfo != null)
-            {
-                apiTrackingExecutor.LogException(exceptionInfo);
             }
         }
 

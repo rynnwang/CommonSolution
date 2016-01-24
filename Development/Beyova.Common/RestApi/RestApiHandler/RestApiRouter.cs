@@ -139,6 +139,8 @@ namespace Beyova.RestApi
                         if (apiOperationAttribute != null)
                         {
                             var permissions = new Dictionary<string, ApiPermission>();
+                            var additionalHeaderKeys = new HashSet<string>();
+
                             var apiPermissionAttributes =
                                 method.GetCustomAttributes<ApiPermissionAttribute>(true);
 
@@ -146,7 +148,16 @@ namespace Beyova.RestApi
                             {
                                 foreach (var one in apiPermissionAttributes)
                                 {
-                                    permissions.Add(one.PermissionIdentifier, one.Permission);
+                                    permissions.Merge(one.PermissionIdentifier, one.Permission);
+                                }
+                            }
+
+                            var headerKeyAttributes = method.GetCustomAttributes<ApiHeaderAttribute>(true);
+                            if (headerKeyAttributes != null)
+                            {
+                                foreach (var one in headerKeyAttributes)
+                                {
+                                    additionalHeaderKeys.Add(one.HeaderKey);
                                 }
                             }
 
@@ -167,7 +178,7 @@ namespace Beyova.RestApi
 
                                 runtimeRoute = new RuntimeRoute(method, interfaceType, instance,
                                     !string.IsNullOrWhiteSpace(apiOperationAttribute.Action),
-                                    tokenRequired != null && tokenRequired.TokenRequired, moduleName, apiContractName, settings, permissions);
+                                    tokenRequired != null && tokenRequired.TokenRequired, moduleName, apiContractName, settings, permissions, additionalHeaderKeys.ToList());
                             }
 
                             if (routes.ContainsKey(routeKey))
@@ -252,18 +263,21 @@ namespace Beyova.RestApi
             result.ApiTransportAttribute = runtimeRoute.Transport;
             result.IsVoid = runtimeRoute.MethodInfo.ReturnType.IsVoid();
             result.Settings = runtimeRoute.Setting;
+            result.AdditionalHeaderKeys = runtimeRoute.HeaderKeys;
 
             var tokenHeaderKey = (result.Settings ?? DefaultSettings)?.TokenHeaderKey;
-            var token = (request != null && !string.IsNullOrWhiteSpace(tokenHeaderKey))
-              ? request.TryGetHeader(tokenHeaderKey)
-              : string.Empty;
+            var token = (request != null && !string.IsNullOrWhiteSpace(tokenHeaderKey)) ? request.TryGetHeader(tokenHeaderKey) : string.Empty;
 
-            ContextHelper.ApiContext.Token = token;
+            string userIdentifier = ContextHelper.ApiContext.Token = token;
 
-            string userIdentifier = token;
-            if (runtimeRoute.Transport == null && !Authenticate(runtimeRoute, token, out userIdentifier))
+            if (runtimeRoute.Transport == null)
             {
-                throw new UnauthorizedOperationException(result.ApiMethod.Name, token);
+                var authenticationException = Authenticate(runtimeRoute, token, out userIdentifier);
+
+                if (authenticationException != null)
+                {
+                    throw authenticationException.Handle("ProcessRoute", new { result.ApiMethod.Name, token });
+                }
             }
 
             result.UserIdentifier = userIdentifier;
@@ -310,7 +324,7 @@ namespace Beyova.RestApi
         /// <param name="token">The token.</param>
         /// <param name="userIdentifier">The user identifier.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        protected bool Authenticate(RuntimeRoute runtimeRoute, string token, out string userIdentifier)
+        protected BaseException Authenticate(RuntimeRoute runtimeRoute, string token, out string userIdentifier)
         {
             userIdentifier = token;
             ICredential credential = null;
@@ -334,16 +348,58 @@ namespace Beyova.RestApi
 
             if (!runtimeRoute.IsTokenRequired)
             {
-                return true;
+                return null;
             }
-            else if (credential == null)
+
+            //Check permissions
+            if (credential != null)
             {
-                throw new UnauthorizedTokenException(string.Empty, new { token });
+                ContextHelper.ApiContext.CurrentCredential = credential;
+
+                // If no permission defined, then pass as true.
+                if (!runtimeRoute.Permissions.HasItem())
+                {
+                    return null;
+                }
+
+                //Otherwise, check if user has any permission
+                var userPermissions = ContextHelper.ApiContext.CurrentPermissionIdentifiers?.Permissions ?? new List<string>();
+
+                // Check deny first
+                foreach (var one in (from item in runtimeRoute.Permissions where item.Value == ApiPermission.Denied select item.Key))
+                {
+                    if (userPermissions.Contains(one))
+                    {
+                        return new UnauthorizedOperationException(runtimeRoute.MethodInfo.GetFullName(),
+                            token,
+                            string.Format("Access denied due to permission identifier: {0}", one), new
+                            {
+                                FullName = runtimeRoute.MethodInfo.GetFullName(),
+                                PermissionIdentifier = one
+                            });
+                    }
+                }
+
+                // Check required permissions
+                foreach (var one in (from item in runtimeRoute.Permissions where item.Value == ApiPermission.Required select item.Key))
+                {
+                    if (!userPermissions.Contains(one))
+                    {
+                        return new UnauthorizedOperationException(runtimeRoute.MethodInfo.GetFullName(),
+                            token,
+                            string.Format("Access denied due to not having permission identifier: {0}", one),
+                            new
+                            {
+                                FullName = runtimeRoute.MethodInfo.GetFullName(),
+                                PermissionIdentifier = one
+                            });
+                    }
+                }
+
+                return null;
             }
 
-            ContextHelper.ApiContext.CurrentCredential = credential;
-
-            return credential != null;
+            return new UnauthorizedTokenException(string.Empty, new { token });
         }
 
         /// <summary>

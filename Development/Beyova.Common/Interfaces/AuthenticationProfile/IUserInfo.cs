@@ -18,7 +18,7 @@ namespace Beyova
     /// <summary>
     /// Interface IUserInfo
     /// </summary>
-    public interface IUserInfo : IIdentifier, ICredential
+    public interface IUserInfo : IIdentifier, ICredential, IPermissionIdentifiers
     {
         /// <summary>
         /// Gets or sets the avatar key.

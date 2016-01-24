@@ -5,7 +5,7 @@ namespace Beyova.RestApi
     /// <summary>
     /// Class ApiPermissionAttribute.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = true)]
     public class ApiPermissionAttribute : Attribute
     {
         /// <summary>

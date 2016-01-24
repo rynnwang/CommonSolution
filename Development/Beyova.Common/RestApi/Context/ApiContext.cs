@@ -45,6 +45,15 @@ namespace Beyova.RestApi
         public ICredential CurrentCredential { get; set; }
 
         /// <summary>
+        /// Gets the current permission identifiers.
+        /// </summary>
+        /// <value>The current permission identifiers.</value>
+        public IPermissionIdentifiers CurrentPermissionIdentifiers
+        {
+            get { return CurrentCredential as IPermissionIdentifiers; }
+        }
+
+        /// <summary>
         /// Gets or sets the current user information.
         /// </summary>
         /// <value>The current user information.</value>
@@ -55,10 +64,10 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Gets or sets the special permission identifiers.
+        /// Gets or sets the permission identifiers.
         /// </summary>
-        /// <value>The special permission identifiers.</value>
-        public List<string> SpecialPermissionIdentifiers { get; protected set; }
+        /// <value>The permission identifiers.</value>
+        public List<string> PermissionIdentifiers { get; protected set; }
 
         /// <summary>
         /// Gets or sets the culture code.
@@ -67,11 +76,18 @@ namespace Beyova.RestApi
         public string CultureCode { get; set; }
 
         /// <summary>
+        /// Gets or sets the additional headers.
+        /// </summary>
+        /// <value>The additional headers.</value>
+        public Dictionary<string, string> AdditionalHeaders { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiContext"/> class.
         /// </summary>
         public ApiContext()
         {
-            SpecialPermissionIdentifiers = new List<string>();
+            PermissionIdentifiers = new List<string>();
+            AdditionalHeaders = new Dictionary<string, string>();
         }
 
         /// <summary>

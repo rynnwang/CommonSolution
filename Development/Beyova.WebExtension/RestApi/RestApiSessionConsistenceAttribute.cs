@@ -38,9 +38,6 @@ namespace Beyova.WebExtension
             base.OnActionExecuting(filterContext);
 
             var request = filterContext.HttpContext.Request;
-            ContextHelper.IpAddress = request.UserHostAddress;
-            ContextHelper.UserAgent = request.UserAgent;
-
             ContextHelper.ConsistContext(request, this.SettingName);
 
             bool tokenRequired = true;

@@ -73,7 +73,6 @@ namespace Beyova
         public static string IpAddress
         {
             get { return ApiContext.IpAddress; }
-            set { ApiContext.IpAddress = value; }
         }
 
         /// <summary>
@@ -83,7 +82,6 @@ namespace Beyova
         public static string UserAgent
         {
             get { return ApiContext.UserAgent; }
-            set { ApiContext.UserAgent = value; }
         }
 
         /// <summary>
@@ -93,7 +91,6 @@ namespace Beyova
         public static string Token
         {
             get { return ApiContext.Token; }
-            set { ApiContext.Token = value; }
         }
 
         /// <summary>
@@ -135,7 +132,12 @@ namespace Beyova
         {
             if (httpRequest != null)
             {
-                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN) ?? httpRequest.Cookies.TryGetValue(HttpConstants.HttpHeader.TOKEN), settingName);
+                ConsistContext(
+                    httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN) ?? httpRequest.Cookies.TryGetValue(HttpConstants.HttpHeader.TOKEN),
+                    settingName,
+                    httpRequest.UserHostAddress,
+                    httpRequest.UserAgent
+                    );
             }
         }
 
@@ -148,7 +150,10 @@ namespace Beyova
         {
             if (httpRequest != null)
             {
-                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN) ?? httpRequest.Cookies.TryGetValue(HttpConstants.HttpHeader.TOKEN), settingName);
+                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN) ?? httpRequest.Cookies.TryGetValue(HttpConstants.HttpHeader.TOKEN), 
+                    settingName,
+                    httpRequest.UserHostAddress,
+                    httpRequest.UserAgent);
             }
         }
 
@@ -161,7 +166,10 @@ namespace Beyova
         {
             if (httpRequest != null)
             {
-                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN), settingName);
+                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN), 
+                    settingName,
+                    httpRequest.UserHostAddress,
+                    httpRequest.UserAgent);
             }
         }
 
@@ -170,7 +178,9 @@ namespace Beyova
         /// </summary>
         /// <param name="token">The token.</param>
         /// <param name="settingName">Name of the setting.</param>
-        private static void ConsistContext(string token, string settingName)
+        /// <param name="ipAddress">The ip address.</param>
+        /// <param name="userAgent">The user agent.</param>
+        private static void ConsistContext(string token, string settingName, string ipAddress = null, string userAgent = null)
         {
             RestApiSettings setting;
             RestApiEventHandlers restApiEventHandlers = null;
@@ -180,15 +190,20 @@ namespace Beyova
                 restApiEventHandlers = setting.EventHandlers;
             }
 
+            var apiContext = ContextHelper.ApiContext;
+
+            apiContext.UserAgent = userAgent;
+            apiContext.IpAddress = ipAddress;
+
             if (restApiEventHandlers != null && !string.IsNullOrWhiteSpace(token))
             {
-                ContextHelper.ApiContext.CurrentCredential = restApiEventHandlers.GetCredentialByToken(token);
-                ContextHelper.ApiContext.Token = token;
+                apiContext.CurrentCredential = restApiEventHandlers.GetCredentialByToken(token);
+                apiContext.Token = token;
             }
             else
             {
-                ContextHelper.ApiContext.CurrentUserInfo = null;
-                ContextHelper.ApiContext.Token = null;
+                apiContext.CurrentUserInfo = null;
+                apiContext.Token = null;
             }
         }
 

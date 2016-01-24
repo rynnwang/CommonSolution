@@ -3,7 +3,9 @@
 namespace Beyova.RestApi
 {
     /// <summary>
-    /// Class ApiTransportAttribute. This attribute is used when an interface needs to call another REST API within same contract. <see cref="IApiTransportAdapter"/> based <c>ApiTransportAdapter</c> is for specifying the destination and change token.
+    /// Class ApiTransportAttribute. 
+    /// This attribute is used when an interface needs to call another REST API within same contract. 
+    /// <see cref="IApiTransportAdapter"/> based <c>ApiTransportAdapter</c> is for specifying the destination and change token.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
     public class ApiTransportAttribute : Attribute

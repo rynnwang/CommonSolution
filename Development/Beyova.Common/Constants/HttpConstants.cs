@@ -96,7 +96,7 @@
             public const string SERVERNAME = "X-SERVER-NAME";
 
             /// <summary>
-            /// The original
+            /// The original IP address
             /// </summary>
             public const string ORIGINAL = "X-BA-ORIGINAL";
 
@@ -104,11 +104,6 @@
             /// The trace ID
             /// </summary>
             public const string TRACEID = "X-BA-TRACE-ID";
-
-            /// <summary>
-            /// The trace detail
-            /// </summary>
-            public const string TRACEDETAIL = "X-BA-TRACE-DETAIL";
 
             /// <summary>
             /// The content encoding

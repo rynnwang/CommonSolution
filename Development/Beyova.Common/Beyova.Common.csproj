@@ -102,12 +102,14 @@
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
+    <Compile Include="Interfaces\IPermissionIdentifiers.cs" />
     <Compile Include="Interfaces\IGeographyLocation.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />
     <Compile Include="Model\SystemEnvironment\MachineHealth.cs" />
+    <Compile Include="RestApi\Attribute\ApiHeaderAttribute.cs" />
     <Compile Include="RestApi\Context\ApiTraceContext.cs" />
     <Compile Include="ExceptionSystem\Model\FriendlyHint.cs" />
     <Compile Include="ExceptionSystem\Model\SimpleExceptionInfo.cs" />
@@ -122,7 +124,7 @@
     <Compile Include="Interfaces\AuthenticationProfile\IAuthenticationResult.cs" />
     <Compile Include="Interfaces\CommonServiceInterface\IResourceService.cs" />
     <Compile Include="Interfaces\CommonServiceInterface\IAuthenticationProfileService.cs" />
-    <Compile Include="Interfaces\IExceptionInfo.cs" />
+    <Compile Include="ExceptionSystem\IExceptionInfo.cs" />
     <Compile Include="Interfaces\ICredential.cs" />
     <Compile Include="Interfaces\AuthenticationProfile\IUserCriteria.cs" />
     <Compile Include="Interfaces\IWorkflowBasedObject.cs" />
@@ -197,7 +199,6 @@
     <Compile Include="Model\Maintenance\MaintanenceJob.cs" />
     <Compile Include="Model\WorkflowState.cs" />
     <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaComponentAttribute.cs" />
-    <Compile Include="RestApi\Attribute\ApiDescriptionRenderType.cs" />
     <Compile Include="RestApi\Attribute\ApiDescriptionAttribute.cs" />
     <Compile Include="RestApi\Attribute\ApiModuleAttribute.cs" />
     <Compile Include="RestApi\Attribute\ApiTransportAttribute.cs" />

@@ -3,7 +3,7 @@
 namespace Beyova.RestApi
 {
     /// <summary>
-    /// Class ApiContractAttribute.
+    /// Class ApiContractAttribute. It is used to define interface which used as REST API.
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
     public class ApiContractAttribute : Attribute
