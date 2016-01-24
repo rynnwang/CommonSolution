@@ -77,18 +77,18 @@ namespace Beyova.Elastic
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="data">The data.</param>
-        public void Index(string type, object data)
+        public string Index(string type, object data)
         {
             try
             {
                 type.CheckEmptyString("type");
                 data.CheckNullObject("data");
 
-                BaseClient.IndexAsync(IndexName + IndexSuffix, type, data);
+                return BaseClient.Index(IndexName + IndexSuffix, type, data);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("IndexAsync", new { type, data });
+                throw ex.Handle("Index", new { type, data });
             }
         }
 

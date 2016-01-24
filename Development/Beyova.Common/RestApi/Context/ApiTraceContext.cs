@@ -85,8 +85,6 @@ namespace Beyova.RestApi
         {
             try
             {
-                _current.CheckNullObject("_current");
-
                 return ConvertApiTraceLog(_current);
             }
             catch (Exception ex)
@@ -191,8 +189,7 @@ namespace Beyova.RestApi
         /// <param name="exitStamp">The exit stamp.</param>
         internal static void Exit(IMethodReturnMessage methodMessage, DateTime? exitStamp = null)
         {
-            _current.CheckNullObject("_current", new { methodMessage = methodMessage?.MethodName });
-            _current.FillExitInfo(methodMessage.Exception.ToExceptionInfo(), exitStamp ?? DateTime.UtcNow);
+            _current?.FillExitInfo(methodMessage.Exception.ToExceptionInfo(), exitStamp ?? DateTime.UtcNow);
         }
 
         /// <summary>
@@ -202,8 +199,7 @@ namespace Beyova.RestApi
         /// <param name="exitStamp">The exit stamp.</param>
         public static void Exit(Exception exception = null, DateTime? exitStamp = null)
         {
-            _current.CheckNullObject("_current");
-            _current.FillExitInfo(exception?.ToExceptionInfo(), exitStamp ?? DateTime.UtcNow);
+            _current?.FillExitInfo(exception?.ToExceptionInfo(), exitStamp ?? DateTime.UtcNow);
         }
     }
 }
