@@ -99,6 +99,7 @@
     <Compile Include="AOP\Exception\HandleExceptionAttribute.cs" />
     <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
+    <Compile Include="Extensions\LdapExtension.cs" />
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
