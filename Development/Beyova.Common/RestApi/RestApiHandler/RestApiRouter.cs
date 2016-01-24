@@ -263,7 +263,7 @@ namespace Beyova.RestApi
             result.ApiTransportAttribute = runtimeRoute.Transport;
             result.IsVoid = runtimeRoute.MethodInfo.ReturnType.IsVoid();
             result.Settings = runtimeRoute.Setting;
-            result.AdditionalHeaderKeys = runtimeRoute.HeaderKeys;
+            result.CustomizedHeaderKeys = runtimeRoute.HeaderKeys;
 
             var tokenHeaderKey = (result.Settings ?? DefaultSettings)?.TokenHeaderKey;
             var token = (request != null && !string.IsNullOrWhiteSpace(tokenHeaderKey)) ? request.TryGetHeader(tokenHeaderKey) : string.Empty;

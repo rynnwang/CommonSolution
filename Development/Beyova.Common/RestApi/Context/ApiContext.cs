@@ -76,10 +76,10 @@ namespace Beyova.RestApi
         public string CultureCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the additional headers.
+        /// Gets or sets the customized headers.
         /// </summary>
-        /// <value>The additional headers.</value>
-        public Dictionary<string, string> AdditionalHeaders { get; set; }
+        /// <value>The customized headers.</value>
+        public Dictionary<string, string> CustomizedHeaders { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiContext"/> class.
@@ -87,7 +87,7 @@ namespace Beyova.RestApi
         public ApiContext()
         {
             PermissionIdentifiers = new List<string>();
-            AdditionalHeaders = new Dictionary<string, string>();
+            CustomizedHeaders = new Dictionary<string, string>();
         }
 
         /// <summary>

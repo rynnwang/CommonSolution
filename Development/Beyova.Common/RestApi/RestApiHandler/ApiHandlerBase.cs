@@ -173,13 +173,13 @@ namespace Beyova.RestApi
                 else
                 {
                     //Initialize additional header keys
-                    if (runtimeContext.AdditionalHeaderKeys.HasItem())
+                    if (runtimeContext.CustomizedHeaderKeys.HasItem())
                     {
                         var currentApiContext = ContextHelper.ApiContext;
 
-                        foreach (var one in runtimeContext.AdditionalHeaderKeys)
+                        foreach (var one in runtimeContext.CustomizedHeaderKeys)
                         {
-                            currentApiContext.AdditionalHeaders.Merge(one, context.Request.TryGetHeader(one));
+                            currentApiContext.CustomizedHeaders.Merge(one, context.Request.TryGetHeader(one));
                         }
                     }
 

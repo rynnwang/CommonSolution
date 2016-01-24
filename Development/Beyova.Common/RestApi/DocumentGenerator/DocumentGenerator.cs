@@ -440,6 +440,20 @@ url{
                             }
                         }
 
+                        // Customized headers
+                        var apiCustomizedHeaderAttributes = one.GetCustomAttributes<ApiHeaderAttribute>(true);
+                        if (apiCustomizedHeaderAttributes.HasItem())
+                        {
+                            bodyBuilder.Append("<h3>Customized headers</h3><hr />");
+                            bodyBuilder.Append("<ul>");
+                            foreach (var item in apiCustomizedHeaderAttributes)
+                            {
+                                bodyBuilder.AppendFormat(item.HeaderKey);
+                            }
+
+                            bodyBuilder.Append("</ul>");
+                        }
+
                         var obsolete = one.GetCustomAttribute<ObsoleteAttribute>(true);
                         if (obsolete != null)
                         {

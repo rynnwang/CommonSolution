@@ -118,9 +118,9 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Gets or sets the additional header keys.
+        /// Gets or sets the customized header keys.
         /// </summary>
-        /// <value>The additional header keys.</value>
-        public List<string> AdditionalHeaderKeys { get; set; }
+        /// <value>The customized header keys.</value>
+        public List<string> CustomizedHeaderKeys { get; set; }
     }
 }
