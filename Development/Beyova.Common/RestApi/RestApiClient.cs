@@ -191,7 +191,7 @@ namespace Beyova.RestApi
         /// <param name="methodInfo">The method information.</param>
         /// <param name="httpStatusCode">The HTTP status code.</param>
         /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
+        /// <returns>Newtonsoft.Json.Linq.JToken.</returns>
         /// <exception cref="ResourceNotFoundException"></exception>
         public JToken Invoke(MethodInfo methodInfo, out HttpStatusCode httpStatusCode, params object[] parameters)
         {
@@ -220,7 +220,8 @@ namespace Beyova.RestApi
                         urlParameterBuilder = new StringBuilder(url.IndexOf('?') > -1 ? "" : "?");
                     }
                     var firstParameter = parameters.First();
-                    if (firstParameter.GetType().IsStringOrValueType())
+                    if (firstParameter.GetType().IsStringOrValueType()
+                        && (httpMethod.IsInString(new string[] { HttpConstants.HttpMethod.Get, HttpConstants.HttpMethod.Delete }, true)))
                     {
                         if (urlParameterBuilder != null)
                         {
@@ -253,6 +254,11 @@ namespace Beyova.RestApi
                 var httpRequest = url.CreateHttpWebRequest(httpMethod);
                 FillAdditionalData(httpRequest);
 
+                if (requestBody == null && httpMethod.IsInString(new string[] { HttpConstants.HttpMethod.Post, HttpConstants.HttpMethod.Put }, true))
+                {
+                    requestBody = string.Empty;
+                }
+
                 if (requestBody != null)
                 {
                     httpRequest.FillData(httpMethod, requestBody.ToJson());
@@ -267,6 +273,12 @@ namespace Beyova.RestApi
                 else if (!((int)httpStatusCode).ToString().StartsWith("2"))
                 {
                     var exceptionInfo = response.TryDeserializeAsObject<ExceptionInfo>();
+
+                    if (exceptionInfo == null)
+                    {
+                        throw new InvalidObjectException("response", data: new { response, httpStatusCode });
+                    }
+
                     if (this.EnableExceptionRestore)
                     {
                         throw exceptionInfo.ToException().Handle("Invoke", new { method = methodInfo.SafeToString(), parameters });
