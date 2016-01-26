@@ -152,7 +152,7 @@ namespace Beyova
         {
             try
             {
-                return Convert.ToBase64String(bytes);
+                return bytes == null ? null : Convert.ToBase64String(bytes);
             }
             catch
             {
@@ -207,37 +207,70 @@ namespace Beyova
         #region MD5
 
         /// <summary>
-        /// To the md5.
+        /// To the m d5 bytes.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <returns>System.Byte[].</returns>
+        public static byte[] ToMD5Bytes(this byte[] bytes)
+        {
+            if (bytes == null)
+            {
+                try
+                {
+                    MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
+                    return md5Provider.ComputeHash(bytes);
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle("ToMD5Bytes");
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// To the m d5 string.
         /// </summary>
         /// <param name="stringObject">The string object.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        /// <exception cref="OperationFailureException">ToMD5</exception>
-        public static string ToMD5(this string stringObject, Encoding encoding = null)
+        public static string ToMD5String(this string stringObject, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
             try
             {
-                byte[] data = encoding.GetBytes(stringObject);
-                return ToMd5(data);
+                byte[] data = (encoding ?? Encoding.UTF8).GetBytes(stringObject);
+                return ToMD5String(data);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ToMd5", stringObject);
+                throw ex.Handle("ToMD5String", stringObject);
             }
         }
 
         /// <summary>
-        /// To the md5.
+        /// To the m d5 base64 string.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <returns>System.String.</returns>
-        /// <exception cref="OperationFailureException">ToMD5</exception>
-        public static string ToMd5(this byte[] bytes)
+        public static string ToMD5Base64String(this byte[] bytes)
+        {
+            try
+            {
+                return ToMD5Bytes(bytes)?.ToBase64();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("ToMD5Base64String");
+            }
+        }
+
+        /// <summary>
+        /// To the m d5 string.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <returns>System.String.</returns>
+        public static string ToMD5String(this byte[] bytes)
         {
             try
             {
@@ -248,7 +281,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ToMd5");
+                throw ex.Handle("ToMD5String");
             }
         }
 

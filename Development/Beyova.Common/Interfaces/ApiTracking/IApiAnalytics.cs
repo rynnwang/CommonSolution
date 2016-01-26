@@ -13,11 +13,11 @@ namespace Beyova
         #region Query Entity
 
         /// <summary>
-        /// Queries the log API event.
+        /// Queries the API event.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;ApiEventLog&gt;.</returns>
-        List<ApiEventLog> QueryLogApiEvent(ApiEventCriteria criteria);
+        List<ApiEventLog> QueryApiEvent(ApiEventCriteria criteria);
 
         /// <summary>
         /// Queries the exception.
