@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using Beyova;
 using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
+using Newtonsoft.Json;
 
 namespace Beyova.Elastic
 {
     /// <summary>
     /// Class ElasticApiTracking.
     /// </summary>
-    public class ElasticApiTracking : IApiTracking
+    public class ElasticApiTracking : IApiTracking, IApiAnalytics
     {
         /// <summary>
         /// The API event type
@@ -97,8 +100,8 @@ namespace Beyova.Elastic
                             IsoCode = geoInfo.countryCode,
                             Latitude = geoInfo.latitude,
                             Longitude = geoInfo.longitude,
-                            CountryName = geoInfo.countryName,
-                            CityName = geoInfo.city
+                            CityName = geoInfo.city,
+                            CountryName = geoInfo.countryName
                         };
                     }
                 }
@@ -114,8 +117,11 @@ namespace Beyova.Elastic
         /// <param name="eventLog">The event log.</param>
         public void LogApiEvent(ApiEventLog eventLog)
         {
-            FillLocationInfo(eventLog);
-            elasticClient.Index(apiEventType, eventLog);
+            ThreadPool.QueueUserWorkItem((x) =>
+            {
+                FillLocationInfo(eventLog);
+                elasticClient.Index(apiEventType, eventLog);
+            });
         }
 
         /// <summary>
@@ -124,7 +130,10 @@ namespace Beyova.Elastic
         /// <param name="traceLog">The trace log.</param>
         public void LogApiTraceLog(ApiTraceLog traceLog)
         {
-            elasticClient.Index("TraceLog", traceLog);
+            ThreadPool.QueueUserWorkItem((x) =>
+            {
+                elasticClient.Index(traceLogType, traceLog);
+            });
         }
 
         /// <summary>
@@ -133,7 +142,10 @@ namespace Beyova.Elastic
         /// <param name="exceptionInfo">The exception information.</param>
         public void LogException(ExceptionInfo exceptionInfo)
         {
-            elasticClient.Index(exceptionType, exceptionInfo);
+            ThreadPool.QueueUserWorkItem((x) =>
+            {
+                elasticClient.Index(exceptionType, ToExceptionInfo(exceptionInfo));
+            });
         }
 
         /// <summary>
@@ -144,7 +156,7 @@ namespace Beyova.Elastic
         /// <param name="serverIdentifier">The server identifier.</param>
         public void LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
         {
-            elasticClient.Index(exceptionType, exception.ToExceptionInfo(serviceIdentifier, serverIdentifier));
+            LogException(exception.ToExceptionInfo(serviceIdentifier, serverIdentifier));
         }
 
         /// <summary>
@@ -153,12 +165,11 @@ namespace Beyova.Elastic
         /// <param name="message">The message.</param>
         public void LogMessage(string message)
         {
-            if (string.IsNullOrWhiteSpace(message))
+            if (string.IsNullOrWhiteSpace(message)) return;
+            ThreadPool.QueueUserWorkItem((x) =>
             {
-                return;
-            }
-
-            elasticClient.Index(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
+                elasticClient.Index(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
+            });
         }
 
         #endregion
@@ -170,7 +181,7 @@ namespace Beyova.Elastic
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>QueryResult&lt;ApiEventLog&gt;.</returns>
-        public QueryResult<ApiEventLog> QueryApiEventLog(ApiEventCriteria criteria)
+        protected QueryResult<ApiEventLog> InternalQueryApiEventLog(ApiEventCriteria criteria)
         {
             try
             {
@@ -191,7 +202,7 @@ namespace Beyova.Elastic
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>QueryResult&lt;ExceptionInfo&gt;.</returns>
-        public QueryResult<ExceptionInfo> QueryException(ExceptionCriteria criteria)
+        protected QueryResult<ExceptionInfo> InternalQueryException(ExceptionCriteria criteria)
         {
             try
             {
@@ -205,6 +216,65 @@ namespace Beyova.Elastic
             {
                 throw ex.Handle("QueryException", criteria);
             }
+        }
+
+        /// <summary>
+        /// Queries the API event.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;ApiEventLog&gt;.</returns>
+        public List<ApiEventLog> QueryApiEvent(ApiEventCriteria criteria)
+        {
+            try
+            {
+                return InternalQueryApiEventLog(criteria).Hits.Select((x) => { return x.Source; }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("QueryApiEvent", criteria);
+            }
+        }
+
+        /// <summary>
+        /// Queries the exception.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;ExceptionInfo&gt;.</returns>
+        public List<ExceptionInfo> QueryException(ExceptionCriteria criteria)
+        {
+            try
+            {
+                return InternalQueryException(criteria).Hits.Select((x) => { return x.Source; }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("QueryLogApiEvent", criteria);
+            }
+        }
+
+        public ApiTraceLog GetApiTraceLogByKey(Guid? key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<ApiEventGroupStatistic> GetApiEventStatistic(ApiEventStatisticCriteria criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<ApiEventGroupStatistic> GetApiEventGroupStatistic(ApiEventGroupingCriteria criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<ExceptionGroupStatistic> GetApiExceptionStatistic(ExceptionStatisticCriteria criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<ExceptionGroupStatistic> GetApiExceptionGroupingStatistic(ExceptionGroupingCriteria criteria)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -238,5 +308,67 @@ namespace Beyova.Elastic
         //}
 
         #endregion
+
+        /// <summary>
+        /// To the exception information.
+        /// </summary>
+        /// <param name="exceptionInfo">The exception information.</param>
+        /// <returns>ExceptionInfo.</returns>
+        public static ExceptionInfo ToExceptionInfo(ElasticExceptionInfo exceptionInfo)
+        {
+            if (exceptionInfo != null)
+            {
+                return new ExceptionInfo
+                {
+                    Code = exceptionInfo.Code,
+                    CreatedStamp = exceptionInfo.CreatedStamp,
+                    Data = exceptionInfo.Data,
+                    ExceptionType = exceptionInfo.ExceptionType,
+                    Key = exceptionInfo.Key,
+                    Level = exceptionInfo.Level,
+                    Message = exceptionInfo.Message,
+                    ServerIdentifier = exceptionInfo.ServerIdentifier,
+                    ServiceIdentifier = exceptionInfo.ServiceIdentifier,
+                    Source = exceptionInfo.Source,
+                    StackTrace = exceptionInfo.StackTrace,
+                    TargetSite = exceptionInfo.TargetSite,
+                    UserIdentifier = exceptionInfo.UserIdentifier,
+                    InnerException = JsonConvert.DeserializeObject<ExceptionInfo>(exceptionInfo.InnerException)
+                };
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// To the exception information.
+        /// </summary>
+        /// <param name="exceptionInfo">The exception information.</param>
+        /// <returns>ElasticExceptionInfo.</returns>
+        public static ElasticExceptionInfo ToExceptionInfo(ExceptionInfo exceptionInfo)
+        {
+            if (exceptionInfo != null)
+            {
+                return new ElasticExceptionInfo
+                {
+                    Code = exceptionInfo.Code,
+                    CreatedStamp = exceptionInfo.CreatedStamp,
+                    Data = exceptionInfo.Data,
+                    ExceptionType = exceptionInfo.ExceptionType,
+                    Key = exceptionInfo.Key,
+                    Level = exceptionInfo.Level,
+                    Message = exceptionInfo.Message,
+                    ServerIdentifier = exceptionInfo.ServerIdentifier,
+                    ServiceIdentifier = exceptionInfo.ServiceIdentifier,
+                    Source = exceptionInfo.Source,
+                    StackTrace = exceptionInfo.StackTrace,
+                    TargetSite = exceptionInfo.TargetSite,
+                    UserIdentifier = exceptionInfo.UserIdentifier,
+                    InnerException = JsonConvert.SerializeObject(exceptionInfo.InnerException)
+                };
+            }
+
+            return null;
+        }
     }
 }

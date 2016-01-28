@@ -52,6 +52,7 @@
     <Compile Include="ElasticClient\Query.cs" />
     <Compile Include="ElasticIndexClient.cs" />
     <Compile Include="Extension.cs" />
+    <Compile Include="Model\ElasticExceptionInfo.cs" />
     <Compile Include="Plugins\GeoLite\Country.cs" />
     <Compile Include="Plugins\GeoLite\DatabaseInfo.cs" />
     <Compile Include="Plugins\GeoLite\Location.cs" />

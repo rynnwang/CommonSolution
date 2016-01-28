@@ -49,6 +49,7 @@ namespace Beyova.Elastic
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
         /// <param name="key">The key.</param>
+        /// <param name="wildCardSuffix">The wild card suffix.</param>
         /// <returns>T.</returns>
         public T GetByKey<T>(string indexName, string type, Guid? key, string wildCardSuffix = null)
         {
@@ -127,6 +128,7 @@ namespace Beyova.Elastic
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
         /// <param name="criteria">The criteria.</param>
+        /// <param name="wildCardSuffix">The wild card suffix.</param>
         /// <returns>QueryResult&lt;T&gt;.</returns>
         public QueryResult<T> Search<T>(string indexName, string type, object criteria, string wildCardSuffix = null)
         {
