@@ -26,12 +26,6 @@ namespace Beyova
         public string Environment { get; set; }
 
         /// <summary>
-        /// Gets or sets the token.
-        /// </summary>
-        /// <value>The token.</value>
-        public string Token { get; set; }
-
-        /// <summary>
         /// Gets or sets the code.
         /// </summary>
         /// <value>The code.</value>

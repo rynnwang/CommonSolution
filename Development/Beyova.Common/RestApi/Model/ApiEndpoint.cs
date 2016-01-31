@@ -30,6 +30,12 @@
         public string Version { get; set; }
 
         /// <summary>
+        /// Gets or sets the token.
+        /// </summary>
+        /// <value>The token.</value>
+        public string Token { get; set; }
+
+        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
