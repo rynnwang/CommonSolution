@@ -293,7 +293,7 @@ namespace Beyova.RestApi
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Invoke", new { Method = methodInfo?.GetFullName() });
+                throw new OperationFailureException("Invoke", ex, data: new { Method = methodInfo?.GetFullName() });
             }
         }
 
