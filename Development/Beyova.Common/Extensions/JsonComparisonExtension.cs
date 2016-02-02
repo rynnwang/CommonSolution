@@ -8,6 +8,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Beyova
 {
+    /// <summary>
+    /// Class JsonComparisonExtension.
+    /// </summary>
     public static class JsonComparisonExtension
     {
         /// <summary>

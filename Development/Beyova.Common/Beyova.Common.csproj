@@ -99,6 +99,7 @@
     <Compile Include="AOP\Exception\HandleExceptionAttribute.cs" />
     <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
+    <Compile Include="Extensions\JsonComparisonExtension.cs" />
     <Compile Include="Extensions\LdapExtension.cs" />
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Interfaces\IGeographyLocation.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
+    <Compile Include="Model\ComparisonResult.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />
     <Compile Include="Model\SystemEnvironment\MachineHealth.cs" />
