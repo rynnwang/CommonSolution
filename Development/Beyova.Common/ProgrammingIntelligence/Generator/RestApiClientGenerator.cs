@@ -76,6 +76,59 @@ namespace Beyova.RestApi
         /// <summary>
         /// Generates the code.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>System.String.</returns>
+        public string GenerateCode<T>()
+        {
+            var builder = new StringBuilder();
+
+            WriteFileInfo(builder);
+            WriteNamespaces(builder);
+            builder.AppendLine();
+
+            // write namespace
+            builder.AppendLineWithFormat("namespace {0}", Namespace);
+            builder.AppendLine("{");
+
+            // write class declaration
+            builder.AppendIndent(CodeIndent, 1);
+            builder.AppendLineWithFormat("public class {0}: " + typeof(RestApiClient).ToCodeLook(true), ClassName);
+            builder.AppendIndent(CodeIndent, 1);
+            builder.AppendLine("{");
+
+            // write constructor
+            WriteProperties(builder);
+
+            // write constructor
+            WriteConstructor(builder, ClassName);
+
+            WriteInitializeMethod(builder);
+
+            // write interface based members
+            var doneApiHash = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+            foreach (var item in typeof(T).GetInterfaces())
+            {
+                Interfaces.Add(item.FullName, item);
+                GenerateInterfacePart(builder, doneApiHash, item);
+            }
+
+            WriteInternalInterface(builder);
+
+            // End of class
+            builder.AppendIndent(CodeIndent, 1);
+            builder.AppendLine("}");
+
+            // End of namespace
+            builder.AppendLine("}");
+
+            builder.AppendLine();
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Generates the code.
+        /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="instances">The instances.</param>
         public void GenerateCode(string path, params object[] instances)
@@ -86,6 +139,19 @@ namespace Beyova.RestApi
                 GenerateCode(builder, instances);
 
                 File.WriteAllText(path, builder.ToString(), Encoding.UTF8);
+            }
+        }
+
+        /// <summary>
+        /// Generates the code.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path">The path.</param>
+        public void GenerateCode<T>(string path)
+        {
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                File.WriteAllText(path, GenerateCode<T>(), Encoding.UTF8);
             }
         }
 
@@ -248,7 +314,7 @@ namespace Beyova.RestApi
                 builder.AppendLine("using System.Net;");
                 builder.AppendLine("using System.Reflection;");
                 builder.AppendLine("using System.Text;");
-                builder.AppendLine("using Beyova.ProgrammingIntelligence;");                
+                builder.AppendLine("using Beyova.ProgrammingIntelligence;");
                 builder.AppendLine("using Beyova.ExceptionSystem;");
                 builder.AppendLine("using Beyova;");
                 builder.AppendLine("using Beyova.RestApi;");
