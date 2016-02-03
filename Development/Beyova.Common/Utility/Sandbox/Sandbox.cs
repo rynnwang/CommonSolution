@@ -1,10 +1,8 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -23,9 +21,11 @@ namespace Beyova
         /// Initializes a new instance of the <see cref="Sandbox"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        public Sandbox(string name)
+        public Sandbox(string name = null)
         {
-            AppDomain = AppDomain.CreateDomain(name);
+            var appDomainSetup = new AppDomainSetup();
+            appDomainSetup.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
+            AppDomain = AppDomain.CreateDomain(name.SafeToString(Guid.NewGuid().ToString()), null, appDomainSetup);
         }
 
         /// <summary>
@@ -56,42 +56,83 @@ namespace Beyova
         /// <param name="method">The method.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns>System.Object.</returns>
-        /// <exception cref="System.ArgumentNullException">method</exception>
-        /// <exception cref="System.NullReferenceException">
-        /// objectToRun
-        /// or
-        /// methodInfo
-        /// </exception>
-        /// <exception cref="System.InvalidOperationException">Failed to Execute.</exception>
         public object Execute(string assemblyName, string typeName, string method, params object[] parameters)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(method))
-                {
-                    throw new ArgumentNullException("method");
-                }
+                method.CheckEmptyString("method");
 
                 var objectToRun = CreateInstance(assemblyName, typeName);
-
-                if (objectToRun == null)
-                {
-                    throw new NullReferenceException("objectToRun");
-                }
+                objectToRun.CheckNullObject("objectToRun");
 
                 var methodInfo = objectToRun.GetType().GetMethod(method);
-
-                if (methodInfo == null)
-                {
-                    throw new NullReferenceException("methodInfo");
-                }
+                methodInfo.CheckNullObject("methodInfo");
 
                 return methodInfo.Invoke(objectToRun, parameters);
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Failed to Execute.", ex);
+                throw ex.Handle("Execute", new { assemblyName, typeName, method });
             }
+        }
+
+        /// <summary>
+        /// Adds the dynamic assembly.
+        /// </summary>
+        /// <param name="provider">The provider.</param>
+        /// <param name="referencedAssemblies">The referenced assemblies.</param>
+        /// <param name="codesToCompile">The codes to compile.</param>
+        /// <returns>Assembly.</returns>
+        /// <exception cref="OperationFailureException">CompileAssemblyFromSource;null</exception>
+        public Assembly AddDynamicAssembly(CodeDomProvider provider, List<string> referencedAssemblies, string codesToCompile)
+        {
+            try
+            {
+                provider.CheckNullObject("provider");
+                codesToCompile.CheckEmptyString("codesToCompile");
+
+                var objCompilerParameters = new CompilerParameters
+                {
+                    GenerateExecutable = false,
+                    GenerateInMemory = true
+                };
+
+                if (referencedAssemblies != null)
+                {
+                    objCompilerParameters.ReferencedAssemblies.AddRange(referencedAssemblies.ToArray());
+                }
+                else
+                {
+                    foreach (var one in ReflectionExtension.GetAppDomainAssemblies())
+                    {
+                        objCompilerParameters.ReferencedAssemblies.Add(one.FullName);
+                    }
+                }
+
+                var compilerResult = provider.CompileAssemblyFromSource(objCompilerParameters, codesToCompile);
+
+                if (compilerResult.Errors.HasErrors)
+                {
+                    throw new OperationFailureException("CompileAssemblyFromSource", null, compilerResult.Errors);
+                }
+
+                return compilerResult.CompiledAssembly;
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("AddDynamicAssembly");
+            }
+        }
+
+        /// <summary>
+        /// Creates the and get instance.
+        /// </summary>
+        /// <param name="assemblyName">Name of the assembly.</param>
+        /// <param name="typeName">Name of the type.</param>
+        /// <returns>System.Object.</returns>
+        public object CreateAndGetInstance(string assemblyName, string typeName)
+        {
+            return CreateInstance(assemblyName, typeName);
         }
 
         /// <summary>
@@ -102,15 +143,8 @@ namespace Beyova
         /// <returns>System.Object.</returns>
         protected object CreateInstance(string assemblyName, string typeName)
         {
-            if (string.IsNullOrWhiteSpace(assemblyName))
-            {
-                throw new ArgumentNullException("assemblyName");
-            }
-
-            if (string.IsNullOrWhiteSpace(typeName))
-            {
-                throw new ArgumentNullException("typeName");
-            }
+            assemblyName.CheckEmptyString("assemblyName");
+            assemblyName.CheckEmptyString("typeName");
 
             return AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName);
         }

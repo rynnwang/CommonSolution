@@ -294,7 +294,6 @@
     <Compile Include="Interfaces\IToXml.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\Assembly.cs" />
-    <Compile Include="Reflection\DynamicCode.cs" />
     <Compile Include="Reflection\MethodFiltering.cs" />
     <Compile Include="Reflection\Reflection.cs" />
     <Compile Include="RestApi\Attribute\ApiOperationAttribute.cs" />
