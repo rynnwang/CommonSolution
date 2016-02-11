@@ -77,6 +77,11 @@
             public const string ADMINTOKEN = "X-BA-ADMIN-TOKEN";
 
             /// <summary>
+            /// The secure key
+            /// </summary>
+            public const string SECUREKEY = "X-BA-SECURED-KEY";
+
+            /// <summary>
             /// The client identifier
             /// </summary>
             public const string CLIENTIDENTIFIER = "X-BA-CLIENT-ID";

@@ -21,6 +21,18 @@ namespace Beyova
     public interface IUserInfo : IIdentifier, ICredential, IPermissionIdentifiers
     {
         /// <summary>
+        /// Gets or sets the email.
+        /// </summary>
+        /// <value>The email.</value>
+        string Email { get; set; }
+
+        /// <summary>
+        /// Gets or sets the gender.
+        /// </summary>
+        /// <value>The gender.</value>
+        Gender Gender { get; set; }
+
+        /// <summary>
         /// Gets or sets the avatar key.
         /// </summary>
         /// <value>The avatar key.</value>

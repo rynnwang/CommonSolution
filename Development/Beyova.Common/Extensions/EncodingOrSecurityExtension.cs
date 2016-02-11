@@ -791,7 +791,7 @@ namespace Beyova
                     var rsaProvider = new RSACryptoServiceProvider(2048);
                     var responsePublicKey = rsaProvider.ExportCspBlob(false).ToBase64();
 
-                    var package = new SecureSynchronizePackage
+                    var package = new SecureCommunicationPackage
                     {
                         PublicKey = responsePublicKey,
                         Data = data
@@ -813,12 +813,12 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the secure synchronize package.
+        /// Gets the secure communication package.
         /// </summary>
         /// <param name="httpRequest">The HTTP request.</param>
         /// <param name="rsaPrivateKey">The RSA private key.</param>
         /// <returns>SecureSynchronizePackage.</returns>
-        public static SecureSynchronizePackage GetSecureSynchronizePackage(this HttpRequest httpRequest, string rsaPrivateKey)
+        public static SecureCommunicationPackage GetSecureCommunicationPackage(this HttpRequest httpRequest, string rsaPrivateKey)
         {
             if (httpRequest != null)
             {
@@ -826,7 +826,7 @@ namespace Beyova
                 {
                     var requestData = httpRequest.GetPostData();
                     var jsonString = Encoding.UTF32.GetString(RsaDecrypt(requestData, rsaPrivateKey));
-                    return JsonConvert.DeserializeObject<SecureSynchronizePackage>(jsonString);
+                    return JsonConvert.DeserializeObject<SecureCommunicationPackage>(jsonString);
                 }
                 catch (Exception ex)
                 {
@@ -838,12 +838,12 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Responses the secure synchronize.
+        /// Responses the secure communication package.
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="responseObject">The response object.</param>
         /// <param name="rsaPublicKey">The RSA public key.</param>
-        public static void ResponseSecureSynchronize(this HttpResponse response, object responseObject, string rsaPublicKey)
+        public static void ResponseSecureCommunicationPackage(this HttpResponse response, object responseObject, string rsaPublicKey)
         {
             if (response != null && responseObject != null)
             {

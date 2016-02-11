@@ -11,24 +11,42 @@ namespace Beyova.CommonServiceInterface
     /// <typeparam name="TProvisioning">The type of the t provisioning.</typeparam>
     /// <typeparam name="TProvisioningCriteria">The type of the t provisioning criteria.</typeparam>
     /// <typeparam name="TApplication">The type of the t application.</typeparam>
+    [TokenRequired]
     public interface IProvisioningService<TProvisioning, TProvisioningCriteria, TApplication>
-        where TProvisioning : IProvisioningItem<TApplication>
-        where TProvisioningCriteria : IProvisioningCriteria<TApplication>
-        where TApplication : struct, IConvertible
+          where TProvisioning : IProvisioningObject<TApplication>
+          where TProvisioningCriteria : IProvisioningCriteria<TApplication>
+          where TApplication : struct, IConvertible
     {
         /// <summary>
-        /// Saves the provisioning item.
+        /// Saves the user provisioning object.
         /// </summary>
-        /// <param name="provisioningItem">The provisioning item.</param>
-        [ApiOperation("Provisioning", HttpConstants.HttpMethod.Put)]
-        void SaveProvisioningItem(TProvisioning provisioningItem);
+        /// <param name="provisioningObject">The provisioning item object.</param>
+        [ApiOperation("ProvisioningObject", HttpConstants.HttpMethod.Put, "User")]
+        void SaveUserProvisioningObject(TProvisioning provisioningObject);
 
         /// <summary>
-        /// Queries the provisioning item.
+        /// Saves the global provisioning object.
+        /// </summary>
+        /// <param name="provisioningObject">The provisioning object.</param>
+        [ApiOperation("ProvisioningObject", HttpConstants.HttpMethod.Put, "Global")]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningAdministration, ApiPermission.Required)]
+        void SaveGlobalProvisioningObject(TProvisioning provisioningObject);
+
+        /// <summary>
+        /// Queries the user provisioning object.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;TProvisioning&gt;.</returns>
-        [ApiOperation("Provisioning", HttpConstants.HttpMethod.Post)]
-        List<TProvisioning> QueryProvisioningItem(TProvisioningCriteria criteria);
+        [ApiOperation("ProvisioningObject", HttpConstants.HttpMethod.Post)]
+        List<TProvisioning> QueryUserProvisioningObject(TProvisioningCriteria criteria);
+
+        /// <summary>
+        /// Queries the global provisioning object.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;TProvisioning&gt;.</returns>
+        [ApiOperation("ProvisioningObject", HttpConstants.HttpMethod.Post, "Global")]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningAdministration, ApiPermission.Required)]
+        List<TProvisioning> QueryGlobalProvisioningObject(TProvisioningCriteria criteria);
     }
 }

@@ -11,5 +11,13 @@
         /// <param name="token">The token.</param>
         /// <returns>ICredential.</returns>
         public abstract ICredential GetCredentialByToken(string token);
+
+        /// <summary>
+        /// Gets the credential by secured key.
+        /// </summary>
+        /// <param name="securedKey">The secured key.</param>
+        /// <param name="privateKey">The private key.</param>
+        /// <returns>ICredential.</returns>
+        public abstract ICredential GetCredentialBySecuredKey(string securedKey,out string privateKey);
     }
 }

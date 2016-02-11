@@ -6,7 +6,7 @@ namespace Beyova
     /// Interface IProvisioningCriteria
     /// </summary>
     /// <typeparam name="TApplication">The type of the t application.</typeparam>
-    public interface IProvisioningCriteria<TApplication>
+    public interface IProvisioningCriteria<TApplication> : IIdentifier
         where TApplication : struct, IConvertible
     {
         /// <summary>
@@ -22,15 +22,15 @@ namespace Beyova
         Guid? OwnerKey { get; set; }
 
         /// <summary>
-        /// Gets or sets the module.
+        /// Gets or sets the module. Optional.
         /// </summary>
         /// <value>The module.</value>
         string Module { get; set; }
 
         /// <summary>
-        /// Gets or sets the key.
+        /// Gets or sets the name.
         /// </summary>
-        /// <value>The key.</value>
-        string Key { get; set; }
+        /// <value>The name.</value>
+        string Name { get; set; }
     }
 }

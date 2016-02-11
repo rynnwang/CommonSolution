@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B2EC21FE-4D98-4766-A155-CD6CC285A854}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Beyova.CommonAdminService</RootNamespace>
+    <AssemblyName>Beyova.CommonAdminService</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ServiceCore\Class1.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Beyova.Common\Beyova.Common.csproj">
+      <Project>{9c5a58ff-8f44-451f-9698-2fe2e3f2e7de}</Project>
+      <Name>Beyova.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DatabaseScripts\Configuration.xml" />
+    <Content Include="DatabaseScripts\Full\Function\fn_GenerateSqlExpression.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_GenerateWherePattern.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_SplitStringToList.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_XmlListToGuidTable.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_XmlListToStringTable.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\All_ObjectStateFunction.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ContainsValue.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_GetWorkflowValue.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectCanUpdateOrDelete.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsApproved.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsVisible.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsWorkable.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_SetObjectDeleted.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_AuthenticateAdminUserInfo.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateAdminSession.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateOrUpdateAdminPermission.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateOrUpdateAdminUserInfo.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_DeleteAdminSession.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_GetAdminUserInfoByKey.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_GetAdminUserInfoByToken.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_QueryAdminSession.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_QueryAdminUserInfo.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_RequestAdminPasswordReset.sql" />
+    <Content Include="DatabaseScripts\Full\Table\Admin\AdminPermission.sql" />
+    <Content Include="DatabaseScripts\Full\Table\Admin\AdminRolePermissionBinding.sql" />
+    <Content Include="DatabaseScripts\Full\Table\Admin\AdminUserRoleBinding.sql" />
+    <Content Include="DatabaseScripts\Full\Table\Admin\AdminSession.sql" />
+    <Content Include="DatabaseScripts\Full\Table\Admin\AdminRole.sql" />
+    <Content Include="DatabaseScripts\Full\Table\Admin\AdminUserInfo.sql" />
+    <Content Include="DatabaseScripts\Full\Table\DualApproval\DualApprovalRequest.sql" />
+    <Content Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe" />
+    <Content Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe" />
+    <Content Include="DatabaseScripts\Output.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe.config" />
+    <None Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataAccessController\" />
+    <Folder Include="DatabaseScripts\Full\Data\" />
+    <Folder Include="DatabaseScripts\Full\StoredProcedure\EnvironmentEndpoint\" />
+    <Folder Include="DatabaseScripts\Full\Table\EnvironmentEndpoint\" />
+    <Folder Include="DatabaseScripts\Full\View\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

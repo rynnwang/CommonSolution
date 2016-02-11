@@ -616,7 +616,7 @@ namespace Beyova
         /// <returns>T.</returns>
         public static T Int32ToEnum<T>(this int intValue) where T : struct, IConvertible
         {
-            return (T)((ValueType)(intValue));
+            return (T)Enum.ToObject(typeof(T), intValue);
         }
 
         /// <summary>
@@ -627,7 +627,7 @@ namespace Beyova
         /// <returns>System.Nullable&lt;T&gt;.</returns>
         public static T? Int32ToEnum<T>(this int? intValue) where T : struct, IConvertible
         {
-            return intValue == null ? null : (T?)((ValueType)(intValue));
+            return intValue == null ? null : (T?)Enum.ToObject(typeof(T), intValue); ;
         }
 
         /// <summary>
