@@ -41,11 +41,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccessController\AdminDataAccessController.cs" />
+    <Compile Include="DataAccessController\AdminPermissionAccessController.cs" />
     <Compile Include="DataAccessController\AdminSessionAccessController.cs" />
     <Compile Include="DataAccessController\AdminRoleAccessController.cs" />
     <Compile Include="DataAccessController\AdminUserInfoAccessController.cs" />
     <Compile Include="DataAccessController\EnvironmentEndpointDataAccessController.cs" />
-    <Compile Include="ServiceCore\Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,16 +70,24 @@
     <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsWorkable.sql" />
     <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_SetObjectDeleted.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_AuthenticateAdminUserInfo.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_BindPermissionOnRole.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CleanAdminSession.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateAdminSession.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_BindRoleOnUser.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_QueryAdminPermission.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_UnbindPermissionOnRole.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_UnbindRoleOnUser.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateOrUpdateAdminRole.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateOrUpdateAdminPermission.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateOrUpdateAdminUserInfo.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_DeleteAdminSession.sql" />
-    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_GetAdminUserInfoByKey.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_GetAdminUserInfoByToken.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_QueryAdminSession.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_QueryAdminRole.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_QueryAdminUserInfo.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_RequestAdminPasswordReset.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\EnvironmentEndpoint\sp_QueryEnvironmentEndpoint.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\EnvironmentEndpoint\sp_CreateOrUpdateEnvironmentEndpoint.sql" />
     <Content Include="DatabaseScripts\Full\Table\Admin\AdminPermission.sql" />
     <Content Include="DatabaseScripts\Full\Table\Admin\AdminRolePermissionBinding.sql" />
     <Content Include="DatabaseScripts\Full\Table\Admin\AdminUserRoleBinding.sql" />
@@ -89,6 +97,7 @@
     <Content Include="DatabaseScripts\Full\Table\DualApproval\DualApprovalAudit.sql" />
     <Content Include="DatabaseScripts\Full\Table\DualApproval\DualApprovalRequest.sql" />
     <Content Include="DatabaseScripts\Full\Table\EnvironmentEndpoint\EnvironmentEndpoint.sql" />
+    <Content Include="DatabaseScripts\Full\View\Admin\view_UserInfoWIthPermission.sql" />
     <Content Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe" />
     <Content Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe" />
     <Content Include="DatabaseScripts\Output.xml" />
@@ -99,8 +108,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DatabaseScripts\Full\Data\" />
-    <Folder Include="DatabaseScripts\Full\StoredProcedure\EnvironmentEndpoint\" />
-    <Folder Include="DatabaseScripts\Full\View\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 
 namespace Beyova
 {
@@ -19,5 +18,11 @@ namespace Beyova
         /// </summary>
         /// <value>The parent key.</value>
         public Guid? ParentKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the description.
+        /// </summary>
+        /// <value>The description.</value>
+        public string Description { get; set; }
     }
 }

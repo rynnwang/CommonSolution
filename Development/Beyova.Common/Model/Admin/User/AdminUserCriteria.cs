@@ -15,5 +15,11 @@ namespace Beyova
         {
             get; set;
         }
+
+        /// <summary>
+        /// Gets or sets the role key.
+        /// </summary>
+        /// <value>The role key.</value>
+        public Guid? RoleKey { get; set; }
     }
 }

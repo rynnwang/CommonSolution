@@ -25,21 +25,6 @@ namespace Beyova.CommonAdminService.DataAccessController
         protected const string column_PermissionIdentifier = "PermissionIdentifier";
 
         /// <summary>
-        /// The column_ by admin user
-        /// </summary>
-        protected const string column_ByAdminUser = "ByAdminUser";
-
-        /// <summary>
-        /// The column_ by admin role
-        /// </summary>
-        protected const string column_ByAdminRole = "ByAdminRole";
-
-        /// <summary>
-        /// The column_ by permission identifier
-        /// </summary>
-        protected const string column_ByPermissionIdentifier = "ByPermissionIdentifier";
-
-        /// <summary>
         /// The column_ role key
         /// </summary>
         protected const string column_RoleKey = "RoleKey";

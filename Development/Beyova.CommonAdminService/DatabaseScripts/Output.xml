@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Database>
   <Full>
-    <Data>
-      <Item>TestStudentData.sql</Item>
-    </Data>
+    <Data></Data>
     <Function>
       <Item>ObjectStateFuntions\All_ObjectStateFunction.sql</Item>
       <Item>ObjectStateFuntions\fn_ContainsValue.sql</Item>
@@ -20,39 +18,39 @@
       <Item>fn_XmlListToStringTable.sql</Item>
     </Function>
     <Storedprocedure>
-      <Item>Account\sp_AuthenticateAccessCredential.sql</Item>
-      <Item>Account\sp_QueryAccessCredential.sql</Item>
-      <Item>Account\sp_SaveAccessCredential.sql</Item>
-      <Item>BinaryStorage\sp_CommitBinaryStorageDeletion.sql</Item>
-      <Item>BinaryStorage\sp_ConvertPendingCommitToPendingDelete.sql</Item>
-      <Item>BinaryStorage\sp_CreateOrUpdateBinaryStorageMetaData.sql</Item>
-      <Item>BinaryStorage\sp_GetBinaryCapacitySummary.sql</Item>
-      <Item>BinaryStorage\sp_GetBinaryStorageMetaDataByIdentifiers.sql</Item>
-      <Item>BinaryStorage\sp_GetPendingDeleteBinaryStorages.sql</Item>
-      <Item>BinaryStorage\sp_QueryBinaryStorageMetaData.sql</Item>
-      <Item>CourseGroup\sp_CreateOrUpdateCourseGroup.sql</Item>
-      <Item>CourseGroup\sp_GetCourseGroupByKeys.sql</Item>
-      <Item>CourseGroup\sp_QueryCourseGroup.sql</Item>
-      <Item>SessionInfo\sp_CleanSessionInfo.sql</Item>
-      <Item>SessionInfo\sp_CreateSessionInfo.sql</Item>
-      <Item>SessionInfo\sp_DisposeSessionInfo.sql</Item>
-      <Item>UserInfo\sp_CreateOrUpdateUserInfo.sql</Item>
-      <Item>UserInfo\sp_GetUserByToken.sql</Item>
-      <Item>UserInfo\sp_GetUserInfoByIds.sql</Item>
-      <Item>UserInfo\sp_GetUserInfoByKeys.sql</Item>
-      <Item>UserInfo\sp_QueryUserInfo.sql</Item>
-      <Item>UserInfo\sp_UpdateUserAvatar.sql</Item>
+      <Item>Admin\sp_AuthenticateAdminUserInfo.sql</Item>
+      <Item>Admin\sp_BindPermissionOnRole.sql</Item>
+      <Item>Admin\sp_BindRoleOnUser.sql</Item>
+      <Item>Admin\sp_CleanAdminSession.sql</Item>
+      <Item>Admin\sp_CreateAdminSession.sql</Item>
+      <Item>Admin\sp_CreateOrUpdateAdminPermission.sql</Item>
+      <Item>Admin\sp_CreateOrUpdateAdminRole.sql</Item>
+      <Item>Admin\sp_CreateOrUpdateAdminUserInfo.sql</Item>
+      <Item>Admin\sp_DeleteAdminSession.sql</Item>
+      <Item>Admin\sp_GetAdminUserInfoByToken.sql</Item>
+      <Item>Admin\sp_QueryAdminPermission.sql</Item>
+      <Item>Admin\sp_QueryAdminRole.sql</Item>
+      <Item>Admin\sp_QueryAdminSession.sql</Item>
+      <Item>Admin\sp_QueryAdminUserInfo.sql</Item>
+      <Item>Admin\sp_RequestAdminPasswordReset.sql</Item>
+      <Item>Admin\sp_UnbindPermissionOnRole.sql</Item>
+      <Item>Admin\sp_UnbindRoleOnUser.sql</Item>
+      <Item>EnvironmentEndpoint\sp_CreateOrUpdateEnvironmentEndpoint.sql</Item>
+      <Item>EnvironmentEndpoint\sp_QueryEnvironmentEndpoint.sql</Item>
     </Storedprocedure>
     <Table>
-      <Item>AccessCredential\AccessCredential.sql</Item>
-      <Item>BinaryStorage\BinaryStorageMetaData.sql</Item>
-      <Item>CourseGroup\CourseGroup.sql</Item>
-      <Item>Security\SessionInfo.sql</Item>
-      <Item>UserInfo\UserInfo.sql</Item>
+      <Item>Admin\AdminPermission.sql</Item>
+      <Item>Admin\AdminRole.sql</Item>
+      <Item>Admin\AdminRolePermissionBinding.sql</Item>
+      <Item>Admin\AdminSession.sql</Item>
+      <Item>Admin\AdminUserInfo.sql</Item>
+      <Item>Admin\AdminUserRoleBinding.sql</Item>
+      <Item>DualApproval\DualApprovalAudit.sql</Item>
+      <Item>DualApproval\DualApprovalRequest.sql</Item>
+      <Item>EnvironmentEndpoint\EnvironmentEndpoint.sql</Item>
     </Table>
     <View>
-      <Item>AccessCredential\view_AccessCredential.sql</Item>
-      <Item>UserInfo\view_UserInfo.sql</Item>
+      <Item>Admin\view_UserInfoWIthPermission.sql</Item>
     </View>
   </Full>
 </Database>

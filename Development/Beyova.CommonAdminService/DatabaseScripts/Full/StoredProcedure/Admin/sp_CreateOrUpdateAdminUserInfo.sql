@@ -4,11 +4,13 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_CreateOrUpdateAdminUserInfo](
     @Key UNIQUEIDENTIFIER,
-    @LoginName [varchar](50),
-    @Password [varchar](200),
-    @DisplayName [nvarchar](50),
-    @Email [varchar](64),
-    @State INT
+    @LoginName [NVARCHAR](128),
+    @Password [NVARCHAR](256),
+    @Name [NVARCHAR](128),
+    @Email [NVARCHAR](128),
+    @ThirdPartyId [NVARCHAR](256),
+    @State INT,
+    @OperatorKey UNIQUEIDENTIFIER
 )
 AS
 BEGIN
@@ -16,47 +18,59 @@ BEGIN
     DECLARE @ExistedState AS INT;
     DECLARE @NowTime AS DATETIME = GETUTCDATE();
 
-    SELECT @ExistedKey = [Key], @ExistedState = [State] FROM [dbo].[AdminUserInfo]
-        WHERE [Key] = @Key;
-
     IF @State < 0
         SET @State = NULL;
 
-    IF @ExistedKey IS NOT NULL
+    SELECT @ExistedKey = [Key], @ExistedState = [State] FROM [dbo].[AdminUserInfo]
+        WHERE [Key] = @Key;
+
+    IF @ExistedKey IS NOT NULL AND [dbo].[fn_ObjectCanUpdateOrDelete](@ExistedState) = 1
     BEGIN
-        IF [dbo].[fn_ObjectCanUpdateOrDelete](@ExistedState) = 1
-            UPDATE [dbo].[AdminUserInfo]
-                SET [Password] = ISNULL(@Password, [Password]),
-                    [DisplayName] = ISNULL(@DisplayName, [DisplayName]),
-                    [Email] = ISNULL(@Email, ''),
-                    [LastUpdatedStamp] = @NowTime,
-                    [State] = ISNULL(@State, [State])
-                WHERE [Key] = @Key;
-        ELSE
-            RAISERROR(15622, 16, 1, 'Update or delete operation is forbidden caused by state.');
-    END        
+        UPDATE [dbo].[AdminUserInfo]
+            SET [Password] = ISNULL(@Password, [Password]),
+                [Name] = ISNULL(@Name, [Name]),
+                [Email] = ISNULL(@Email, ''),
+                [ThirdPartyId] = ISNULL(@ThirdPartyId, [ThirdPartyId]),
+                [LastUpdatedStamp] = @NowTime,
+                [LastUpdatedBy] = @OperatorKey,
+                [State] = ISNULL(@State, [State])
+            WHERE [Key] = @Key;
+
+        SELECT @Key;
+    END
     ELSE
     BEGIN
         SET @Key = NEWID();
 
+        SET @LoginName = ISNULL(@LoginName, 'User' + CONVERT(NVARCHAR(MAX), @Key));
+        SET @Name = ISNULL(@Name, @LoginName);
+
         INSERT INTO [dbo].[AdminUserInfo]
-           ([Key]
+            ([Key]
            ,[LoginName]
            ,[Password]
-           ,[DisplayName]
+           ,[Name]
            ,[Email]
+           ,[ThirdPartyId]
            ,[CreatedStamp]
            ,[LastUpdatedStamp]
+           ,[CreatedBy]
+           ,[LastUpdatedBy]
            ,[State])
      VALUES
            (@Key
-           ,ISNULL(@LoginName, @Key)
+           ,@LoginName
            ,ISNULL(@Password, '')
-           ,ISNULL(@DisplayName, @Key)
+           ,@Name
            ,ISNULL(@Email , '')
+           ,@ThirdPartyId
            ,@NowTime
            ,@NowTime
+           ,@OperatorKey
+           ,@OperatorKey
            ,ISNULL(@State, 0));
+
+        SELECT @Key;
     END
 END
 GO

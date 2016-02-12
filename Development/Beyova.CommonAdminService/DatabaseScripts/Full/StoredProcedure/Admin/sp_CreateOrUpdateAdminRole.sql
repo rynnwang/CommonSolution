@@ -1,12 +1,12 @@
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_CreateOrUpdateAdminPermission]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[sp_CreateOrUpdateAdminPermission]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_CreateOrUpdateAdminRole]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[sp_CreateOrUpdateAdminRole]
 GO
 
-CREATE PROCEDURE [dbo].[sp_CreateOrUpdateAdminPermission](
+CREATE PROCEDURE [dbo].[sp_CreateOrUpdateAdminRole](
     @Key UNIQUEIDENTIFIER,
-    @Name NVARCHAR(256),
-    @Identifier NVARCHAR(256),
-    @Description NVARCHAR(512),
+    @Name [NVARCHAR](128),
+    @ParentKey [UNIQUEIDENTIFIER],
+    @Description [NVARCHAR](512),
     @State INT,
     @OperatorKey UNIQUEIDENTIFIER
 )
@@ -16,7 +16,7 @@ BEGIN
     DECLARE @ExistedState AS INT;
     DECLARE @NowTime AS DATETIME = GETUTCDATE();
 
-    SELECT @ExistedKey = [Key], @ExistedState = [State] FROM [dbo].[AdminPermission]
+    SELECT @ExistedKey = [Key], @ExistedState = [State] FROM [dbo].[AdminRole]
         WHERE [Key] = @Key;
 
     IF @State < 0
@@ -24,9 +24,9 @@ BEGIN
 
     IF @ExistedKey IS NOT NULL AND [dbo].[fn_ObjectCanUpdateOrDelete](@ExistedState) = 1
     BEGIN
-        UPDATE [dbo].[AdminPermission]
+        UPDATE [dbo].[AdminRole]
             SET [Name] = ISNULL(@Name, [Name]),
-                [Identifier] = @Identifier,
+                [ParentKey] = @ParentKey,
                 [Description] = ISNULL(@Description, [Description]),
                 [LastUpdatedStamp] = @NowTime,
                 [LastUpdatedBy] = @OperatorKey,
@@ -39,10 +39,10 @@ BEGIN
     BEGIN
         SET @Key = NEWID();
 
-        INSERT INTO [dbo].[AdminPermission]
+        INSERT INTO [dbo].[AdminRole]
            ([Key]
            ,[Name]
-           ,[Identifier]
+           ,[ParentKey]
            ,[Description]
            ,[CreatedStamp]
            ,[LastUpdatedStamp]
@@ -52,7 +52,7 @@ BEGIN
      VALUES
            (@Key
            ,@Name
-           ,@Identifier
+           ,@ParentKey
            ,@Description
            ,@NowTime
            ,@NowTime

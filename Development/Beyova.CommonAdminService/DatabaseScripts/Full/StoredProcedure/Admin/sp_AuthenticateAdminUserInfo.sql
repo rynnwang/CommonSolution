@@ -3,20 +3,20 @@ DROP PROCEDURE [dbo].[sp_AuthenticateAdminUserInfo]
 GO
 
 CREATE PROCEDURE [dbo].[sp_AuthenticateAdminUserInfo](
-    @LoginName [NVARCHAR](64),
+    @LoginName [NVARCHAR](128),
     @Password [NVARCHAR](256)
 )
 AS
 BEGIN
     SELECT TOP 1 [Key]
       ,[LoginName]
-      ,[Password]
-      ,[DisplayName]
+      ,[Name]
       ,[Email]
-      ,NULL AS [PasswordResetToken]
-      ,NULL AS [PasswordResetExpiredStamp]
+      ,[ThirdPartyId]
       ,[CreatedStamp]
       ,[LastUpdatedStamp]
+      ,[CreatedBy]
+      ,[LastUpdatedBy]
       ,[State]
   FROM [dbo].[AdminUserInfo]
     WHERE [LoginName] = @LoginName 

@@ -37,7 +37,7 @@ namespace Beyova.CommonAdminService.DataAccessController
                 Email = sqlDataReader[column_Email].ObjectToString()
             };
 
-            FillBaseObjectFields(result, sqlDataReader, true);
+            FillBaseObjectFields(result, sqlDataReader);
 
             return result;
         }
@@ -100,7 +100,7 @@ namespace Beyova.CommonAdminService.DataAccessController
         /// </summary>
         /// <param name="adminUserInfo">The admin user information.</param>
         /// <returns>AdminUserInfo.</returns>
-        public AdminUserInfo CreateOrUpdateAdminUserInfo(AdminUserInfo adminUserInfo)
+        public Guid? CreateOrUpdateAdminUserInfo(AdminUserInfo adminUserInfo, Guid? operatorKey)
         {
             const string spName = "sp_CreateOrUpdateAdminUserInfo";
 
@@ -112,16 +112,19 @@ namespace Beyova.CommonAdminService.DataAccessController
                 {
                     this.GenerateSqlSpParameter(column_Key, adminUserInfo.Key),
                     this.GenerateSqlSpParameter(column_LoginName, adminUserInfo.LoginName),
-                    this.GenerateSqlSpParameter(column_Password, HashPassword(adminUserInfo.Password)),
-                    this.GenerateSqlSpParameter(column_DisplayName, adminUserInfo.DisplayName),
-                    this.GenerateSqlSpParameter(column_State, (int) adminUserInfo.State)
+                    this.GenerateSqlSpParameter(column_Password, null),
+                    this.GenerateSqlSpParameter(column_Name, adminUserInfo.Name),
+                    this.GenerateSqlSpParameter(column_Email, adminUserInfo.Email),
+                    this.GenerateSqlSpParameter(column_ThirdPartyId, adminUserInfo.ThirdPartyId),
+                    this.GenerateSqlSpParameter(column_State, (int) adminUserInfo.State),
+                    this.GenerateSqlSpParameter(column_OperatorKey, operatorKey)
                 };
 
-                return this.ExecuteReader(spName, parameters).FirstOrDefault();
+                return this.ExecuteScalar(spName, parameters).ObjectToGuid();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateAdminUserInfo", adminUserInfo);
+                throw ex.Handle("CreateOrUpdateAdminUserInfo", new { adminUserInfo, operatorKey });
             }
         }
 
@@ -142,7 +145,11 @@ namespace Beyova.CommonAdminService.DataAccessController
                 {
                     this.GenerateSqlSpParameter(column_Key, criteria.Key),
                     this.GenerateSqlSpParameter(column_LoginName, criteria.LoginName),
-                    this.GenerateSqlSpParameter(column_DisplayName, criteria.DisplayName)
+                    this.GenerateSqlSpParameter(column_Name, criteria.Name),
+                    this.GenerateSqlSpParameter(column_Email, criteria.Email),
+                    this.GenerateSqlSpParameter(column_ThirdPartyId, criteria.ThirdPartyId),
+                    this.GenerateSqlSpParameter(column_RoleKey, criteria.RoleKey),
+                    this.GenerateSqlSpParameter(column_Count, criteria.Count)
                 };
 
                 return this.ExecuteReader(spName, parameters);
@@ -150,6 +157,64 @@ namespace Beyova.CommonAdminService.DataAccessController
             catch (Exception ex)
             {
                 throw ex.Handle("QueryAdminUserInfo", criteria);
+            }
+        }
+
+        /// <summary>
+        /// Binds the role on user.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <param name="operatorKey">The operator key.</param>
+        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
+        public Guid? BindRoleOnUser(AdminRoleBinding binding, Guid? operatorKey)
+        {
+            const string spName = "sp_BindRoleOnUser";
+
+            try
+            {
+                binding.CheckNullObject("binding");
+
+                var parameters = new List<SqlParameter>
+                {
+                    this.GenerateSqlSpParameter(column_OwnerKey, binding.OwnerKey),
+                    this.GenerateSqlSpParameter(column_RoleKey, binding.RoleKey),
+                    this.GenerateSqlSpParameter(column_OperatorKey,operatorKey)
+                };
+
+                return this.ExecuteScalar(spName, parameters).ObjectToGuid();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("BindRoleOnUser", new { binding, operatorKey });
+            }
+        }
+
+        /// <summary>
+        /// Unbinds the role on user.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <param name="operatorKey">The operator key.</param>
+        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
+        public void UnbindRoleOnUser(AdminRoleBinding binding, Guid? operatorKey)
+        {
+            const string spName = "sp_UnbindRoleOnUser";
+
+            try
+            {
+                binding.CheckNullObject("binding");
+
+                var parameters = new List<SqlParameter>
+                {
+                    this.GenerateSqlSpParameter(column_OwnerKey, binding.OwnerKey),
+                    this.GenerateSqlSpParameter(column_RoleKey, binding.RoleKey),
+                    this.GenerateSqlSpParameter(column_OperatorKey,operatorKey)
+                };
+
+                this.ExecuteNonQuery(spName, parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("UnbindRoleOnUser", new { binding, operatorKey });
             }
         }
     }

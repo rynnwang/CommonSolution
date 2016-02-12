@@ -8,15 +8,15 @@ namespace Beyova
     public class AdminPermissionCriteria : AdminPermissionBase
     {
         /// <summary>
-        /// Gets or sets the by role key.
+        /// Gets or sets the role key.
         /// </summary>
-        /// <value>The by role key.</value>
-        public Guid? ByRoleKey { get; set; }
+        /// <value>The role key.</value>
+        public Guid? RoleKey { get; set; }
 
         /// <summary>
-        /// Gets or sets the by user key.
+        /// Gets or sets the user key.
         /// </summary>
-        /// <value>The by user key.</value>
-        public Guid? ByUserKey { get; set; }
+        /// <value>The user key.</value>
+        public Guid? UserKey { get; set; }
     }
 }

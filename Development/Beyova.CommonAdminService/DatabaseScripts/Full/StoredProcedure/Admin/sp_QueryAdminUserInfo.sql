@@ -4,29 +4,51 @@ GO
 
 CREATE PROCEDURE [dbo].[sp_QueryAdminUserInfo](
     @Key UNIQUEIDENTIFIER,
-    @LoginName [varchar](64),
-    @DisplayName [nvarchar](64)
+    @LoginName [NVARCHAR](128),
+    @Name [NVARCHAR](128),
+    @Email [NVARCHAR](128),
+    @ThirdPartyId [NVARCHAR](128),
+    @RoleKey UNIQUEIDENTIFIER,
+    @Count INT
 )
 AS
 BEGIN
     DECLARE @SqlStatement AS NVARCHAR(MAX);
     DECLARE @WhereStatement AS NVARCHAR(MAX) = '[dbo].[fn_ObjectIsWorkable]([State]) = 1 AND ';
 
-    SET @SqlStatement = 'SELECT [Key]
-    ,[LoginName]
-    ,NULL AS [Password]
-    ,[DisplayName]
-    ,[CreatedStamp]
-    ,[LastUpdatedStamp]
-    ,[State]
-FROM [dbo].[AdminUserInfo]';
+    IF @Count IS NULL OR @Count < 0
+        SET @Count = 50;
+
+    SET @SqlStatement = 'SELECT TOP ' + CONVERT(NVARCHAR(5), @Count) + ' [Key]
+      ,[LoginName]
+      ,[Name]
+      ,[Email]
+      ,[ThirdPartyId]
+      ,[CreatedStamp]
+      ,[LastUpdatedStamp]
+      ,[CreatedBy]
+      ,[LastUpdatedBy]
+      ,[State]
+    FROM [dbo].[AdminUserInfo] AS AUI';
 
     IF @Key IS NOT NULL
         SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('Key','=',CONVERT(NVARCHAR(MAX), @Key),1);
     ELSE
     BEGIN
         SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('LoginName','=',@LoginName,1);
-        SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('DisplayName','=',@DisplayName,1);
+        SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('Name','LIKE',@Name,1);
+        SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('Email','=',@Email,1);
+        SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('ThirdPartyId','=',@ThirdPartyId,1);
+
+        IF @RoleKey IS NOT NULL
+        BEGIN
+            SET @WhereStatement = @WhereStatement + ' EXISTS (
+    SELECT TOP 1 * FROM [dbo].[AdminUserRoleBinding] AS AUR
+        WHERE AUR.[UserKey] = AUI.[Key] 
+            AND [dbo].[fn_ObjectIsWorkable](AUR.[State]) = 1
+            AND AUR.[RoleKey] = ''' + CONVERT(NVARCHAR(MAX), @RoleKey) + '''
+) AND ';
+        END
     END
 
     IF(@WhereStatement <> '')

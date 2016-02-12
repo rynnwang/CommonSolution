@@ -7,8 +7,9 @@ GO
 CREATE TABLE [dbo].[AdminPermission](
     [RowId] INT NOT NULL IDENTITY(1,1),
     [Key] [UNIQUEIDENTIFIER] NOT NULL DEFAULT NEWID(),
-    [Name] [NVARCHAR](256) NOT NULL,    
+    [Name] [NVARCHAR](256) NOT NULL,
     [Identifier] [NVARCHAR](256) NOT NULL,
+    [Description] [NVARCHAR](512) NULL,
     [CreatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
     [LastUpdatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
     [CreatedBy] [UNIQUEIDENTIFIER] NOT NULL,

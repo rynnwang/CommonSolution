@@ -144,7 +144,7 @@
     <Compile Include="Model\AuthenticationProfile\AccessCredentialInfo.cs" />
     <Compile Include="Model\Admin\Permission\AdminPermissionBase.cs" />
     <Compile Include="Model\Admin\Role\AdminRoleBinding.cs" />
-    <Compile Include="Model\Admin\Permission\AdminPermissionConnection.cs" />
+    <Compile Include="Model\Admin\Permission\AdminPermissionBinding.cs" />
     <Compile Include="Model\Admin\Permission\AdminPermission.cs" />
     <Compile Include="Model\Admin\Permission\AdminPermissionCriteria.cs" />
     <Compile Include="Model\Admin\Role\AdminRole.cs" />

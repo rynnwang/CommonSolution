@@ -4,9 +4,9 @@ using Beyova.RestApi;
 namespace Beyova
 {
     /// <summary>
-    /// Class AdminPermissionConnection.
+    /// Class AdminPermissionBinding.
     /// </summary>
-    public class AdminPermissionConnection : AdminPermissionBase
+    public class AdminPermissionBinding
     {
         /// <summary>
         /// Gets or sets the owner key.
@@ -15,9 +15,9 @@ namespace Beyova
         public Guid? OwnerKey { get; set; }
 
         /// <summary>
-        /// Gets or sets the permission.
+        /// Gets or sets the permission key.
         /// </summary>
-        /// <value>The permission.</value>
-        public ApiPermission Permission { get; set; }
+        /// <value>The permission key.</value>
+        public Guid? PermissionKey { get; set; }
     }
 }

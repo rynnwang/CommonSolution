@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Database>
     <Solution Name="DEV">
-        <ConnectionString Server="." Database="AuthenticationProfileService" />
+        <ConnectionString Server="." Database="CommonService" />
         <Full TargetVersion="1.0">
             <Function>
                 <Item>ObjectStateFuntions\All_ObjectStateFunction.sql</Item>
