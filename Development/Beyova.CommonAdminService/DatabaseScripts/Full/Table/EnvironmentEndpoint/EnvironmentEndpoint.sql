@@ -1,0 +1,36 @@
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EnvironmentEndpoint]') AND type in (N'U'))
+BEGIN
+DROP TABLE [dbo].[EnvironmentEndpoint];
+END
+GO
+
+CREATE TABLE [dbo].[EnvironmentEndpoint] (
+    [RowId] INT IDENTITY(1,1) NOT NULL,
+    [Key] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
+    [Protocol] NVARCHAR(32) NOT NULL,
+    [Host] NVARCHAR(256) NOT NULL,
+    [Port] INT NOT NULL DEFAULT 80,
+    [Version] NVARCHAR(64) NOT NULL,
+    [Token] NVARCHAR(512) NULL,
+    [Name] NVARCHAR(256) NOT NULL,
+    [Code] NVARCHAR(64) NOT NULL DEFAULT '',
+    [Environment] NVARCHAR(64) NOT NULL DEFAULT '',
+    [ConnectionStrings] XML NOT NULL, 
+    [CreatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
+    [LastUpdatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
+    [CreatedBy] UNIQUEIDENTIFIER NULL,
+    [LastUpdatedBy] UNIQUEIDENTIFIER NULL,
+    [State] INT NOT NULL DEFAULT 0,
+CONSTRAINT [PK_EnvironmentEndpoint] PRIMARY KEY NONCLUSTERED 
+(
+    [Key] ASC
+),
+CONSTRAINT [CIX_EnvironmentEndpoint] UNIQUE CLUSTERED 
+(
+    [RowId] ASC
+)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+);
+
+GO
+

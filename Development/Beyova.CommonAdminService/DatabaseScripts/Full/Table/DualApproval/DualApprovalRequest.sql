@@ -12,6 +12,7 @@ CREATE TABLE [dbo].[DualApprovalRequest](
     [Description] [NVARCHAR](1024) NOT NULL,
     [Reference] [NVARCHAR](512) NULL,
     [CallbackUrl] [NVARCHAR](512) NULL,
+    [Permission] XML NULL,
     [CreatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
     [LastUpdatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
     [CreatedBy] [UNIQUEIDENTIFIER] NOT NULL,

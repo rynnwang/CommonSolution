@@ -17,8 +17,9 @@ BEGIN
     BEGIN
         UPDATE [dbo].[AdminSession]
             SET [LastUpdatedStamp] = @NowTime,
-                [State] = 0x1
-                WHERE [UserKey] = @UserKey;
+                [State] = [dbo].[fn_SetObjectDeleted]([State])
+                WHERE [UserKey] = @UserKey
+                AND [dbo].[fn_ObjectIsWorkable]([State]) = 1;
     END
     
     DECLARE @Token AS VARCHAR(512) = 

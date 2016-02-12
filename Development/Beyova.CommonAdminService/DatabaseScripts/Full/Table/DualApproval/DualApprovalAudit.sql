@@ -1,24 +1,26 @@
-﻿IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AdminPermission]') AND type in (N'U'))
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DualApprovalAudit]') AND type in (N'U'))
 BEGIN
-    DROP TABLE [dbo].[AdminPermission];
+    DROP TABLE [dbo].[DualApprovalAudit];
 END
 GO
 
-CREATE TABLE [dbo].[AdminPermission](
+CREATE TABLE [dbo].[DualApprovalAudit](
     [RowId] INT NOT NULL IDENTITY(1,1),
     [Key] [UNIQUEIDENTIFIER] NOT NULL DEFAULT NEWID(),
-    [Name] [NVARCHAR](256) NOT NULL,    
-    [Identifier] [NVARCHAR](256) NOT NULL,
+    [RequestKey] [UNIQUEIDENTIFIER] NOT NULL,
+    [Approver] [UNIQUEIDENTIFIER] NOT NULL,
+    [Comment] [NVARCHAR](256) NULL,
+    [IsValid] BIT NOT NULL,
     [CreatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
     [LastUpdatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
     [CreatedBy] [UNIQUEIDENTIFIER] NOT NULL,
     [LastUpdatedBy] [UNIQUEIDENTIFIER] NOT NULL,
     [State] [int] NOT NULL DEFAULT 0,
-CONSTRAINT [PK_AdminPermission_Key] PRIMARY KEY NONCLUSTERED 
+CONSTRAINT [PK_DualApprovalAudit_Key] PRIMARY KEY NONCLUSTERED 
 (
     [Key] ASC
 ),
-CONSTRAINT [CIX_AdminPermission] UNIQUE CLUSTERED 
+CONSTRAINT [CIX_DualApprovalAudit] UNIQUE CLUSTERED 
 (
     [RowId] ASC
 )

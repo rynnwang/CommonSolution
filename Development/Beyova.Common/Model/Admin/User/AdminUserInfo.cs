@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Beyova
 {
     /// <summary>
     /// Class AdminUserInfo.
     /// </summary>
-    public class AdminUserInfo : AdminUserInfoBase, IBaseObject
+    public class AdminUserInfo : AdminUserInfoBase, IBaseObject, IPermissionIdentifiers
     {
         /// <summary>
         /// Gets or sets the created by.
@@ -30,6 +31,12 @@ namespace Beyova
         /// </summary>
         /// <value>The last updated stamp.</value>
         public DateTime? LastUpdatedStamp { get; set; }
+
+        /// <summary>
+        /// Gets or sets the permissions.
+        /// </summary>
+        /// <value>The permissions.</value>
+        public List<string> Permissions { get; set; }
 
         /// <summary>
         /// Gets or sets the state.

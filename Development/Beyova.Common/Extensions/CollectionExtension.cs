@@ -21,6 +21,26 @@ namespace Beyova
         /// </summary>
         const string keyValueFormat = "&{0}={1}";
 
+        /// <summary>
+        /// The XML_ item
+        /// </summary>
+        const string xml_Item = "Item";
+
+        /// <summary>
+        /// The XML_ list
+        /// </summary>
+        const string xml_List = "List";
+
+        /// <summary>
+        /// The XML_ dictionary
+        /// </summary>
+        const string xml_Dictionary = "Dictionary";
+
+        /// <summary>
+        /// The XML_ key
+        /// </summary>
+        const string xml_Key = "Key";
+
         #region Add If Not xxx
 
         /// <summary>
@@ -368,13 +388,13 @@ namespace Beyova
         /// <returns>XElement.</returns>
         public static XElement ListToXml<T>(this ICollection<T> collection, Func<T, object> convertFunc = null)
         {
-            var result = "List".CreateXml();
+            var result = xml_List.CreateXml();
 
             if (collection != null)
             {
                 foreach (var one in collection)
                 {
-                    var item = "Item".CreateXml();
+                    var item = xml_Item.CreateXml();
                     var value = convertFunc == null ? one.ToString() : convertFunc(one);
                     var xmlObject = value as XNode;
 
@@ -399,6 +419,67 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Dictionaries to XML.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="convertFunc">The convert function.</param>
+        /// <returns>XElement.</returns>
+        public static XElement DictionaryToXml<TValue>(this IDictionary<string, TValue> dictionary, Func<TValue, string> convertFunc = null)
+        {
+            var result = xml_Dictionary.CreateXml();
+
+            if (dictionary != null)
+            {
+                foreach (var one in dictionary)
+                {
+                    var item = xml_Item.CreateXml();
+                    item.SetAttributeValue(xml_Key, one.Key);
+                    var value = convertFunc == null ? one.ToString() : convertFunc(one.Value);
+                    item.SetValue(value);
+
+                    result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Dictionaries to XML.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="convertFunc">The convert function.</param>
+        /// <returns>XElement.</returns>
+        public static XElement DictionaryToXml<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, Func<KeyValuePair<TKey, TValue>, XElement> convertFunc = null)
+            where TKey : IConvertible
+        {
+            var result = xml_Dictionary.CreateXml();
+
+            if (dictionary != null)
+            {
+                foreach (var one in dictionary)
+                {
+                    if (convertFunc == null)
+                    {
+                        var item = xml_Item.CreateXml();
+                        item.SetAttributeValue(xml_Key, one.Key);
+                        item.SetValue(one.Value.ToString());
+                        result.Add(item);
+                    }
+                    else
+                    {
+                        result.Add(convertFunc(one));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// XMLs to list.
         /// The Xml need to match the format which equals to result from 
         /// <see cref="ListToXml{T}" />.
@@ -411,9 +492,52 @@ namespace Beyova
         {
             var result = new List<T>();
 
-            if (xml != null && xml.Name.LocalName.Equals("List"))
+            if (xml != null && xml.Name.LocalName.Equals(xml_List))
             {
-                result.AddRange(xml.Elements("Item").Select(one => xmlNodeToEntity.Invoke(one)));
+                result.AddRange(xml.Elements(xml_Item).Select(one => xmlNodeToEntity.Invoke(one)));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// XMLs to dictionary.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="xml">The XML.</param>
+        /// <param name="xmlNodeToEntity">The XML node to entity.</param>
+        /// <returns>Dictionary&lt;System.String, TValue&gt;.</returns>
+        public static Dictionary<string, TValue> XmlToDictionary<TValue>(this XElement xml, Func<XElement, TValue> xmlNodeToEntity)
+        {
+            var result = new Dictionary<string, TValue>();
+
+            if (xml != null && xml.Name.LocalName.Equals(xml_Dictionary))
+            {
+                result.AddRange(xml.Elements(xml_Item).Select(one =>
+                {
+                    return new KeyValuePair<string, TValue>(one.GetAttributeValue(xml_Key), xmlNodeToEntity.Invoke(one));
+                }));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// XMLs to dictionary.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="xml">The XML.</param>
+        /// <param name="xmlNodeToEntity">The XML node to entity.</param>
+        /// <returns>Dictionary&lt;TKey, TValue&gt;.</returns>
+        public static Dictionary<TKey, TValue> XmlToDictionary<TKey, TValue>(this XElement xml, Func<XElement, KeyValuePair<TKey, TValue>> xmlNodeToEntity)
+            where TKey : IConvertible
+        {
+            var result = new Dictionary<TKey, TValue>();
+
+            if (xml != null && xml.Name.LocalName.Equals(xml_Dictionary))
+            {
+                result.AddRange(xml.Elements(xml_Item).Select(one => xmlNodeToEntity(one)));
             }
 
             return result;
@@ -735,6 +859,25 @@ namespace Beyova
                 foreach (var one in items)
                 {
                     hashSet.Add(one);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds the range.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="items">The items.</param>
+        /// <param name="overrideIfExists">if set to <c>true</c> [override if exists].</param>
+        public static void AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, IEnumerable<KeyValuePair<TKey, TValue>> items, bool overrideIfExists = false)
+        {
+            if (dictionary != null && items != null)
+            {
+                foreach (var one in items)
+                {
+                    dictionary.Merge(one.Key, one.Value, overrideIfExists);
                 }
             }
         }

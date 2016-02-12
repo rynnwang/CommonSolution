@@ -7,10 +7,10 @@ GO
 CREATE TABLE [dbo].[AdminUserInfo](
     [RowId] INT NOT NULL IDENTITY(1,1),
     [Key] [UNIQUEIDENTIFIER] NOT NULL DEFAULT NEWID(),
-    [LoginName] [NVARCHAR](64) NOT NULL,
+    [LoginName] [NVARCHAR](128) NOT NULL,
     [Password] [NVARCHAR](256) NOT NULL DEFAULT '',
-    [DisplayName] [NVARCHAR](64) NOT NULL DEFAULT '',
-    [Email] [NVARCHAR](64) NOT NULL,
+    [Name] [NVARCHAR](128) NOT NULL DEFAULT '',
+    [Email] [NVARCHAR](128) NULL,
     [ThirdPartyId] [NVARCHAR](256) NULL, -- Can be name or identifier (int, guid, etc.) from AD, SSO, or any other 3rd party
     [PasswordResetToken] [NVARCHAR](512) NULL,
     [PasswordResetExpiredStamp] [datetime] NULL,

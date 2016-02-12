@@ -40,6 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccessController\AdminDataAccessController.cs" />
+    <Compile Include="DataAccessController\AdminSessionAccessController.cs" />
+    <Compile Include="DataAccessController\AdminRoleAccessController.cs" />
+    <Compile Include="DataAccessController\AdminUserInfoAccessController.cs" />
+    <Compile Include="DataAccessController\EnvironmentEndpointDataAccessController.cs" />
     <Compile Include="ServiceCore\Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -65,6 +70,7 @@
     <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsWorkable.sql" />
     <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_SetObjectDeleted.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_AuthenticateAdminUserInfo.sql" />
+    <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CleanAdminSession.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateAdminSession.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateOrUpdateAdminPermission.sql" />
     <Content Include="DatabaseScripts\Full\StoredProcedure\Admin\sp_CreateOrUpdateAdminUserInfo.sql" />
@@ -80,7 +86,9 @@
     <Content Include="DatabaseScripts\Full\Table\Admin\AdminSession.sql" />
     <Content Include="DatabaseScripts\Full\Table\Admin\AdminRole.sql" />
     <Content Include="DatabaseScripts\Full\Table\Admin\AdminUserInfo.sql" />
+    <Content Include="DatabaseScripts\Full\Table\DualApproval\DualApprovalAudit.sql" />
     <Content Include="DatabaseScripts\Full\Table\DualApproval\DualApprovalRequest.sql" />
+    <Content Include="DatabaseScripts\Full\Table\EnvironmentEndpoint\EnvironmentEndpoint.sql" />
     <Content Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe" />
     <Content Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe" />
     <Content Include="DatabaseScripts\Output.xml" />
@@ -90,10 +98,8 @@
     <None Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DataAccessController\" />
     <Folder Include="DatabaseScripts\Full\Data\" />
     <Folder Include="DatabaseScripts\Full\StoredProcedure\EnvironmentEndpoint\" />
-    <Folder Include="DatabaseScripts\Full\Table\EnvironmentEndpoint\" />
     <Folder Include="DatabaseScripts\Full\View\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

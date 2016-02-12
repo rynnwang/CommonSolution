@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminUserInfoBase.
     /// </summary>
-    public class AdminUserInfoBase : IIdentifier
+    public class AdminUserInfoBase : IIdentifier, ICredential
     {
         /// <summary>
         /// Gets or sets the key.

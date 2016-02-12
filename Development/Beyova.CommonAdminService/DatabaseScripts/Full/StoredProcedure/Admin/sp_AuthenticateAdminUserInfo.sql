@@ -3,8 +3,8 @@ DROP PROCEDURE [dbo].[sp_AuthenticateAdminUserInfo]
 GO
 
 CREATE PROCEDURE [dbo].[sp_AuthenticateAdminUserInfo](
-    @LoginName [varchar](64),
-    @Password [varchar](256)
+    @LoginName [NVARCHAR](64),
+    @Password [NVARCHAR](256)
 )
 AS
 BEGIN
@@ -12,7 +12,7 @@ BEGIN
       ,[LoginName]
       ,[Password]
       ,[DisplayName]
-      ,NULL AS [Email]
+      ,[Email]
       ,NULL AS [PasswordResetToken]
       ,NULL AS [PasswordResetExpiredStamp]
       ,[CreatedStamp]

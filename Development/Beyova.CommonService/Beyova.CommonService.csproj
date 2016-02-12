@@ -68,7 +68,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="DataAccessController\Authentication\AccessCredentialInfoAccessController.cs" />
     <Compile Include="DataAccessController\BaseCommonServiceController.cs" />
     <Compile Include="DataAccessController\BinaryStorage\BinaryCapacitySummaryDataAccessController.cs" />

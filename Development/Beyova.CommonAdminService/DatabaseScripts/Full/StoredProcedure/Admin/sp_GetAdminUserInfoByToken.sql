@@ -7,21 +7,48 @@ CREATE PROCEDURE [dbo].[sp_GetAdminUserInfoByToken](
 )
 AS
 BEGIN
-    SELECT TOP 1 AUI.[Key]
-      ,AUI.[LoginName]
-      ,AUI.[Password]
-      ,AUI.[DisplayName]
-      ,NULL AS [Email]
-      ,NULL AS [PasswordResetToken]
-      ,NULL AS [PasswordResetExpiredStamp]
-      ,AUI.[CreatedStamp]
-      ,AUI.[LastUpdatedStamp]
-      ,AUI.[State]
-    FROM [dbo].[AdminUserInfo] AS [AUI]
-    JOIN [dbo].[AdminSession] AS [AS]
-        ON [AS].[UserKey] = AUI.[Key] AND [AS].[ExpiredStamp] > GETUTCDATE() AND [dbo].[fn_ObjectIsWorkable]([AS].[State]) = 1
-    WHERE [AS].[Token] = @Token 
-        AND [dbo].[fn_ObjectIsWorkable](AUI.[State]) = 1;
+    DECLARE @UserKey AS UNIQUEIDENTIFIER;
+    DECLARE @PermissionXml AS XML;
+
+    SELECT TOP 1 @UserKey = [UserKey]
+        FROM [dbo].[AdminSession] 
+        WHERE [Token] = @Token  AND [ExpiredStamp] > GETUTCDATE();
+
+    IF @UserKey IS NOT NULL
+    BEGIN
+        WITH temp AS (
+            SELECT AR1.[Key] FROM [dbo].[AdminUserRoleBinding] AS AUR
+                JOIN [dbo].[AdminRole] AS AR1
+                    ON AUR.[RoleKey] = AR1.[Key] AND [dbo].[fn_ObjectIsWorkable](AUR.[State]) = 1 
+                WHERE AUR.[UserKey] = @UserKey
+            UNION ALL
+            SELECT AR.[Key] FROM [dbo].[AdminRole] AR
+            INNER JOIN temp T ON AR.[ParentKey] = T.[Key]
+        )
+        SELECT @PermissionXml =
+            ISNULL((SELECT  AP.[Identifier] AS [Item] 
+            FROM temp
+                JOIN [dbo].[AdminRolePermissionBinding] AS ARP
+                    ON ARP.[RoleKey] = temp.[Key] AND [dbo].[fn_ObjectIsWorkable](ARP.[State]) = 1 
+                JOIN [dbo].[AdminPermission] AS AP
+                    ON ARP.[PermissionKey] = AP.[Key] AND [dbo].[fn_ObjectIsWorkable](AP.[State]) = 1
+                    FOR XML PATH('')), '');
+
+        SELECT [Key]
+          ,[LoginName]
+          ,[Name]
+          ,[Email]
+          ,[ThirdPartyId]
+          ,('<List>' + CONVERT(NVARCHAR(MAX), @PermissionXml) + '</List>') AS [Permission]
+          ,[CreatedStamp]
+          ,[LastUpdatedStamp]
+          ,[CreatedBy]
+          ,[LastUpdatedBy]
+          ,[State]
+    FROM [dbo].[AdminUserInfo]
+    WHERE [Key] = @UserKey;
+
+    END
 END
 GO
 
