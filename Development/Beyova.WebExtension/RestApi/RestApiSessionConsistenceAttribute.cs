@@ -44,6 +44,7 @@ namespace Beyova.WebExtension
             var tokenRequiredAttribute =
                 filterContext.ActionDescriptor.GetCustomAttributes(typeof(TokenRequiredAttribute), true)
                     .FirstOrDefault() as TokenRequiredAttribute;
+
             if (tokenRequiredAttribute != null && !tokenRequiredAttribute.TokenRequired)
             {
                 tokenRequired = false;

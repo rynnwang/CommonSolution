@@ -10,11 +10,11 @@ using Beyova.ProgrammingIntelligence;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyDescription("All Rights reserved.")]
 [assembly: AssemblyCompany("Beyova Co.,Ltd.")]
-[assembly: AssemblyProduct("Beyova.Common")]
-[assembly: AssemblyCopyright("2013 - 2016")]
+[assembly: AssemblyProduct("Beyova.WebExtension")]
+[assembly: AssemblyCopyright("Copyright © 2014 - 2016")]
 [assembly: AssemblyTrademark("Beyova")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.WebExtension", "2.1.0")]
+[assembly: BeyovaComponent("Beyova.WebExtension", "2.1.1")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

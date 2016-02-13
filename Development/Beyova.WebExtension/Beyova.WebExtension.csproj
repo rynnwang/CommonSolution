@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Captcha\" />
+    <Folder Include="MVC\Controller\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="License">

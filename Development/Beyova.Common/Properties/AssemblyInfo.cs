@@ -8,11 +8,13 @@ using Beyova.ProgrammingIntelligence;
 // associated with an assembly.
 [assembly: AssemblyTitle("Beyova.Common")]
 [assembly: AssemblyConfiguration("")]
+
 [assembly: AssemblyDescription("All Rights reserved.")]
 [assembly: AssemblyCompany("Beyova Co.,Ltd.")]
 [assembly: AssemblyProduct("Beyova.Common")]
 [assembly: AssemblyCopyright("Copyright © 2013 - 2016")]
 [assembly: AssemblyTrademark("Beyova")]
+
 [assembly: AssemblyCulture("")]
 [assembly: BeyovaComponent("Beyova.Common", "2.28.9")]
 

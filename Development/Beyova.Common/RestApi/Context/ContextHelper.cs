@@ -128,7 +128,7 @@ namespace Beyova
         /// </summary>
         /// <param name="httpRequest">The HTTP request.</param>
         /// <param name="settingName">Name of the setting.</param>
-        public static void ConsistContext(HttpRequestBase httpRequest, string settingName)
+        public static void ConsistContext(HttpRequestBase httpRequest, string settingName = null)
         {
             if (httpRequest != null)
             {
@@ -146,11 +146,11 @@ namespace Beyova
         /// </summary>
         /// <param name="httpRequest">The HTTP request.</param>
         /// <param name="settingName">Name of the setting.</param>
-        public static void ConsistContext(HttpRequest httpRequest, string settingName)
+        public static void ConsistContext(HttpRequest httpRequest, string settingName = null)
         {
             if (httpRequest != null)
             {
-                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN) ?? httpRequest.Cookies.TryGetValue(HttpConstants.HttpHeader.TOKEN), 
+                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN) ?? httpRequest.Cookies.TryGetValue(HttpConstants.HttpHeader.TOKEN),
                     settingName,
                     httpRequest.UserHostAddress,
                     httpRequest.UserAgent);
@@ -166,7 +166,7 @@ namespace Beyova
         {
             if (httpRequest != null)
             {
-                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN), 
+                ConsistContext(httpRequest.Headers.Get(HttpConstants.HttpHeader.TOKEN),
                     settingName,
                     httpRequest.UserHostAddress,
                     httpRequest.UserAgent);

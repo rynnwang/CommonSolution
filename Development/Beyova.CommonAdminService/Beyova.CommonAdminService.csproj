@@ -30,8 +30,38 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,12 +76,30 @@
     <Compile Include="DataAccessController\AdminRoleAccessController.cs" />
     <Compile Include="DataAccessController\AdminUserInfoAccessController.cs" />
     <Compile Include="DataAccessController\EnvironmentEndpointDataAccessController.cs" />
+    <Compile Include="Mvc\ActionFilter\EnvironmentBasedAttribute.cs" />
+    <Compile Include="Mvc\EnvironmentBaseController.cs" />
+    <Compile Include="Mvc\Components\ApiTrackingController.cs" />
+    <Compile Include="Mvc\Components\EnvironmentEndpointController.cs" />
+    <Compile Include="Mvc\Components\ErrorController.cs" />
+    <Compile Include="Mvc\Components\ResourceBaseController.cs" />
+    <Compile Include="Mvc\Constants\Constants.cs" />
+    <Compile Include="Mvc\AdminBaseController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceCore\EnvironmentEndpoint.cs" />
+    <Compile Include="ServiceCore\CommonAdminService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Beyova.Common\Beyova.Common.csproj">
       <Project>{9c5a58ff-8f44-451f-9698-2fe2e3f2e7de}</Project>
       <Name>Beyova.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Beyova.Elastic\Beyova.Elastic.csproj">
+      <Project>{bdfd06da-0ce3-426b-927e-8bd99152de9f}</Project>
+      <Name>Beyova.Elastic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Beyova.WebExtension\Beyova.WebExtension.csproj">
+      <Project>{7ed3c3f5-fb77-4e3f-bd02-e6c11e165a92}</Project>
+      <Name>Beyova.WebExtension</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +153,7 @@
   <ItemGroup>
     <None Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe.config" />
     <None Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DatabaseScripts\Full\View\" />
