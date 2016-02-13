@@ -185,7 +185,7 @@ namespace Beyova
             RestApiSettings setting;
             RestApiEventHandlers restApiEventHandlers = null;
 
-            if (!string.IsNullOrWhiteSpace(settingName) && ApiHandlerBase.settingsContainer.TryGetValue(settingName, out setting))
+            if (ApiHandlerBase.settingsContainer.TryGetValue(settingName.SafeToString(), out setting))
             {
                 restApiEventHandlers = setting.EventHandlers;
             }

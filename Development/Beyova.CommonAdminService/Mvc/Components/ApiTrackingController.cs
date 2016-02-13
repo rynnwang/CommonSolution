@@ -10,6 +10,7 @@ namespace Beyova.CommonAdminService
     /// <summary>
     /// Class ApiTrackingBaseController.
     /// </summary>
+    [TokenRequired]
     public abstract class ApiTrackingController<T> : EnvironmentBaseController where T : IApiAnalytics
     {
         /// <summary>

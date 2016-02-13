@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Beyova;
@@ -11,6 +12,7 @@ namespace Beyova.WebExtension
     /// <summary>
     /// Class RestApiSessionConsistenceAttribute.
     /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class RestApiSessionConsistenceAttribute : ActionFilterAttribute
     {
         /// <summary>
@@ -40,15 +42,10 @@ namespace Beyova.WebExtension
             var request = filterContext.HttpContext.Request;
             ContextHelper.ConsistContext(request, this.SettingName);
 
-            bool tokenRequired = true;
-            var tokenRequiredAttribute =
-                filterContext.ActionDescriptor.GetCustomAttributes(typeof(TokenRequiredAttribute), true)
-                    .FirstOrDefault() as TokenRequiredAttribute;
+            var methodInfo = (filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo;
+            var tokenRequiredAttribute = methodInfo.GetCustomAttribute<TokenRequiredAttribute>(true) ?? methodInfo.DeclaringType.GetCustomAttribute<TokenRequiredAttribute>(true);
 
-            if (tokenRequiredAttribute != null && !tokenRequiredAttribute.TokenRequired)
-            {
-                tokenRequired = false;
-            }
+            var tokenRequired = tokenRequiredAttribute != null && tokenRequiredAttribute.TokenRequired;
 
             if (tokenRequired && !ContextHelper.IsUser)
             {

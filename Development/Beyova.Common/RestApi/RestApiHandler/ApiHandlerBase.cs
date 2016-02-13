@@ -602,6 +602,23 @@ namespace Beyova.RestApi
         #endregion
 
         /// <summary>
+        /// Adds the setting.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="setting">The setting.</param>
+        /// <param name="overrideIfExists">The override if exists.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool AddSetting(string name, RestApiSettings setting, bool overrideIfExists = false)
+        {
+            if (setting != null)
+            {
+                return settingsContainer.Merge(name.SafeToString(), setting, overrideIfExists);
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Deserializes the json object.
         /// </summary>
         /// <param name="value">The value.</param>

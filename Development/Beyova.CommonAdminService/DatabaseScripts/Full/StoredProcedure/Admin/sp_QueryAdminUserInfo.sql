@@ -24,6 +24,7 @@ BEGIN
       ,[Name]
       ,[Email]
       ,[ThirdPartyId]
+      ,NULL AS [Permission]
       ,[CreatedStamp]
       ,[LastUpdatedStamp]
       ,[CreatedBy]

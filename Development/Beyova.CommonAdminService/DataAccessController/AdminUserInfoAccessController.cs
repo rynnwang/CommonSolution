@@ -10,6 +10,11 @@ namespace Beyova.CommonAdminService.DataAccessController
     /// </summary>
     internal class AdminUserInfoAccessController : AdminDataAccessController<AdminUserInfo>
     {
+        /// <summary>
+        /// The column_ permission
+        /// </summary>
+        protected const string column_Permission = "Permission";
+
         #region Constructor
 
         /// <summary>
@@ -34,7 +39,8 @@ namespace Beyova.CommonAdminService.DataAccessController
                 Name = sqlDataReader[column_Name].ObjectToString(),
                 LoginName = sqlDataReader[column_LoginName].ObjectToString(),
                 ThirdPartyId = sqlDataReader[column_ThirdPartyId].ObjectToString(),
-                Email = sqlDataReader[column_Email].ObjectToString()
+                Email = sqlDataReader[column_Email].ObjectToString(),
+                Permissions = sqlDataReader[column_Permission].ObjectToXml().XmlToList()
             };
 
             FillBaseObjectFields(result, sqlDataReader);

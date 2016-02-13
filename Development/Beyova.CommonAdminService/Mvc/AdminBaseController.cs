@@ -2,12 +2,14 @@
 using System.Web.Mvc;
 using System.Web.Routing;
 using Beyova.ExceptionSystem;
+using Beyova.WebExtension;
 
 namespace Beyova.CommonAdminService
 {
     /// <summary>
     /// Class AdminBaseController.
     /// </summary>
+    [RestApiSessionConsistenceAttribute(null)]
     public abstract class AdminBaseController : Controller
     {
         #region ThreadStatic fields

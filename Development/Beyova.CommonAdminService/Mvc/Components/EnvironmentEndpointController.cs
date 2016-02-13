@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web.Mvc;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
+using System.Linq;
 
 namespace Beyova.CommonAdminService
 {
@@ -58,6 +59,25 @@ namespace Beyova.CommonAdminService
             catch (Exception ex)
             {
                 return this.HandleExceptionToPartialView(ex, Request.HttpMethod, "QueryEnvironmentEndpoint", new { key, code, environment });
+            }
+        }
+
+        /// <summary>
+        /// Gets the environment endpoint.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>JsonResult.</returns>
+        [HttpPost]
+        public JsonResult GetEnvironmentEndpoint(Guid? key)
+        {
+            try
+            {
+                var result = service.QueryEnvironmentEndpoint(key).FirstOrDefault();
+                return Json(result);
+            }
+            catch
+            {
+                return Json(null);
             }
         }
 

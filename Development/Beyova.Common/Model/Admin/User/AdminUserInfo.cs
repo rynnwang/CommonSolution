@@ -33,12 +33,6 @@ namespace Beyova
         public DateTime? LastUpdatedStamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the permissions.
-        /// </summary>
-        /// <value>The permissions.</value>
-        public List<string> Permissions { get; set; }
-
-        /// <summary>
         /// Gets or sets the state.
         /// </summary>
         /// <value>The state.</value>

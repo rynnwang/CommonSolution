@@ -38,7 +38,7 @@ namespace Beyova.CommonAdminService
         /// <param name="code">The code.</param>
         /// <param name="environment">The environment.</param>
         /// <returns>List&lt;EnvironmentEndpoint&gt;.</returns>
-        public List<EnvironmentEndpoint> QueryEnvironmentEndpoint(Guid? key, string code, string environment)
+        public List<EnvironmentEndpoint> QueryEnvironmentEndpoint(Guid? key = null, string code = null, string environment = null)
         {
             try
             {

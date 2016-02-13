@@ -107,6 +107,7 @@
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
     <Compile Include="Interfaces\IPermissionIdentifiers.cs" />
     <Compile Include="Interfaces\IGeographyLocation.cs" />
+    <Compile Include="Model\Admin\AdminAuthenticationResult.cs" />
     <Compile Include="Model\Admin\User\AdminUserInfoBase.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
