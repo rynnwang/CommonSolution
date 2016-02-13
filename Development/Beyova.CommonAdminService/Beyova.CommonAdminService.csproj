@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DatabaseScripts\Configuration.xml" />
+    <Content Include="DatabaseScripts\Full\Data\Admin\DefaultAdminAccount.sql" />
     <Content Include="DatabaseScripts\Full\Function\fn_GenerateSqlExpression.sql" />
     <Content Include="DatabaseScripts\Full\Function\fn_GenerateWherePattern.sql" />
     <Content Include="DatabaseScripts\Full\Function\fn_SplitStringToList.sql" />
@@ -97,7 +98,6 @@
     <Content Include="DatabaseScripts\Full\Table\DualApproval\DualApprovalAudit.sql" />
     <Content Include="DatabaseScripts\Full\Table\DualApproval\DualApprovalRequest.sql" />
     <Content Include="DatabaseScripts\Full\Table\EnvironmentEndpoint\EnvironmentEndpoint.sql" />
-    <Content Include="DatabaseScripts\Full\View\Admin\view_UserInfoWIthPermission.sql" />
     <Content Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe" />
     <Content Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe" />
     <Content Include="DatabaseScripts\Output.xml" />
@@ -107,7 +107,7 @@
     <None Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DatabaseScripts\Full\Data\" />
+    <Folder Include="DatabaseScripts\Full\View\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

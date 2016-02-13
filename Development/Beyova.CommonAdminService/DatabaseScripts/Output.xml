@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Database>
   <Full>
-    <Data></Data>
+    <Data>
+      <Item>Admin\DefaultAdminAccount.sql</Item>
+    </Data>
     <Function>
       <Item>ObjectStateFuntions\All_ObjectStateFunction.sql</Item>
       <Item>ObjectStateFuntions\fn_ContainsValue.sql</Item>
@@ -49,8 +51,6 @@
       <Item>DualApproval\DualApprovalRequest.sql</Item>
       <Item>EnvironmentEndpoint\EnvironmentEndpoint.sql</Item>
     </Table>
-    <View>
-      <Item>Admin\view_UserInfoWIthPermission.sql</Item>
-    </View>
+    <View></View>
   </Full>
 </Database>

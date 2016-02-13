@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Database>
     <Solution Name="DEV">
-        <ConnectionString Server="." Database="AdminService" />
+        <ConnectionString Server="WIN-GJHO0TM3LEL" Database="AdminService" />
         <Full TargetVersion="1.0">
             <Function>
                 <Item>ObjectStateFuntions\All_ObjectStateFunction.sql</Item>
@@ -45,6 +45,9 @@
             </Table>
             <View>
             </View>
+            <Data>
+                <Item>Admin\DefaultAdminAccount.sql</Item>
+            </Data>
         </Full>
     </Solution>
 </Database>
