@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Beyova;
 using Beyova.ApiTracking;
+using Beyova.ExceptionSystem;
 
 namespace Beyova.RestApi
 {
@@ -169,5 +172,100 @@ namespace Beyova.RestApi
 
         #endregion
 
+        /// <summary>
+        /// To the dictionary.
+        /// </summary>
+        /// <param name="methodPermissionAttributes">The method permission attributes.</param>
+        /// <returns>Dictionary&lt;System.String, ApiPermission&gt;.</returns>
+        public static Dictionary<string, ApiPermission> ToDictionary(this IEnumerable<ApiPermissionAttribute> methodPermissionAttributes)
+        {
+            Dictionary<string, ApiPermission> result = new Dictionary<string, ApiPermission>();
+
+            if (methodPermissionAttributes != null)
+            {
+                foreach (var one in methodPermissionAttributes)
+                {
+                    result.Merge(one.PermissionIdentifier, one.Permission);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Validates the API permission. Return the permission which cause validation failure.
+        /// </summary>
+        /// <param name="userPermissions">The user permissions.</param>
+        /// <param name="methodPermissions">The method permissions.</param>
+        /// <returns>System.Nullable&lt;KeyValuePair&lt;System.String, ApiPermission&gt;&gt;.</returns>
+        public static KeyValuePair<string, ApiPermission>? ValidateApiPermission(this IList<string> userPermissions, IDictionary<string, ApiPermission> methodPermissions)
+        {
+            if (methodPermissions == null)
+            {
+                return null;
+            }
+
+            userPermissions = userPermissions ?? new List<string>();
+
+            // Check deny first
+            foreach (var one in (from item in methodPermissions where item.Value == ApiPermission.Denied select item.Key))
+            {
+                if (userPermissions.Contains(one))
+                {
+                    return new KeyValuePair<string, ApiPermission>(one, ApiPermission.Denied);
+                }
+            }
+
+            // Check required permissions
+            foreach (var one in (from item in methodPermissions where item.Value == ApiPermission.Required select item.Key))
+            {
+                if (!userPermissions.Contains(one))
+                {
+                    return new KeyValuePair<string, ApiPermission>(one, ApiPermission.Required);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Validates the API permission.
+        /// </summary>
+        /// <param name="userPermissions">The user permissions.</param>
+        /// <param name="methodPermissions">The method permissions.</param>
+        /// <param name="token">The token.</param>
+        /// <param name="methodName">Name of the method.</param>
+        /// <returns>BaseException.</returns>
+        public static BaseException ValidateApiPermission(this IList<string> userPermissions, IDictionary<string, ApiPermission> methodPermissions, string token, string methodName)
+        {
+            var permissionValidationResult = userPermissions.ValidateApiPermission(methodPermissions);
+
+            if (permissionValidationResult != null)
+            {
+                if (permissionValidationResult.Value.Value == ApiPermission.Denied)
+                {
+                    return new UnauthorizedOperationException(methodName,
+                       token,
+                       string.Format("Access denied due to permission identifier: {0}", permissionValidationResult.Value.Key), new
+                       {
+                           FullName = methodName,
+                           PermissionIdentifier = permissionValidationResult.Value.Key
+                       });
+                }
+                else if (permissionValidationResult.Value.Value == ApiPermission.Required)
+                {
+                    return new UnauthorizedOperationException(methodName,
+                      token,
+                      string.Format("Access denied due to not having permission identifier: {0}", permissionValidationResult.Value.Key),
+                      new
+                      {
+                          FullName = methodName,
+                          PermissionIdentifier = permissionValidationResult.Value.Key
+                      });
+                }
+            }
+
+            return null;
+        }
     }
 }

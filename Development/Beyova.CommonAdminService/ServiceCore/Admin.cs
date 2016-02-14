@@ -7,8 +7,14 @@ using Beyova.CommonAdminService.DataAccessController;
 
 namespace Beyova.CommonAdminService
 {
+    /// <summary>
+    /// Class CommonAdminService.
+    /// </summary>
     partial class CommonAdminService
     {
+        /// <summary>
+        /// The admin expiration
+        /// </summary>
         static int adminExpiration = 120;
 
         /// <summary>
@@ -96,6 +102,168 @@ namespace Beyova.CommonAdminService
             catch (Exception ex)
             {
                 throw ex.Handle("GetAdminUserInfoByToken", token);
+            }
+        }
+
+        /// <summary>
+        /// Gets the admin user by key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>AdminUserInfo.</returns>
+        public AdminUserInfo GetAdminUserByKey(Guid? key)
+        {
+            return key == null ? null : QueryAdminUser(new AdminUserCriteria { Key = key }).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Queries the admin user.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;AdminUserInfo&gt;.</returns>
+        public List<AdminUserInfo> QueryAdminUser(AdminUserCriteria criteria)
+        {
+            try
+            {
+                criteria.CheckNullObject("criteria");
+
+                using (var controller = new AdminUserInfoAccessController())
+                {
+                    return controller.QueryAdminUserInfo(criteria);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("QueryAdminUser", criteria);
+            }
+        }
+
+        /// <summary>
+        /// Creates the or update admin user.
+        /// </summary>
+        /// <param name="userInfo">The user information.</param>
+        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
+        public Guid? CreateOrUpdateAdminUser(AdminUserInfo userInfo)
+        {
+            try
+            {
+                userInfo.CheckNullObject("userInfo");
+
+                using (var controller = new AdminUserInfoAccessController())
+                {
+                    return controller.CreateOrUpdateAdminUserInfo(userInfo, ContextHelper.GetCurrentOperatorKey());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("CreateOrUpdateAdminUser", userInfo);
+            }
+        }
+
+        /// <summary>
+        /// Gets the admin role by key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>AdminRole.</returns>
+        public AdminRole GetAdminRoleByKey(Guid? key)
+        {
+            return key == null ? null : QueryAdminRole(new AdminRoleCriteria { Key = key }).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Queries the admin role.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;AdminRole&gt;.</returns>
+        public List<AdminRole> QueryAdminRole(AdminRoleCriteria criteria)
+        {
+            try
+            {
+                criteria.CheckNullObject("criteria");
+
+                using (var controller = new AdminRoleAccessController())
+                {
+                    return controller.QueryAdminRole(criteria);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("QueryAdminRole", criteria);
+            }
+        }
+
+        /// <summary>
+        /// Creates the or update admin role.
+        /// </summary>
+        /// <param name="role">The role.</param>
+        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
+        public Guid? CreateOrUpdateAdminRole(AdminRole role)
+        {
+            try
+            {
+                role.CheckNullObject("role");
+
+                using (var controller = new AdminRoleAccessController())
+                {
+                    return controller.CreateOrUpdateAdminRole(role, ContextHelper.GetCurrentOperatorKey());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("CreateOrUpdateAdminRole", role);
+            }
+        }
+
+        /// <summary>
+        /// Gets the admin permission by key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>AdminPermission.</returns>
+        public AdminPermission GetAdminPermissionByKey(Guid? key)
+        {
+            return key == null ? null : QueryAdminPermission(new AdminPermissionCriteria { Key = key }).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Queries the admin permission.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;AdminPermission&gt;.</returns>
+        public List<AdminPermission> QueryAdminPermission(AdminPermissionCriteria criteria)
+        {
+            try
+            {
+                criteria.CheckNullObject("criteria");
+
+                using (var controller = new AdminPermissionAccessController())
+                {
+                    return controller.QueryAdminPermission(criteria);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("QueryAdminPermission", criteria);
+            }
+        }
+
+        /// <summary>
+        /// Creates the or update admin permission.
+        /// </summary>
+        /// <param name="permission">The permission.</param>
+        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
+        public Guid? CreateOrUpdateAdminPermission(AdminPermission permission)
+        {
+            try
+            {
+                permission.CheckNullObject("permission");
+
+                using (var controller = new AdminPermissionAccessController())
+                {
+                    return controller.CreateOrUpdateAdminPermission(permission, ContextHelper.GetCurrentOperatorKey());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("CreateOrUpdateAdminPermission", permission);
             }
         }
     }

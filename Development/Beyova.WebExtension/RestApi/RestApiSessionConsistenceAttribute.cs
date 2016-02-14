@@ -43,13 +43,27 @@ namespace Beyova.WebExtension
             ContextHelper.ConsistContext(request, this.SettingName);
 
             var methodInfo = (filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo;
-            var tokenRequiredAttribute = methodInfo.GetCustomAttribute<TokenRequiredAttribute>(true) ?? methodInfo.DeclaringType.GetCustomAttribute<TokenRequiredAttribute>(true);
+            var controllerType = methodInfo?.DeclaringType;
+
+            var tokenRequiredAttribute = methodInfo?.GetCustomAttribute<TokenRequiredAttribute>(true) ?? controllerType?.GetCustomAttribute<TokenRequiredAttribute>(true);
+            var permissionAttributes = controllerType?.GetCustomAttributes<ApiPermissionAttribute>(true).ToDictionary();
+            permissionAttributes.Merge(methodInfo?.GetCustomAttributes<ApiPermissionAttribute>(true).ToDictionary(), true);
 
             var tokenRequired = tokenRequiredAttribute != null && tokenRequiredAttribute.TokenRequired;
 
-            if (tokenRequired && !ContextHelper.IsUser)
+            if (tokenRequired)
             {
-                HandleUnauthorizedAction(filterContext);
+                if (!ContextHelper.IsUser)
+                {
+                    var baseException = (new UnauthorizedTokenException(ContextHelper.Token)).Handle(filterContext.HttpContext.Request.RawUrl);
+                    HandleUnauthorizedAction(filterContext, baseException);
+                }
+                else if (permissionAttributes.HasItem())
+                {
+                    var baseException = ContextHelper.CurrentUserInfo?.Permissions.ValidateApiPermission(permissionAttributes, ContextHelper.Token, methodInfo?.GetFullName());
+
+                    HandleUnauthorizedAction(filterContext, baseException);
+                }
             }
         }
 
@@ -57,17 +71,24 @@ namespace Beyova.WebExtension
         /// Handles the unauthorized action.
         /// </summary>
         /// <param name="filterContext">The filter context.</param>
-        protected virtual void HandleUnauthorizedAction(ActionExecutingContext filterContext)
+        /// <param name="baseException">The base exception.</param>
+        protected virtual void HandleUnauthorizedAction(ActionExecutingContext filterContext, BaseException baseException)
         {
-            var baseException = (new UnauthorizedAccountException("Invalid token")).Handle(filterContext.HttpContext.Request.RawUrl);
-
-            "Exception".SetThreadData(baseException);
-            filterContext.Result = new RedirectToRouteResult(routeValues: new RouteValueDictionary
+            if (filterContext.HttpContext.Request.IsAjaxRequest())
+            {
+                ApiHandlerBase.PackageResponse(filterContext.HttpContext.Response, null, baseException);
+                filterContext.Result = null;
+            }
+            else
+            {
+                "Exception".SetThreadData(baseException);
+                filterContext.Result = new RedirectToRouteResult(routeValues: new RouteValueDictionary
                 {
                     {"controller", "Error"},
                     {"action", "Index"},
                     {"errorCode", 401}
                 });
+            }
         }
     }
 }

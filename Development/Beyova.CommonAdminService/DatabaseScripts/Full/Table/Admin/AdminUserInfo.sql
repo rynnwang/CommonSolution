@@ -12,6 +12,7 @@ CREATE TABLE [dbo].[AdminUserInfo](
     [Name] [NVARCHAR](128) NOT NULL DEFAULT '',
     [Email] [NVARCHAR](128) NULL,
     [ThirdPartyId] [NVARCHAR](256) NULL, -- Can be name or identifier (int, guid, etc.) from AD, SSO, or any other 3rd party
+    [AvatarKey] [UNIQUEIDENTIFIER] NULL,
     [PasswordResetToken] [NVARCHAR](512) NULL,
     [PasswordResetExpiredStamp] [datetime] NULL,
     [CreatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),

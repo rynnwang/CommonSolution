@@ -1040,11 +1040,12 @@ namespace Beyova
         /// <summary>
         /// Merges the specified instance.
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="keyValueCollection">The key value collection.</param>
-        public static void Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IEnumerable<KeyValuePair<TKey, TValue>> keyValueCollection)
+        /// <param name="overrideIfExists">if set to <c>true</c> [override if exists].</param>
+        public static void Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IEnumerable<KeyValuePair<TKey, TValue>> keyValueCollection, bool overrideIfExists = false)
         {
             if (instance != null && keyValueCollection != null)
             {
@@ -1057,7 +1058,7 @@ namespace Beyova
 
                         if (key != null)
                         {
-                            instance.Merge(key, value);
+                            instance.Merge(key, value, overrideIfExists);
                         }
                     }
                 }

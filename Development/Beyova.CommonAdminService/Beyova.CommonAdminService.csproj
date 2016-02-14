@@ -78,6 +78,8 @@
     <Compile Include="DataAccessController\AdminUserInfoAccessController.cs" />
     <Compile Include="DataAccessController\EnvironmentEndpointDataAccessController.cs" />
     <Compile Include="Mvc\ActionFilter\EnvironmentBasedAttribute.cs" />
+    <Compile Include="Mvc\Components\AdministrationController.cs" />
+    <Compile Include="Mvc\Components\BinaryStorageController.cs" />
     <Compile Include="Mvc\EnvironmentBaseController.cs" />
     <Compile Include="Mvc\Components\ApiTrackingController.cs" />
     <Compile Include="Mvc\Components\EnvironmentEndpointController.cs" />

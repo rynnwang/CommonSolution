@@ -40,7 +40,8 @@ namespace Beyova.CommonAdminService.DataAccessController
                 LoginName = sqlDataReader[column_LoginName].ObjectToString(),
                 ThirdPartyId = sqlDataReader[column_ThirdPartyId].ObjectToString(),
                 Email = sqlDataReader[column_Email].ObjectToString(),
-                Permissions = sqlDataReader[column_Permission].ObjectToXml().XmlToList()
+                Permissions = sqlDataReader[column_Permission].ObjectToXml().XmlToList(),
+                AvatarKey = sqlDataReader[column_AvatarKey].ObjectToGuid(),
             };
 
             FillBaseObjectFields(result, sqlDataReader);

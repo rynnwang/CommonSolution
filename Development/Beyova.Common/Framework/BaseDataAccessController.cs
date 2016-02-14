@@ -211,6 +211,11 @@ namespace Beyova
         /// </summary>
         protected const string column_ParentKey = "ParentKey";
 
+        /// <summary>
+        /// The column_ avatar key
+        /// </summary>
+        protected const string column_AvatarKey = "AvatarKey";
+
         #endregion
 
         #region Constructor

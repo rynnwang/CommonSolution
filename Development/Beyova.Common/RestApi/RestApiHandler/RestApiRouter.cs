@@ -355,51 +355,14 @@ namespace Beyova.RestApi
             if (credential != null)
             {
                 ContextHelper.ApiContext.CurrentCredential = credential;
-
-                // If no permission defined, then pass as true.
-                if (!runtimeRoute.Permissions.HasItem())
-                {
-                    return null;
-                }
-
-                //Otherwise, check if user has any permission
                 var userPermissions = ContextHelper.ApiContext.CurrentPermissionIdentifiers?.Permissions ?? new List<string>();
-
-                // Check deny first
-                foreach (var one in (from item in runtimeRoute.Permissions where item.Value == ApiPermission.Denied select item.Key))
-                {
-                    if (userPermissions.Contains(one))
-                    {
-                        return new UnauthorizedOperationException(runtimeRoute.MethodInfo.GetFullName(),
-                            token,
-                            string.Format("Access denied due to permission identifier: {0}", one), new
-                            {
-                                FullName = runtimeRoute.MethodInfo.GetFullName(),
-                                PermissionIdentifier = one
-                            });
-                    }
-                }
-
-                // Check required permissions
-                foreach (var one in (from item in runtimeRoute.Permissions where item.Value == ApiPermission.Required select item.Key))
-                {
-                    if (!userPermissions.Contains(one))
-                    {
-                        return new UnauthorizedOperationException(runtimeRoute.MethodInfo.GetFullName(),
-                            token,
-                            string.Format("Access denied due to not having permission identifier: {0}", one),
-                            new
-                            {
-                                FullName = runtimeRoute.MethodInfo.GetFullName(),
-                                PermissionIdentifier = one
-                            });
-                    }
-                }
-
-                return null;
+                return userPermissions.ValidateApiPermission(runtimeRoute.Permissions, token, runtimeRoute.MethodInfo.GetFullName());
             }
 
-            return new UnauthorizedTokenException(string.Empty, new { token });
+            return new UnauthorizedTokenException(string.Empty, new
+            {
+                token
+            });
         }
 
         /// <summary>

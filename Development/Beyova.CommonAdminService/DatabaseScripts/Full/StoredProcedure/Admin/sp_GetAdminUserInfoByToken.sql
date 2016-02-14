@@ -40,6 +40,7 @@ BEGIN
           ,[Email]
           ,[ThirdPartyId]
           ,('<List>' + CONVERT(NVARCHAR(MAX), @PermissionXml) + '</List>') AS [Permission]
+          ,[AvatarKey]
           ,[CreatedStamp]
           ,[LastUpdatedStamp]
           ,[CreatedBy]

@@ -11,6 +11,15 @@ namespace Beyova.CommonAdminService
     /// </summary>
     public static class Constants
     {
+        public static class Permission
+        {
+            public const string Administration = "Administration";
+
+            public const string CreateOrUpdateAdminUser = "CreateOrUpdateAdminUser";
+
+            public const string CreateOrUpdateAdminPermission = "CreateOrUpdateAdminPermission";
+        }
+
         public static class RouteValues
         {
 
@@ -69,6 +78,26 @@ namespace Beyova.CommonAdminService
             public const string ExceptionListView = "~/Views/shared/Beyova/features/ApiTracking/_ExceptionList.cshtml";
 
             public const string ExceptionDetailView = "~/Views/shared/Beyova/features/ApiTracking/_ExceptionDetail.cshtml";
+
+            #endregion
+
+            #region Administration
+
+            public const string AdminUserPanel = "~/Views/shared/Beyova/features/Admin/AdminUserPanel.cshtml";
+
+            public const string AdminUserList = "~/Views/shared/Beyova/features/Admin/_AdminUserList.cshtml";
+
+            public const string AdminRolePanel = "~/Views/shared/Beyova/features/Admin/AdminRolePanel.cshtml";
+
+            public const string AdminRoleList = "~/Views/shared/Beyova/features/Admin/_AdminRoleList.cshtml";
+
+            public const string AdminPermissionPanel = "~/Views/shared/Beyova/features/Admin/AdminPermissionPanel.cshtml";
+
+            public const string AdminPermissionList = "~/Views/shared/Beyova/features/Admin/_AdminPermissionList.cshtml";
+
+            public const string AdminUserRoleBinding = "~/Views/shared/Beyova/features/Admin/AdminUserRoleBinding.cshtml";
+
+            public const string AdminRolePermissionBinding = "~/Views/shared/Beyova/features/Admin/AdminRolePermissionBinding.cshtml";
 
             #endregion
         }

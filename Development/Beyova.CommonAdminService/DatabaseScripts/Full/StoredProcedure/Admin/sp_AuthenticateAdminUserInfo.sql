@@ -14,6 +14,7 @@ BEGIN
       ,[Email]
       ,[ThirdPartyId]
       ,NULL AS [Permission]
+      ,[AvatarKey]
       ,[CreatedStamp]
       ,[LastUpdatedStamp]
       ,[CreatedBy]
