@@ -16,7 +16,7 @@ BEGIN
     DECLARE @SqlStatement AS NVARCHAR(MAX);
     DECLARE @WhereStatement AS NVARCHAR(MAX) = '[dbo].[fn_ObjectIsWorkable]([State]) = 1 AND ';
 
-    IF @Count IS NULL OR @Count < 0
+    IF @Count IS NULL OR @Count <= 0
         SET @Count = 50;
 
     SET @SqlStatement = 'SELECT TOP ' + CONVERT(NVARCHAR(5), @Count) + ' [Key]

@@ -26,9 +26,10 @@ namespace Beyova.CommonAdminService
         }
 
         [HttpPost]
-        public JsonResult GetUserInfo(Guid? key)
+        public ActionResult GetUserInfo(Guid? key)
         {
-            return Json(service.GetAdminUserByKey(key));
+            ApiHandlerBase.PackageResponse(this.Response, service.GetAdminUserByKey(key));
+            return null;
         }
 
         [HttpPost]
@@ -61,6 +62,53 @@ namespace Beyova.CommonAdminService
             }
 
             ApiHandlerBase.PackageResponse(this.Response, returnedObject, exception);
+            return null;
+        }
+
+        /// <summary>
+        /// Binds the role on user.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <returns>JsonResult.</returns>
+        public JsonResult BindRoleOnUser(AdminRoleBinding binding)
+        {
+            object returnedObject = null;
+            BaseException exception = null;
+
+            try
+            {
+                binding.CheckNullObject("binding");
+                returnedObject = service.BindRoleOnUser(binding);
+            }
+            catch (Exception ex)
+            {
+                exception = ex.Handle("BindRoleOnUser", binding);
+            }
+
+            ApiHandlerBase.PackageResponse(this.Response, returnedObject, exception);
+            return null;
+        }
+
+        /// <summary>
+        /// Unbinds the role on user.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <returns>JsonResult.</returns>
+        public JsonResult UnbindRoleOnUser(AdminRoleBinding binding)
+        {
+            BaseException exception = null;
+
+            try
+            {
+                binding.CheckNullObject("binding");
+                service.UnbindRoleOnUser(binding);
+            }
+            catch (Exception ex)
+            {
+                exception = ex.Handle("UnbindRoleOnUser", binding);
+            }
+
+            ApiHandlerBase.PackageResponse(this.Response, "", exception);
             return null;
         }
 
@@ -110,6 +158,53 @@ namespace Beyova.CommonAdminService
             }
 
             ApiHandlerBase.PackageResponse(this.Response, returnedObject, exception);
+            return null;
+        }
+
+        /// <summary>
+        /// Binds the permission on role.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <returns>JsonResult.</returns>
+        public JsonResult BindPermissionOnRole(AdminPermissionBinding binding)
+        {
+            object returnedObject = null;
+            BaseException exception = null;
+
+            try
+            {
+                binding.CheckNullObject("binding");
+                returnedObject = service.BindPermissionOnRole(binding);
+            }
+            catch (Exception ex)
+            {
+                exception = ex.Handle("BindPermissionOnRole", binding);
+            }
+
+            ApiHandlerBase.PackageResponse(this.Response, returnedObject, exception);
+            return null;
+        }
+
+        /// <summary>
+        /// Unbinds the permission on role.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <returns>JsonResult.</returns>
+        public JsonResult UnbindPermissionOnRole(AdminPermissionBinding binding)
+        {
+            BaseException exception = null;
+
+            try
+            {
+                binding.CheckNullObject("binding");
+                service.UnbindPermissionOnRole(binding);
+            }
+            catch (Exception ex)
+            {
+                exception = ex.Handle("UnbindPermissionOnRole", binding);
+            }
+
+            ApiHandlerBase.PackageResponse(this.Response, "", exception);
             return null;
         }
 

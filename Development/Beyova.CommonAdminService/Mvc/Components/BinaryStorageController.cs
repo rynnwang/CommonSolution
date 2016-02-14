@@ -19,7 +19,7 @@ namespace Beyova.CommonAdminService
         /// Initializes a new instance of the <see cref="ResourceBaseController" /> class.
         /// </summary>
         /// <param name="moduleCode">The module code.</param>
-        public BinaryStorageController() : base("BinaryStorage")
+        public BinaryStorageController() : base("BinaryStorage", string.Empty)
         {
         }
 
