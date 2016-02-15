@@ -899,14 +899,24 @@ namespace Beyova
         /// <returns>IEnumerable&lt;MethodInfo&gt;.</returns>
         public static IEnumerable<MethodInfo> GetMethodInfoWithinAttribute<TAttribute>(this Type type, bool inherit = true, BindingFlags bindingFlags = BindingFlags.Default) where TAttribute : Attribute
         {
+            List<MethodInfo> result = new List<MethodInfo>();
+
             if (type != null)
             {
-                return from item in type.GetMethods(bindingFlags)
-                       where item.HasAttribute<TAttribute>(inherit)
-                       select item;
+                result.AddRange(from item in type.GetMethods(bindingFlags)
+                                where item.HasAttribute<TAttribute>(inherit)
+                                select item);
+
+                if (inherit)
+                {
+                    foreach (var one in type.GetInterfaces())
+                    {
+                        result.AddRange(GetMethodInfoWithinAttribute<TAttribute>(one, inherit, bindingFlags));
+                    }
+                }
             }
 
-            return new List<MethodInfo>();
+            return result;
         }
 
         /// <summary>
@@ -1018,7 +1028,7 @@ namespace Beyova
         /// <param name="currentLevel">The current level.</param>
         private static void FillAssemblyDependency(List<AssemblyDependency> container, Assembly assembly, AssemblyDependency lastDependency, int currentLevel)
         {
-            if(assembly==null || container == null)
+            if (assembly == null || container == null)
             {
                 return;
             }

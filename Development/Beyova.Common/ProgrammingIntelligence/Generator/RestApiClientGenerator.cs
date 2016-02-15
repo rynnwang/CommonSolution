@@ -96,7 +96,7 @@ namespace Beyova.RestApi
             builder.AppendIndent(CodeIndent, 1);
             builder.AppendLine("{");
 
-            // write constructor
+            // write property
             WriteProperties(builder);
 
             // write constructor
@@ -333,7 +333,7 @@ namespace Beyova.RestApi
             if (builder != null)
             {
                 builder.AppendIndent(CodeIndent, 2);
-                builder.AppendLineWithFormat("public {0}(ApiEndpoint endpoint, string token, bool enableExceptionRestore = false):base(endpoint, token, enableExceptionRestore)", className);
+                builder.AppendLineWithFormat("public {0}(ApiEndpoint endpoint, bool enableExceptionRestore = false):base(endpoint, enableExceptionRestore)", className);
                 builder.AppendIndent(CodeIndent, 2);
                 builder.AppendLine("{");
                 builder.AppendIndent(CodeIndent, 3);

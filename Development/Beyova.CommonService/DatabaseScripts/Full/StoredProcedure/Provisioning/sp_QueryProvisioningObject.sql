@@ -64,7 +64,7 @@ BEGIN
 
     SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('Application','=',@Application,1);
     SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('Module','=',ISNULL(@Module,''),1);
-    SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('Name','=',Name,1);
+    SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('Name','=',@Name,1);
     SET @WhereStatement = @WhereStatement + dbo.[fn_GenerateWherePattern]('LastUpdatedStamp','>=',CONVERT(NVARCHAR(MAX), @LastSynchronizedStamp, 121),1);
 
     IF(@WhereStatement <> '')

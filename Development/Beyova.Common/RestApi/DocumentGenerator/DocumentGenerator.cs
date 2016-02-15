@@ -414,7 +414,7 @@ url{
         {
             if (builder != null && apiServiceType != null && apiClass != null)
             {
-                foreach (var one in apiServiceType.GetMethods())
+                foreach (var one in apiServiceType.GetMethodInfoWithinAttribute<ApiOperationAttribute>(true, BindingFlags.Instance | BindingFlags.Public))
                 {
                     var apiOperationAttribute = one.GetCustomAttribute<ApiOperationAttribute>(true);
                     if (apiOperationAttribute != null)

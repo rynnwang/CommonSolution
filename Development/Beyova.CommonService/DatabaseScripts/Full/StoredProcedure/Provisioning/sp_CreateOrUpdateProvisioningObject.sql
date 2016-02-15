@@ -40,7 +40,7 @@ BEGIN
                     WHERE [Key] = @Key
                         AND [dbo].[fn_ObjectIsWorkable]([State]) = 1;
 
-            IF @Value IS NOT NULL
+            IF @Value IS NOT NULL AND @Value <> 'null'
             BEGIN
                 SET @Key = NEWID();
                 INSERT INTO [dbo].[ProvisioningObject]

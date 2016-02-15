@@ -119,8 +119,15 @@ namespace Beyova.Elastic
         {
             ThreadPool.QueueUserWorkItem((x) =>
             {
-                FillLocationInfo(eventLog);
-                elasticClient.Index(apiEventType, eventLog);
+                try
+                {
+                    FillLocationInfo(eventLog);
+                    elasticClient.Index(apiEventType, eventLog);
+                }
+                catch (Exception ex)
+                {
+                    Framework.ApiTracking.LogException(ex.Handle("LogApiEvent", eventLog));
+                }
             });
         }
 
@@ -132,7 +139,14 @@ namespace Beyova.Elastic
         {
             ThreadPool.QueueUserWorkItem((x) =>
             {
-                elasticClient.Index(traceLogType, traceLog);
+                try
+                {
+                    elasticClient.Index(traceLogType, traceLog);
+                }
+                catch (Exception ex)
+                {
+                    Framework.ApiTracking.LogException(ex.Handle("LogApiTraceLog", traceLog));
+                }
             });
         }
 
@@ -144,7 +158,14 @@ namespace Beyova.Elastic
         {
             ThreadPool.QueueUserWorkItem((x) =>
             {
-                elasticClient.Index(exceptionType, ToExceptionInfo(exceptionInfo));
+                try
+                {
+                    elasticClient.Index(exceptionType, ToExceptionInfo(exceptionInfo));
+                }
+                catch (Exception ex)
+                {
+                    Framework.ApiTracking.LogException(ex.Handle("LogException", exceptionInfo));
+                }
             });
         }
 
@@ -168,7 +189,14 @@ namespace Beyova.Elastic
             if (string.IsNullOrWhiteSpace(message)) return;
             ThreadPool.QueueUserWorkItem((x) =>
             {
-                elasticClient.Index(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
+                try
+                {
+                    elasticClient.Index(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
+                }
+                catch (Exception ex)
+                {
+                    Framework.ApiTracking.LogException(ex.Handle("LogMessage", message));
+                }
             });
         }
 

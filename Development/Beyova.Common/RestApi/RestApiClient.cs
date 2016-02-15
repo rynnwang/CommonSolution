@@ -43,7 +43,7 @@ namespace Beyova.RestApi
         /// <param name="token">The token.</param>
         /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
         public RestApiClient(string host, string version, bool isHttps = false, string token = null, bool enableExceptionRestore = false)
-            : this(new ApiEndpoint { Host = host, Version = version, Protocol = isHttps ? "https" : "http" }, token, enableExceptionRestore)
+            : this(new ApiEndpoint { Host = host, Version = version, Protocol = isHttps ? "https" : "http", Token = token }, enableExceptionRestore)
         {
         }
 
@@ -53,8 +53,19 @@ namespace Beyova.RestApi
         /// <param name="endpoint">The endpoint.</param>
         /// <param name="token">The token.</param>
         /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
+        [Obsolete("Due to ApiEndpoint already has property Token. This constructor is obsoleted.")]
         public RestApiClient(ApiEndpoint endpoint, string token = null, bool enableExceptionRestore = false)
-            : this(endpoint.ToString(), token, enableExceptionRestore)
+               : this(endpoint.ToString(), token, enableExceptionRestore)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RestApiClient"/> class.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
+        public RestApiClient(ApiEndpoint endpoint, bool enableExceptionRestore = false)
+               : this(endpoint.ToString(), endpoint.Token, enableExceptionRestore)
         {
         }
 

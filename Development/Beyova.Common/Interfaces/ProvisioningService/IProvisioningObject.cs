@@ -14,7 +14,7 @@ namespace Beyova
         /// Gets or sets the application.
         /// </summary>
         /// <value>The application.</value>
-        TApplication Application { get; set; }
+        TApplication? Application { get; set; }
 
         /// <summary>
         /// Gets or sets the owner key.

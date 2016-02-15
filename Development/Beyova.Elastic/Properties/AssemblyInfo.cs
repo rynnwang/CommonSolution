@@ -7,14 +7,16 @@ using Beyova.ProgrammingIntelligence;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Beyova.Elastic")]
-[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
+
+[assembly: AssemblyDescription("All Rights reserved.")]
 [assembly: AssemblyCompany("Beyova Co.,Ltd.")]
 [assembly: AssemblyProduct("Beyova.Elastic")]
-[assembly: AssemblyCopyright("Allrights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2016")]
 [assembly: AssemblyTrademark("Beyova")]
+
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.Elastic", "1.0.0")]
+[assembly: BeyovaComponent("Beyova.Elastic", "0.1.2")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -34,5 +36,5 @@ using Beyova.ProgrammingIntelligence;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0")]
+[assembly: AssemblyVersion("0.1.0")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]
