@@ -19,11 +19,19 @@ namespace Beyova.CommonAdminService
         where TResourceObject : BinaryStorageObject
     {
         /// <summary>
+        /// The _view prefix name
+        /// </summary>
+        protected string _viewPrefixName;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ResourceBaseController" /> class.
         /// </summary>
         /// <param name="moduleCode">The module code.</param>
-        public ResourceBaseController(string moduleCode) : base(moduleCode)
-        { }
+        /// <param name="viewPrefixName">Name of the view prefix.</param>
+        public ResourceBaseController(string moduleCode, string viewPrefixName) : base(moduleCode)
+        {
+            _viewPrefixName = viewPrefixName.SafeToString();
+        }
 
         // GET: Resource
         public ActionResult Index()

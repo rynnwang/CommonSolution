@@ -62,7 +62,10 @@ namespace Beyova.WebExtension
                 {
                     var baseException = ContextHelper.CurrentUserInfo?.Permissions.ValidateApiPermission(permissionAttributes, ContextHelper.Token, methodInfo?.GetFullName());
 
-                    HandleUnauthorizedAction(filterContext, baseException);
+                    if (baseException != null)
+                    {
+                        HandleUnauthorizedAction(filterContext, baseException);
+                    }
                 }
             }
         }

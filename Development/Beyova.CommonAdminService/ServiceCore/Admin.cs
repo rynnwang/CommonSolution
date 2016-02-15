@@ -160,6 +160,49 @@ namespace Beyova.CommonAdminService
         }
 
         /// <summary>
+        /// Binds the role on user.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
+        public Guid? BindRoleOnUser(AdminRoleBinding binding)
+        {
+            try
+            {
+                binding.CheckNullObject("binding");
+
+                using (var controller = new AdminUserInfoAccessController())
+                {
+                    return controller.BindRoleOnUser(binding, ContextHelper.GetCurrentOperatorKey());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("BindRoleOnUser", binding);
+            }
+        }
+
+        /// <summary>
+        /// Unbinds the role on user.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        public void UnbindRoleOnUser(AdminRoleBinding binding)
+        {
+            try
+            {
+                binding.CheckNullObject("binding");
+
+                using (var controller = new AdminUserInfoAccessController())
+                {
+                    controller.UnbindRoleOnUser(binding, ContextHelper.GetCurrentOperatorKey());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("UnbindRoleOnUser", binding);
+            }
+        }
+
+        /// <summary>
         /// Gets the admin role by key.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -210,6 +253,49 @@ namespace Beyova.CommonAdminService
             catch (Exception ex)
             {
                 throw ex.Handle("CreateOrUpdateAdminRole", role);
+            }
+        }
+
+        /// <summary>
+        /// Binds the permission on role.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
+        public Guid? BindPermissionOnRole(AdminPermissionBinding binding)
+        {
+            try
+            {
+                binding.CheckNullObject("binding");
+
+                using (var controller = new AdminRoleAccessController())
+                {
+                    return controller.BindPermissionOnRole(binding, ContextHelper.GetCurrentOperatorKey());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("BindPermissionOnRole", binding);
+            }
+        }
+
+        /// <summary>
+        /// Unbinds the permission on role.
+        /// </summary>
+        /// <param name="binding">The binding.</param>
+        public void UnbindPermissionOnRole(AdminPermissionBinding binding)
+        {
+            try
+            {
+                binding.CheckNullObject("binding");
+
+                using (var controller = new AdminRoleAccessController())
+                {
+                    controller.UnbindPermissionOnRole(binding, ContextHelper.GetCurrentOperatorKey());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("UnbindPermissionOnRole", binding);
             }
         }
 
