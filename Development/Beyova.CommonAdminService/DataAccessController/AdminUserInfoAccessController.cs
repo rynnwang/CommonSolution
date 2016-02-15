@@ -224,5 +224,33 @@ namespace Beyova.CommonAdminService.DataAccessController
                 throw ex.Handle("UnbindRoleOnUser", new { binding, operatorKey });
             }
         }
+
+        /// <summary>
+        /// Requests the admin password reset.
+        /// </summary>
+        /// <param name="loginName">Name of the login.</param>
+        /// <param name="expiration">The expiration.</param>
+        /// <returns>System.String.</returns>
+        public string RequestAdminPasswordReset(string loginName, int expiration)
+        {
+            const string spName = "sp_RequestAdminPasswordReset";
+
+            try
+            {
+                loginName.CheckEmptyString("loginName");
+
+                var parameters = new List<SqlParameter>
+                {
+                    this.GenerateSqlSpParameter(column_LoginName, loginName),
+                    this.GenerateSqlSpParameter(column_Expiration,expiration)
+                };
+
+                return this.ExecuteScalar(spName, parameters).ObjectToString();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("RequestAdminPasswordReset", new { loginName, expiration });
+            }
+        }
     }
 }

@@ -25,6 +25,12 @@ namespace Beyova.CommonAdminService
             return View(Constants.ViewNames.AdminUserPanel);
         }
 
+        [HttpGet]
+        public ActionResult ManageRole(Guid? key)
+        {
+            return View(Constants.ViewNames.AdminUserRoleBinding, key);
+        }
+
         [HttpPost]
         public ActionResult GetUserInfo(Guid? key)
         {
@@ -120,6 +126,17 @@ namespace Beyova.CommonAdminService
         public ActionResult AdminRole()
         {
             return View(Constants.ViewNames.AdminRolePanel);
+        }
+
+        /// <summary>
+        /// Manages the permission.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>ActionResult.</returns>
+        [HttpGet]
+        public ActionResult ManagePermission(Guid? key)
+        {
+            return View(Constants.ViewNames.AdminRolePermissionBinding, key);
         }
 
         [HttpPost]

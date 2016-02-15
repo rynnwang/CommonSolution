@@ -63,6 +63,51 @@ namespace Beyova.CommonAdminService
         }
 
         /// <summary>
+        /// Authenticates the third party identifier.
+        /// </summary>
+        /// <param name="thirdPartyId">The third party identifier.</param>
+        /// <returns>AdminAuthenticationResult.</returns>
+        public AdminAuthenticationResult AuthenticateThirdPartyId(string thirdPartyId)
+        {
+            try
+            {
+                thirdPartyId.CheckEmptyString("thirdPartyId");
+                AdminUserInfo userInfo = null;
+
+                using (var controller = new AdminUserInfoAccessController())
+                {
+                    userInfo = controller.QueryAdminUserInfo(new AdminUserCriteria { ThirdPartyId = thirdPartyId }).FirstOrDefault();
+                }
+
+                if (userInfo != null)
+                {
+                    using (var controller = new AdminSessionAccessController(adminExpiration))
+                    {
+                        var session = controller.CreateAdminSession(new AdminSession
+                        {
+                            IpAddress = ContextHelper.IpAddress,
+                            UserAgent = ContextHelper.UserAgent,
+                            OwnerKey = userInfo.Key
+                        });
+
+                        return new AdminAuthenticationResult
+                        {
+                            TokenExpiredStamp = session.ExpiredStamp,
+                            Token = session.Token,
+                            UserInfo = userInfo
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("AuthenticateAdminUser", thirdPartyId);
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Signs the out.
         /// </summary>
         /// <param name="token">The token.</param>
@@ -199,6 +244,29 @@ namespace Beyova.CommonAdminService
             catch (Exception ex)
             {
                 throw ex.Handle("UnbindRoleOnUser", binding);
+            }
+        }
+
+        /// <summary>
+        /// Requests the admin password reset.
+        /// </summary>
+        /// <param name="loginName">Name of the login.</param>
+        /// <param name="expiration">The expiration.</param>
+        /// <returns>System.String.</returns>
+        public string RequestAdminPasswordReset(string loginName, int expiration)
+        {
+            try
+            {
+                loginName.CheckEmptyString("loginName");
+
+                using (var controller = new AdminUserInfoAccessController())
+                {
+                    return controller.RequestAdminPasswordReset(loginName, expiration);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("RequestAdminPasswordReset", new { loginName, expiration });
             }
         }
 
