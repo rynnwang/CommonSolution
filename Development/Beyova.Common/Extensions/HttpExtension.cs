@@ -193,7 +193,7 @@ namespace Beyova
         /// <exception cref="OperationFailureException">ReadResponseAsText</exception>
         public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
-            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return webResponse.ContentLength > 0 ? HttpExtension.ReadAsText(webResponse, encoding, false) : null; }, out statusCode, out headers, out cookieCollection);
+            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
-            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return webResponse.ContentLength > 0 ? HttpExtension.ReadAsGZipText(webResponse, encoding, false) : null; }, out statusCode, out headers, out cookieCollection);
+            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsGZipText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace Beyova
         /// <returns>System.Byte[].</returns>
         public static byte[] ReadResponseAsBytes(this HttpWebRequest httpWebRequest, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
-            return ReadResponseAsT<byte[]>(httpWebRequest, (webResponse) => { return webResponse.ContentLength > 0 ? HttpExtension.ReadAsBytes(webResponse, false) : null; }, out statusCode, out headers, out cookieCollection);
+            return ReadResponseAsT<byte[]>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsBytes(webResponse, false); }, out statusCode, out headers, out cookieCollection);
         }
 
         /// <summary>

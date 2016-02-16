@@ -243,19 +243,15 @@ namespace Beyova.RestApi
                     builder.AppendLine("{");
 
                     builder.AppendIndent(CodeIndent, 4);
-                    builder.AppendLine("HttpStatusCode statusCode;");
-                    builder.AppendLine("WebExceptionStatus exceptionStatus;");
-
-                    builder.AppendIndent(CodeIndent, 4);
                     if (methodInfo.ReturnType.IsVoid() ?? false)
                     {
-                        builder.AppendLine("this.InvokeWithVoid(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\"), out statusCode, out exceptionStatus"
+                        builder.AppendLine("this.InvokeWithVoid(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\")"
                             + (methodInfo.GetParameters().Any() ? (", " + methodInfo.MethodInputParametersToCodeLook(false)) : string.Empty)
                             + ");");
                     }
                     else
                     {
-                        builder.AppendLine("return this.InvokeAs<" + methodInfo.ReturnType.ToCodeLook(true) + ">(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\"), out statusCode"
+                        builder.AppendLine("return this.InvokeAs<" + methodInfo.ReturnType.ToCodeLook(true) + ">(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\")"
                             + (methodInfo.GetParameters().Any() ? (", " + methodInfo.MethodInputParametersToCodeLook(false)) : string.Empty)
                             + ");");
                     }
