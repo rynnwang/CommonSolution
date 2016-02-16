@@ -25,8 +25,8 @@ namespace Beyova
         /// <summary>
         /// Gets the directory entry.
         /// </summary>
-        /// <param name="ldapPath">The LDAP path. Sample: LDAP://testhr.com/CN=Users,DC=testhr,DC=com</param>
-        /// <param name="userName">Name of the user. Sample: administrator</param>
+        /// <param name="ldapPath">The LDAP path. Example: LDAP://yourdomain.com </param>
+        /// <param name="userName">Name of the user. Exmaple: Domain\Account</param>
         /// <param name="password">The password. Sample: 123456</param>
         /// <param name="authenticationType">Type of the authentication.</param>
         /// <returns>DirectoryEntry.</returns>
@@ -55,8 +55,8 @@ namespace Beyova
         /// <summary>
         /// Tries the authenticate.
         /// </summary>
-        /// <param name="ldapPath">The LDAP path.</param>
-        /// <param name="userName">Name of the user.</param>
+        /// <param name="ldapPath">The LDAP path. Example: LDAP://yourdomain.com </param>
+        /// <param name="userName">Name of the user. Exmaple: Domain\Account</param>
         /// <param name="password">The password.</param>
         /// <returns><c>true</c> if authentication is passed, <c>false</c> otherwise.</returns>
         public static bool TryAuthenticate(string ldapPath, string userName, string password)

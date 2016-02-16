@@ -192,7 +192,8 @@ namespace Beyova
         public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
         {
             HttpStatusCode statusCode;
-            return ReadResponseAsText(httpWebRequest, encoding, out statusCode);
+            WebExceptionStatus exceptionStatus;
+            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus);
         }
 
         /// <summary>
@@ -204,9 +205,10 @@ namespace Beyova
         public static string SmartReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
         {
             HttpStatusCode statusCode;
+            WebExceptionStatus exceptionStatus;
             var usingGzip = httpWebRequest.TryGetHeader("Accept-Encoding").IndexOf("gzip") > -1;
 
-            return usingGzip ? ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode) : ReadResponseAsText(httpWebRequest, encoding, out statusCode);
+            return usingGzip ? ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out exceptionStatus) : ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus);
         }
 
         /// <summary>
@@ -219,7 +221,8 @@ namespace Beyova
         public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode)
         {
             WebHeaderCollection headers;
-            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out headers);
+            WebExceptionStatus exceptionStatus;
+            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out headers);
         }
 
         /// <summary>
@@ -228,12 +231,27 @@ namespace Beyova
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="statusCode">The status code.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
+        /// <returns>System.String.</returns>
+        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus)
+        {
+            WebHeaderCollection headers;
+            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out headers);
+        }
+
+        /// <summary>
+        /// Reads the response as text.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="statusCode">The status code.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="headers">The headers.</param>
         /// <returns>System.String.</returns>
-        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers)
+        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus, out WebHeaderCollection headers)
         {
             CookieCollection cookieCollection;
-            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out headers, out cookieCollection);
+            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out headers, out cookieCollection);
         }
 
         /// <summary>
@@ -242,16 +260,18 @@ namespace Beyova
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="statusCode">The status code.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="headers">The headers.</param>
         /// <param name="cookieCollection">The cookie collection.</param>
         /// <returns>System.String.</returns>
         /// <exception cref="OperationFailureException">ReadResponseAsText</exception>
-        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
+        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
             statusCode = default(HttpStatusCode);
             var result = string.Empty;
             headers = null;
             cookieCollection = null;
+            exceptionStatus = WebExceptionStatus.Success;
 
             if (httpWebRequest != null)
             {
@@ -269,6 +289,7 @@ namespace Beyova
                 {
                     webResponse = (HttpWebResponse)webEx.Response;
                     result = webEx.Response.ReadAsText(encoding, false);
+                    exceptionStatus = webEx.Status;
                 }
                 catch (Exception ex)
                 {
@@ -357,11 +378,12 @@ namespace Beyova
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
         /// <returns>System.String.</returns>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
+        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out WebExceptionStatus exceptionStatus)
         {
             HttpStatusCode statusCode;
-            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode);
+            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out exceptionStatus);
         }
 
         /// <summary>
@@ -370,11 +392,12 @@ namespace Beyova
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="statusCode">The status code.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
         /// <returns>System.String.</returns>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode)
+        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus)
         {
             WebHeaderCollection header;
-            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out header);
+            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out header);
         }
 
         /// <summary>
@@ -383,14 +406,16 @@ namespace Beyova
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="statusCode">The status code.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="headers">The headers.</param>
         /// <returns>System.String.</returns>
         /// <exception cref="OperationFailureException">ReadResponseAsGZipText</exception>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers)
+        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus, out WebHeaderCollection headers)
         {
             statusCode = default(HttpStatusCode);
             string result = string.Empty;
             headers = null;
+            exceptionStatus = WebExceptionStatus.Success;
 
             if (httpWebRequest != null)
             {
@@ -408,6 +433,7 @@ namespace Beyova
                 {
                     webResponse = (HttpWebResponse)webEx.Response;
                     result = webEx.Response.ReadAsText(encoding, false);
+                    exceptionStatus = webEx.Status;
                 }
                 catch (Exception ex)
                 {

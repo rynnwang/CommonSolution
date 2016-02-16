@@ -244,11 +244,12 @@ namespace Beyova.RestApi
 
                     builder.AppendIndent(CodeIndent, 4);
                     builder.AppendLine("HttpStatusCode statusCode;");
+                    builder.AppendLine("WebExceptionStatus exceptionStatus;");
 
                     builder.AppendIndent(CodeIndent, 4);
                     if (methodInfo.ReturnType.IsVoid() ?? false)
                     {
-                        builder.AppendLine("this.InvokeWithVoid(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\"), out statusCode"
+                        builder.AppendLine("this.InvokeWithVoid(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\"), out statusCode, out exceptionStatus"
                             + (methodInfo.GetParameters().Any() ? (", " + methodInfo.MethodInputParametersToCodeLook(false)) : string.Empty)
                             + ");");
                     }
