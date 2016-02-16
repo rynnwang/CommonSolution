@@ -26,13 +26,13 @@ namespace Beyova.ExceptionSystem
             /// </summary>
             UnauthorizedOperation = 401,
             /// <summary>
-            /// Value indicating it is operation forbidden
-            /// </summary>
-            OperationForbidden = 403,
-            /// <summary>
             /// Value indicating it is credit not afford
             /// </summary>
             CreditNotAfford = 402,
+            /// <summary>
+            /// Value indicating it is operation forbidden
+            /// </summary>
+            OperationForbidden = 403,
             /// <summary>
             /// Value indicating it is resource not found
             /// </summary>
@@ -52,7 +52,11 @@ namespace Beyova.ExceptionSystem
             /// <summary>
             /// Value indicating it is service unavailable
             /// </summary>
-            ServiceUnavailable = 503
+            ServiceUnavailable = 503,
+            /// <summary>
+            /// The HTTP block error
+            /// </summary>
+            HttpBlockError = 504
         }
 
         /// <summary>

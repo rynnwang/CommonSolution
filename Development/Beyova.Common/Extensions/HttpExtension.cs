@@ -104,7 +104,182 @@ namespace Beyova
 
         #region Read response
 
-        #region As Text
+        /// <summary>
+        /// Reads the response as t.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="responseDelegate">The response delegate.</param>
+        /// <param name="statusCode">The status code.</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="cookieCollection">The cookie collection.</param>
+        /// <returns>T.</returns>
+        private static T ReadResponseAsT<T>(this HttpWebRequest httpWebRequest, Func<WebResponse, T> responseDelegate, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
+        {
+            statusCode = default(HttpStatusCode);
+            headers = null;
+            T result = default(T);
+            string destinationMachine = null;
+            cookieCollection = null;
+
+            if (httpWebRequest != null)
+            {
+                WebResponse response = null;
+                HttpWebResponse webResponse = null;
+
+                try
+                {
+                    response = httpWebRequest.GetResponse();
+                    if (responseDelegate != null)
+                    {
+                        webResponse = (HttpWebResponse)response;
+                        statusCode = webResponse.StatusCode;
+                        headers = webResponse.Headers;
+                        destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
+                        cookieCollection = webResponse.Cookies;
+
+                        result = responseDelegate(response);
+                    }
+                }
+                catch (WebException webEx)
+                {
+
+                    webResponse = (HttpWebResponse)webEx.Response;
+                    statusCode = webResponse.StatusCode;
+                    headers = webResponse.Headers;
+                    destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
+                    cookieCollection = webResponse.Cookies;
+
+                    var responseText = webResponse.ReadAsText();
+
+                    throw new HttpOperationException(httpWebRequest.RequestUri.ToString(),
+                        httpWebRequest.Method,
+                        webEx.Message,
+                        httpWebRequest.ContentLength,
+                        responseText,
+                        webResponse.StatusCode,
+                        webEx.Status, destinationMachine);
+                }
+                catch (Exception ex)
+                {
+                    throw new HttpOperationException(httpWebRequest.RequestUri.ToString(),
+                        httpWebRequest.Method,
+                        httpWebRequest.ContentLength,
+                        webResponse.StatusCode,
+                        ex as BaseException, destinationMachine);
+                }
+                finally
+                {
+                    if (response != null)
+                    {
+                        response.Close();
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Reads the response as text.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="statusCode">The status code.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="cookieCollection">The cookie collection.</param>
+        /// <returns>System.String.</returns>
+        /// <exception cref="OperationFailureException">ReadResponseAsText</exception>
+        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
+        {
+            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return webResponse.ContentLength > 0 ? HttpExtension.ReadAsText(webResponse, encoding, false) : null; }, out statusCode, out headers, out cookieCollection);
+        }
+
+        /// <summary>
+        /// Reads the response as g zip text.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="cookieCollection">The cookie collection.</param>
+        /// <returns>System.String.</returns>
+        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
+        {
+            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return webResponse.ContentLength > 0 ? HttpExtension.ReadAsGZipText(webResponse, encoding, false) : null; }, out statusCode, out headers, out cookieCollection);
+        }
+
+        /// <summary>
+        /// Reads the response as bytes.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="">The .</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="cookieCollection">The cookie collection.</param>
+        /// <returns>System.Byte[].</returns>
+        public static byte[] ReadResponseAsBytes(this HttpWebRequest httpWebRequest, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
+        {
+            return ReadResponseAsT<byte[]>(httpWebRequest, (webResponse) => { return webResponse.ContentLength > 0 ? HttpExtension.ReadAsBytes(webResponse, false) : null; }, out statusCode, out headers, out cookieCollection);
+        }
+
+        /// <summary>
+        /// Reads the response as text.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="statusCode">The status code.</param>
+        /// <param name="exceptionStatus">The exception status.</param>
+        /// <param name="headers">The headers.</param>
+        /// <returns>System.String.</returns>
+        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
+        {
+            CookieCollection cookieCollection;
+            WebHeaderCollection headers;
+            HttpStatusCode statusCode;
+            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out headers, out cookieCollection);
+        }
+
+        /// <summary>
+        /// Reads the response as g zip text.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>System.String.</returns>
+        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
+        {
+            CookieCollection cookieCollection;
+            WebHeaderCollection headers;
+            HttpStatusCode statusCode;
+            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out headers, out cookieCollection);
+        }
+
+        /// <summary>
+        /// Reads the response as bytes.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <returns>System.Byte[].</returns>
+        public static byte[] ReadResponseAsBytes(this HttpWebRequest httpWebRequest)
+        {
+            CookieCollection cookieCollection;
+            WebHeaderCollection headers;
+            HttpStatusCode statusCode;
+            return ReadResponseAsBytes(httpWebRequest, out statusCode, out headers, out cookieCollection);
+        }
+
+        /// <summary>
+        /// Smarts the read response as text.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>System.String.</returns>
+        public static string SmartReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
+        {
+            var usingGzip = httpWebRequest.TryGetHeader("Accept-Encoding").IndexOf("gzip") > -1;
+
+            return usingGzip ? ReadResponseAsGZipText(httpWebRequest, encoding) : ReadResponseAsText(httpWebRequest, encoding);
+        }
+
+        #region As Text Async
 
         /// <summary>
         /// Reads the response as text asynchronous.
@@ -183,136 +358,9 @@ namespace Beyova
             }
         }
 
-        /// <summary>
-        /// Reads the response as text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
-        {
-            HttpStatusCode statusCode;
-            WebExceptionStatus exceptionStatus;
-            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus);
-        }
+        #endregion
 
-        /// <summary>
-        /// Smarts the read response as text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>System.String.</returns>
-        public static string SmartReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
-        {
-            HttpStatusCode statusCode;
-            WebExceptionStatus exceptionStatus;
-            var usingGzip = httpWebRequest.TryGetHeader("Accept-Encoding").IndexOf("gzip") > -1;
-
-            return usingGzip ? ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out exceptionStatus) : ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus);
-        }
-
-        /// <summary>
-        /// Reads the response as text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode)
-        {
-            WebHeaderCollection headers;
-            WebExceptionStatus exceptionStatus;
-            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out headers);
-        }
-
-        /// <summary>
-        /// Reads the response as text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus)
-        {
-            WebHeaderCollection headers;
-            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out headers);
-        }
-
-        /// <summary>
-        /// Reads the response as text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
-        /// <param name="headers">The headers.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus, out WebHeaderCollection headers)
-        {
-            CookieCollection cookieCollection;
-            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out headers, out cookieCollection);
-        }
-
-        /// <summary>
-        /// Reads the response as text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
-        /// <param name="headers">The headers.</param>
-        /// <param name="cookieCollection">The cookie collection.</param>
-        /// <returns>System.String.</returns>
-        /// <exception cref="OperationFailureException">ReadResponseAsText</exception>
-        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus, out WebHeaderCollection headers, out CookieCollection cookieCollection)
-        {
-            statusCode = default(HttpStatusCode);
-            var result = string.Empty;
-            headers = null;
-            cookieCollection = null;
-            exceptionStatus = WebExceptionStatus.Success;
-
-            if (httpWebRequest != null)
-            {
-                WebResponse response = null;
-                HttpWebResponse webResponse = null;
-
-                try
-                {
-                    response = httpWebRequest.GetResponse();
-                    result = response.ReadAsText(encoding, false);
-
-                    webResponse = (HttpWebResponse)response;
-                }
-                catch (WebException webEx)
-                {
-                    webResponse = (HttpWebResponse)webEx.Response;
-                    result = webEx.Response.ReadAsText(encoding, false);
-                    exceptionStatus = webEx.Status;
-                }
-                catch (Exception ex)
-                {
-                    throw ex.Handle("ReadResponseAsText", new { Uri = httpWebRequest.RequestUri.ToString() });
-                }
-                finally
-                {
-                    if (webResponse != null)
-                    {
-                        statusCode = webResponse.StatusCode;
-                        headers = webResponse.Headers;
-                        cookieCollection = webResponse.Cookies;
-                    }
-
-                    if (response != null)
-                    {
-                        response.Close();
-                    }
-                }
-            }
-
-            return result;
-        }
+        #region WebResponse Extension
 
         /// <summary>
         /// Gets text content from WebResponse by specified encoding.
@@ -369,94 +417,6 @@ namespace Beyova
             return result;
         }
 
-        #endregion
-
-        #region As GZip Text
-
-        /// <summary>
-        /// Reads the response as g zip text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out WebExceptionStatus exceptionStatus)
-        {
-            HttpStatusCode statusCode;
-            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out exceptionStatus);
-        }
-
-        /// <summary>
-        /// Reads the response as g zip text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus)
-        {
-            WebHeaderCollection header;
-            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out exceptionStatus, out header);
-        }
-
-        /// <summary>
-        /// Reads the response as g zip text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
-        /// <param name="headers">The headers.</param>
-        /// <returns>System.String.</returns>
-        /// <exception cref="OperationFailureException">ReadResponseAsGZipText</exception>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebExceptionStatus exceptionStatus, out WebHeaderCollection headers)
-        {
-            statusCode = default(HttpStatusCode);
-            string result = string.Empty;
-            headers = null;
-            exceptionStatus = WebExceptionStatus.Success;
-
-            if (httpWebRequest != null)
-            {
-                WebResponse response = null;
-                HttpWebResponse webResponse = null;
-
-                try
-                {
-                    response = httpWebRequest.GetResponse();
-                    result = response.ReadAsGZipText(encoding, false);
-
-                    webResponse = (HttpWebResponse)response;
-                }
-                catch (WebException webEx)
-                {
-                    webResponse = (HttpWebResponse)webEx.Response;
-                    result = webEx.Response.ReadAsText(encoding, false);
-                    exceptionStatus = webEx.Status;
-                }
-                catch (Exception ex)
-                {
-                    throw ex.Handle("ReadResponseAsGZipText", new { Uri = httpWebRequest.RequestUri.ToString() });
-                }
-                finally
-                {
-                    if (webResponse != null)
-                    {
-                        statusCode = webResponse.StatusCode;
-                        headers = webResponse.Headers;
-                    }
-
-                    if (response != null)
-                    {
-                        response.Close();
-                    }
-                }
-            }
-
-            return result;
-        }
-
         /// <summary>
         /// Reads as g zip text.
         /// </summary>
@@ -482,12 +442,12 @@ namespace Beyova
                     {
                         using (var gZipStream = new GZipStream(responseStream, CompressionMode.Decompress))
                         {
-                            var buffer = new byte[20480];
-                            var length = gZipStream.Read(buffer, 0, 20480);
+                            var buffer = new byte[2048];
+                            var length = gZipStream.Read(buffer, 0, 2048);
                             while (length > 0)
                             {
                                 stringBuilder.Append(encoding.GetString(buffer, 0, length));
-                                length = gZipStream.Read(buffer, 0, 20480);
+                                length = gZipStream.Read(buffer, 0, 2048);
                             }
                         }
                     }
@@ -506,97 +466,6 @@ namespace Beyova
             }
 
             return stringBuilder.ToString();
-        }
-
-        #endregion
-
-        #region As Bytes
-
-        /// <summary>
-        /// Reads the response as bytes.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <returns>System.Byte[].</returns>
-        public static byte[] ReadResponseAsBytes(this HttpWebRequest httpWebRequest)
-        {
-            HttpStatusCode statusCode;
-            return ReadResponseAsBytes(httpWebRequest, out statusCode);
-        }
-
-        /// <summary>
-        /// Reads the response as bytes.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <returns>System.Byte[].</returns>
-        public static byte[] ReadResponseAsBytes(this HttpWebRequest httpWebRequest, out HttpStatusCode statusCode)
-        {
-            WebHeaderCollection header = null;
-            return ReadResponseAsBytes(httpWebRequest, out statusCode, out header);
-        }
-
-        /// <summary>
-        /// Reads the response as bytes.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="headers">The headers.</param>
-        /// <returns>System.Byte[].</returns>
-        /// <exception cref="OperationFailureException">ReadResponseAsBytes</exception>
-        public static byte[] ReadResponseAsBytes(this HttpWebRequest httpWebRequest, out HttpStatusCode statusCode, out WebHeaderCollection headers)
-        {
-            statusCode = default(HttpStatusCode);
-            byte[] result = null;
-            headers = null;
-
-            if (httpWebRequest != null)
-            {
-                WebResponse response = null;
-                HttpWebResponse webResponse = null;
-
-                try
-                {
-                    response = httpWebRequest.GetResponse();
-                    result = response.ReadAsBytes(false);
-
-                    webResponse = (HttpWebResponse)response;
-                }
-                catch (WebException webEx)
-                {
-                    webResponse = (HttpWebResponse)webEx.Response;
-                    result = webEx.Response.ReadAsBytes(false);
-                }
-                catch (Exception ex)
-                {
-                    throw ex.Handle("ReadResponseAsBytes", new { Uri = httpWebRequest.RequestUri.ToString() });
-                }
-                finally
-                {
-                    if (webResponse != null)
-                    {
-                        statusCode = webResponse.StatusCode;
-                        headers = webResponse.Headers;
-                    }
-
-                    if (response != null)
-                    {
-                        response.Close();
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Reads the response asynchronous.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <returns>Task&lt;System.Byte[]&gt;.</returns>
-        public static async Task<byte[]> ReadResponseAsync(this HttpWebRequest httpWebRequest)
-        {
-            var response = (HttpWebResponse)(await httpWebRequest.GetResponseAsync());
-            return response.ReadAsBytes(true);
         }
 
         /// <summary>
@@ -1569,21 +1438,21 @@ namespace Beyova
         /// Creates the HTTP web request.
         /// </summary>
         /// <param name="destinationUrl">The destination URL.</param>
-        /// <param name="methodType">Type of the method.</param>
+        /// <param name="httpMethod">Type of the method.</param>
         /// <param name="referer">The referer.</param>
         /// <param name="userAgent">The user agent.</param>
         /// <param name="cookieContainer">The cookie container.</param>
         /// <param name="cookieString">The cookie string.</param>
         /// <param name="accept">The accept.</param>
         /// <returns>HttpWebRequest.</returns>
-        public static HttpWebRequest CreateHttpWebRequest(this string destinationUrl, string methodType, string referer, string userAgent, CookieContainer cookieContainer = null, string cookieString = null, string accept = null)
+        public static HttpWebRequest CreateHttpWebRequest(this string destinationUrl, string httpMethod = HttpConstants.HttpMethod.Get, string referer = null, string userAgent = null, CookieContainer cookieContainer = null, string cookieString = null, string accept = null)
         {
             try
             {
                 destinationUrl.CheckEmptyString("destinationUrl");
 
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(destinationUrl);
-
+                httpWebRequest.KeepAlive = false;
                 httpWebRequest.Accept = accept.SafeToString("*/*");
 
                 if (!string.IsNullOrWhiteSpace(referer))
@@ -1604,25 +1473,14 @@ namespace Beyova
                     httpWebRequest.CookieContainer.Add(httpWebRequest.RequestUri, collection);
                 }
 
-                httpWebRequest.Method = methodType.SafeToString(HttpConstants.HttpMethod.Get);
+                httpWebRequest.Method = httpMethod.SafeToString(HttpConstants.HttpMethod.Get);
 
                 return httpWebRequest;
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateHttpWebRequest", new { destinationUrl, methodType, referer, userAgent });
+                throw ex.Handle("CreateHttpWebRequest", new { destinationUrl, httpMethod, referer, userAgent });
             }
-        }
-
-        /// <summary>
-        /// Creates the HTTP web request.
-        /// </summary>
-        /// <param name="destinationUrl">The destination URL.</param>
-        /// <param name="method">The method.</param>
-        /// <returns>HttpWebRequest.</returns>
-        public static HttpWebRequest CreateHttpWebRequest(this string destinationUrl, string method = HttpConstants.HttpMethod.Get)
-        {
-            return destinationUrl.CreateHttpWebRequest(method, null, null);
         }
 
         /// <summary>
@@ -2245,7 +2103,59 @@ namespace Beyova
             }
         }
 
-
         #endregion
+
+        /// <summary>
+        /// Converts the HTTP status code to exception code.
+        /// </summary>
+        /// <param name="httpStatusCode">The HTTP status code.</param>
+        /// <param name="webExceptionStatus">The web exception status.</param>
+        /// <returns>ExceptionCode.</returns>
+        public static ExceptionCode ConvertHttpStatusCodeToExceptionCode(this HttpStatusCode httpStatusCode, WebExceptionStatus webExceptionStatus)
+        {
+            ExceptionCode result = new ExceptionCode { Minor = webExceptionStatus == WebExceptionStatus.Success ? string.Empty : webExceptionStatus.ToString() };
+
+            var statudCodeString = ((int)httpStatusCode).ToString();
+            if (!(statudCodeString.StartsWith("4") && statudCodeString.StartsWith("5")))
+            {
+                return null;
+            }
+
+            switch (httpStatusCode)
+            {
+                case HttpStatusCode.BadRequest://400
+                    result.Major = ExceptionCode.MajorCode.NullOrInvalidValue;
+                    break;
+                case HttpStatusCode.Unauthorized://401
+                    result.Major = ExceptionCode.MajorCode.UnauthorizedOperation;
+                    break;
+                case HttpStatusCode.PaymentRequired://402
+                    result.Major = ExceptionCode.MajorCode.CreditNotAfford;
+                    break;
+                case HttpStatusCode.Forbidden://403
+                    result.Major = ExceptionCode.MajorCode.OperationForbidden;
+                    break;
+                case HttpStatusCode.NotFound: //404
+                    result.Major = ExceptionCode.MajorCode.ResourceNotFound;
+                    break;
+                case HttpStatusCode.Conflict: //409
+                    result.Major = ExceptionCode.MajorCode.DataConflict;
+                    break;
+                case HttpStatusCode.InternalServerError: //500
+                    result.Major = ExceptionCode.MajorCode.OperationFailure;
+                    break;
+                case HttpStatusCode.NotImplemented: //501
+                    result.Major = ExceptionCode.MajorCode.NotImplemented;
+                    break;
+                case HttpStatusCode.ServiceUnavailable: //503
+                    result.Major = ExceptionCode.MajorCode.ServiceUnavailable;
+                    break;
+                default:
+                    result.Major = ExceptionCode.MajorCode.HttpBlockError;
+                    break;
+            }
+
+            return result;
+        }
     }
 }

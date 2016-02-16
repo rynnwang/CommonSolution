@@ -13,12 +13,12 @@ namespace Beyova.ExceptionSystem
         /// <summary>
         /// The data key_ reference data
         /// </summary>
-        protected const string dataKey_ReferenceData = "Reference";
+        internal const string dataKey_ReferenceData = "Reference";
 
         /// <summary>
         /// The data key_ operator
         /// </summary>
-        protected const string dataKey_Operator = "Operator";
+        internal const string dataKey_Operator = "Operator";
 
         #endregion
 
@@ -54,7 +54,7 @@ namespace Beyova.ExceptionSystem
         /// Gets or sets the reference data.
         /// </summary>
         /// <value>The reference data.</value>
-        public object ParameterData
+        public object ReferenceData
         {
             get
             {

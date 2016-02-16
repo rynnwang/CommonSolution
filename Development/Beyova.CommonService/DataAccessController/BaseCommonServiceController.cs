@@ -27,11 +27,6 @@ namespace Beyova.CommonService.DataAccessController
         protected const string column_UserName = "UserName";
 
         /// <summary>
-        /// The column_ avatar key
-        /// </summary>
-        protected const string column_AvatarKey = "AvatarKey";
-
-        /// <summary>
         /// The column_ gender
         /// </summary>
         protected const string column_Gender = "Gender";

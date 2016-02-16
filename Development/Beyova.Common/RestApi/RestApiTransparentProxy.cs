@@ -84,9 +84,9 @@ namespace Beyova.RestApi
             {
                 var newRequest = context.Request.CopyHttpRequestToHttpWebRequest(DestinationBaseUrl);
                 HttpStatusCode statusCode;
-                WebExceptionStatus exceptionStatus;
                 WebHeaderCollection headers;
-                var response = newRequest.ReadResponseAsText(Encoding.UTF8, out statusCode, out exceptionStatus, out headers);
+                CookieCollection cookie;
+                var response = newRequest.ReadResponseAsText(Encoding.UTF8, out statusCode, out headers, out cookie);
                 context.Response.Headers.Clear();
                 context.Response.Headers.AddRange(headers);
                 context.Response.StatusCode = (int)statusCode;

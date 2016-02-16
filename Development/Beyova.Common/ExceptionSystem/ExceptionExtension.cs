@@ -689,6 +689,9 @@ namespace Beyova
                     case ExceptionCode.MajorCode.UnauthorizedOperation:
                         result = new UnauthorizedOperationException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
                         break;
+                    case ExceptionCode.MajorCode.HttpBlockError:
+                        result = new HttpOperationException(exceptionInfo.Message, exceptionInfo.Code, exceptionInfo.Data?.Value<HttpOperationException.HttpExceptionReference>(BaseException.dataKey_ReferenceData), exceptionInfo.Data?.Value<string>(BaseException.dataKey_Operator));
+                        break;
                     default:
                         result = new Exception(exceptionInfo.Message);
                         break;

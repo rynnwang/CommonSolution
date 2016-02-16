@@ -102,26 +102,11 @@ namespace Beyova.RestApi
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>System.Object.</returns>
-        public object Invoke(string httpMethod, string resourceName, string resourceAction, params object[] parameters)
-        {
-            HttpStatusCode httpStatusCode;
-            WebExceptionStatus exceptionStatus;
-            return Invoke(httpMethod, resourceName, resourceAction, out httpStatusCode, out exceptionStatus, parameters);
-        }
-
-        /// <summary>
-        /// Invokes the specified HTTP method.
-        /// </summary>
-        /// <param name="httpMethod">The HTTP method.</param>
-        /// <param name="resourceName">Name of the resource.</param>
-        /// <param name="resourceAction">The resource action.</param>
         /// <param name="httpStatusCode">The HTTP status code.</param>
         /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="parameter">The parameter.</param>
         /// <returns>System.Object.</returns>
-        public object Invoke(string httpMethod, string resourceName, string resourceAction, out HttpStatusCode httpStatusCode, out WebExceptionStatus exceptionStatus, object parameter)
+        public object Invoke(string httpMethod, string resourceName, string resourceAction, object parameter)
         {
             try
             {
@@ -148,7 +133,7 @@ namespace Beyova.RestApi
                     httpRequest.FillData(httpMethod.SafeToString("POST"), requestBody.ToJson());
                 }
 
-                var response = httpRequest.ReadResponseAsText(Encoding.UTF8, out httpStatusCode, out exceptionStatus);
+                var response = httpRequest.ReadResponseAsText(Encoding.UTF8);
                 return JsonConvert.DeserializeObject(response);
             }
             catch (Exception ex)
@@ -162,16 +147,15 @@ namespace Beyova.RestApi
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="methodInfo">The method information.</param>
-        /// <param name="httpStatusCode">The HTTP status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns>T.</returns>
-        public T InvokeAs<T>(MethodInfo methodInfo, out HttpStatusCode httpStatusCode, out WebExceptionStatus exceptionStatus, params object[] parameters)
+        public T InvokeAs<T>(MethodInfo methodInfo, params object[] parameters)
         {
             try
             {
                 methodInfo.CheckNullObject("methodInfo");
-                var result = Invoke(methodInfo, out httpStatusCode, out exceptionStatus, parameters);
+
+                var result = Invoke(methodInfo, parameters);
                 return result == null ? default(T) : result.ToObject<T>();
             }
             catch (Exception ex)
@@ -181,32 +165,16 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Invokes as.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="httpStatusCode">The HTTP status code.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>T.</returns>
-        public T InvokeAs<T>(MethodInfo methodInfo, out HttpStatusCode httpStatusCode, params object[] parameters)
-        {
-            WebExceptionStatus exceptionStatus;
-            return InvokeAs<T>(methodInfo, out httpStatusCode, out exceptionStatus, parameters);
-        }
-
-        /// <summary>
         /// Invokes the with void.
         /// </summary>
         /// <param name="methodInfo">The method information.</param>
-        /// <param name="httpStatusCode">The HTTP status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="parameters">The parameters.</param>
-        public void InvokeWithVoid(MethodInfo methodInfo, out HttpStatusCode httpStatusCode, out WebExceptionStatus exceptionStatus, params object[] parameters)
+        public void InvokeWithVoid(MethodInfo methodInfo, params object[] parameters)
         {
             try
             {
                 methodInfo.CheckNullObject("methodInfo");
-                Invoke(methodInfo, out httpStatusCode, out exceptionStatus, parameters);
+                Invoke(methodInfo, parameters);
             }
             catch (Exception ex)
             {
@@ -215,27 +183,13 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Invokes the with void.
-        /// </summary>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="httpStatusCode">The HTTP status code.</param>
-        /// <param name="parameters">The parameters.</param>
-        public void InvokeWithVoid(MethodInfo methodInfo, out HttpStatusCode httpStatusCode, params object[] parameters)
-        {
-            WebExceptionStatus exceptionStatus;
-            Invoke(methodInfo, out httpStatusCode, out exceptionStatus, parameters);
-        }
-
-        /// <summary>
         /// Invokes the specified method information.
         /// </summary>
         /// <param name="methodInfo">The method information.</param>
-        /// <param name="httpStatusCode">The HTTP status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns>Newtonsoft.Json.Linq.JToken.</returns>
         /// <exception cref="ResourceNotFoundException"></exception>
-        public JToken Invoke(MethodInfo methodInfo, out HttpStatusCode httpStatusCode, out WebExceptionStatus exceptionStatus, params object[] parameters)
+        public JToken Invoke(MethodInfo methodInfo, params object[] parameters)
         {
             try
             {
@@ -307,55 +261,36 @@ namespace Beyova.RestApi
                     httpRequest.FillData(httpMethod, requestBody.ToJson());
                 }
 
-                var response = httpRequest.ReadResponseAsText(Encoding.UTF8, out httpStatusCode, out exceptionStatus);
+                WebHeaderCollection headers;
+                CookieCollection cookie;
+                HttpStatusCode httpStatusCode;
+                var response = httpRequest.ReadResponseAsText(Encoding.UTF8, out httpStatusCode, out headers, out cookie);
 
                 if (httpStatusCode == HttpStatusCode.NoContent)
                 {
                     return null;
                 }
-                else if (!((int)httpStatusCode).ToString().StartsWith("2"))
-                {
-                    if (exceptionStatus != WebExceptionStatus.Success)
-                    {
-                        throw new OperationFailureException("Invoke", data: new { exceptionStatus = new { value = (int)exceptionStatus, text = exceptionStatus.ToString() }, httpStatusCode });
-                    }
-
-                    var exceptionInfo = response.TryDeserializeAsObject<ExceptionInfo>();
-
-                    if (exceptionInfo == null)
-                    {
-                        throw new InvalidObjectException("response", data: new { response, httpStatusCode });
-                    }
-
-                    if (this.EnableExceptionRestore)
-                    {
-                        throw exceptionInfo.ToException().Handle("Invoke", new { method = methodInfo.SafeToString(), parameters });
-                    }
-                    else
-                    {
-                        throw new RemoteServiceOperationFailureException(string.Format("{0}{1}/{2}", BaseUrl.TrimEnd('/') + "/", resourceName, resourceAction), BaseUrl, methodInfo.GetFullName(), innerException: exceptionInfo.ToException());
-                    }
-                }
 
                 return JToken.Parse(response);
             }
+            catch (HttpOperationException httpEx)
+            {
+                var reference = httpEx.ExceptionReference;
+                var exceptionInfo = reference.ResponseText.TryDeserializeAsObject<ExceptionInfo>();
+
+                if (this.EnableExceptionRestore)
+                {
+                    throw exceptionInfo.ToException().Handle("Invoke", new { method = methodInfo.SafeToString(), parameters });
+                }
+                else
+                {
+                    throw httpEx;
+                }
+            }
             catch (Exception ex)
             {
-                throw new OperationFailureException("Invoke", ex, data: new { Method = methodInfo?.GetFullName() });
+                throw ex.Handle("Invoke", data: new { Method = methodInfo?.GetFullName() });
             }
-        }
-
-        /// <summary>
-        /// Invokes the specified method information.
-        /// </summary>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="httpStatusCode">The HTTP status code.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>Newtonsoft.Json.Linq.JToken.</returns>
-        public JToken Invoke(MethodInfo methodInfo, out HttpStatusCode httpStatusCode, params object[] parameters)
-        {
-            WebExceptionStatus exceptionStatus;
-            return Invoke(methodInfo, out httpStatusCode, out exceptionStatus, parameters);
         }
 
         /// <summary>
