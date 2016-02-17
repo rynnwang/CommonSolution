@@ -71,13 +71,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminEventHandlers.cs" />
-    <Compile Include="DataAccessController\AdminDataAccessController.cs" />
-    <Compile Include="DataAccessController\AdminPermissionAccessController.cs" />
-    <Compile Include="DataAccessController\AdminSessionAccessController.cs" />
-    <Compile Include="DataAccessController\AdminRoleAccessController.cs" />
-    <Compile Include="DataAccessController\AdminUserInfoAccessController.cs" />
+    <Compile Include="DataAccessController\Admin\AdminDataAccessController.cs" />
+    <Compile Include="DataAccessController\Admin\AdminPermissionAccessController.cs" />
+    <Compile Include="DataAccessController\Admin\AdminSessionAccessController.cs" />
+    <Compile Include="DataAccessController\Admin\AdminRoleAccessController.cs" />
+    <Compile Include="DataAccessController\Admin\AdminUserInfoAccessController.cs" />
     <Compile Include="DataAccessController\EnvironmentEndpointDataAccessController.cs" />
     <Compile Include="Mvc\ActionFilter\EnvironmentBasedAttribute.cs" />
+    <Compile Include="Mvc\Components\AuthenticationProfileBaseController.cs" />
     <Compile Include="Mvc\Components\AdministrationController.cs" />
     <Compile Include="Mvc\Components\BinaryStorageController.cs" />
     <Compile Include="Mvc\EnvironmentBaseController.cs" />

@@ -106,6 +106,7 @@
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
+    <Compile Include="Interfaces\ITreeNode.cs" />
     <Compile Include="Interfaces\IPermissionIdentifiers.cs" />
     <Compile Include="Interfaces\IGeographyLocation.cs" />
     <Compile Include="Model\Admin\AdminAuthenticationResult.cs" />
