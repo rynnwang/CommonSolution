@@ -25,6 +25,16 @@ namespace Beyova
         const string endSymbol = "$";
 
         /// <summary>
+        /// Ases the quoted string.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <returns>System.String.</returns>
+        public static string AsQuotedString(this string anyString)
+        {
+            return string.IsNullOrWhiteSpace(anyString) ? string.Empty : string.Format("\"{0}\"", anyString);
+        }
+
+        /// <summary>
         /// Starts the with regular expression string.
         /// </summary>
         /// <param name="text">The text.</param>

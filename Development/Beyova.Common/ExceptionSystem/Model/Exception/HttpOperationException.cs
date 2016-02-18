@@ -59,7 +59,7 @@ namespace Beyova.ExceptionSystem
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpException" /> class. For broken requests.
+        /// Initializes a new instance of the <see cref="HttpOperationException" /> class. For broken requests.
         /// </summary>
         /// <param name="destinationUrl">The destination URL.</param>
         /// <param name="httpMethod">The HTTP method.</param>
@@ -90,7 +90,6 @@ namespace Beyova.ExceptionSystem
         /// </summary>
         /// <param name="destinationUrl">The destination URL.</param>
         /// <param name="httpMethod">The HTTP method.</param>
-        /// <param name="message">The message.</param>
         /// <param name="bodyLength">Length of the body.</param>
         /// <param name="httpStatusCode">The HTTP status code.</param>
         /// <param name="innerException">The inner exception.</param>
@@ -112,7 +111,7 @@ namespace Beyova.ExceptionSystem
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpException"/> class. For restore from <c>ExceptionInfo</c>.
+        /// Initializes a new instance of the <see cref="HttpOperationException" /> class. For restore from <c>ExceptionInfo</c>.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="exceptionCode">The exception code.</param>

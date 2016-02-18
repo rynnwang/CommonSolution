@@ -28,6 +28,11 @@ namespace Beyova
         private static Regex genericClassRegex = new Regex(@"(?<TypeName>([\w\.]+`([0-9]+)))\[(?<GenericTypeName>(([\w\.\[\],`]+)))\]", RegexOptions.Compiled);
 
         /// <summary>
+        /// The generic code look class regex
+        /// </summary>
+        private static Regex genericCodeLookClassRegex = new Regex(@"(?<TypeName>([\w\.]+))\<(?<GenericTypeName>(([\w\.\[\],`]+)))\>", RegexOptions.Compiled);
+
+        /// <summary>
         /// Gets the application domain assemblies.
         /// </summary>
         /// <param name="appDomain">The application domain.</param>
@@ -275,15 +280,17 @@ namespace Beyova
         /// Gets the name of the generic type. e.g.: System.Collections.Generic.List`1[Beyova.ServiceCredential]
         /// </summary>
         /// <param name="fullName">The full name.</param>
+        /// <param name="isCodeLook">The is code look.</param>
         /// <param name="genericTypeNames">The generic type names.</param>
         /// <param name="typeName">Name of the type.</param>
-        /// <returns><c>true</c> if succeed to get, <c>false</c> otherwise.</returns>
-        public static bool GetGenericTypeName(string fullName, out string[] genericTypeNames, out string typeName)
+        /// <returns>
+        ///   <c>true</c> if succeed to get, <c>false</c> otherwise.</returns>
+        internal static bool GetGenericTypeName(string fullName, bool isCodeLook, out string[] genericTypeNames, out string typeName)
         {
             typeName = string.Empty;
             genericTypeNames = new string[] { };
 
-            var match = genericClassRegex.Match(fullName);
+            var match = (isCodeLook ? genericCodeLookClassRegex : genericClassRegex).Match(fullName);
             if (match.Success)
             {
                 genericTypeNames = match.Result("${GenericTypeName}").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -295,20 +302,26 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the type smartly. It would find type in all related assemblies. And even if type name is generic based, it can still give right result. 
+        /// Gets the type smartly. It would find type in all related assemblies. And even if type name is generic based, it can still give right result.
         /// e.g.: System.Collections.Generic.List`1[Beyova.ServiceCredential]
         /// </summary>
         /// <param name="typeName">Name of the type.</param>
+        /// <param name="isCodeLook">The is code look.</param>
         /// <returns>Type.</returns>
-        public static Type SmartGetType(string typeName)
+        public static Type SmartGetType(string typeName, bool isCodeLook = false)
         {
             try
             {
                 string baseTypeName;
                 string[] genericTypeNames;
-                if (GetGenericTypeName(typeName, out genericTypeNames, out baseTypeName))
+                if (GetGenericTypeName(typeName, isCodeLook, out genericTypeNames, out baseTypeName))
                 {
-                    var baseType = SmartGetType(baseTypeName);
+                    var baseType = SmartGetType(baseTypeName, isCodeLook);
+
+                    if (baseType == typeof(Nullable))
+                    {
+                        baseType = typeof(Nullable<>);
+                    }
                     return baseType.MakeGenericType((from one in genericTypeNames select SmartGetType(one)).ToArray());
                 }
                 else
@@ -581,6 +594,8 @@ namespace Beyova
             return type != null && type.HasInterface(typeof(ICollection<>));
         }
 
+        #region Nullable 
+
         /// <summary>
         /// Gets the type of the nullable.
         /// <remarks>
@@ -604,8 +619,10 @@ namespace Beyova
         /// <returns>Type.</returns>
         public static Type GetNullableType(this Type type)
         {
-            return (type != null && type.IsNullable()) ? type.GenericTypeArguments.FirstOrDefault() : null;
+            return Nullable.GetUnderlyingType(type);
         }
+
+        #endregion
 
         /// <summary>
         /// Inheritses from.
@@ -622,12 +639,15 @@ namespace Beyova
 
         /// <summary>
         /// Determines whether [is simple type] [the specified type]. Like: Guid, string, int32, int64, etc.
+        /// If it is Nullable&lt;T&gt;, it would detect T directly.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns><c>true</c> if [is simple type] [the specified type]; otherwise, <c>false</c>.</returns>
         public static bool IsSimpleType(this Type type)
         {
-            return type != null && (type.IsPrimitive || (typeof(string) == type) || typeof(Guid) == type || typeof(DateTime) == type || typeof(decimal) == type || typeof(TimeSpan) == type || typeof(Uri) == type);
+            return type != null &&
+                type.IsNullable() ? IsSimpleType(type.GetNullableType())
+                : (type.IsPrimitive || (typeof(string) == type) || typeof(Guid) == type || typeof(DateTime) == type || typeof(decimal) == type || typeof(TimeSpan) == type || typeof(Uri) == type || type.IsEnum);
         }
 
         /// <summary>
@@ -690,7 +710,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the code look. This method is to convert <see cref="Type" /> to code based., such as List&lt;String&gt;.
+        /// To the code look. This method is to convert <see cref="Type" /> to code based., such as List&lt;String&gt;, System.Nullable&lt;System.Guid&gt;, etc.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="includingNamespace">The including namespace.</param>

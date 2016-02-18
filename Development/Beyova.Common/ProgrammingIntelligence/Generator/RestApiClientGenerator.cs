@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Text;
 using Beyova.ProgrammingIntelligence;
 using Beyova;
+using System.Collections.ObjectModel;
+using Beyova.ExceptionSystem;
 
 namespace Beyova.RestApi
 {
@@ -96,13 +98,8 @@ namespace Beyova.RestApi
             builder.AppendIndent(CodeIndent, 1);
             builder.AppendLine("{");
 
-            // write property
-            WriteProperties(builder);
-
             // write constructor
             WriteConstructor(builder, ClassName);
-
-            WriteInitializeMethod(builder);
 
             // write interface based members
             var doneApiHash = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -112,8 +109,6 @@ namespace Beyova.RestApi
                 Interfaces.Add(item.FullName, item);
                 GenerateInterfacePart(builder, doneApiHash, item);
             }
-
-            WriteInternalInterface(builder);
 
             // End of class
             builder.AppendIndent(CodeIndent, 1);
@@ -179,12 +174,7 @@ namespace Beyova.RestApi
                 builder.AppendLine("{");
 
                 // write constructor
-                WriteProperties(builder);
-
-                // write constructor
                 WriteConstructor(builder, ClassName);
-
-                WriteInitializeMethod(builder);
 
                 // write interface based members
                 var doneApiHash = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -200,8 +190,6 @@ namespace Beyova.RestApi
                         }
                     }
                 }
-
-                WriteInternalInterface(builder);
 
                 // End of class
                 builder.AppendIndent(CodeIndent, 1);
@@ -242,18 +230,167 @@ namespace Beyova.RestApi
                     builder.AppendIndent(CodeIndent, 3);
                     builder.AppendLine("{");
 
-                    builder.AppendIndent(CodeIndent, 4);
-                    if (methodInfo.ReturnType.IsVoid() ?? false)
+                    //Analyze method info and call different invoke directly
+                    var parameters = methodInfo.GetParameters();
+                    var firstParameter = parameters.FirstOrDefault();
+                    var returnVoid = methodInfo.ReturnType.IsVoid() ?? false;
+                    var allowBody = apiOperationAttribute.HttpMethod.IsInString(new Collection<string>(new[] { HttpConstants.HttpMethod.Post, HttpConstants.HttpMethod.Put }), true);
+
+                    if (firstParameter != null)
                     {
-                        builder.AppendLine("this.InvokeWithVoid(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\")"
-                            + (methodInfo.GetParameters().Any() ? (", " + methodInfo.MethodInputParametersToCodeLook(false)) : string.Empty)
-                            + ");");
+                        if (parameters.Count() > 1)
+                        {
+                            #region Parameter Count > 1
+
+                            if (allowBody)
+                            {
+                                builder.AppendIndent(CodeIndent, 4);
+                                builder.AppendLine("var parameters = new Dictionary<string, object>();");
+
+                                foreach (var one in parameters)
+                                {
+                                    builder.AppendIndent(CodeIndent, 4);
+                                    builder.AppendLineWithFormat("parameters.Add(\"{0}\",{0});", one.Name);
+                                }
+
+                                ////To Call: JToken InvokeUsingBody(string httpMethod, string resourceName, string resourceAction, object parameter)
+                                builder.AppendIndent(CodeIndent, 4);
+                                if (returnVoid)
+                                {
+                                    builder.AppendFormat("this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, parameters);",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"));
+                                }
+                                else
+                                {
+                                    builder.AppendFormat("return this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, parameters).Value<{3}>();",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
+                                        methodInfo.ReturnType.ToCodeLook(true)
+                                    );
+                                }
+                                builder.AppendLine();
+                            }
+                            else
+                            {
+                                builder.AppendIndent(CodeIndent, 4);
+                                builder.AppendLine("var parameters = new Dictionary<string, string>();");
+
+                                foreach (var one in parameters)
+                                {
+                                    if (!one.ParameterType.IsSimpleType())
+                                    {
+                                        throw new InvalidObjectException("methodInfo.Parameter", data: one.ParameterType.ToCodeLook(true), reason: "Multiple complex objects are used in a un-body REST API method.");
+                                    }
+
+                                    builder.AppendIndent(CodeIndent, 4);
+                                    builder.AppendLineWithFormat("parameters.Add(\"{0}\",{0});", one.Name, SimpleVariableToStringCode(one.Name, one.ParameterType));
+                                }
+
+                                ////To Call: JToken InvokeUsingCombinedQueryString(string httpMethod, string resourceName, string resourceAction, Dictionary<string, string> parameters)
+                                builder.AppendIndent(CodeIndent, 4);
+                                if (returnVoid)
+                                {
+                                    builder.AppendFormat("this.InvokeUsingCombinedQueryString(\"{0}\",\"{1}\",{2}, parameters);",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"));
+                                }
+                                else
+                                {
+                                    builder.AppendFormat("return this.InvokeUsingCombinedQueryString(\"{0}\",\"{1}\",{2}, parameters).Value<{3}>();",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
+                                        methodInfo.ReturnType.ToCodeLook(true));
+                                }
+                                builder.AppendLine();
+                            }
+
+                            #endregion
+                        }
+                        else
+                        {
+                            #region Parameter Count = 1
+
+                            if (firstParameter.ParameterType.IsSimpleType())
+                            {
+                                ////To Call: JToken InvokeUsingQueryString(string httpMethod, string resourceName, string resourceAction, string parameter = null)
+                                builder.AppendIndent(CodeIndent, 4);
+                                if (returnVoid)
+                                {
+                                    builder.AppendFormat("this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2}, {3});",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
+                                        SimpleVariableToStringCode(firstParameter.Name, firstParameter.ParameterType)
+                                    );
+                                }
+                                else
+                                {
+                                    builder.AppendFormat("return this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2}, {3}).Value<{4}>();",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
+                                        SimpleVariableToStringCode(firstParameter.Name, firstParameter.ParameterType),
+                                        methodInfo.ReturnType.ToCodeLook(true));
+                                }
+                                builder.AppendLine();
+                            }
+                            else if (!allowBody)
+                            {
+                                throw new InvalidObjectException("methodInfo.Parameter", data: firstParameter.ParameterType.ToCodeLook(true), reason: "Complex object is used in a un-body REST API method.");
+                            }
+                            else
+                            {
+                                //// To Call: JToken InvokeUsingBody(string httpMethod, string resourceName, string resourceAction, object parameter)
+                                builder.AppendIndent(CodeIndent, 4);
+                                if (returnVoid)
+                                {
+                                    builder.AppendFormat("this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, {3});",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
+                                        firstParameter.Name);
+                                }
+                                else
+                                {
+                                    builder.AppendFormat("return this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, {3}).Value<{4}>();",
+                                        apiOperationAttribute.HttpMethod,
+                                        apiOperationAttribute.ResourceName,
+                                        apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
+                                        firstParameter.Name,
+                                        methodInfo.ReturnType.ToCodeLook(true));
+                                }
+
+                                builder.AppendLine();
+                            }
+
+                            #endregion
+                        }
                     }
                     else
                     {
-                        builder.AppendLine("return this.InvokeAs<" + methodInfo.ReturnType.ToCodeLook(true) + ">(MethodMappings.SafeGetValue(\"" + methodInfo.Name + "\")"
-                            + (methodInfo.GetParameters().Any() ? (", " + methodInfo.MethodInputParametersToCodeLook(false)) : string.Empty)
-                            + ");");
+                        //// To Call: JToken InvokeUsingQueryString(string httpMethod, string resourceName, string resourceAction, string parameter = null)
+                        builder.AppendIndent(CodeIndent, 4);
+                        if (returnVoid)
+                        {
+                            builder.AppendFormat("this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2},null);",
+                                apiOperationAttribute.HttpMethod,
+                                apiOperationAttribute.ResourceName,
+                                apiOperationAttribute.Action.AsQuotedString().SafeToString("null"));
+                        }
+                        else
+                        {
+                            builder.AppendFormat("this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2},null).Value<{3}>();",
+                                apiOperationAttribute.HttpMethod,
+                                apiOperationAttribute.ResourceName,
+                                apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
+                                methodInfo.ReturnType.ToCodeLook(true));
+                        }
+                        builder.AppendLine();
                     }
 
                     builder.AppendIndent(CodeIndent, 3);
@@ -333,12 +470,6 @@ namespace Beyova.RestApi
                 builder.AppendLineWithFormat("public {0}(ApiEndpoint endpoint, bool enableExceptionRestore = false):base(endpoint, enableExceptionRestore)", className);
                 builder.AppendIndent(CodeIndent, 2);
                 builder.AppendLine("{");
-                builder.AppendIndent(CodeIndent, 3);
-                builder.AppendLine("this.ApiType = typeof(IInternalInterfaces);");
-                builder.AppendIndent(CodeIndent, 3);
-                builder.AppendLine("this.MethodMappings = new Dictionary<string, MethodInfo>();");
-                builder.AppendIndent(CodeIndent, 3);
-                builder.AppendLine("Initialize(this.ApiType);");
                 builder.AppendIndent(CodeIndent, 2);
                 builder.AppendLine("}");
                 builder.AppendLine();
@@ -346,65 +477,31 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Writes the internal interface.
+        /// Simples the variable to string code.
         /// </summary>
-        /// <param name="builder">The builder.</param>
-        protected void WriteInternalInterface(StringBuilder builder)
+        /// <param name="name">The name.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>System.String.</returns>
+        protected static string SimpleVariableToStringCode(string name, Type type)
         {
-            builder.AppendIndent(CodeIndent, 2);
-            builder.Append("protected interface IInternalInterfaces:");
-            foreach (var one in Interfaces)
+            if (type.IsNullable())
             {
-                builder.AppendFormat("{0},", one.Value.ToCodeLook(true));
+                return string.Format("{0} == null? null: {1}", name, SimpleVariableToStringCode(name, type.GetNullableType()));
             }
-            builder.RemoveLastIfMatch(',');
-            builder.Append("{}");
-            builder.AppendLine();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        protected void WriteProperties(StringBuilder builder)
-        {
-            if (builder != null)
+            if (type.IsEnum)
             {
-                builder.AppendIndent(CodeIndent, 2);
-                builder.AppendLine("public Type ApiType{ get; protected set; }");
-                builder.AppendLine();
-
-                builder.AppendIndent(CodeIndent, 2);
-                builder.AppendLine("public Dictionary<string, MethodInfo> MethodMappings{ get; protected set; }");
-                builder.AppendLine();
+                return string.Format("((int){0}).ToString()", name);
             }
-        }
-
-        /// <summary>
-        /// Writes the initialize method.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        protected void WriteInitializeMethod(StringBuilder builder)
-        {
-            if (builder != null)
+            else if (type == typeof(DateTime))
             {
-                builder.AppendIndent(CodeIndent, 2);
-                builder.AppendLine("protected void Initialize(Type apiType)");
-                builder.AppendIndent(CodeIndent, 2);
-                builder.AppendLine("{");
-                builder.AppendIndent(CodeIndent, 3);
-                builder.AppendLine("if (apiType != null)");
-                builder.AppendIndent(CodeIndent, 3);
-                builder.AppendLine("{");
-                builder.AppendIndent(CodeIndent, 4);
-                builder.AppendLine("foreach (var one in apiType.GetInterfaceMethods(typeof(ApiOperationAttribute), true))");
-                builder.AppendIndent(CodeIndent, 4);
-                builder.AppendLine("{MethodMappings.Add(one.Name, one);}");
-                builder.AppendIndent(CodeIndent, 3);
-                builder.AppendLine("}");
-                builder.AppendIndent(CodeIndent, 2);
-                builder.AppendLine("}");
-                builder.AppendLine();
+                return string.Format("{0}.ToFullDateTimeTzString()", name);
             }
+            else if (type == typeof(TimeSpan))
+            {
+                return string.Format("{0}.ToString(\"c\")", name);
+            }
+
+            return string.Format("{0}.ToString()", name);
         }
     }
 }

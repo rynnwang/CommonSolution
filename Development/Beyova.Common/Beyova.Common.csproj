@@ -118,6 +118,7 @@
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />
     <Compile Include="Model\SystemEnvironment\MachineHealth.cs" />
     <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaConfigurationAttribute.cs" />
+    <Compile Include="ProgrammingIntelligence\DocumentGenerator\DocumentGenerator.cs" />
     <Compile Include="RestApi\Attribute\ApiHeaderAttribute.cs" />
     <Compile Include="RestApi\Context\ApiTraceContext.cs" />
     <Compile Include="ExceptionSystem\Model\FriendlyHint.cs" />
@@ -213,7 +214,6 @@
     <Compile Include="RestApi\Model\ApiLabel.cs" />
     <Compile Include="RestApi\Model\ApiEndpoint.cs" />
     <Compile Include="ProgrammingIntelligence\Generator\AbstractRestApiGenerator.cs" />
-    <Compile Include="RestApi\DocumentGenerator\DocumentGenerator.cs" />
     <Compile Include="RestApi\Interface\IWebSocketHub.cs" />
     <Compile Include="RestApi\Interface\IApiTransportAdapter.cs" />
     <Compile Include="RestApi\Model\RuntimeContext.cs" />

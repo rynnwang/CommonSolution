@@ -186,7 +186,6 @@ namespace Beyova
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="statusCode">The status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
         /// <param name="headers">The headers.</param>
         /// <param name="cookieCollection">The cookie collection.</param>
         /// <returns>System.String.</returns>
@@ -201,6 +200,7 @@ namespace Beyova
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
+        /// <param name="statusCode">The status code.</param>
         /// <param name="headers">The headers.</param>
         /// <param name="cookieCollection">The cookie collection.</param>
         /// <returns>System.String.</returns>
@@ -213,7 +213,7 @@ namespace Beyova
         /// Reads the response as bytes.
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="">The .</param>
+        /// <param name="statusCode">The status code.</param>
         /// <param name="headers">The headers.</param>
         /// <param name="cookieCollection">The cookie collection.</param>
         /// <returns>System.Byte[].</returns>
@@ -227,9 +227,6 @@ namespace Beyova
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
-        /// <param name="headers">The headers.</param>
         /// <returns>System.String.</returns>
         public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
         {
