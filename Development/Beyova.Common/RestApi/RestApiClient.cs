@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -34,6 +35,8 @@ namespace Beyova.RestApi
         /// <value><c>true</c> if [enable exception restore]; otherwise, <c>false</c>.</value>
         public bool EnableExceptionRestore { get; protected set; }
 
+        #region Constructor
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RestApiClient" /> class.
         /// </summary>
@@ -44,18 +47,6 @@ namespace Beyova.RestApi
         /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
         public RestApiClient(string host, string version, bool isHttps = false, string token = null, bool enableExceptionRestore = false)
             : this(new ApiEndpoint { Host = host, Version = version, Protocol = isHttps ? "https" : "http", Token = token }, enableExceptionRestore)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RestApiClient" /> class.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="token">The token.</param>
-        /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
-        [Obsolete("Due to ApiEndpoint already has property Token. This constructor is obsoleted.")]
-        public RestApiClient(ApiEndpoint endpoint, string token = null, bool enableExceptionRestore = false)
-               : this(endpoint.ToString(), token, enableExceptionRestore)
         {
         }
 
@@ -96,91 +87,138 @@ namespace Beyova.RestApi
             this.EnableExceptionRestore = enableExceptionRestore;
         }
 
+        #endregion
+
+        #region Common usage
+
+        /// <summary>
+        /// Invokes as void.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceAction">The resource action.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="queryString">The query string.</param>
+        /// <param name="bodyJson">The body json.</param>
+        public void InvokeAsVoid(string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null)
+        {
+            InvokeAsJToken(httpMethod, resourceName, resourceAction, key, queryString, bodyJson);
+        }
+
         /// <summary>
         /// Invokes the specified HTTP method.
         /// </summary>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
-        /// <param name="httpStatusCode">The HTTP status code.</param>
-        /// <param name="exceptionStatus">The exception status.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="queryString">The query string.</param>
+        /// <param name="bodyJson">The body json.</param>
+        /// <returns>JToken.</returns>
+        public JToken Invoke(string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null)
+        {
+            return InvokeAsJToken(httpMethod, resourceName, resourceAction, key, queryString, bodyJson);
+        }
+
+        #endregion
+
+        #region Programming Intelligence usage
+
+        /// <summary>
+        /// Invokes the using query string.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceAction">The resource action.</param>
         /// <param name="parameter">The parameter.</param>
-        /// <returns>System.Object.</returns>
-        public object Invoke(string httpMethod, string resourceName, string resourceAction, object parameter)
+        /// <returns>JToken.</returns>
+        protected JToken InvokeUsingQueryString(string httpMethod, string resourceName, string resourceAction, string parameter = null)
         {
-            try
-            {
-                var url = string.Format("{0}{1}/{2}", this.BaseUrl, resourceName, resourceAction).TrimEnd('/') + "/";
-                object requestBody = null;
-
-                if (parameter != null)
-                {
-                    if (parameter.GetType().IsStringOrValueType())
-                    {
-                        url += parameter.ToString().ToUrlPathEncodedText();
-                    }
-                    else
-                    {
-                        requestBody = parameter;
-                    }
-                }
-
-                var httpRequest = url.CreateHttpWebRequest(httpMethod.SafeToString("POST"));
-                FillAdditionalData(httpRequest);
-
-                if (requestBody != null)
-                {
-                    httpRequest.FillData(httpMethod.SafeToString("POST"), requestBody.ToJson());
-                }
-
-                var response = httpRequest.ReadResponseAsText(Encoding.UTF8);
-                return JsonConvert.DeserializeObject(response);
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("Invoke", new { httpMethod, resourceName, resourceAction });
-            }
+            return InvokeAsJToken(httpMethod, resourceName, resourceAction, key: parameter);
         }
 
         /// <summary>
-        /// Invokes as.
+        /// Invokes the using combined query string.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="methodInfo">The method information.</param>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceAction">The resource action.</param>
         /// <param name="parameters">The parameters.</param>
-        /// <returns>T.</returns>
-        public T InvokeAs<T>(MethodInfo methodInfo, params object[] parameters)
+        /// <returns>JToken.</returns>
+        protected JToken InvokeUsingCombinedQueryString(string httpMethod, string resourceName, string resourceAction, Dictionary<string, string> parameters)
         {
-            try
-            {
-                methodInfo.CheckNullObject("methodInfo");
-
-                var result = Invoke(methodInfo, parameters);
-                return result == null ? default(T) : result.ToObject<T>();
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("InvokeAs", new { Method = methodInfo?.GetFullName() });
-            }
+            return InvokeAsJToken(httpMethod, resourceName, resourceAction, queryString: parameters);
         }
 
         /// <summary>
-        /// Invokes the with void.
+        /// Invokes the using body.
         /// </summary>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="parameters">The parameters.</param>
-        public void InvokeWithVoid(MethodInfo methodInfo, params object[] parameters)
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceAction">The resource action.</param>
+        /// <param name="parameter">The parameter.</param>
+        /// <returns>JToken.</returns>
+        protected JToken InvokeUsingBody(string httpMethod, string resourceName, string resourceAction, object parameter)
+        {
+            return InvokeAsJToken(httpMethod, resourceName, resourceAction, bodyJson: parameter.ToJson());
+        }
+
+        /// <summary>
+        /// Invokes as j token.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceAction">The resource action.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="queryString">The query string.</param>
+        /// <param name="bodyJson">The body json.</param>
+        /// <returns>JToken.</returns>
+        protected JToken InvokeAsJToken(string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null)
         {
             try
             {
-                methodInfo.CheckNullObject("methodInfo");
-                Invoke(methodInfo, parameters);
+                var httpRequest = CreateHttpRequest(httpMethod, resourceName, resourceAction, key, queryString);
+
+                if (httpMethod.IsInString(new string[] { HttpConstants.HttpMethod.Post, HttpConstants.HttpMethod.Put }, true))
+                {
+                    httpRequest.FillData(httpMethod, bodyJson.SafeToString());
+                }
+
+                WebHeaderCollection headers;
+                CookieCollection cookie;
+                HttpStatusCode httpStatusCode;
+                var response = httpRequest.ReadResponseAsText(Encoding.UTF8, out httpStatusCode, out headers, out cookie);
+
+                if (httpStatusCode == HttpStatusCode.NoContent)
+                {
+                    return null;
+                }
+
+                return JToken.Parse(response);
+            }
+            catch (HttpOperationException httpEx)
+            {
+                var reference = httpEx.ExceptionReference;
+                var exceptionInfo = reference.ResponseText.TryDeserializeAsObject<ExceptionInfo>();
+
+                if (this.EnableExceptionRestore)
+                {
+                    throw exceptionInfo.ToException().Handle("InvokeAsJToken", new { httpMethod, resourceName, resourceAction, key, queryString });
+                }
+                else
+                {
+                    throw httpEx;
+                }
             }
             catch (Exception ex)
             {
-                throw ex.Handle("InvokeWithVoid", new { Method = methodInfo?.GetFullName() });
+                throw ex.Handle("InvokeAsJToken", data: new { httpMethod, resourceName, resourceAction, key, queryString });
             }
         }
+
+        #endregion
+
+        #region Invokes (Old)
 
         /// <summary>
         /// Invokes the specified method information.
@@ -293,6 +331,37 @@ namespace Beyova.RestApi
             }
         }
 
+        #endregion
+
+        #region Util
+
+        /// <summary>
+        /// Creates the HTTP request.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceAction">The resource action.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="queryString">The query string.</param>
+        /// <returns>System.Net.HttpWebRequest.</returns>
+        protected HttpWebRequest CreateHttpRequest(string httpMethod, string resourceName, string resourceAction, string key, Dictionary<string, string> queryString = null)
+        {
+            var url = string.Format("{0}{1}/{2}", this.BaseUrl, resourceName, resourceAction).TrimEnd('/') + "/";
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                url += (key + "/");
+            }
+            if (queryString.HasItem())
+            {
+                url += ("?" + queryString.ToKeyValueStringWithUrlEncode());
+            }
+
+            var httpRequest = url.CreateHttpWebRequest(httpMethod);
+            FillAdditionalData(httpRequest);
+
+            return httpRequest;
+        }
+
         /// <summary>
         /// Fills the additional data.
         /// </summary>
@@ -315,5 +384,7 @@ namespace Beyova.RestApi
                 }
             }
         }
+
+        #endregion
     }
 }

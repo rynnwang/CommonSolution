@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminEventHandlers.cs" />
+    <Compile Include="CommonServiceRestClient.cs" />
     <Compile Include="DataAccessController\Admin\AdminDataAccessController.cs" />
     <Compile Include="DataAccessController\Admin\AdminPermissionAccessController.cs" />
     <Compile Include="DataAccessController\Admin\AdminSessionAccessController.cs" />

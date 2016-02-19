@@ -97,19 +97,21 @@ namespace Beyova.CommonAdminService
         /// <summary>
         /// Setups the route using URL: {controller}/{action}/{environment}/{key}
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="route">The route.</param>
-        /// <param name="defaultController">The default controller.</param>
         /// <param name="defaultAction">The default action.</param>
-        /// <param name="defaultEnvironment">The default environment.</param>
-        /// <param name="routeName">Name of the route.</param>
-        public static void SetupRoute(RouteCollection route, string defaultController = "Admin", string defaultAction = "Index", string routeName = "AdminBased")
+        public static void SetupRoute<T>(RouteCollection route, string defaultAction = "Index")
+            where T : AdminBaseController
         {
             if (route != null)
             {
+                var type = typeof(T);
+                var name = type.Name.SubStringBeforeLastMatch("Controller");
+
                 route.MapRoute(
-                    name: "EnvironmentBased",
-                    url: "{controller}/{action}/{environment}/{key}",
-                    defaults: new { controller = defaultController, action = defaultAction, key = UrlParameter.Optional }
+                    name: name,
+                    url: (name + "/{action}/{key}"),
+                    defaults: new { controller = name, action = defaultAction, key = UrlParameter.Optional }
                 );
             }
         }

@@ -622,10 +622,10 @@ namespace Beyova
                 foreach (var one in instance)
                 {
                     builder.Append(valueSelector(one));
-                    builder.Append('-');
+                    builder.Append(separator);
                 }
 
-                builder.RemoveLast();
+                builder.RemoveLast(separator.Length);
 
                 return builder.ToString();
             }
