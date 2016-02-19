@@ -201,6 +201,7 @@ namespace Beyova
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="encoding">The encoding.</param>
+        /// <param name="statusCode">The status code.</param>
         /// <param name="headers">The headers.</param>
         /// <param name="cookieCollection">The cookie collection.</param>
         /// <returns>System.String.</returns>
@@ -213,7 +214,7 @@ namespace Beyova
         /// Reads the response as bytes.
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="">The .</param>
+        /// <param name="statusCode">The status code.</param>
         /// <param name="headers">The headers.</param>
         /// <param name="cookieCollection">The cookie collection.</param>
         /// <returns>System.Byte[].</returns>

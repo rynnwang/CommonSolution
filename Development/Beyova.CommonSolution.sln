@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.CommonService", "Bey
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.CommonAdminService", "Beyova.CommonAdminService\Beyova.CommonAdminService.csproj", "{B2EC21FE-4D98-4766-A155-CD6CC285A854}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.RestClientGenerator", "Beyova.RestClientGenerator\Beyova.RestClientGenerator.csproj", "{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,10 @@ Global
 		{B2EC21FE-4D98-4766-A155-CD6CC285A854}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2EC21FE-4D98-4766-A155-CD6CC285A854}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2EC21FE-4D98-4766-A155-CD6CC285A854}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
