@@ -693,7 +693,8 @@ namespace Beyova
         {
             byte[] byteArray = null;
 
-            if (!string.IsNullOrWhiteSpace(data))
+            // DO NOT use String.IsNullOrWhiteSpace or String.IsNullOrEmpty. string.Empty is allowed to filled here.
+            if (data != null)
             {
                 byteArray = (encodingToByte ?? Encoding.UTF8).GetBytes(data);
             }
