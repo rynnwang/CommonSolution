@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text;
-using Beyova;
 using Beyova.ExceptionSystem;
-using Beyova.RestApi;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.RestApi
@@ -213,121 +208,6 @@ namespace Beyova.RestApi
             catch (Exception ex)
             {
                 throw ex.Handle("InvokeAsJToken", data: new { httpMethod, resourceName, resourceAction, key, queryString });
-            }
-        }
-
-        #endregion
-
-        #region Invokes (Old)
-
-        /// <summary>
-        /// Invokes the specified method information.
-        /// </summary>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>Newtonsoft.Json.Linq.JToken.</returns>
-        /// <exception cref="ResourceNotFoundException"></exception>
-        public JToken Invoke(MethodInfo methodInfo, params object[] parameters)
-        {
-            try
-            {
-                methodInfo.CheckNullObject("methodInfo");
-
-                var apiUrlAttribute = methodInfo.GetCustomAttribute<ApiOperationAttribute>();
-                if (apiUrlAttribute == null)
-                {
-                    throw new ResourceNotFoundException(methodInfo.DeclaringType.FullName, methodInfo.Name);
-                }
-
-                var resourceName = apiUrlAttribute.ResourceName;
-                var resourceAction = apiUrlAttribute.Action;
-                var httpMethod = apiUrlAttribute.HttpMethod.SafeToString("POST");
-
-                var url = string.Format("{0}{1}/{2}", this.BaseUrl, resourceName, resourceAction).TrimEnd('/') + "/";
-                object requestBody = null;
-                StringBuilder urlParameterBuilder = null;
-
-                if (parameters != null && parameters.Length > 0)
-                {
-                    if (parameters.Length > 1)
-                    {
-                        urlParameterBuilder = new StringBuilder(url.IndexOf('?') > -1 ? "" : "?");
-                    }
-                    var firstParameter = parameters.First();
-                    if (firstParameter.GetType().IsStringOrValueType()
-                        && (httpMethod.IsInString(new string[] { HttpConstants.HttpMethod.Get, HttpConstants.HttpMethod.Delete }, true)))
-                    {
-                        if (urlParameterBuilder != null)
-                        {
-                            urlParameterBuilder.AppendFormat("{0}={1}&", methodInfo.GetParameters()[0].Name,
-                                firstParameter);
-                        }
-                        else
-                        {
-                            url += firstParameter.ToString().ToUrlPathEncodedText();
-                        }
-                    }
-                    else
-                    {
-                        requestBody = firstParameter;
-                    }
-                }
-
-                if (urlParameterBuilder != null)
-                {
-                    var inputParameters = methodInfo.GetParameters();
-                    var minLength = Math.Min(inputParameters.Length, parameters.Length);
-                    for (var i = 1; i < minLength; i++)
-                    {
-                        urlParameterBuilder.AppendFormat("{0}={1}&", inputParameters[i].Name,
-                          parameters[i].ToString().ToUrlPathEncodedText());
-                    }
-                    url += urlParameterBuilder.ToString().TrimEnd('&');
-                }
-
-                var httpRequest = url.CreateHttpWebRequest(httpMethod);
-                httpRequest.KeepAlive = false;
-                FillAdditionalData(httpRequest);
-
-                if (requestBody == null && httpMethod.IsInString(new string[] { HttpConstants.HttpMethod.Post, HttpConstants.HttpMethod.Put }, true))
-                {
-                    requestBody = string.Empty;
-                }
-
-                if (requestBody != null)
-                {
-                    httpRequest.FillData(httpMethod, requestBody.ToJson());
-                }
-
-                WebHeaderCollection headers;
-                CookieCollection cookie;
-                HttpStatusCode httpStatusCode;
-                var response = httpRequest.ReadResponseAsText(Encoding.UTF8, out httpStatusCode, out headers, out cookie);
-
-                if (httpStatusCode == HttpStatusCode.NoContent)
-                {
-                    return null;
-                }
-
-                return JToken.Parse(response);
-            }
-            catch (HttpOperationException httpEx)
-            {
-                var reference = httpEx.ExceptionReference;
-                var exceptionInfo = reference.ResponseText.TryDeserializeAsObject<ExceptionInfo>();
-
-                if (this.EnableExceptionRestore)
-                {
-                    throw exceptionInfo.ToException().Handle("Invoke", new { method = methodInfo.SafeToString(), parameters });
-                }
-                else
-                {
-                    throw httpEx;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("Invoke", data: new { Method = methodInfo?.GetFullName() });
             }
         }
 
