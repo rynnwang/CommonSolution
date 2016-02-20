@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Beyova.CommonService.DataAccessController;
+using Beyova.CommonServiceInterface;
 using Beyova.RestApi;
 
 namespace Beyova.RestClientGenerator
@@ -16,7 +18,13 @@ namespace Beyova.RestClientGenerator
             var outputFolder = Path.Combine(EnvironmentCore.ApplicationBaseDirectory, "../../../Beyova.CommonAdminService/");
             RestApiClientGenerator generator = new RestApiClientGenerator("Beyova.CommonAdminService", name);
             var filePath = Path.Combine(outputFolder, name + ".cs");
-            //generator.GenerateCode<OnlineSchoolServiceCore>(filePath);
+            var x = generator.GenerateCodeByType(typeof(IAuthenticationProfileService<,,,>));
+            //var generics = typeof(UserInfoAccessController<,,>).GetGenericArguments();
+            //foreach (var one in generics)
+            //{
+            //    var c = one.GetGenericParameterConstraints();
+            //}
+
         }
     }
 }

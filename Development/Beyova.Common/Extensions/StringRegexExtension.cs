@@ -727,7 +727,7 @@ namespace Beyova
                     }
                 }
 
-                if (builder[builder.Length - 1].Equals(charToMatch))
+                if (builder.Length > 0 && builder[builder.Length - 1].Equals(charToMatch))
                 {
                     builder = builder.Remove(builder.Length - 1, 1);
                 }

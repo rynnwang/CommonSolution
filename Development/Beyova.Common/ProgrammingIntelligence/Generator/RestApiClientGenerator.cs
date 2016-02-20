@@ -14,7 +14,7 @@ namespace Beyova.RestApi
     /// <summary>
     /// Class RestApiClientGenerator.
     /// </summary>
-    public class RestApiClientGenerator : AbstractRestApiGenerator
+    public class RestApiClientGenerator
     {
         /// <summary>
         /// The code indent
@@ -40,36 +40,50 @@ namespace Beyova.RestApi
         public string CodeIndent { get; protected set; }
 
         /// <summary>
-        /// The interface full names
-        /// </summary>
-        private Dictionary<string, Type> Interfaces = new Dictionary<string, Type>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RestApiClientGenerator" /> class.
         /// </summary>
         /// <param name="namespace">The namespace.</param>
         /// <param name="className">Name of the class.</param>
         /// <param name="codeIndent">The code indent.</param>
         public RestApiClientGenerator(string @namespace, string className, string codeIndent = null)
-            : base()
         {
             Namespace = @namespace.SafeToString("Beyova.RestApi.Client");
             ClassName = className.SafeToString("RestApiClient");
             CodeIndent = codeIndent.SafeToString(defaultCodeIndent);
         }
 
+        #region Public methods
+
         /// <summary>
-        /// Generates the code.
+        /// Generates the code by instance.
         /// </summary>
         /// <param name="instances">The instances.</param>
         /// <returns>System.String.</returns>
-        public string GenerateCode(params object[] instances)
+        public string GenerateCodeByInstance(params object[] instances)
         {
             var builder = new StringBuilder();
 
-            if (instances != null && instances.Any())
+            if (instances.HasItem())
             {
-                GenerateCode(builder, instances);
+                var types = instances.Select((x) => x.GetType()).ToArray();
+                GenerateCodeByTypes(builder, types);
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Generates the type of the code by.
+        /// </summary>
+        /// <param name="types">The types.</param>
+        /// <returns>System.String.</returns>
+        public string GenerateCodeByType(params Type[] types)
+        {
+            var builder = new StringBuilder();
+
+            if (types.HasItem())
+            {
+                GenerateCodeByTypes(builder, types);
             }
 
             return builder.ToString();
@@ -84,65 +98,43 @@ namespace Beyova.RestApi
         {
             var builder = new StringBuilder();
 
-            WriteFileInfo(builder);
-            WriteNamespaces(builder);
-            builder.AppendLine();
+            GenerateCodeByTypes(builder, typeof(T));
 
-            // write namespace
-            builder.AppendLineWithFormat("namespace {0}", Namespace);
-            builder.AppendLine("{");
-
-            // write class declaration
-            builder.AppendIndent(CodeIndent, 1);
-            builder.AppendLineWithFormat("public class {0}: " + typeof(RestApiClient).ToCodeLook(true), ClassName);
-            builder.AppendIndent(CodeIndent, 1);
-            builder.AppendLine("{");
-
-            // write constructor
-            WriteConstructor(builder, ClassName);
-
-            // write interface based members
-            var doneApiHash = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-
-            foreach (var item in typeof(T).GetInterfaces())
-            {
-                Interfaces.Add(item.FullName, item);
-                GenerateInterfacePart(builder, doneApiHash, item);
-            }
-
-            // End of class
-            builder.AppendIndent(CodeIndent, 1);
-            builder.AppendLine("}");
-
-            // End of namespace
-            builder.AppendLine("}");
-
-            builder.AppendLine();
             return builder.ToString();
         }
 
         /// <summary>
-        /// Generates the code.
+        /// Generates the code to path by instance.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="instances">The instances.</param>
-        public void GenerateCode(string path, params object[] instances)
+        public void GenerateCodeToPathByInstance(string path, params object[] instances)
         {
             if (!string.IsNullOrWhiteSpace(path))
             {
-                var builder = new StringBuilder();
-                GenerateCode(builder, instances);
-
-                File.WriteAllText(path, builder.ToString(), Encoding.UTF8);
+                File.WriteAllText(path, GenerateCodeByInstance(instances), Encoding.UTF8);
             }
         }
 
         /// <summary>
-        /// Generates the code.
+        /// Generates the type of the code to path by.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="types">The types.</param>
+        public void GenerateCodeToPathByType(string path, params Type[] types)
+        {
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                File.WriteAllText(path, GenerateCodeByType(types), Encoding.UTF8);
+            }
+        }
+
+        /// <summary>
+        /// Generates the code to path.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="path">The path.</param>
-        public void GenerateCode<T>(string path)
+        public void GenerateCodeToPath<T>(string path)
         {
             if (!string.IsNullOrWhiteSpace(path))
             {
@@ -150,12 +142,14 @@ namespace Beyova.RestApi
             }
         }
 
+        #endregion
+
         /// <summary>
-        /// Generates the code.
+        /// Generates the code by type. Type here can be both Interface and Class. Method would recursively find all interfaces.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="instances">The instances.</param>
-        protected void GenerateCode(StringBuilder builder, object[] instances)
+        /// <param name="types">The types.</param>
+        protected void GenerateCodeByTypes(StringBuilder builder, params Type[] types)
         {
             if (builder != null)
             {
@@ -178,15 +172,25 @@ namespace Beyova.RestApi
 
                 // write interface based members
                 var doneApiHash = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                HashSet<string> handledInterfaces = new HashSet<string>();
 
-                if (instances != null && instances.Any())
+                if (types.HasItem())
                 {
-                    foreach (var instance in instances)
+                    foreach (var type in types)
                     {
-                        foreach (var item in instance.GetType().GetInterfaces())
+                        if (type.IsInterface)
                         {
-                            Interfaces.Add(item.FullName, item);
-                            GenerateInterfacePart(builder, doneApiHash, item);
+                            if (!IsDuplicatedInterface(handledInterfaces, type))
+                            {
+                                GenerateInterfacePart(builder, doneApiHash, type);
+                            }
+                        }
+                        foreach (var item in type.GetInterfaces())
+                        {
+                            if (!IsDuplicatedInterface(handledInterfaces, item))
+                            {
+                                GenerateInterfacePart(builder, doneApiHash, item);
+                            }
                         }
                     }
                 }
@@ -207,20 +211,46 @@ namespace Beyova.RestApi
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="doneApi">The done API.</param>
-        /// <param name="version">The version.</param>
         /// <param name="apiOperationAttribute">The API URI.</param>
         /// <param name="methodInfo">The method information.</param>
-        protected override void GenerateMethodPart(StringBuilder builder, HashSet<string> doneApi, string version, ApiOperationAttribute apiOperationAttribute, MethodInfo methodInfo)
+        /// <param name="genericParameterConstraints">The generic parameter constraints.</param>
+        /// <exception cref="InvalidObjectException">
+        /// methodInfo.Parameter
+        /// or
+        /// methodInfo.Parameter
+        /// </exception>
+        protected void GenerateMethodPart(StringBuilder builder, HashSet<string> doneApi, ApiOperationAttribute apiOperationAttribute, MethodInfo methodInfo, Dictionary<string, Type[]> genericParameterConstraints)
         {
+            //// No need to check whether has ApiContract any more. Because:1. Inherited class can add it, 2. Version is defined by constructor parameter, it is nothing about how is defined in interface.
             if (builder != null && doneApi != null && methodInfo != null && apiOperationAttribute != null)
             {
-                var routeKey = ApiHandlerBase.GetRouteKey(version, apiOperationAttribute.ResourceName, apiOperationAttribute.HttpMethod, apiOperationAttribute.Action);
+                var routeKey = string.Format("{0}/{1}/{2}", apiOperationAttribute.ResourceName, apiOperationAttribute.HttpMethod, apiOperationAttribute.Action);
 
                 if (!doneApi.Contains(routeKey))
                 {
                     //Declaration
                     builder.AppendIndent(CodeIndent, 2);
-                    builder.AppendLineWithFormat("public virtual {0}", methodInfo.ToCodeLook(true));
+                    builder.AppendLineWithFormat("public virtual {0}", methodInfo.ToCodeLook(true, genericParameterConstraints?.Keys));
+
+                    //Check generic parameters constraints 
+                    var genericParameters = FindMatchedGenericConstraints(methodInfo, genericParameterConstraints);
+                    if (genericParameters.HasItem())
+                    {
+                        foreach (var one in genericParameters)
+                        {
+                            builder.AppendIndent(CodeIndent, 3);
+                            builder.AppendFormat("where {0}:", one.Key);
+
+                            foreach (var g in one.Value)
+                            {
+                                builder.AppendFormat("{0},", g.ToCodeLook(true));
+                            }
+
+                            builder.RemoveLastIfMatch(',');
+                            builder.AppendLine();
+                        }
+                    }
+
                     builder.AppendIndent(CodeIndent, 2);
                     builder.AppendLine("{");
 
@@ -416,6 +446,41 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
+        /// Generates the interface part.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="doneApi">The done API.</param>
+        /// <param name="interfaceType">Type of the interface.</param>
+        /// <param name="lastApiContractAttribute">The last API contract attribute.</param>
+        protected void GenerateInterfacePart(StringBuilder builder, HashSet<string> doneApi, Type interfaceType, ApiContractAttribute lastApiContractAttribute = null)
+        {
+            if (builder != null && doneApi != null && interfaceType != null)
+            {
+                var apiClass = interfaceType.GetCustomAttribute<ApiContractAttribute>(true) ?? lastApiContractAttribute;
+
+                var genericParameterConstraints = GetGenericTypeConstraints(interfaceType);
+                foreach (var method in interfaceType.GetMethods())
+                {
+                    var apiOperationAttribute = method.GetCustomAttribute<ApiOperationAttribute>(true);
+
+                    if (apiOperationAttribute != null)
+                    {
+                        GenerateMethodPart(builder, doneApi, apiOperationAttribute, method, genericParameterConstraints);
+                    }
+                }
+
+                var interfaces = interfaceType.GetInterfaces();
+                if (interfaces.HasItem())
+                {
+                    foreach (var one in interfaceType.GetInterfaces())
+                    {
+                        GenerateInterfacePart(builder, doneApi, one, apiClass);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Writes the file information.
         /// </summary>
         /// <param name="builder">The builder.</param>
@@ -476,6 +541,30 @@ namespace Beyova.RestApi
             }
         }
 
+        #region Util
+
+        /// <summary>
+        /// Determines whether [is duplicated interface] [the specified type].
+        /// </summary>
+        /// <param name="handledInterfaces">The handled interfaces.</param>
+        /// <param name="type">The type.</param>
+        /// <returns><c>true</c> if [is duplicated interface] [the specified type]; otherwise, <c>false</c>.</returns>
+        protected bool IsDuplicatedInterface(HashSet<string> handledInterfaces, Type type)
+        {
+            if (handledInterfaces == null || type == null || !type.IsInterface)
+            {
+                return false;
+            }
+
+            var name = string.Format("{0}.{1}", type.Namespace, type.Name);
+            if (!handledInterfaces.Contains(name))
+            {
+                handledInterfaces.Add(name);
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Simples the variable to string code.
         /// </summary>
@@ -503,5 +592,60 @@ namespace Beyova.RestApi
 
             return string.Format("{0}.ToString()", name);
         }
+
+        /// <summary>
+        /// Gets the generic type constraints.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>Dictionary&lt;System.String, Type[]&gt;.</returns>
+        protected static Dictionary<string, Type[]> GetGenericTypeConstraints(Type type)
+        {
+            Dictionary<string, Type[]> result = null;
+
+            if (type != null && type.IsGenericType)
+            {
+                result = new Dictionary<string, Type[]>();
+                foreach (var one in type.GetGenericArguments())
+                {
+                    if (one.IsGenericParameter)
+                    {
+                        var constraints = one.GetGenericParameterConstraints();
+                        if (constraints.Length > 0)
+                        {
+                            result.Add(one.Name, constraints);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Finds the matched generic constraints.
+        /// </summary>
+        /// <param name="methodInfo">The method information.</param>
+        /// <param name="genericParameterConstraints">The generic parameter constraints.</param>
+        /// <returns>Dictionary&lt;System.String, Type[]&gt;.</returns>
+        protected static Dictionary<string, Type[]> FindMatchedGenericConstraints(MethodInfo methodInfo, Dictionary<string, Type[]> genericParameterConstraints)
+        {
+            Dictionary<string, Type[]> result = null;
+
+            if (methodInfo.IsGenericMethod && genericParameterConstraints != null)
+            {
+                result = new Dictionary<string, Type[]>();
+                foreach (var one in methodInfo.GetParameters())
+                {
+                    if (one.ParameterType.IsGenericParameter && genericParameterConstraints.ContainsKey(one.ParameterType.Name))
+                    {
+                        result.Add(one.Name, genericParameterConstraints[one.ParameterType.Name]);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -710,53 +711,12 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the code look. This method is to convert <see cref="Type" /> to code based., such as List&lt;String&gt;, System.Nullable&lt;System.Guid&gt;, etc.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="includingNamespace">The including namespace.</param>
-        /// <param name="seperator">The seperator.</param>
-        /// <returns>System.String.</returns>
-        public static string ToCodeLook(this Type type, bool includingNamespace = false, string seperator = ".")
-        {
-            string result = string.Empty;
-
-            if (type != null)
-            {
-                if (type == typeof(void))
-                {
-                    return "void";
-                }
-                if (type.IsGenericType)
-                {
-                    var builder = new StringBuilder();
-                    foreach (var t in type.GetGenericArguments())
-                    {
-                        builder.Append(t.ToCodeLook(includingNamespace) + ",");
-                    }
-                    if (builder.Length > 0)
-                    {
-                        builder.RemoveLast();
-                    }
-                    result = includingNamespace ?
-                            string.Format("{0}{1}{2}<{3}>", type.Namespace, seperator, type.Name.SubStringBeforeFirstMatch('`'), builder) :
-                            string.Format("{0}<{1}>", type.Name.SubStringBeforeFirstMatch('`'), builder);
-                }
-                else
-                {
-                    result = includingNamespace ? type.FullName : type.Name;
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Methods the input parameters to code look.
         /// </summary>
         /// <param name="methodInfo">The method information.</param>
         /// <param name="includeType">Type of the include.</param>
         /// <returns>System.String.</returns>
-        public static string MethodInputParametersToCodeLook(this MethodInfo methodInfo, bool includeType = true)
+        internal static string MethodInputParametersToCodeLook(this MethodInfo methodInfo, bool includeType = true)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -783,6 +743,8 @@ namespace Beyova
             return builder.ToString();
         }
 
+        #region ToCodeLook
+
         /// <summary>
         /// To the code look.
         /// </summary>
@@ -790,6 +752,18 @@ namespace Beyova
         /// <param name="includeType">Type of the include.</param>
         /// <returns>System.String.</returns>
         public static string ToCodeLook(this MethodInfo methodInfo, bool includeType = true)
+        {
+            return ToCodeLook(methodInfo, includeType, null);
+        }
+
+        /// <summary>
+        /// To the code look.
+        /// </summary>
+        /// <param name="methodInfo">The method information.</param>
+        /// <param name="includeType">Type of the include.</param>
+        /// <param name="genericParameterTypeNames">The generic parameter type names.</param>
+        /// <returns>System.String.</returns>
+        internal static string ToCodeLook(this MethodInfo methodInfo, bool includeType, ICollection<string> genericParameterTypeNames)
         {
             if (methodInfo != null)
             {
@@ -802,19 +776,81 @@ namespace Beyova
                     }
                     if (builder.Length > 0)
                     {
-                        builder.RemoveLast();
+                        builder.RemoveLast(1);
                     }
 
                     return string.Format("{0} {1}<{2}>({3})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, builder, methodInfo.MethodInputParametersToCodeLook(includeType));
                 }
-                else
+                else if (genericParameterTypeNames.HasItem())
                 {
-                    return string.Format("{0} {1}({2})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, methodInfo.MethodInputParametersToCodeLook(includeType));
+                    HashSet<string> genericParameters = new HashSet<string>();
+                    genericParameters.AddRange(methodInfo.ReturnType.GetGenericParameterNames(genericParameterTypeNames));
+
+                    foreach (var one in methodInfo.GetParameters())
+                    {
+                        genericParameters.AddRange(one.ParameterType.GetGenericParameterNames(genericParameterTypeNames));
+                    }
+
+                    if (genericParameters.Count > 0)
+                    {
+                        return string.Format("{0} {1}<{2}>({3})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, genericParameters.Join(","), methodInfo.MethodInputParametersToCodeLook(includeType));
+                    }
                 }
+
+                return string.Format("{0} {1}({2})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, methodInfo.MethodInputParametersToCodeLook(includeType));
             }
 
             return string.Empty;
         }
+
+        /// <summary>
+        /// To the code look. This method is to convert <see cref="Type" /> to code based., such as List&lt;String&gt;, System.Nullable&lt;System.Guid&gt;, etc.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="includingNamespace">The including namespace.</param>
+        /// <param name="seperator">The seperator.</param>
+        /// <returns>System.String.</returns>
+        public static string ToCodeLook(this Type type, bool includingNamespace = false, string seperator = ".")
+        {
+            string result = string.Empty;
+
+            if (type != null)
+            {
+                if (type == typeof(void))
+                {
+                    return "void";
+                }
+                else if (type.IsGenericParameter)
+                {
+                    return type.Name;
+                }
+
+                if (type.IsGenericType)
+                {
+                    var builder = new StringBuilder();
+                    foreach (var t in type.GetGenericArguments())
+                    {
+                        builder.Append(t.ToCodeLook(includingNamespace) + ",");
+                    }
+                    if (builder.Length > 0)
+                    {
+                        builder.RemoveLast();
+                    }
+                    result = includingNamespace ?
+                            string.Format("{0}{1}{2}<{3}>", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : seperator, type.Name.SubStringBeforeFirstMatch('`'), builder) :
+                            string.Format("{0}<{1}>", type.Name.SubStringBeforeFirstMatch('`'), builder);
+                }
+                else
+                {
+                    // NOTE: if type is come from generic method, like: T1 Method(T2 t), FullName would be null.
+                    result = includingNamespace ? string.Format("{0}{1}{2}", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : seperator, type.Name) : type.Name;
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets the methods.
@@ -940,16 +976,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Determines whether [is string or value type] [the specified type].
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns><c>true</c> if [is string or value type] [the specified type]; otherwise, <c>false</c>.</returns>
-        public static bool IsStringOrValueType(this Type type)
-        {
-            return type != null && (type == typeof(string) || type.IsValueType);
-        }
-
-        /// <summary>
         /// Determines whether the specified type is void.
         /// </summary>
         /// <param name="type">The type.</param>
@@ -957,6 +983,34 @@ namespace Beyova
         public static bool? IsVoid(this Type type)
         {
             return type == null ? null : (type == typeof(void)) as bool?;
+        }
+
+        /// <summary>
+        /// Gets the generic parameter names.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="genericParameterTypeNames">The generic parameter type names.</param>
+        /// <returns>System.Collections.Generic.List&lt;System.String&gt;.</returns>
+        internal static List<string> GetGenericParameterNames(this Type type, ICollection<string> genericParameterTypeNames)
+        {
+            List<string> result = new List<string>();
+
+            if (type != null)
+            {
+                if (type.IsGenericType)
+                {
+                    foreach (var one in type.GetGenericArguments())
+                    {
+                        result.AddRange(GetGenericParameterNames(one, genericParameterTypeNames));
+                    }
+                }
+                else if (type.IsGenericParameter)
+                {
+                    result.Add(type.Name);
+                }
+            }
+
+            return result;
         }
 
         #region Assembly Dependency Chain

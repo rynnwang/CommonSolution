@@ -212,7 +212,6 @@
     <Compile Include="RestApi\Attribute\StrickContractOutputAttribute.cs" />
     <Compile Include="RestApi\Model\ApiLabel.cs" />
     <Compile Include="RestApi\Model\ApiEndpoint.cs" />
-    <Compile Include="ProgrammingIntelligence\Generator\AbstractRestApiGenerator.cs" />
     <Compile Include="RestApi\Interface\IWebSocketHub.cs" />
     <Compile Include="RestApi\Interface\IApiTransportAdapter.cs" />
     <Compile Include="RestApi\Model\RuntimeContext.cs" />
