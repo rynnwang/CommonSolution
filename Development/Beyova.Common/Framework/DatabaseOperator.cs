@@ -156,8 +156,6 @@ namespace Beyova
         /// <returns>The count of row influenced.</returns>
         public int ExecuteNonQuery(string procedureName, List<SqlParameter> sqlParameters = null)
         {
-            int count = 0;
-
             try
             {
                 procedureName.CheckEmptyString("procedureName");
@@ -171,7 +169,7 @@ namespace Beyova
                 {
                     sqlConnection.Open();
                 }
-                count = sqlCommand.ExecuteNonQuery();
+                return sqlCommand.ExecuteNonQuery();
             }
             catch (SqlException sqlEx)
             {
@@ -185,8 +183,72 @@ namespace Beyova
             {
                 sqlConnection.Close();
             }
+        }
 
-            return count;
+        /// <summary>
+        /// Executes the SQL text.
+        /// </summary>
+        /// <param name="sqlText">The SQL text.</param>
+        /// <returns>System.Int32.</returns>
+        /// <exception cref="System.Exception"></exception>
+        internal int ExecuteSqlTextNonQuery(string sqlText)
+        {
+            try
+            {
+                sqlText.CheckEmptyString("sqlText");
+                sqlCommand.CommandType = CommandType.Text;
+                sqlCommand.CommandText = sqlText;
+                sqlCommand.Parameters.Clear();
+                sqlCommand.CommandTimeout = timeoutMillSeconds;
+
+                if (sqlConnection.State != ConnectionState.Open)
+                {
+                    sqlConnection.Open();
+                }
+                return sqlCommand.ExecuteNonQuery();
+            }
+            catch (SqlException sqlEx)
+            {
+                throw sqlEx;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Fail to execute SQL text: [{0}]", sqlText), ex);
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
+        }
+
+        internal object ExecuteSqlTextScalar(string sqlText)
+        {
+            try
+            {
+                sqlText.CheckEmptyString("sqlText");
+                sqlCommand.CommandType = CommandType.Text;
+                sqlCommand.CommandText = sqlText;
+                sqlCommand.Parameters.Clear();
+                sqlCommand.CommandTimeout = timeoutMillSeconds;
+
+                if (sqlConnection.State != ConnectionState.Open)
+                {
+                    sqlConnection.Open();
+                }
+                return sqlCommand.ExecuteScalar();
+            }
+            catch (SqlException sqlEx)
+            {
+                throw sqlEx;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Fail to execute SQL text: [{0}]", sqlText), ex);
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
         }
 
         /// <summary>
@@ -297,6 +359,10 @@ namespace Beyova
 
             try
             {
+                using (var databaseOperator = new DatabaseOperator(sqlConnection))
+                {
+                    databaseOperator.ExecuteSqlTextNonQuery("SELECT @@VERSION");
+                }
                 tempSqlConnection = new SqlConnection(sqlConnection);
 
                 var tempSqlCommand = tempSqlConnection.CreateCommand();

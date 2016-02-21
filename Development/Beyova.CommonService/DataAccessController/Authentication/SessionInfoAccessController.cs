@@ -178,7 +178,7 @@ namespace Beyova.CommonService.DataAccessController
         /// </summary>
         /// <param name="stamp">The stamp.</param>
         /// <returns>System.Int32.</returns>
-        public int CleanSessionInfo(DateTime? stamp)
+        public void CleanSessionInfo(DateTime? stamp)
         {
             const string spName = "sp_CleanSessionInfo";
 
@@ -191,7 +191,7 @@ namespace Beyova.CommonService.DataAccessController
                     this.GenerateSqlSpParameter("Stamp",stamp)
                 };
 
-                return this.ExecuteNonQuery(spName, parameters);
+                this.ExecuteNonQuery(spName, parameters);
             }
             catch (Exception ex)
             {

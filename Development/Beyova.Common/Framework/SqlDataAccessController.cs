@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Xml.Linq;
 using Beyova.AOP;
+using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -12,13 +13,8 @@ namespace Beyova
     /// Abstract class for SQL data access controller, which refers an entity in {T} type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class SqlDataAccessController<T> : IDisposable
+    public abstract class SqlDataAccessController<T> : SqlDataAccessController
     {
-        /// <summary>
-        /// The database operator
-        /// </summary>
-        protected DatabaseOperator databaseOperator = null;
-
         #region Constructor
 
         /// <summary>
@@ -26,9 +22,8 @@ namespace Beyova
         /// </summary>
         /// <param name="sqlConnectionString">The SQL connection string.</param>
         protected SqlDataAccessController(string sqlConnectionString)
-            : base()
+            : base(sqlConnectionString)
         {
-            this.databaseOperator = new DatabaseOperator(sqlConnectionString);
         }
 
         /// <summary>
@@ -36,9 +31,8 @@ namespace Beyova
         /// </summary>
         /// <param name="sqlConnection">The SQL connection.</param>
         protected SqlDataAccessController(SqlConnection sqlConnection)
-            : base()
+            : base(sqlConnection)
         {
-            this.databaseOperator = new DatabaseOperator(sqlConnection);
         }
 
         #endregion
@@ -55,6 +49,8 @@ namespace Beyova
                 sqlDataReader.CheckNullObject("sqlDataReader");
 
                 var result = new List<T>();
+                // When enter this method, Read() has been called for detect exception already.
+                result.Add(ConvertEntityObject(sqlDataReader));
 
                 while (sqlDataReader.Read())
                 {
@@ -100,7 +96,7 @@ namespace Beyova
 
             try
             {
-                reader = databaseOperator.ExecuteReader(spName, sqlParameters);
+                reader = this.Execute(spName, sqlParameters);
                 return ConvertObject(reader);
             }
             catch (Exception ex)
@@ -127,9 +123,12 @@ namespace Beyova
         /// <returns>System.Object.</returns>
         protected object ExecuteScalar(string spName, List<SqlParameter> sqlParameters)
         {
+            SqlDataReader reader = null;
+
             try
             {
-                return databaseOperator.ExecuteScalar(spName, sqlParameters);
+                reader = this.Execute(spName, sqlParameters);
+                return reader[0];
             }
             catch (Exception ex)
             {
@@ -137,6 +136,11 @@ namespace Beyova
             }
             finally
             {
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+
                 // use Close instead of Dispose so that operator can be reuse without re-initialize.
                 databaseOperator.Close();
             }
@@ -148,11 +152,13 @@ namespace Beyova
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
         /// <returns>System.Int32.</returns>
-        protected int ExecuteNonQuery(string spName, List<SqlParameter> sqlParameters)
+        protected void ExecuteNonQuery(string spName, List<SqlParameter> sqlParameters)
         {
+            SqlDataReader reader = null;
+
             try
             {
-                return databaseOperator.ExecuteNonQuery(spName, sqlParameters);
+                reader = this.Execute(spName, sqlParameters);
             }
             catch (Exception ex)
             {
@@ -160,9 +166,113 @@ namespace Beyova
             }
             finally
             {
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+
                 // use Close instead of Dispose so that operator can be reuse without re-initialize.
                 databaseOperator.Close();
             }
+        }
+    }
+
+    /// <summary>
+    /// Class SqlDataAccessController.
+    /// </summary>
+    public abstract class SqlDataAccessController : IDisposable
+    {
+        /// <summary>
+        /// The column_ SQL error code
+        /// </summary>
+        protected const string column_SqlErrorCode = "SqlErrorCode";
+
+        /// <summary>
+        /// The column_ SQL error reason
+        /// </summary>
+        protected const string column_SqlErrorReason = "SqlErrorReason";
+
+        /// <summary>
+        /// The column_ SQL error message
+        /// </summary>
+        protected const string column_SqlErrorMessage = "SqlErrorMessage";
+
+        /// <summary>
+        /// The column_ SQL stored procedure name
+        /// </summary>
+        protected const string column_SqlStoredProcedureName = "SqlStoredProcedureName";
+
+        /// <summary>
+        /// The database operator
+        /// </summary>
+        protected DatabaseOperator databaseOperator = null;
+
+        #region Constructor
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlDataAccessController{T}" /> class.
+        /// </summary>
+        /// <param name="sqlConnectionString">The SQL connection string.</param>
+        protected SqlDataAccessController(string sqlConnectionString)
+            : base()
+        {
+            this.databaseOperator = new DatabaseOperator(sqlConnectionString);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SqlDataAccessController{T}" /> class.
+        /// </summary>
+        /// <param name="sqlConnection">The SQL connection.</param>
+        protected SqlDataAccessController(SqlConnection sqlConnection)
+            : base()
+        {
+            this.databaseOperator = new DatabaseOperator(sqlConnection);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Executes the specified sp name.
+        /// </summary>
+        /// <param name="spName">Name of the sp.</param>
+        /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <returns>SqlDataReader.</returns>
+        protected SqlDataReader Execute(string spName, List<SqlParameter> sqlParameters)
+        {
+            try
+            {
+                var reader = databaseOperator.ExecuteReader(spName, sqlParameters);
+
+                if (reader.Read())
+                {
+                    var exception = TryGetSqlException(reader);
+
+                    if (exception != null)
+                    {
+                        throw exception;
+                    }
+                }
+
+                return reader;
+            }
+            catch (SqlStoredProcedureException sqlEx)
+            {
+                throw sqlEx;
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("Execute", new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+            }
+        }
+
+        /// <summary>
+        /// Abouts the SQL server.
+        /// </summary>
+        /// <param name="sqlConnection">The SQL connection.</param>
+        /// <returns>System.String.</returns>
+        public static string AboutSqlServer(string sqlConnection)
+        {
+            return DatabaseOperator.AboutSqlServer(sqlConnection);
         }
 
         /// <summary>
@@ -181,6 +291,95 @@ namespace Beyova
 
             return result;
         }
+
+        /// <summary>
+        /// Tries the get SQL exception.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <returns>SqlStoredProcedureException.</returns>
+        protected static SqlStoredProcedureException TryGetSqlException(SqlDataReader reader)
+        {
+            try
+            {
+                reader.CheckNullObject("reader");
+                var storedProcedureName = reader.HasColumn(column_SqlStoredProcedureName) ? reader[column_SqlStoredProcedureName].ObjectToString() : null;
+                var errorCode = reader.HasColumn(column_SqlErrorCode) ? reader[column_SqlErrorCode].ObjectToNullableInt32() : null;
+                var errorReason = reader.HasColumn(column_SqlErrorReason) ? reader[column_SqlErrorReason].ObjectToString() : null;
+                var errorMessage = reader.HasColumn(column_SqlErrorMessage) ? reader[column_SqlErrorMessage].ObjectToString() : null;
+
+                if (!string.IsNullOrWhiteSpace(storedProcedureName) && errorCode != null)
+                {
+                    return new SqlStoredProcedureException(storedProcedureName, errorMessage, errorCode.Value, errorReason);
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("TryGetSqlException");
+            }
+        }
+
+        #region InitializeCustomizedSqlErrorStoredProcedure
+
+        /// <summary>
+        /// Initializes the customized SQL error stored procedure.
+        /// </summary>
+        /// <param name="sqlConnection">The SQL connection.</param>
+        public static void InitializeCustomizedSqlErrorStoredProcedure(string sqlConnection)
+        {
+            if (string.IsNullOrWhiteSpace(sqlConnection))
+            {
+                return;
+            }
+
+            try
+            {
+                using (var databaseOperator = new DatabaseOperator(sqlConnection))
+                {
+                    InitializeCustomizedSqlErrorStoredProcedure(databaseOperator);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("InitializeCustomizedSqlErrorStoredProcedure");
+            }
+        }
+
+        /// <summary>
+        /// Initializes the customized SQL error stored procedure.
+        /// </summary>
+        /// <param name="databaseOperator">The database operator.</param>
+        protected static void InitializeCustomizedSqlErrorStoredProcedure(DatabaseOperator databaseOperator)
+        {
+            const string storedProcedureDrop = @"
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_ThrowException]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[sp_ThrowException];
+";
+            const string storedProcedureCreate = @"
+CREATE PROCEDURE [dbo].[sp_ThrowException](
+    @Name [NVARCHAR](256),
+    @Code INT,
+    @Reason [NVARCHAR](256),
+    @Message [NVARCHAR](512)
+)
+AS
+BEGIN
+    SELECT 
+        @Name AS [SqlStoredProcedureName],
+        ISNULL(@Code, 500) AS [SqlErrorCode],
+        @Reason AS [SqlErrorReason],
+        @Message AS [SqlErrorMessage];
+END
+
+";
+            databaseOperator.ExecuteSqlTextNonQuery(storedProcedureDrop);
+            databaseOperator.ExecuteSqlTextNonQuery(storedProcedureCreate);
+        }
+
+        #endregion
+
+        #region GenerateSqlSpParameter
 
         /// <summary>
         /// Generates the name of the SQL sp parameter.
@@ -218,6 +417,8 @@ namespace Beyova
             return GenerateSqlSpParameter(columnName, parameterObject == null ? Convert.DBNull : parameterObject.ToString(), direction);
         }
 
+        #endregion
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -227,16 +428,6 @@ namespace Beyova
             {
                 this.databaseOperator.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Abouts the SQL server.
-        /// </summary>
-        /// <param name="sqlConnection">The SQL connection.</param>
-        /// <returns>System.String.</returns>
-        public static string AboutSqlServer(string sqlConnection)
-        {
-            return DatabaseOperator.AboutSqlServer(sqlConnection);
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Beyova
         {
             if (exception != null)
             {
-                return exception.InnerException == null ? exception : exception.InnerException.RootException();
+                return exception.InnerException == null ? exception : exception.InnerException.RootException() as Exception;
             }
 
             return null;
@@ -420,24 +420,7 @@ namespace Beyova
 
                 if (sqlException != null)
                 {
-                    var sqlNumber = GetSqlExceptionExceptionNumber(sqlException);
-
-                    switch (sqlNumber)
-                    {
-                        case 60400:
-                            return new InvalidObjectException(sqlException.Message, null, data);
-                        case 60402:
-                            return new CreditNotAffordException(operationName, sqlException.Message, operatorIdentity, null, data);
-                        case 60500:
-                        case 60409:
-                            return new DataConflictException(data == null ? string.Empty : data.GetType().ToString(), "State", exception, operatorIdentity, data) as BaseException;
-                        case 60403:
-                            return new OperationForbiddenException(operationName, sqlException.Message, sqlException, operatorIdentity, data) as BaseException;
-                        case 60404:
-                            return new ResourceNotFoundException(sqlException.Message, operatorIdentity, minor: null, innerException: null, data: data) as BaseException;
-                        default:
-                            return new OperationFailureException(operationName, exception, data) as BaseException;
-                    }
+                    return new OperationFailureException(operationName, exception, data) as BaseException;
                 }
                 else if (notImplementException != null)
                 {
@@ -456,7 +439,7 @@ namespace Beyova
                             case ExceptionCode.MajorCode.UnauthorizedOperation:
                                 return new UnauthorizedOperationException(operationName, operatorIdentity, baseException.Code.Minor, baseException, data) as BaseException;
                             case ExceptionCode.MajorCode.OperationForbidden:
-                                return new OperationForbiddenException(operationName, ((OperationForbiddenException)baseException).Reason, baseException, operatorIdentity, data) as BaseException;
+                                return new OperationForbiddenException(operationName, baseException.Code?.Minor, baseException, operatorIdentity, data) as BaseException;
                             case ExceptionCode.MajorCode.NullOrInvalidValue:
                             case ExceptionCode.MajorCode.DataConflict:
                             case ExceptionCode.MajorCode.NotImplemented:
@@ -532,7 +515,7 @@ namespace Beyova
 
                 var exceptionInfo = new ExceptionInfo
                 {
-                    ExceptionType = exception.GetType().FullName,
+                    ExceptionType = exception.GetType().GetFullName(),
                     Level = level,
                     ServerIdentifier = serverIdentifier,
                     ServiceIdentifier = appIdentifier,
@@ -558,96 +541,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the XML.
-        /// </summary>
-        /// <param name="exceptionCode">The exception code.</param>
-        /// <returns>XElement.</returns>
-        private static XElement ToXml(this ExceptionCode exceptionCode)
-        {
-            var result = node_Code.CreateXml();
-
-            result.SetAttributeValue(node_MajorCode, (int)exceptionCode.Major);
-            result.SetAttributeValue(node_MinorCode, exceptionCode.Minor.SafeToString());
-
-            return result;
-        }
-
-        /// <summary>
-        /// To the exception code.
-        /// </summary>
-        /// <param name="xml">The XML.</param>
-        /// <returns>ExceptionCode.</returns>
-        private static ExceptionCode ToExceptionCode(this XElement xml)
-        {
-            var result = new ExceptionCode();
-
-            if (xml != null && xml.Name.LocalName == node_Code)
-            {
-                result.Major = (ExceptionCode.MajorCode)(xml.GetAttributeValue(node_MajorCode).ToInt32());
-                result.Minor = xml.GetAttributeValue(node_MinorCode);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Merges as object.
-        /// </summary>
-        /// <param name="objects">The objects.</param>
-        /// <returns>ExceptionInfo.</returns>
-        public static ExceptionInfo MergeAsObject(this List<ExceptionInfo> objects)
-        {
-            if (objects != null)
-            {
-                var result = objects.First();
-                var temp = result;
-                for (var i = 1; i < objects.Count; i++)
-                {
-                    temp.InnerException = objects[i];
-                    temp = temp.InnerException;
-                }
-
-                return result;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the SQL exception exception number.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <returns></returns>
-        public static int? GetSqlExceptionExceptionNumber(SqlException exception)
-        {
-            if (exception != null)
-            {
-                if (exception.Message.StartsWith("Error") && exception.Message.Length > 5)
-                {
-                    string message = exception.Message.Substring(5);
-                    var comma = message.IndexOf(',');
-                    if (comma >= 0)
-                    {
-                        return message.Substring(0, comma).TrimStart().ToInt32();
-                    }
-                    else
-                    {
-                        try
-                        {
-                            return message.ToInt32();
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// To the exception.
         /// </summary>
         /// <param name="exceptionInfo">The exception information.</param>
@@ -659,6 +552,16 @@ namespace Beyova
             if (exceptionInfo != null)
             {
                 var innerException = exceptionInfo.InnerException;
+
+                switch (exceptionInfo.ExceptionType)
+                {
+                    case "Beyova.ExceptionSystem.HttpOperationException":
+                        return new HttpOperationException(exceptionInfo.Message, exceptionInfo.Code, exceptionInfo.Data?.Value<HttpOperationException.HttpExceptionReference>(BaseException.dataKey_ReferenceData), exceptionInfo.Data?.Value<string>(BaseException.dataKey_Operator));
+                    case "Beyova.ExceptionSystem.SqlStoredProcedureException":
+                        return new SqlStoredProcedureException(exceptionInfo.Message, exceptionInfo.Code);
+                    default:
+                        break;
+                }
 
                 switch (exceptionInfo.Code.Major)
                 {

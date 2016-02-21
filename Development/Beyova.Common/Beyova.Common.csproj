@@ -98,12 +98,14 @@
     <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
     <Compile Include="Constants\CommonServiceConstants.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
+    <Compile Include="ExceptionSystem\Model\Exception\SqlStoredProcedureException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\HttpOperationException.cs" />
     <Compile Include="Extensions\TreeExtension.cs" />
     <Compile Include="Extensions\JsonComparisonExtension.cs" />
     <Compile Include="Extensions\LdapExtension.cs" />
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
+    <Compile Include="Framework\SqlDataAccessController.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
     <Compile Include="Interfaces\ITreeNode.cs" />
     <Compile Include="Interfaces\IPermissionIdentifiers.cs" />
@@ -289,7 +291,6 @@
     <Compile Include="Extensions\MailExtension.cs" />
     <Compile Include="Framework\DatabaseOperator.cs" />
     <Compile Include="Extensions\CommonExtension.cs" />
-    <Compile Include="Framework\SqlDataAccessController.cs" />
     <Compile Include="Interfaces\IToXml.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\Assembly.cs" />

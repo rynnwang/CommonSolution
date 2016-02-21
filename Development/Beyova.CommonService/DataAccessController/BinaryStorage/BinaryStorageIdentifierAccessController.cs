@@ -78,7 +78,7 @@ namespace Beyova.CommonService.DataAccessController
         /// </summary>
         /// <param name="stamp">The stamp.</param>
         /// <returns>System.Int32.</returns>
-        public int ConvertPendingCommitToPendingDelete(DateTime? stamp)
+        public void ConvertPendingCommitToPendingDelete(DateTime? stamp)
         {
             const string spName = "sp_ConvertPendingCommitToPendingDelete";
 
@@ -91,7 +91,7 @@ namespace Beyova.CommonService.DataAccessController
                     GenerateSqlSpParameter(column_Stamp, stamp)
                 };
 
-                return this.ExecuteNonQuery(spName, parameters);
+                this.ExecuteNonQuery(spName, parameters);
             }
             catch (Exception ex)
             {
@@ -105,7 +105,7 @@ namespace Beyova.CommonService.DataAccessController
         /// </summary>
         /// <param name="identifiers">The identifiers.</param>
         /// <returns>System.Int32.</returns>
-        public int CommitDeletion(List<BinaryStorageIdentifier> identifiers)
+        public void CommitDeletion(List<BinaryStorageIdentifier> identifiers)
         {
             const string spName = "sp_CommitBinaryStorageDeletion";
 
@@ -127,7 +127,7 @@ namespace Beyova.CommonService.DataAccessController
                     this.GenerateSqlSpParameter(column_Xml, root.ToString())
                 };
 
-                return this.ExecuteNonQuery(spName, parameters);
+                this.ExecuteNonQuery(spName, parameters);
             }
             catch (Exception ex)
             {

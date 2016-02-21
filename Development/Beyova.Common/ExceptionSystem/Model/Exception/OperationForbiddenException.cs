@@ -7,12 +7,6 @@ namespace Beyova.ExceptionSystem
     /// </summary>
     public class OperationForbiddenException : BaseException
     {
-        /// <summary>
-        /// Gets or sets the reason.
-        /// </summary>
-        /// <value>The reason.</value>
-        public string Reason { get; set; }
-
         #region Constructor
 
         /// <summary>
@@ -25,9 +19,8 @@ namespace Beyova.ExceptionSystem
         /// <param name="data">The data.</param>
         /// <param name="hintMessage">The hint message.</param>
         public OperationForbiddenException(string actionName, string reason, Exception innerException = null, string operatorIdentifier = null, object data = null, string hintMessage = null)
-            : base(string.Format("Operation [{0}] is forbidden", actionName), ExceptionCode.MajorCode.OperationForbidden, reason, innerException, operatorIdentifier, data, hintMessage)
+            : base(string.Format("Operation [{0}] is forbidden. Reason: {1}", actionName, reason), ExceptionCode.MajorCode.OperationForbidden, reason, innerException, operatorIdentifier, data, hintMessage)
         {
-            this.Reason = reason;
         }
 
         /// <summary>

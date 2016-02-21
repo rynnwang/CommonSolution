@@ -12,15 +12,8 @@ using System.Collections.Generic;
 namespace Beyova.Common.UnitTest
 {
     [TestClass]
-    public class LDAPUnitTest
+    public class DynamicCompileUnitTest
     {
-        [TestMethod]
-        public void Test()
-        {
-            var isAuthenticated = LdapExtension.TryAuthenticate("", "", "");
-            Assert.IsTrue(isAuthenticated);
-        }
-
         [TestMethod]
         public void TestCompile()
         {
@@ -44,18 +37,6 @@ namespace Beyova.Compile
             var result = method.Invoke(obj, (2 as object).AsArray());
 
 
-        }
-    }
-}
-
-
-namespace Beyova.Compile
-{
-    public class Test
-    {
-        public int Run(int x)
-        {
-            return x + 1;
         }
     }
 }

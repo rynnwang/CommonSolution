@@ -263,7 +263,7 @@ namespace Beyova.Configuration
 
                 if (!string.IsNullOrWhiteSpace(jsonString))
                 {
-                    var beyovaComponent = assembly.GetCustomAttribute<BeyovaComponentAttribute>();
+                    var beyovaComponent = assembly?.GetCustomAttribute<BeyovaComponentAttribute>();
                     InitializeSettings(settingContainer, beyovaComponent, jsonString, assembly == null ? "AppConfig" : assemblyName, throwException);
                 }
 

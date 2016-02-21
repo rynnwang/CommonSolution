@@ -43,6 +43,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -59,8 +60,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="LDAPUnitTest.cs" />
+    <Compile Include="DynamicCompileUnitTest.cs" />
+    <Compile Include="SqlExceptionUnitTest\SqlExceptionHandleUnitTest.cs" />
     <Compile Include="ApiContractSerializationUnitTest.cs" />
+    <Compile Include="SqlExceptionUnitTest\SqlTextObject.cs" />
     <Compile Include="StrickJsonUnitTest.cs" />
     <Compile Include="JsonXmlSerializerUnitTest.cs" />
     <Compile Include="RawHttpRequestUnitTest.cs" />
@@ -85,6 +88,14 @@
       <Project>{9c5a58ff-8f44-451f-9698-2fe2e3f2e7de}</Project>
       <Name>Beyova.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SqlExceptionUnitTest\sp_ExecuteScalarWithException.sql" />
+    <Content Include="SqlExceptionUnitTest\sp_ExecuteScalar.sql" />
+    <Content Include="SqlExceptionUnitTest\sp_ExecuteNonQueryWithException.sql" />
+    <Content Include="SqlExceptionUnitTest\sp_ExecuteNonQuery.sql" />
+    <Content Include="SqlExceptionUnitTest\sp_ExecuteReaderTestWithException.sql" />
+    <Content Include="SqlExceptionUnitTest\sp_ExecuteReaderTest.sql" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

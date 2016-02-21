@@ -146,7 +146,6 @@
     <Content Include="DatabaseScripts\Output.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe.config" />
     <None Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe.config" />
     <None Include="packages.config" />
