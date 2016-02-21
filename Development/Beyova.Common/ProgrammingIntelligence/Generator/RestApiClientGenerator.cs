@@ -294,7 +294,7 @@ namespace Beyova.RestApi
                                 }
                                 else
                                 {
-                                    builder.AppendFormat("return this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, parameters).Value<{3}>();",
+                                    builder.AppendFormat("return this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, parameters).ToObject<{3}>();",
                                         apiOperationAttribute.HttpMethod,
                                         apiOperationAttribute.ResourceName,
                                         apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
@@ -330,7 +330,7 @@ namespace Beyova.RestApi
                                 }
                                 else
                                 {
-                                    builder.AppendFormat("return this.InvokeUsingCombinedQueryString(\"{0}\",\"{1}\",{2}, parameters).Value<{3}>();",
+                                    builder.AppendFormat("return this.InvokeUsingCombinedQueryString(\"{0}\",\"{1}\",{2}, parameters).ToObject<{3}>();",
                                         apiOperationAttribute.HttpMethod,
                                         apiOperationAttribute.ResourceName,
                                         apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
@@ -360,7 +360,7 @@ namespace Beyova.RestApi
                                 }
                                 else
                                 {
-                                    builder.AppendFormat("return this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2}, {3}).Value<{4}>();",
+                                    builder.AppendFormat("return this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2}, {3}).ToObject<{4}>();",
                                         apiOperationAttribute.HttpMethod,
                                         apiOperationAttribute.ResourceName,
                                         apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
@@ -387,7 +387,7 @@ namespace Beyova.RestApi
                                 }
                                 else
                                 {
-                                    builder.AppendFormat("return this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, {3}).Value<{4}>();",
+                                    builder.AppendFormat("return this.InvokeUsingBody(\"{0}\",\"{1}\",{2}, {3}).ToObject<{4}>();",
                                         apiOperationAttribute.HttpMethod,
                                         apiOperationAttribute.ResourceName,
                                         apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
@@ -414,7 +414,7 @@ namespace Beyova.RestApi
                         }
                         else
                         {
-                            builder.AppendFormat("this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2},null).Value<{3}>();",
+                            builder.AppendFormat("this.InvokeUsingQueryString(\"{0}\",\"{1}\",{2},null).ToObject<{3}>();",
                                 apiOperationAttribute.HttpMethod,
                                 apiOperationAttribute.ResourceName,
                                 apiOperationAttribute.Action.AsQuotedString().SafeToString("null"),
