@@ -196,7 +196,60 @@ url{
         /// Writes the HTML document to zip.
         /// </summary>
         /// <returns>System.Byte[].</returns>
-        public byte[] WriteHtmlDocumentToZip()
+        public byte[] WriteHtmlDocumentToZip(params Type[] types)
+        {
+            var container = new Dictionary<string, byte[]>();
+            WriteHtmlDocument<Dictionary<string, byte[]>>((c, name, b) =>
+            {
+                c.Add(name, b);
+            }, container, types ?? GetAssemblyType().ToArray());
+
+            return container.Any() ? container.ZipAsBytes() : null;
+        }
+
+        /// <summary>
+        /// Writes the HTML document to file.
+        /// </summary>
+        /// <param name="containerPath">The container path.</param>
+        public void WriteHtmlDocumentToFile(string containerPath, params Type[] types)
+        {
+            WriteHtmlDocument<string>((c, name, b) =>
+            {
+                File.WriteAllBytes(Path.Combine(c, name), b);
+            }, containerPath, types ?? GetAssemblyType().ToArray());
+        }
+
+        /// <summary>
+        /// Gets the type of the assembly.
+        /// </summary>
+        /// <returns>List&lt;Type&gt;.</returns>
+        private static List<Type> GetAssemblyType()
+        {
+            List<Type> result = new List<Type>();
+            foreach (var assembly in ReflectionExtension.GetAppDomainAssemblies())
+            {
+                foreach (var one in assembly.GetTypes())
+                {
+                    var apiContractAttribute = one.GetCustomAttribute<ApiContractAttribute>(true);
+                    if (apiContractAttribute != null)
+                    {
+                        result.Add(one);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Writes the HTML document.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="packageDocumentDelegate">The package document delegate.</param>
+        /// <param name="container">The container.</param>
+        /// <param name="types">The types.</param>
+        /// <returns>T.</returns>
+        private T WriteHtmlDocument<T>(Action<T, string, byte[]> packageDocumentDelegate, T container, params Type[] types)
         {
             var zipFiles = new Dictionary<string, byte[]>();
 
@@ -205,20 +258,21 @@ url{
 
             //Service List
             StringBuilder builder = new StringBuilder();
-            foreach (var assembly in ReflectionExtension.GetAppDomainAssemblies())
+
+            foreach (var one in types)
             {
-                foreach (var one in assembly.GetTypes())
+                var apiContractAttribute = one.GetCustomAttribute<ApiContractAttribute>(true);
+                if (apiContractAttribute != null)
                 {
-                    var apiContractAttribute = one.GetCustomAttribute<ApiContractAttribute>(true);
-                    if (apiContractAttribute != null)
-                    {
-                        serviceTypes.Add(new KeyValuePair<Type, ApiContractAttribute>(one, apiContractAttribute));
-                        WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute);
-                    }
+                    serviceTypes.Add(new KeyValuePair<Type, ApiContractAttribute>(one, apiContractAttribute));
+                    WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute);
                 }
             }
 
-            zipFiles.Add("index.html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API Documentation")));
+            if (packageDocumentDelegate != null)
+            {
+                packageDocumentDelegate(container, "index.html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API Documentation")));
+            }
 
             //Api Files.
             foreach (var one in serviceTypes)
@@ -226,82 +280,21 @@ url{
                 builder = new StringBuilder();
                 builder.AppendLineWithFormat("<div style=\"display:block; background-color:#000000; color: #eeeeee\"><h1>{0} ({1})</h1></div>", one.Key.Name, one.Key.Namespace);
                 WriteApiHtmlDocument(builder, one.Key, one.Value, one.Key.GetCustomAttribute<TokenRequiredAttribute>(true), enumSets);
-
-                zipFiles.Add(one.Key.FullName + ".html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API - " + one.Key.Name)));
+                if (packageDocumentDelegate != null)
+                {
+                    packageDocumentDelegate(container, one.Key.FullName + ".html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API - " + one.Key.Name)));
+                }
             }
 
-            foreach (var one in enumSets)
+            if (packageDocumentDelegate != null)
             {
-                zipFiles.Add(one.FullName + ".html", Encoding.UTF8.GetBytes(GetEnumValueTable(one)));
-            }
-
-            return zipFiles.Any() ? zipFiles.ZipAsBytes() : null;
-        }
-
-        /// <summary>
-        /// Writes the HTML document to file.
-        /// </summary>
-        /// <param name="containerPath">The container path.</param>
-        public void WriteHtmlDocumentToFile(string containerPath)
-        {
-            if (!string.IsNullOrWhiteSpace(containerPath))
-            {
-                DirectoryInfo directory = new DirectoryInfo(containerPath);
-
-                if (!directory.Exists)
-                {
-                    directory.Create();
-                }
-
-                var serviceTypes = new List<KeyValuePair<Type, ApiContractAttribute>>();
-                HashSet<Type> enumSets = new HashSet<Type>();
-                //Service List
-                StringBuilder builder = new StringBuilder();
-                foreach (var assembly in ReflectionExtension.GetAppDomainAssemblies())
-                {
-                    foreach (var one in assembly.GetTypes())
-                    {
-                        var apiContractAttribute = one.GetCustomAttribute<ApiContractAttribute>(true);
-                        if (apiContractAttribute != null)
-                        {
-                            serviceTypes.Add(new KeyValuePair<Type, ApiContractAttribute>(one, apiContractAttribute));
-                            WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute);
-                        }
-                    }
-                }
-
-                File.WriteAllText(Path.Combine(containerPath, "index.html"), WriteAsEntireHtmlFile(builder.ToString(), "API Documentation"));
-
-                //Api Files.
-                foreach (var one in serviceTypes)
-                {
-                    builder = new StringBuilder();
-                    builder.AppendLineWithFormat("<div style=\"display:block; background-color:#000000; color: #eeeeee\"><h1>{0} ({1})</h1></div>", one.Key.Name, one.Key.Namespace);
-                    WriteApiHtmlDocument(builder, one.Key, one.Value, one.Key.GetCustomAttribute<TokenRequiredAttribute>(true), enumSets);
-
-                    File.WriteAllText(Path.Combine(containerPath, one.Key.FullName + ".html"), WriteAsEntireHtmlFile(builder.ToString(), "API - " + one.Key.Name));
-                }
-
                 foreach (var one in enumSets)
                 {
-                    WriteEnumValueTableToFile(containerPath, one);
+                    packageDocumentDelegate(container, one.FullName + ".html", Encoding.UTF8.GetBytes(GetEnumValueTable(one)));
                 }
             }
-        }
 
-        /// <summary>
-        /// Generates the API service HTML document.
-        /// </summary>
-        /// <param name="apiServiceType">Type of the API service.</param>
-        /// <param name="apiContractAttribute">The API class attribute.</param>
-        /// <returns>System.String.</returns>
-        public string GenerateApiServiceHtmlDocumentPanel(Type apiServiceType, ApiContractAttribute apiContractAttribute)
-        {
-            StringBuilder builder = new StringBuilder();
-
-            WriteApiServiceHtmlDocumentPanel(builder, apiServiceType, apiContractAttribute);
-
-            return builder.ToString();
+            return container;
         }
 
         /// <summary>
@@ -639,6 +632,18 @@ url{
                     }
                     builder.AppendFormat(enumFormat, (firstEnum == null) ? string.Empty : ((int)firstEnum).ToString(), type.FullName);
                 }
+                else if (type == typeof(JObject))
+                {
+                    builder.Append("<span class=\"JSON\" style=\"font-style:italic; font-weight:bold;color:#3abd4d;\" title=\"Any JObject\">{ Any JObject }</span>");
+                }
+                else if (type == typeof(JArray))
+                {
+                    builder.Append("<span class=\"JSON\" style=\"font-style:italic; font-weight:bold;color:#3abd4d;\" title=\"Any JArray\">[ Any JArray ]</span>");
+                }
+                else if (type == typeof(JToken))
+                {
+                    builder.Append("<span class=\"JSON\" style=\"font-style:italic; font-weight:bold;color:#3abd4d;\" title=\"Any JToken\">{ Any JSON }</span>");
+                }
                 else if (type.IsDictionary())
                 {
                     var keyType = type.GetGenericArguments()[0];
@@ -681,18 +686,6 @@ url{
 
                     AppendIndent(builder, indent);
                     builder.AppendLineWithFormat(arrayBrace, "]");
-                }
-                else if (type == typeof(JObject))
-                {
-                    builder.Append("<span class=\"JSON\" style=\"font-style:italic; font-weight:bold;color:#3abd4d;\" title=\"Any JObject\">{ Any JObject }</span>");
-                }
-                else if (type == typeof(JArray))
-                {
-                    builder.Append("<span class=\"JSON\" style=\"font-style:italic; font-weight:bold;color:#3abd4d;\" title=\"Any JArray\">[ Any JArray ]</span>");
-                }
-                else if (type == typeof(JToken))
-                {
-                    builder.Append("<span class=\"JSON\" style=\"font-style:italic; font-weight:bold;color:#3abd4d;\" title=\"Any JToken\">{ Any JSON }</span>");
                 }
                 else
                 {
