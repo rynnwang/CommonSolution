@@ -231,6 +231,21 @@ namespace Beyova
 
         #endregion
 
+        #region Transanction
+
+        /// <summary>
+        /// Begins the transaction.
+        /// </summary>
+        /// <param name="iso">The iso.</param>
+        /// <param name="transactionName">Name of the transaction.</param>
+        /// <returns>SqlTransactionScope.</returns>
+        internal SqlTransactionScope BeginTransaction(IsolationLevel iso = IsolationLevel.Unspecified, string transactionName = null)
+        {
+            return this.databaseOperator.BeginTransaction(iso, transactionName);
+        }
+
+        #endregion
+
         /// <summary>
         /// Executes the specified sp name.
         /// </summary>

@@ -114,6 +114,7 @@
     <Compile Include="Model\Admin\User\AdminUserInfoBase.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
+    <Compile Include="Framework\SqlTransactionScope.cs" />
     <Compile Include="Model\ComparisonResult.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />

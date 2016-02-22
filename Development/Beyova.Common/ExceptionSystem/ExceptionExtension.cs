@@ -331,7 +331,6 @@ namespace Beyova
             }
         }
 
-
         /// <summary>
         /// Appends the indent.
         /// Returns  the same <see cref="StringBuilder"/> instance to make sure it supports chain based actions.

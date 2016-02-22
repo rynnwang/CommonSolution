@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -42,16 +43,83 @@ namespace Beyova
         {
             try
             {
-                this.sqlConnection = sqlConnection;
-                this.sqlCommand = sqlConnection.CreateCommand();
-                sqlCommand.Connection = sqlConnection;
-                sqlCommand.CommandType = CommandType.StoredProcedure;
+                if (SqlTransactionScope.SqlCommand != null)
+                {
+                    this.sqlCommand = SqlTransactionScope.SqlCommand;
+                    this.sqlConnection = SqlTransactionScope.SqlCommand.Connection;
+                }
+                else
+                {
+                    this.sqlConnection = sqlConnection;
+                    this.sqlCommand = sqlConnection.CreateCommand();
+                    sqlCommand.Connection = sqlConnection;
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                }
             }
             catch (Exception ex)
             {
                 throw ex.Handle("DatabaseOperator", sqlConnection == null ? null : sqlConnection.ConnectionString);
             }
         }
+
+        #region Transanction
+
+        /// <summary>
+        /// Begins the transaction.
+        /// </summary>
+        /// <param name="iso">The iso.</param>
+        /// <param name="transactionName">Name of the transaction.</param>
+        /// <returns>SqlTransactionScope.</returns>
+        /// <exception cref="DataConflictException">sqlTransaction</exception>
+        internal SqlTransactionScope BeginTransaction(IsolationLevel iso = IsolationLevel.Unspecified, string transactionName = null)
+        {
+            //Default value follows Microsoft: http://referencesource.microsoft.com/#System.Data/System/Data/SqlClient/SqlConnection.cs
+
+            if (SqlTransactionScope.SqlTransaction != null)
+            {
+                throw new DataConflictException("sqlTransaction", objectIdentity: null, hintMessage: "A transaction has already been initialized and using.");
+            }
+
+            var sqlTransaction = this.sqlConnection.BeginTransaction(iso, transactionName);
+
+            return new SqlTransactionScope(sqlTransaction, this.sqlCommand);
+        }
+
+        /// <summary>
+        /// Commits this instance.
+        /// </summary>
+        internal void Commit()
+        {
+            try
+            {
+                var sqlTransaction = SqlTransactionScope.SqlTransaction;
+                sqlTransaction.CheckNullObject("sqlTransaction");
+                sqlTransaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("Commit");
+            }
+        }
+
+        /// <summary>
+        /// Rollbacks this instance.
+        /// </summary>
+        internal void Rollback()
+        {
+            try
+            {
+                var sqlTransaction = SqlTransactionScope.SqlTransaction;
+                sqlTransaction.CheckNullObject("sqlTransaction");
+                sqlTransaction.Rollback();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("Rollback");
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets the output parameter.
