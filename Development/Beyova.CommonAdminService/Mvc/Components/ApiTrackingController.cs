@@ -19,12 +19,6 @@ namespace Beyova.CommonAdminService
         protected IApiAnalytics client;
 
         /// <summary>
-        /// Gets the client.
-        /// </summary>
-        /// <value>The client.</value>
-        public abstract IApiAnalytics Client { get; }
-
-        /// <summary>
         /// The _analytic index name
         /// </summary>
         protected string _analyticIndexName;
@@ -37,6 +31,16 @@ namespace Beyova.CommonAdminService
         protected IApiAnalytics GetClient(EnvironmentEndpoint endpoint)
         {
             return endpoint == null ? null : InitializeClient(endpoint, _analyticIndexName);
+        }
+
+        /// <summary>
+        /// Gets the client.
+        /// </summary>
+        /// <param name="environment">The environment.</param>
+        /// <returns>IApiAnalytics.</returns>
+        protected IApiAnalytics GetClient(string environment)
+        {
+            return GetClient(GetEnvironmentEndpoint(environment));
         }
 
         #region Constructor
@@ -74,9 +78,10 @@ namespace Beyova.CommonAdminService
         /// <param name="criteria">The criteria.</param>
         /// <returns>ActionResult.</returns>
         [HttpPost]
-        public ActionResult ApiEvent(ApiEventCriteria criteria)
+        public ActionResult ApiEvent(ApiEventCriteria criteria, string environment)
         {
-            if (Client != null && criteria != null)
+            var client = GetClient(environment);
+            if (client != null && criteria != null)
             {
                 try
                 {
@@ -98,9 +103,10 @@ namespace Beyova.CommonAdminService
         /// <param name="criteria">The criteria.</param>
         /// <returns>ActionResult.</returns>
         [HttpPost]
-        public ActionResult Exception(ExceptionCriteria criteria)
+        public ActionResult Exception(ExceptionCriteria criteria, string environment)
         {
-            if (Client != null && criteria != null)
+            var client = GetClient(environment);
+            if (client != null && criteria != null)
             {
                 try
                 {
@@ -121,9 +127,10 @@ namespace Beyova.CommonAdminService
         /// </summary>
         /// <param name="traceId">The trace identifier.</param>
         /// <returns>ActionResult.</returns>
-        public ActionResult EventTrace(string traceId)
+        public ActionResult EventTrace(string traceId, string environment)
         {
-            if (Client != null && !string.IsNullOrWhiteSpace(traceId))
+            var client = GetClient(environment);
+            if (client != null && !string.IsNullOrWhiteSpace(traceId))
             {
 
             }
