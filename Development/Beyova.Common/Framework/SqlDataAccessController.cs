@@ -97,7 +97,7 @@ namespace Beyova
             try
             {
                 reader = this.Execute(spName, sqlParameters);
-                return ConvertObject(reader);
+                return reader == null ? new List<T>() : ConvertObject(reader);
             }
             catch (Exception ex)
             {
@@ -128,7 +128,7 @@ namespace Beyova
             try
             {
                 reader = this.Execute(spName, sqlParameters);
-                return reader[0];
+                return reader == null ? DBNull.Value : reader[0];
             }
             catch (Exception ex)
             {
@@ -257,18 +257,24 @@ namespace Beyova
             try
             {
                 var reader = databaseOperator.ExecuteReader(spName, sqlParameters);
-
-                if (reader.Read())
+                if (reader.HasRows)
                 {
-                    var exception = TryGetSqlException(reader);
-
-                    if (exception != null)
+                    if (reader.Read())
                     {
-                        throw exception;
-                    }
-                }
+                        var exception = TryGetSqlException(reader);
 
-                return reader;
+                        if (exception != null)
+                        {
+                            throw exception;
+                        }
+                    }
+
+                    return reader;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (SqlStoredProcedureException sqlEx)
             {
