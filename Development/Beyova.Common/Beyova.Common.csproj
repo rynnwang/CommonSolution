@@ -117,6 +117,7 @@
     <Compile Include="Framework\SqlTransactionScope.cs" />
     <Compile Include="Model\ComparisonResult.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
+    <Compile Include="Model\MatrixList.cs" />
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />
     <Compile Include="Model\SystemEnvironment\MachineHealth.cs" />
     <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaConfigurationAttribute.cs" />

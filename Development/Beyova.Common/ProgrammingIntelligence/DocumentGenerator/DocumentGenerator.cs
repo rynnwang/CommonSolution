@@ -193,8 +193,9 @@ url{
         }
 
         /// <summary>
-        /// Writes the HTML document to zip.
+        /// Writes the HTML document to zip. If types has no item, all API in current AppDomain would be generated.
         /// </summary>
+        /// <param name="types">The types.</param>
         /// <returns>System.Byte[].</returns>
         public byte[] WriteHtmlDocumentToZip(params Type[] types)
         {
@@ -202,21 +203,22 @@ url{
             WriteHtmlDocument<Dictionary<string, byte[]>>((c, name, b) =>
             {
                 c.Add(name, b);
-            }, container, types ?? GetAssemblyType().ToArray());
+            }, container, types.HasItem() ? types : GetAssemblyType().ToArray());
 
             return container.Any() ? container.ZipAsBytes() : null;
         }
 
         /// <summary>
-        /// Writes the HTML document to file.
+        /// Writes the HTML document to file. If types has no item, all API in current AppDomain would be generated.
         /// </summary>
         /// <param name="containerPath">The container path.</param>
+        /// <param name="types">The types.</param>
         public void WriteHtmlDocumentToFile(string containerPath, params Type[] types)
         {
             WriteHtmlDocument<string>((c, name, b) =>
             {
                 File.WriteAllBytes(Path.Combine(c, name), b);
-            }, containerPath, types ?? GetAssemblyType().ToArray());
+            }, containerPath, types.HasItem() ? types : GetAssemblyType().ToArray());
         }
 
         /// <summary>
