@@ -969,6 +969,8 @@ namespace Beyova
                     {
                         result.AddRange(GetMethodInfoWithinAttribute<TAttribute>(one, inherit, bindingFlags));
                     }
+
+                    result = result.Distinct().ToList();
                 }
             }
 

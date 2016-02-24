@@ -257,6 +257,7 @@ url{
 
             var serviceTypes = new List<KeyValuePair<Type, ApiContractAttribute>>();
             HashSet<Type> enumSets = new HashSet<Type>();
+            HashSet<string> apiOperationHash = new HashSet<string>();
 
             //Service List
             StringBuilder builder = new StringBuilder();
@@ -267,7 +268,7 @@ url{
                 if (apiContractAttribute != null)
                 {
                     serviceTypes.Add(new KeyValuePair<Type, ApiContractAttribute>(one, apiContractAttribute));
-                    WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute);
+                    WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute, apiOperationHash);
                 }
             }
 
@@ -305,7 +306,8 @@ url{
         /// <param name="builder">The builder.</param>
         /// <param name="apiServiceType">Type of the API service.</param>
         /// <param name="apiContractAttribute">The API class attribute.</param>
-        protected void WriteApiServiceHtmlDocumentPanel(StringBuilder builder, Type apiServiceType, ApiContractAttribute apiContractAttribute)
+        /// <param name="apiOperationHash">The API operation hash.</param>
+        protected void WriteApiServiceHtmlDocumentPanel(StringBuilder builder, Type apiServiceType, ApiContractAttribute apiContractAttribute, HashSet<string> apiOperationHash)
         {
             if (builder != null && apiServiceType != null && apiContractAttribute != null)
             {
@@ -317,10 +319,17 @@ url{
                 {
                     var apiOperationAttribute = one.GetCustomAttribute<ApiOperationAttribute>(true);
 
-                    bodyBuilder.Append("<li>");
-                    bodyBuilder.AppendFormat("<a href=\"{0}\" title=\"{1}\">{1}</a> <span style=\"font-weight: bold;font-style: italic;color: #666666;\">({2})</span>", baseUrl + one.Name, one.Name
-                        , string.Format("{0}: /api/{1}/{2}/{3}", apiOperationAttribute.HttpMethod, apiContractAttribute.Version, apiOperationAttribute.ResourceName, apiOperationAttribute.Action).TrimEnd('/') + "/");
-                    bodyBuilder.Append("</li>");
+                    var id = GetApiOperationIdentifier(apiOperationAttribute);
+
+                    if (!apiOperationHash.Contains(id))
+                    {
+                        bodyBuilder.Append("<li>");
+                        bodyBuilder.AppendFormat("<a href=\"{0}\" title=\"{1}\">{1}</a> <span style=\"font-weight: bold;font-style: italic;color: #666666;\">({2})</span>", baseUrl + one.Name, one.Name
+                            , string.Format("{0}: /api/{1}/{2}/{3}", apiOperationAttribute.HttpMethod, apiContractAttribute.Version, apiOperationAttribute.ResourceName, apiOperationAttribute.Action).TrimEnd('/') + "/");
+                        bodyBuilder.Append("</li>");
+
+                        apiOperationHash.Add(id);
+                    }
                 }
                 bodyBuilder.Append("</ul>");
                 builder.AppendFormat(panel, string.Format("{0} ({1})", apiServiceType.Name, apiServiceType.Namespace), bodyBuilder.ToString(), apiServiceType.Name, apiServiceType.FullName);
@@ -383,21 +392,6 @@ url{
         }
 
         /// <summary>
-        /// Generates the API HTML document.
-        /// </summary>
-        /// <param name="apiServiceType">Type of the API service.</param>
-        /// <param name="apiContractAttribute">The API URI attribute.</param>
-        /// <returns>System.String.</returns>
-        public string GenerateApiHtmlDocument(Type apiServiceType, ApiContractAttribute apiContractAttribute)
-        {
-            StringBuilder builder = new StringBuilder();
-            HashSet<Type> enumSets = new HashSet<Type>();
-            WriteApiHtmlDocument(builder, apiServiceType, apiContractAttribute, apiServiceType.GetCustomAttribute<TokenRequiredAttribute>(true), enumSets);
-
-            return builder.ToString();
-        }
-
-        /// <summary>
         /// Writes the API HTML document.
         /// </summary>
         /// <param name="builder">The builder.</param>
@@ -456,7 +450,6 @@ url{
                         }
 
                         bodyBuilder.Append("<div>Following sample shows how to use via REST API.</div>");
-
 
                         #region Request
 
@@ -895,6 +888,16 @@ url{
             list.Add(type);
 
             return list;
+        }
+
+        /// <summary>
+        /// Gets the API operation identifier.
+        /// </summary>
+        /// <param name="apiOperation">The API operation.</param>
+        /// <returns>System.String.</returns>
+        private static string GetApiOperationIdentifier(ApiOperationAttribute apiOperation)
+        {
+            return apiOperation == null ? string.Empty : string.Format("{0}/{1}/{2}", apiOperation.HttpMethod, apiOperation.ResourceName, apiOperation.Action);
         }
 
         /// <summary>

@@ -511,6 +511,7 @@ namespace Beyova
                 }
 
                 serverIdentifier = serverIdentifier.SafeToString(EnvironmentCore.ServerName);
+                operatorIdentifier = operatorIdentifier.SafeToString(ContextHelper.CurrentCredential?.Key?.ToString());
 
                 var exceptionInfo = new ExceptionInfo
                 {
