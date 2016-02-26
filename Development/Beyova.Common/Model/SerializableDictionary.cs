@@ -18,25 +18,9 @@ namespace Beyova
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, System.Xml.Serialization.IXmlSerializable
     {
         /// <summary>
-        /// The XML_ key
-        /// </summary>
-        const string xml_Key = "Key";
-
-        /// <summary>
         /// The XML_ root
         /// </summary>
         const string xml_Root = "Dictionary";
-
-        /// <summary>
-        /// The XML_ value
-        /// </summary>
-        const string xml_Value = "Value";
-
-        /// <summary>
-        /// The XML_ item
-        /// </summary>
-        const string xml_Item = "Item";
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SerializableDictionary{TKey, TValue}"/> class.
@@ -102,13 +86,13 @@ namespace Beyova
             {
                 if (xmlReader.NodeType == XmlNodeType.Element)
                 {
-                    xmlReader.ReadStartElement(xml_Item);
-                    xmlReader.ReadStartElement(xml_Key);
+                    xmlReader.ReadStartElement(XmlConstants.node_Item);
+                    xmlReader.ReadStartElement(XmlConstants.attribute_Key);
 
                     var key = (TKey)keyXmlSerializer.Deserialize(xmlReader);
 
                     xmlReader.ReadEndElement();
-                    xmlReader.ReadStartElement(xml_Value);
+                    xmlReader.ReadStartElement(XmlConstants.attribute_Value);
                     var value = (TValue)valueXmlSerializer.Deserialize(xmlReader);
                     xmlReader.ReadEndElement();
 
@@ -157,13 +141,13 @@ namespace Beyova
 
             foreach (var key in this.Keys)
             {
-                xmlWriter.WriteStartElement(xml_Item);
+                xmlWriter.WriteStartElement(XmlConstants.node_Item);
 
-                xmlWriter.WriteStartElement(xml_Key);
+                xmlWriter.WriteStartElement(XmlConstants.attribute_Key);
                 keyXmlSerializer.Serialize(xmlWriter, key);
                 xmlWriter.WriteEndElement();
 
-                xmlWriter.WriteStartElement(xml_Value);
+                xmlWriter.WriteStartElement(XmlConstants.attribute_Value);
                 var value = this[key];
                 valueXmlSerializer.Serialize(xmlWriter, value);
                 xmlWriter.WriteEndElement();

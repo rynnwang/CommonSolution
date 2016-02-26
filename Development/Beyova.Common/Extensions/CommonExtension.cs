@@ -196,7 +196,7 @@ namespace Beyova
         /// <returns>XElement.</returns>
         public static XElement CreateXml(this string nodeName)
         {
-            return XElement.Parse(string.Format("<{0}></{0}>", nodeName.SafeToString("Item")));
+            return XElement.Parse(string.Format("<{0}></{0}>", nodeName.SafeToString(XmlConstants.node_Item)));
         }
 
         /// <summary>

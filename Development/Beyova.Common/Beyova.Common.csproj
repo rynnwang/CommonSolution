@@ -97,10 +97,11 @@
     <Compile Include="AOP\Exception\HandleExceptionAttribute.cs" />
     <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
     <Compile Include="Constants\CommonServiceConstants.cs" />
+    <Compile Include="Constants\XmlConstants.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\SqlStoredProcedureException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\HttpOperationException.cs" />
-    <Compile Include="Extensions\TreeExtension.cs" />
+    <Compile Include="Extensions\ContractModelExtension.cs" />
     <Compile Include="Extensions\JsonComparisonExtension.cs" />
     <Compile Include="Extensions\LdapExtension.cs" />
     <Compile Include="Extensions\MathExtension.cs" />

@@ -10,7 +10,7 @@ namespace Beyova
     /// Class MatrixList.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class MatrixList<T> : Dictionary<string, List<T>>
+    public class MatrixList<T> : Dictionary<string, List<T>>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MatrixList{T}"/> class.

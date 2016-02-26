@@ -257,7 +257,7 @@ namespace Beyova
         public static void Sort<T, TComparableType>(this List<T> list, Func<T, TComparableType> comparableSelector, bool isDescending = false) where TComparableType : IComparable
         {
             var comparer = new LambdaComparer<T, TComparableType>(comparableSelector, isDescending);
-            list.Sort(comparer);
+            list?.Sort(comparer);
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace Beyova
             {
                 foreach (var one in collection)
                 {
-                    var item = xml_Item.CreateXml();
+                    var item = XmlConstants.node_Item.CreateXml();
                     var value = convertFunc == null ? one.ToString() : convertFunc(one);
                     var xmlObject = value as XNode;
 
