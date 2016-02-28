@@ -106,7 +106,11 @@
     <Compile Include="Extensions\LdapExtension.cs" />
     <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
-    <Compile Include="Framework\SqlDataAccessController.cs" />
+    <Compile Include="Framework\Sql\Smart\SqlEntityConverter.cs" />
+    <Compile Include="Framework\Sql\Smart\SqlFieldConverter.cs" />
+    <Compile Include="Framework\Sql\Smart\SqlDataConverter.cs" />
+    <Compile Include="Framework\Sql\Smart\SmartSqlDataAccessController.cs" />
+    <Compile Include="Framework\Sql\SqlDataAccessController.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
     <Compile Include="Interfaces\ITreeNode.cs" />
     <Compile Include="Interfaces\IPermissionIdentifiers.cs" />
@@ -115,7 +119,7 @@
     <Compile Include="Model\Admin\User\AdminUserInfoBase.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
-    <Compile Include="Framework\SqlTransactionScope.cs" />
+    <Compile Include="Framework\Sql\SqlTransactionScope.cs" />
     <Compile Include="Model\ComparisonResult.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
     <Compile Include="Model\MatrixList.cs" />
@@ -251,7 +255,7 @@
     <Compile Include="Model\ApiTracking\Entity\ApiEventLog.cs" />
     <Compile Include="Model\ApiTracking\Query\ExceptionCriteria.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiTracking.cs" />
-    <Compile Include="Framework\BaseDataAccessController.cs" />
+    <Compile Include="Framework\Sql\BaseDataAccessController.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\BaseException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\CreditNotAffordException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\DataConflictException.cs" />
@@ -292,7 +296,7 @@
     <Compile Include="Extensions\StringRegexExtension.cs" />
     <Compile Include="Extensions\HttpExtension.cs" />
     <Compile Include="Extensions\MailExtension.cs" />
-    <Compile Include="Framework\DatabaseOperator.cs" />
+    <Compile Include="Framework\Sql\DatabaseOperator.cs" />
     <Compile Include="Extensions\CommonExtension.cs" />
     <Compile Include="Interfaces\IToXml.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

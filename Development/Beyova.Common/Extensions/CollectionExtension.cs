@@ -685,19 +685,15 @@ namespace Beyova
         /// <param name="value">The value.</param>
         /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
         /// <returns>
-        ///   <c>true</c> if [contains] [the specified string array]; otherwise, <c>false</c>.
-        /// </returns>
+        ///   <c>true</c> if [contains] [the specified string array]; otherwise, <c>false</c>.</returns>
         public static bool Contains(this string[] stringArray, string value, bool ignoreCase = false)
         {
-            bool result = false;
-
             if (stringArray != null)
             {
-                var list = new List<string>(stringArray);
-                result = list.Contains(value, ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+                return (stringArray as IEnumerable<string>).Contains(value, ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
             }
 
-            return result;
+            return false;
         }
 
         /// <summary>
