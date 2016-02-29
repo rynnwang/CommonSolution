@@ -26,22 +26,22 @@ namespace Beyova
         /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{TEntity, TCriteria}" /> class.
         /// </summary>
         /// <param name="sqlConnectionString">The SQL connection string.</param>
-        /// <param name="fieldConveters">The field conveters.</param>
-        protected SmartSqlDataAccessController(string sqlConnectionString, params SqlFieldConverter[] fieldConveters)
-                : base(sqlConnectionString, fieldConveters)
+        /// <param name="fieldConverters">The field converters.</param>
+        protected SmartSqlDataAccessController(string sqlConnectionString, params SqlFieldConverter[] fieldConverters)
+                : base(sqlConnectionString, fieldConverters)
         {
-            _criteriaEntityConverter = TryInitialize(typeof(TCriteria), fieldConveters);
+            _criteriaEntityConverter = TryInitialize(typeof(TCriteria), fieldConverters);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{TEntity, TCriteria}" /> class.
         /// </summary>
         /// <param name="sqlConnection">The SQL connection.</param>
-        /// <param name="fieldConveters">The field conveters.</param>
-        protected SmartSqlDataAccessController(SqlConnection sqlConnection, params SqlFieldConverter[] fieldConveters)
-             : base(sqlConnection, fieldConveters)
+        /// <param name="fieldConverters">The field converters.</param>
+        protected SmartSqlDataAccessController(SqlConnection sqlConnection, params SqlFieldConverter[] fieldConverters)
+             : base(sqlConnection, fieldConverters)
         {
-            _criteriaEntityConverter = TryInitialize(typeof(TCriteria), fieldConveters);
+            _criteriaEntityConverter = TryInitialize(typeof(TCriteria), fieldConverters);
         }
 
         #endregion
