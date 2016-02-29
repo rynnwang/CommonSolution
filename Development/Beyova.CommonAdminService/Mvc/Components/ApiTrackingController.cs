@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using Beyova;
 using Beyova.ApiTracking;
@@ -81,20 +82,27 @@ namespace Beyova.CommonAdminService
         public ActionResult ApiEvent(ApiEventCriteria criteria, string environment)
         {
             var client = GetClient(environment);
-            if (client != null && criteria != null)
-            {
-                try
-                {
-                    var events = client.QueryApiEvent(criteria);
-                    return View(Constants.ViewNames.ApiEventListView, events);
-                }
-                catch (Exception ex)
-                {
-                    return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "ApiEvent", criteria);
-                }
-            }
 
-            return RedirectToNotFoundPage();
+            try
+            {
+                List<ApiEventLog> result = null;
+                if (client != null && criteria != null)
+                {
+                    result = client.QueryApiEvent(criteria);
+                }
+
+                return PartialView(Constants.ViewNames.ApiEventListView, result);
+            }
+            catch (Exception ex)
+            {
+                return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "ApiEvent", criteria);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult Exception()
+        {
+            return View(Constants.ViewNames.ExceptionPanelView);
         }
 
         /// <summary>
@@ -106,20 +114,27 @@ namespace Beyova.CommonAdminService
         public ActionResult Exception(ExceptionCriteria criteria, string environment)
         {
             var client = GetClient(environment);
-            if (client != null && criteria != null)
-            {
-                try
-                {
-                    var exceptions = client.QueryException(criteria);
-                    return View(Constants.ViewNames.ExceptionListView, exceptions);
-                }
-                catch (Exception ex)
-                {
-                    return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "Exception", criteria);
-                }
-            }
 
-            return RedirectToNotFoundPage();
+            try
+            {
+                List<ExceptionInfo> result = null;
+                if (client != null && criteria != null)
+                {
+                    result = client.QueryException(criteria);
+                }
+
+                return PartialView(Constants.ViewNames.ExceptionListView, result);
+            }
+            catch (Exception ex)
+            {
+                return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "Exception", criteria);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult EventTrace()
+        {
+            return View(Constants.ViewNames.ApiTracePanelView);
         }
 
         /// <summary>
@@ -127,6 +142,7 @@ namespace Beyova.CommonAdminService
         /// </summary>
         /// <param name="traceId">The trace identifier.</param>
         /// <returns>ActionResult.</returns>
+        [HttpPost]
         public ActionResult EventTrace(string traceId, string environment)
         {
             var client = GetClient(environment);
