@@ -49,7 +49,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ActiveDirectory\" />
     <Folder Include="RFC\RFC5545\" />
   </ItemGroup>
   <ItemGroup>

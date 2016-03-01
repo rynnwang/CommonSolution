@@ -114,6 +114,73 @@ namespace Beyova
         #region MatrixList
 
         /// <summary>
+        /// To the list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="matrixList">The matrix list.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>List&lt;T&gt;.</returns>
+        public static List<T> ToList<T>(this MatrixList<T> matrixList, Func<string, T, bool> filter = null)
+        {
+            List<T> result = new List<T>();
+
+            if (matrixList != null)
+            {
+                foreach (var one in matrixList)
+                {
+                    foreach (var item in one.Value)
+                    {
+                        if (filter == null || filter(one.Key, item))
+                        {
+                            result.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// To the matrix.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="keyFunc">The key function.</param>
+        /// <param name="keyCaseSensitive">if set to <c>true</c> [key case sensitive].</param>
+        /// <returns>MatrixList&lt;T&gt;.</returns>
+        public static MatrixList<T> ToMatrix<T>(this List<T> list, Func<T, string> keyFunc, bool keyCaseSensitive = true)
+        {
+            var result = new MatrixList<T>(keyCaseSensitive);
+
+            if (list != null)
+            {
+                foreach (var one in list)
+                {
+                    result.Add(keyFunc == null ? string.Empty : keyFunc(one), one);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Ases the matrix list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="keyCaseSensitive">if set to <c>true</c> [key case sensitive].</param>
+        /// <returns>MatrixList&lt;T&gt;.</returns>
+        public static MatrixList<T> AsMatrixList<T>(this List<T> list, string key, bool keyCaseSensitive = true)
+        {
+            var result = new MatrixList<T>(keyCaseSensitive);
+            result.Add(key.SafeToString(), list ?? new List<T>());
+
+            return result;
+        }
+
+        /// <summary>
         /// To the XML.
         /// </summary>
         /// <param name="matrixList">The matrix list.</param>

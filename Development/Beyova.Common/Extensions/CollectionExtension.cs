@@ -21,26 +21,6 @@ namespace Beyova
         /// </summary>
         const string keyValueFormat = "&{0}={1}";
 
-        /// <summary>
-        /// The XML_ item
-        /// </summary>
-        const string xml_Item = "Item";
-
-        /// <summary>
-        /// The XML_ list
-        /// </summary>
-        const string xml_List = "List";
-
-        /// <summary>
-        /// The XML_ dictionary
-        /// </summary>
-        const string xml_Dictionary = "Dictionary";
-
-        /// <summary>
-        /// The XML_ key
-        /// </summary>
-        const string xml_Key = "Key";
-
         #region Add If Not xxx
 
         /// <summary>
@@ -388,7 +368,7 @@ namespace Beyova
         /// <returns>XElement.</returns>
         public static XElement ListToXml<T>(this ICollection<T> collection, Func<T, object> convertFunc = null)
         {
-            var result = xml_List.CreateXml();
+            var result = XmlConstants.node_List.CreateXml();
 
             if (collection != null)
             {
@@ -427,14 +407,14 @@ namespace Beyova
         /// <returns>XElement.</returns>
         public static XElement DictionaryToXml<TValue>(this IDictionary<string, TValue> dictionary, Func<TValue, string> convertFunc = null)
         {
-            var result = xml_Dictionary.CreateXml();
+            var result = XmlConstants.node_Dictionary.CreateXml();
 
             if (dictionary != null)
             {
                 foreach (var one in dictionary)
                 {
-                    var item = xml_Item.CreateXml();
-                    item.SetAttributeValue(xml_Key, one.Key);
+                    var item = XmlConstants.node_Item.CreateXml();
+                    item.SetAttributeValue(XmlConstants.attribute_Key, one.Key);
                     var value = convertFunc == null ? one.ToString() : convertFunc(one.Value);
                     item.SetValue(value);
 
@@ -456,7 +436,7 @@ namespace Beyova
         public static XElement DictionaryToXml<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, Func<KeyValuePair<TKey, TValue>, XElement> convertFunc = null)
             where TKey : IConvertible
         {
-            var result = xml_Dictionary.CreateXml();
+            var result = XmlConstants.node_Dictionary.CreateXml();
 
             if (dictionary != null)
             {
@@ -464,8 +444,8 @@ namespace Beyova
                 {
                     if (convertFunc == null)
                     {
-                        var item = xml_Item.CreateXml();
-                        item.SetAttributeValue(xml_Key, one.Key);
+                        var item = XmlConstants.node_Item.CreateXml();
+                        item.SetAttributeValue(XmlConstants.attribute_Key, one.Key);
                         item.SetValue(one.Value.ToString());
                         result.Add(item);
                     }
@@ -492,9 +472,9 @@ namespace Beyova
         {
             var result = new List<T>();
 
-            if (xml != null && xml.Name.LocalName.Equals(xml_List))
+            if (xml != null && xml.Name.LocalName.Equals(XmlConstants.node_List))
             {
-                result.AddRange(xml.Elements(xml_Item).Select(one => xmlNodeToEntity.Invoke(one)));
+                result.AddRange(xml.Elements(XmlConstants.node_Item).Select(one => xmlNodeToEntity.Invoke(one)));
             }
 
             return result;
@@ -511,11 +491,11 @@ namespace Beyova
         {
             var result = new Dictionary<string, TValue>();
 
-            if (xml != null && xml.Name.LocalName.Equals(xml_Dictionary))
+            if (xml != null && xml.Name.LocalName.Equals(XmlConstants.node_Dictionary))
             {
-                result.AddRange(xml.Elements(xml_Item).Select(one =>
+                result.AddRange(xml.Elements(XmlConstants.node_Item).Select(one =>
                 {
-                    return new KeyValuePair<string, TValue>(one.GetAttributeValue(xml_Key), xmlNodeToEntity.Invoke(one));
+                    return new KeyValuePair<string, TValue>(one.GetAttributeValue(XmlConstants.attribute_Key), xmlNodeToEntity.Invoke(one));
                 }));
             }
 
@@ -535,9 +515,9 @@ namespace Beyova
         {
             var result = new Dictionary<TKey, TValue>();
 
-            if (xml != null && xml.Name.LocalName.Equals(xml_Dictionary))
+            if (xml != null && xml.Name.LocalName.Equals(XmlConstants.node_Dictionary))
             {
-                result.AddRange(xml.Elements(xml_Item).Select(one => xmlNodeToEntity(one)));
+                result.AddRange(xml.Elements(XmlConstants.node_Item).Select(one => xmlNodeToEntity(one)));
             }
 
             return result;
