@@ -97,6 +97,9 @@ namespace Beyova
     public abstract class SmartSqlDataAccessController<T> : SqlDataAccessController
         where T : class, new()
     {
+        /// <summary>
+        /// The column_ operator key
+        /// </summary>
         protected const string column_OperatorKey = "OperatorKey";
 
         #region  SqlFieldConverter
@@ -150,11 +153,17 @@ namespace Beyova
 
         #endregion
 
+        /// <summary>
+        /// The ignored property_ simple base object
+        /// </summary>
         protected static readonly string[] ignoredProperty_SimpleBaseObject =
-                    (from item in typeof(ISimpleBaseObject).GetProperties() where item.Name != "Key" select item.Name).ToArray();
+                            (from item in typeof(ISimpleBaseObject).GetProperties() where item.Name != "Key" select item.Name).ToArray();
 
+        /// <summary>
+        /// The ignored property_ base object
+        /// </summary>
         protected static string[] ignoredProperty_BaseObject =
-                    (from item in typeof(IBaseObject).GetProperties() where item.Name != "Key" select item.Name).ToArray();
+                            (from item in typeof(IBaseObject).GetProperties() where item.Name != "Key" select item.Name).ToArray();
 
         /// <summary>
         /// </summary>
@@ -166,22 +175,22 @@ namespace Beyova
         /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{T}" /> class.
         /// </summary>
         /// <param name="sqlConnectionString">The SQL connection string.</param>
-        /// <param name="conveter">The conveter.</param>
-        protected SmartSqlDataAccessController(string sqlConnectionString, params SqlFieldConverter[] fieldConveters)
+        /// <param name="fieldConverters">The field converters.</param>
+        protected SmartSqlDataAccessController(string sqlConnectionString, params SqlFieldConverter[] fieldConverters)
                 : base(sqlConnectionString)
         {
-            _entityConverter = TryInitialize(typeof(T), fieldConveters);
+            _entityConverter = TryInitialize(typeof(T), fieldConverters);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{T}" /> class.
         /// </summary>
         /// <param name="sqlConnection">The SQL connection.</param>
-        /// <param name="conveter">The conveter.</param>
-        protected SmartSqlDataAccessController(SqlConnection sqlConnection, params SqlFieldConverter[] fieldConveters)
+        /// <param name="fieldConverters">The field converters.</param>
+        protected SmartSqlDataAccessController(SqlConnection sqlConnection, params SqlFieldConverter[] fieldConverters)
                 : base(sqlConnection)
         {
-            _entityConverter = TryInitialize(typeof(T), fieldConveters);
+            _entityConverter = TryInitialize(typeof(T), fieldConverters);
         }
 
         #endregion

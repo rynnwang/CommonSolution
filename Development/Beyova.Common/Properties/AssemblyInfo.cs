@@ -16,7 +16,7 @@ using Beyova.ProgrammingIntelligence;
 [assembly: AssemblyTrademark("Beyova")]
 
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.Common", "2.30.3")]
+[assembly: BeyovaComponent("Beyova.Common", "2.30.4")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

@@ -641,23 +641,31 @@ url{
                 }
                 else if (type.IsDictionary())
                 {
-                    var keyType = type.GetGenericArguments()[0];
-                    var valueType = type.GetGenericArguments()[1];
-
-                    if (!followingProperty)
+                    // If dictionary type is inherited from dictionary (native), the generic might be totally different.
+                    if (type.BaseType.IsDictionary())
                     {
-                        AppendIndent(builder, indent);
+                        FillSampleValue(builder, type.BaseType, enumSets, indent, fieldName, ignoreQuote, followingProperty, objectChain);
                     }
+                    else
+                    {
+                        var keyType = type.GetGenericArguments()[0];
+                        var valueType = type.GetGenericArguments()[1];
 
-                    builder.AppendLineWithFormat(objectBrace, "{");
+                        if (!followingProperty)
+                        {
+                            AppendIndent(builder, indent);
+                        }
 
-                    FillSampleValue(builder, keyType, enumSets, indent + 1, fieldName: "Key", followingProperty: false, objectChain: AppendChain(objectChain, type));
-                    AppendColon(builder);
-                    FillSampleValue(builder, valueType, enumSets, indent + 1, fieldName: "Value", followingProperty: true, objectChain: AppendChain(objectChain, type));
-                    builder.AppendLine();
+                        builder.AppendLineWithFormat(objectBrace, "{");
 
-                    AppendIndent(builder, indent);
-                    builder.AppendLineWithFormat(objectBrace, "}");
+                        FillSampleValue(builder, keyType, enumSets, indent + 1, fieldName: "Key", followingProperty: false, objectChain: AppendChain(objectChain, type));
+                        AppendColon(builder);
+                        FillSampleValue(builder, valueType, enumSets, indent + 1, fieldName: "Value", followingProperty: true, objectChain: AppendChain(objectChain, type));
+                        builder.AppendLine();
+
+                        AppendIndent(builder, indent);
+                        builder.AppendLineWithFormat(objectBrace, "}");
+                    }
                 }
                 else if (type.IsCollection())
                 {
