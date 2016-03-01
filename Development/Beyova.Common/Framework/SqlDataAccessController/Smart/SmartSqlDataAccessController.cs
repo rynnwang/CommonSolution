@@ -118,9 +118,9 @@ namespace Beyova
         /// Tries the initialize.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <param name="fieldConveters">The field conveters.</param>
+        /// <param name="fieldConverters">The field converters.</param>
         /// <returns>Beyova.SqlEntityConverter.</returns>
-        protected static SqlEntityConverter TryInitialize(Type type, params SqlFieldConverter[] fieldConveters)
+        protected static SqlEntityConverter TryInitialize(Type type, params SqlFieldConverter[] fieldConverters)
         {
             var entityFullName = type.GetFullName();
 
@@ -130,18 +130,18 @@ namespace Beyova
                 {
                     if (!cacheFieldConverters.ContainsKey(entityFullName))
                     {
-                        List<SqlFieldConverter> fieldConverters = new List<SqlFieldConverter>();
+                        List<SqlFieldConverter> tmpFieldConverters = new List<SqlFieldConverter>();
 
                         foreach (var one in type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
                         {
-                            var matchedConveter = fieldConveters.Where((x) => { return x.PropertyName == one.Name; }).Select((x) => x).FirstOrDefault();
+                            var matchedConveter = fieldConverters.Where((x) => { return x.PropertyName == one.Name; }).Select((x) => x).FirstOrDefault();
 
                             if (matchedConveter?.IsIgnored ?? false)
                             {
-                                fieldConverters.Add(matchedConveter ?? new SqlFieldConverter(one));
+                                tmpFieldConverters.Add(matchedConveter ?? new SqlFieldConverter(one));
                             }
                         }
-                        var converter = new SqlEntityConverter(type, fieldConverters);
+                        var converter = new SqlEntityConverter(type, tmpFieldConverters);
                         cacheFieldConverters.Add(entityFullName, converter);
                         return converter;
                     }
