@@ -28,7 +28,6 @@ namespace Beyova.Elastic
             }
             else
             {
-
                 if (criteria.ServerIdentifier != null)
                 {
                     termList.Add("ServerIdentifier.raw", criteria.ServerIdentifier);
@@ -65,7 +64,7 @@ namespace Beyova.Elastic
                     result.Range = new { CreatedStamp = dateTimeRangeList };
                 }
 
-                return result;
+                return ToValidSearchCriteria(result);
             }
 
             return null;
@@ -100,7 +99,7 @@ namespace Beyova.Elastic
 
                 if (criteria.ClientIdentifier != null)
                 {
-                    termList.Add("ClientIdentifier.raw", criteria.ClientIdentifier);
+                    termList.Add("ClientIdentifier", criteria.ClientIdentifier);
                 }
 
                 if (criteria.Content != null)
@@ -110,7 +109,7 @@ namespace Beyova.Elastic
 
                 if (criteria.CultureCode != null)
                 {
-                    termList.Add("CultureCode.raw", criteria.CultureCode);
+                    termList.Add("CultureCode", criteria.CultureCode);
                 }
 
                 if (criteria.DeviceType != null)
@@ -125,12 +124,12 @@ namespace Beyova.Elastic
 
                 if (criteria.IpAddress != null)
                 {
-                    termList.Add("IpAddress.raw", criteria.IpAddress);
+                    termList.Add("IpAddress", criteria.IpAddress);
                 }
 
                 if (criteria.ModuleName != null)
                 {
-                    termList.Add("ModuleName.raw", criteria.ModuleName);
+                    termList.Add("ModuleName", criteria.ModuleName);
                 }
 
                 if (criteria.Platform != null)
@@ -150,22 +149,22 @@ namespace Beyova.Elastic
 
                 if (criteria.ResourceEntityKey != null)
                 {
-                    termList.Add("ResourceEntityKey.raw", criteria.ResourceEntityKey);
+                    termList.Add("ResourceEntityKey", criteria.ResourceEntityKey);
                 }
 
                 if (criteria.ResourceName != null)
                 {
-                    termList.Add("ResourceName.raw", criteria.ResourceName);
+                    termList.Add("ResourceName", criteria.ResourceName);
                 }
 
                 if (criteria.ServerIdentifier != null)
                 {
-                    termList.Add("ServerIdentifier.raw", criteria.ServerIdentifier);
+                    termList.Add("ServerIdentifier", criteria.ServerIdentifier);
                 }
 
                 if (criteria.ServiceIdentifier != null)
                 {
-                    termList.Add("ServiceIdentifier.raw", criteria.ServiceIdentifier);
+                    termList.Add("ServiceIdentifier", criteria.ServiceIdentifier);
                 }
 
                 if (criteria.TraceId != null)
@@ -204,10 +203,22 @@ namespace Beyova.Elastic
                     result.Range = new { CreatedStamp = dateTimeRangeList };
                 }
 
-                return result;
+                return ToValidSearchCriteria(result);
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// To the valid search criteria.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>SearchCriteria.</returns>
+        private static SearchCriteria ToValidSearchCriteria(this SearchCriteria criteria)
+        {
+            return (criteria == null || (
+                criteria.Count == null && criteria.Terms == null && criteria.FromIndex == null && criteria.Matches == null && criteria.Range == null
+                )) ? null : criteria;
         }
     }
 }
