@@ -213,11 +213,12 @@ namespace Beyova.Elastic
         {
             try
             {
-                return elasticClient.Query<ApiEventLog>(apiEventType, new
-                {
-                    query = criteria.ToElasticCriteria(),
-                    sort = new List<object> { new { CreatedStamp = "desc" } }
-                });
+
+                var parameter = new Dictionary<string, object>();
+                parameter.AddIfNotNull("query", criteria.ToElasticCriteria());
+                parameter.AddIfNotNull("sort", new List<object> { new { CreatedStamp = "desc" } });
+
+                return elasticClient.Query<ApiEventLog>(apiEventType, parameter);
             }
             catch (Exception ex)
             {

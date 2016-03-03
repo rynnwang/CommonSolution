@@ -119,7 +119,7 @@ namespace Beyova
         /// <param name="value">The value.</param>
         public static void AddIfNotNull<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
-            if (dictionary != null && key != null)
+            if (dictionary != null && key != null && value != null)
             {
                 dictionary.Add(key, value);
             }

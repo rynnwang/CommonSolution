@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Net;
+using Newtonsoft.Json;
 
 namespace Beyova
 {
@@ -758,7 +759,7 @@ url{
                             }
                             builder.AppendLineWithFormat(objectBrace, "{");
 
-                            foreach (var one in type.GetActualAffectedProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty))
+                            foreach (var one in type.GetActualAffectedProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty).Where((x) => { return x.GetCustomAttribute<JsonIgnoreAttribute>() == null; }))
                             {
                                 var valueType = one.PropertyType;
 

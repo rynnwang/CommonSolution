@@ -376,7 +376,7 @@ namespace Beyova
         /// Gets the top n character.
         /// </summary>
         /// <param name="anyString">Any string.</param>
-        /// <param name="maxLength">The maximum length.</param>
+        /// <param name="maxLength">The maximum length. The length does not contain suffix.</param>
         /// <param name="suffix">The suffix.</param>
         /// <returns>System.String.</returns>
         public static string GetTopNCharacter(this string anyString, int maxLength, string suffix = " ... ")
