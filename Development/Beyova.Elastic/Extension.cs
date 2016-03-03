@@ -24,23 +24,28 @@ namespace Beyova.Elastic
 
             QueryCriteria queryCriteria = null;
             var termList = new Dictionary<string, object>();
-            var matchList = new Dictionary<string, string>();
+            var matchList = new Dictionary<string, object>();
             var dateTimeRangeList = new Dictionary<string, object>();
 
             if (criteria.Key != null)
             {
-                termList.Add("Key.raw", criteria.Key);
+                matchList.Add("Key", criteria.Key.Value.ToString());
+                criteria.Count = 1;
+                queryCriteria = new QueryCriteria
+                {
+                    Terms = termList
+                };
             }
             else
             {
                 if (criteria.ServerIdentifier != null)
                 {
-                    termList.Add("ServerIdentifier.raw", criteria.ServerIdentifier);
+                    matchList.Add("ServerIdentifier.raw", criteria.ServerIdentifier);
                 }
 
                 if (criteria.ServiceIdentifier != null)
                 {
-                    termList.Add("ServiceIdentifier.raw", criteria.ServiceIdentifier);
+                    matchList.Add("ServiceIdentifier.raw", criteria.ServiceIdentifier);
                 }
 
                 if (criteria.UserIdentifier != null)
@@ -75,7 +80,7 @@ namespace Beyova.Elastic
             return new SearchCriteria
             {
                 QueryCriteria = queryCriteria,
-                Count = criteria.Count,
+                Count = criteria.Count < 1 ? 50 : criteria.Count,
                 OrderByDesc = new Dictionary<string, string> { { CreatedStamp, Descending } }
             };
         }
@@ -91,14 +96,20 @@ namespace Beyova.Elastic
             {
                 return null;
             }
+
             QueryCriteria queryCriteria = null;
             var termList = new Dictionary<string, object>();
-            var matchList = new Dictionary<string, string>();
+            var matchList = new Dictionary<string, object>();
             var dateTimeRangeList = new Dictionary<string, object>();
 
             if (criteria.Key != null)
             {
-                termList.Add("Key.raw", criteria.Key);
+                matchList.Add("Key.raw", criteria.Key.Value.ToString());
+                criteria.Count = 1;
+                queryCriteria = new QueryCriteria
+                {
+                    Terms = termList
+                };
             }
             else
             {
@@ -144,7 +155,7 @@ namespace Beyova.Elastic
 
                 if (criteria.Platform != null)
                 {
-                    termList.Add("Platform.raw", (int)criteria.Platform);
+                    matchList.Add("Platform.raw", ((int)criteria.Platform));
                 }
 
                 if (criteria.RawUrl != null)
@@ -179,7 +190,7 @@ namespace Beyova.Elastic
 
                 if (criteria.TraceId != null)
                 {
-                    termList.Add("TraceId.raw", criteria.TraceId);
+                    matchList.Add("TraceId.raw", criteria.TraceId);
                 }
 
                 if (criteria.UserAgent != null)
@@ -219,7 +230,7 @@ namespace Beyova.Elastic
             return new SearchCriteria
             {
                 QueryCriteria = queryCriteria,
-                Count = criteria.Count,
+                Count = criteria.Count < 1 ? 50 : criteria.Count,
                 OrderByDesc = new Dictionary<string, string> { { CreatedStamp, Descending } }
             };
         }

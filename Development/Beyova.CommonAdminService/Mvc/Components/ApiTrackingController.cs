@@ -115,7 +115,7 @@ namespace Beyova.CommonAdminService
                 ApiEventLog result = null;
                 if (client != null && key != null)
                 {
-                    result = client.QueryApiEvent(new ApiEventCriteria { Key = key }).SafeFirstOrDefault();
+                    result = client.QueryApiEvent(new ApiEventCriteria { Key = key, Count = 1 }).SafeFirstOrDefault();
                 }
 
                 if (result != null)
