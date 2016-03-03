@@ -33,19 +33,19 @@ namespace Beyova.Elastic
                 criteria.Count = 1;
                 queryCriteria = new QueryCriteria
                 {
-                    Terms = termList
+                    Matches = matchList
                 };
             }
             else
             {
                 if (criteria.ServerIdentifier != null)
                 {
-                    matchList.Add("ServerIdentifier.raw", criteria.ServerIdentifier);
+                    matchList.Add("ServerIdentifier", criteria.ServerIdentifier);
                 }
 
                 if (criteria.ServiceIdentifier != null)
                 {
-                    matchList.Add("ServiceIdentifier.raw", criteria.ServiceIdentifier);
+                    matchList.Add("ServiceIdentifier", criteria.ServiceIdentifier);
                 }
 
                 if (criteria.UserIdentifier != null)
@@ -104,11 +104,11 @@ namespace Beyova.Elastic
 
             if (criteria.Key != null)
             {
-                matchList.Add("Key.raw", criteria.Key.Value.ToString());
+                matchList.Add("Key", criteria.Key.Value.ToString());
                 criteria.Count = 1;
                 queryCriteria = new QueryCriteria
                 {
-                    Terms = termList
+                    Matches = matchList
                 };
             }
             else
@@ -135,7 +135,7 @@ namespace Beyova.Elastic
 
                 if (criteria.DeviceType != null)
                 {
-                    termList.Add("DeviceType.raw", (int)criteria.DeviceType);
+                    matchList.Add("DeviceType", (int)criteria.DeviceType);
                 }
 
                 if (criteria.ExceptionKey != null)
@@ -155,12 +155,12 @@ namespace Beyova.Elastic
 
                 if (criteria.Platform != null)
                 {
-                    matchList.Add("Platform.raw", ((int)criteria.Platform));
+                    matchList.Add("Platform", ((int)criteria.Platform));
                 }
 
-                if (criteria.RawUrl != null)
+                if (criteriaUrl != null)
                 {
-                    matchList.Add("RawUrl", criteria.RawUrl);
+                    matchList.Add("RawUrl", criteriaUrl);
                 }
 
                 if (criteria.ReferrerUrl != null)
@@ -190,17 +190,17 @@ namespace Beyova.Elastic
 
                 if (criteria.TraceId != null)
                 {
-                    matchList.Add("TraceId.raw", criteria.TraceId);
+                    matchList.Add("TraceId", criteria.TraceId);
                 }
 
                 if (criteria.UserAgent != null)
                 {
-                    matchList.Add("UserAgent", criteria.UserAgent);
+                    termList.Add("UserAgent", criteria.UserAgent);
                 }
 
                 if (criteria.UserIdentifier != null)
                 {
-                    matchList.Add("UserIdentifier", criteria.UserIdentifier);
+                    termList.Add("UserIdentifier", criteria.UserIdentifier);
                 }
 
                 queryCriteria = new QueryCriteria
