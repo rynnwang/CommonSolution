@@ -66,6 +66,7 @@
     <Compile Include="SearchModels\ResultModel\QueryResultInfo.cs" />
     <Compile Include="SearchModels\ResultModel\QueryResultShard.cs" />
     <Compile Include="SearchModels\SearchCriteria.cs" />
+    <Compile Include="SearchModels\QueryCriteria.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

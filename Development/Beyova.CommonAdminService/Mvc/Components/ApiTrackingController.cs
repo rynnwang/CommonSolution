@@ -99,6 +99,40 @@ namespace Beyova.CommonAdminService
             }
         }
 
+        /// <summary>
+        /// APIs the event detail.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="environment">The environment.</param>
+        /// <returns>ActionResult.</returns>
+        [HttpGet]
+        public ActionResult ApiEventDetail(Guid? key, string environment)
+        {
+            var client = GetClient(environment);
+
+            try
+            {
+                ApiEventLog result = null;
+                if (client != null && key != null)
+                {
+                    result = client.QueryApiEvent(new ApiEventCriteria { Key = key }).SafeFirstOrDefault();
+                }
+
+                if (result != null)
+                {
+                    return View(Constants.ViewNames.ApiEventDetailView, result);
+                }
+                else
+                {
+                    return this.RedirectToNotFoundPage();
+                }
+            }
+            catch (Exception ex)
+            {
+                return this.HandleExceptionToRedirection(ex, HttpConstants.HttpMethod.Get, "ApiEventDetail", key);
+            }
+        }
+
         [HttpGet]
         public ActionResult Exception()
         {

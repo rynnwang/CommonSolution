@@ -151,7 +151,7 @@ namespace Beyova.Elastic
         /// <param name="type">The type.</param>
         /// <param name="criteria">The criteria.</param>
         /// <returns>QueryResult&lt;T&gt;.</returns>
-        public QueryResult<T> Query<T>(string type, object criteria)
+        public QueryResult<T> Query<T>(string type, SearchCriteria criteria)
         {
             try
             {

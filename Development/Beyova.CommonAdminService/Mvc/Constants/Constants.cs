@@ -65,6 +65,8 @@ namespace Beyova.CommonAdminService
 
             #region API Tracking
 
+            public const string ApiEventDetailView = "~/Views/shared/Beyova/features/ApiTracking/ApiEventDetail.cshtml";
+
             public const string ApiEventPanelView = "~/Views/shared/Beyova/features/ApiTracking/ApiEventPanel.cshtml";
 
             public const string ApiEventListView = "~/Views/shared/Beyova/features/ApiTracking/_ApiEventList.cshtml";

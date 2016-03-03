@@ -13,13 +13,6 @@ namespace Beyova.Elastic
     public class SearchCriteria
     {
         /// <summary>
-        /// Gets or sets from index.
-        /// </summary>
-        /// <value>From index.</value>
-        [JsonProperty(PropertyName = "from", NullValueHandling = NullValueHandling.Ignore)]
-        public int? FromIndex { get; set; }
-
-        /// <summary>
         /// Gets or sets the count.
         /// </summary>
         /// <value>The count.</value>
@@ -27,24 +20,25 @@ namespace Beyova.Elastic
         public int? Count { get; set; }
 
         /// <summary>
-        /// Gets or sets the terms.
+        /// Gets or sets the query criteria.
         /// </summary>
-        /// <value>The terms.</value>
-        [JsonProperty(PropertyName = "term", NullValueHandling = NullValueHandling.Ignore)]
-        public object Terms { get; set; }
+        /// <value>The query criteria.</value>
+        [JsonProperty(PropertyName = "query", NullValueHandling = NullValueHandling.Ignore)]
+        public QueryCriteria QueryCriteria { get; set; }
 
         /// <summary>
-        /// Gets or sets the match.
+        /// Gets or sets the order by desc.
         /// </summary>
-        /// <value>The match.</value>
-        [JsonProperty(PropertyName = "match", NullValueHandling = NullValueHandling.Ignore)]
-        public object Matches { get; set; }
+        /// <value>The order by desc.</value>
+        [JsonProperty(PropertyName = "sort", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, string> OrderByDesc { get; set; }
 
         /// <summary>
-        /// Gets or sets the range.
+        /// Initializes a new instance of the <see cref="SearchCriteria"/> class.
         /// </summary>
-        /// <value>The range.</value>
-        [JsonProperty(PropertyName = "range", NullValueHandling = NullValueHandling.Ignore)]
-        public object Range { get; set; }
+        public SearchCriteria()
+        {
+            this.OrderByDesc = new Dictionary<string, string>();
+        }
     }
 }

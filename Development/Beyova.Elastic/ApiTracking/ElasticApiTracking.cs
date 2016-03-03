@@ -213,12 +213,7 @@ namespace Beyova.Elastic
         {
             try
             {
-
-                var parameter = new Dictionary<string, object>();
-                parameter.AddIfNotNull("query", criteria.ToElasticCriteria());
-                parameter.AddIfNotNull("sort", new List<object> { new { CreatedStamp = "desc" } });
-
-                return elasticClient.Query<ApiEventLog>(apiEventType, parameter);
+                return elasticClient.Query<ApiEventLog>(apiEventType, criteria.ToElasticCriteria());
             }
             catch (Exception ex)
             {
@@ -235,11 +230,7 @@ namespace Beyova.Elastic
         {
             try
             {
-                var parameter = new Dictionary<string, object>();
-                parameter.AddIfNotNull("query", criteria.ToElasticCriteria());
-                parameter.AddIfNotNull("sort", new List<object> { new { CreatedStamp = "desc" } });
-
-                return elasticClient.Query<ExceptionInfo>(apiEventType, parameter);
+                return elasticClient.Query<ExceptionInfo>(apiEventType, criteria.ToElasticCriteria());
             }
             catch (Exception ex)
             {

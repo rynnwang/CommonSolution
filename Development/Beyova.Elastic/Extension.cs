@@ -9,6 +9,10 @@ namespace Beyova.Elastic
 {
     internal static class Extension
     {
+        const string CreatedStamp = "CreatedStamp";
+
+        const string Descending = "desc";
+
         /// <summary>
         /// Exceptions the criteria to elastic criteria.
         /// </summary>
@@ -18,6 +22,7 @@ namespace Beyova.Elastic
         {
             if (criteria == null) { return null; }
 
+            QueryCriteria queryCriteria = null;
             var termList = new Dictionary<string, object>();
             var matchList = new Dictionary<string, string>();
             var dateTimeRangeList = new Dictionary<string, object>();
@@ -43,7 +48,7 @@ namespace Beyova.Elastic
                     matchList.Add("UserIdentifier", criteria.UserIdentifier);
                 }
 
-                var result = new SearchCriteria
+                queryCriteria = new QueryCriteria
                 {
                     Terms = termList.Count > 0 ? termList : null,
                     Matches = matchList.Count > 0 ? matchList : null
@@ -61,13 +66,18 @@ namespace Beyova.Elastic
 
                 if (dateTimeRangeList.Count > 0)
                 {
-                    result.Range = new { CreatedStamp = dateTimeRangeList };
+                    queryCriteria.Range = new { CreatedStamp = dateTimeRangeList };
                 }
 
-                return ToValidSearchCriteria(result);
+                queryCriteria = ToValidSearchCriteria(queryCriteria);
             }
 
-            return null;
+            return new SearchCriteria
+            {
+                QueryCriteria = queryCriteria,
+                Count = criteria.Count,
+                OrderByDesc = new Dictionary<string, string> { { CreatedStamp, Descending } }
+            };
         }
 
         /// <summary>
@@ -81,7 +91,7 @@ namespace Beyova.Elastic
             {
                 return null;
             }
-
+            QueryCriteria queryCriteria = null;
             var termList = new Dictionary<string, object>();
             var matchList = new Dictionary<string, string>();
             var dateTimeRangeList = new Dictionary<string, object>();
@@ -182,10 +192,10 @@ namespace Beyova.Elastic
                     matchList.Add("UserIdentifier", criteria.UserIdentifier);
                 }
 
-                var result = new SearchCriteria
+                queryCriteria = new QueryCriteria
                 {
                     Terms = termList.Count > 0 ? termList : null,
-                    Matches = matchList.Count > 0 ? matchList : null
+                    Matches = matchList.Count > 0 ? matchList : null,
                 };
 
                 if (criteria.FromStamp != null)
@@ -200,13 +210,18 @@ namespace Beyova.Elastic
 
                 if (dateTimeRangeList.Count > 0)
                 {
-                    result.Range = new { CreatedStamp = dateTimeRangeList };
+                    queryCriteria.Range = new { CreatedStamp = dateTimeRangeList };
                 }
 
-                return ToValidSearchCriteria(result);
+                queryCriteria = ToValidSearchCriteria(queryCriteria);
             }
 
-            return null;
+            return new SearchCriteria
+            {
+                QueryCriteria = queryCriteria,
+                Count = criteria.Count,
+                OrderByDesc = new Dictionary<string, string> { { CreatedStamp, Descending } }
+            };
         }
 
         /// <summary>
@@ -214,10 +229,10 @@ namespace Beyova.Elastic
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>SearchCriteria.</returns>
-        private static SearchCriteria ToValidSearchCriteria(this SearchCriteria criteria)
+        private static QueryCriteria ToValidSearchCriteria(this QueryCriteria criteria)
         {
             return (criteria == null || (
-                criteria.Count == null && criteria.Terms == null && criteria.FromIndex == null && criteria.Matches == null && criteria.Range == null
+                criteria.Terms == null && criteria.FromIndex == null && criteria.Matches == null && criteria.Range == null
                 )) ? null : criteria;
         }
     }

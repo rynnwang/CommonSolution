@@ -57,14 +57,14 @@ namespace Beyova.Elastic
             {
                 key.CheckNullObject("key");
 
-                var searchResult = Search<T>(indexName, type, new
+                var searchResult = Search<T>(indexName, type, new SearchCriteria
                 {
-                    query = new
+                    QueryCriteria = new QueryCriteria
                     {
-                        term = new
+                        Terms = new
                         {
                             Key = key.ToString()
-                        }
+                        }.AsList()
                     }
                 }, wildCardSuffix);
 
@@ -130,13 +130,13 @@ namespace Beyova.Elastic
         /// <param name="criteria">The criteria.</param>
         /// <param name="wildCardSuffix">The wild card suffix.</param>
         /// <returns>QueryResult&lt;T&gt;.</returns>
-        public QueryResult<T> Search<T>(string indexName, string type, object criteria, string wildCardSuffix = null)
+        public QueryResult<T> Search<T>(string indexName, string type, SearchCriteria criteria, string wildCardSuffix = null)
         {
             try
             {
                 criteria.CheckNullObject("criteria");
 
-                return InternalSearch<T>(GetFullIndexName(indexName, wildCardSuffix), type, criteria.ToJson());
+                return InternalSearch<T>(GetFullIndexName(indexName, wildCardSuffix), type, criteria);
             }
             catch (Exception ex)
             {
@@ -152,14 +152,14 @@ namespace Beyova.Elastic
         /// <param name="type">The type.</param>
         /// <param name="criteriaJson">The criteria json.</param>
         /// <returns>QueryResult&lt;T&gt;.</returns>
-        protected QueryResult<T> InternalSearch<T>(string indexName, string type, string criteriaJson)
+        protected QueryResult<T> InternalSearch<T>(string indexName, string type, SearchCriteria criteria)
         {
             try
             {
-                criteriaJson.CheckEmptyString("criteriaJson");
+                criteria.CheckNullObject("criteria");
 
                 var httpRequest = (GetHttpRequestUri(indexName, type) + "_search").CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
-                httpRequest.FillData(HttpConstants.HttpMethod.Post, criteriaJson, Encoding.UTF8);
+                httpRequest.FillData(HttpConstants.HttpMethod.Post, criteria.ToJson(), Encoding.UTF8);
 
                 var responseText = httpRequest.ReadResponseAsText(Encoding.UTF8);
 
@@ -170,7 +170,7 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("InternalSearch", new { indexName, type, criteriaJson });
+                throw ex.Handle("InternalSearch", new { indexName, type, criteria });
             }
 
             return null;
