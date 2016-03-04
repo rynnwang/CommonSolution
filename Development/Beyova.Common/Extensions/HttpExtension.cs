@@ -1942,6 +1942,8 @@ namespace Beyova
             return null;
         }
 
+        static readonly string[] ignoredList = new string[] { "Content-Length", "Transfer-Encoding" };
+
         /// <summary>
         /// Transports the HTTP response.
         /// </summary>
@@ -1953,7 +1955,10 @@ namespace Beyova
             {
                 foreach (var key in sourceResponse.Headers.AllKeys)
                 {
-                    destinationResponse.SafeSetHttpHeader(key, sourceResponse.Headers.Get(key));
+                    if (!key.IsInString(ignoredList))
+                    {
+                        destinationResponse.SafeSetHttpHeader(key, sourceResponse.Headers.Get(key));
+                    }
                 }
                 destinationResponse.StatusCode = (int)(sourceResponse.StatusCode);
                 destinationResponse.StatusDescription = sourceResponse.StatusDescription;
