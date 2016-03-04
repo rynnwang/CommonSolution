@@ -114,6 +114,11 @@
             /// The content encoding
             /// </summary>
             public const string ContentEncoding = "Content-Encoding";
+
+            /// <summary>
+            /// The accept encoding
+            /// </summary>
+            public const string AcceptEncoding="Accept-Encoding";
         }
     }
 }

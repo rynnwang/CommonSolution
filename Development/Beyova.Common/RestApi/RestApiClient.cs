@@ -30,6 +30,12 @@ namespace Beyova.RestApi
         /// <value><c>true</c> if [enable exception restore]; otherwise, <c>false</c>.</value>
         public bool EnableExceptionRestore { get; protected set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [accept g zip].
+        /// </summary>
+        /// <value><c>true</c> if [accept g zip]; otherwise, <c>false</c>.</value>
+        public bool AcceptGZip { get; protected set; }
+
         #region Constructor
 
         /// <summary>
@@ -40,18 +46,20 @@ namespace Beyova.RestApi
         /// <param name="isHttps">if set to <c>true</c> [is HTTPS].</param>
         /// <param name="token">The token.</param>
         /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
-        public RestApiClient(string host, string version, bool isHttps = false, string token = null, bool enableExceptionRestore = false)
-            : this(new ApiEndpoint { Host = host, Version = version, Protocol = isHttps ? "https" : "http", Token = token }, enableExceptionRestore)
+        /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
+        public RestApiClient(string host, string version, bool isHttps = false, string token = null, bool enableExceptionRestore = false, bool acceptGZip = false)
+            : this(new ApiEndpoint { Host = host, Version = version, Protocol = isHttps ? "https" : "http", Token = token }, acceptGZip, enableExceptionRestore)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RestApiClient"/> class.
+        /// Initializes a new instance of the <see cref="RestApiClient" /> class.
         /// </summary>
         /// <param name="endpoint">The endpoint.</param>
         /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
-        public RestApiClient(ApiEndpoint endpoint, bool enableExceptionRestore = false)
-               : this(endpoint.ToString(), endpoint.Token, enableExceptionRestore)
+        /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
+        public RestApiClient(ApiEndpoint endpoint, bool enableExceptionRestore = false, bool acceptGZip = false)
+               : this(endpoint.ToString(), endpoint.Token, acceptGZip, enableExceptionRestore)
         {
         }
 
@@ -63,23 +71,26 @@ namespace Beyova.RestApi
         /// <param name="version">The version.</param>
         /// <param name="token">The token.</param>
         /// <param name="enableExceptionRestore">if set to <c>true</c> [enable exception restore].</param>
-        public RestApiClient(string baseUrl, string version, string token, bool enableExceptionRestore = false)
-            : this(string.Format("{0}/{1}", baseUrl.TrimEnd('/'), version), token, enableExceptionRestore)
+        /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
+        public RestApiClient(string baseUrl, string version, string token, bool enableExceptionRestore = false, bool acceptGZip = false)
+            : this(string.Format("{0}/{1}", baseUrl.TrimEnd('/'), version), token, acceptGZip, enableExceptionRestore)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RestApiClient"/> class.
+        /// Initializes a new instance of the <see cref="RestApiClient" /> class.
         /// </summary>
         /// <param name="baseUrl">The base URL.
         /// <example>http://xxx.xxx.com/api/v1/</example></param>
         /// <param name="token">The token.</param>
         /// <param name="enableExceptionRestore">if set to <c>true</c> [include exception detail].</param>
-        public RestApiClient(string baseUrl, string token, bool enableExceptionRestore = false)
+        /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
+        public RestApiClient(string baseUrl, string token, bool enableExceptionRestore = false, bool acceptGZip = false)
         {
             this.BaseUrl = baseUrl.SafeToString().TrimEnd('/') + "/";
             this.Token = token;
             this.EnableExceptionRestore = enableExceptionRestore;
+            this.AcceptGZip = acceptGZip;
         }
 
         #endregion
@@ -236,7 +247,7 @@ namespace Beyova.RestApi
                 url += ("?" + queryString.ToKeyValueStringWithUrlEncode());
             }
 
-            var httpRequest = url.CreateHttpWebRequest(httpMethod);
+            var httpRequest = url.CreateHttpWebRequest(httpMethod, acceptGZip: this.AcceptGZip);
             FillAdditionalData(httpRequest);
 
             return httpRequest;

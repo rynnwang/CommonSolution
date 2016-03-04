@@ -271,7 +271,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string SmartReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
         {
-            var usingGzip = httpWebRequest.TryGetHeader("Accept-Encoding").IndexOf("gzip") > -1;
+            var usingGzip = httpWebRequest.TryGetHeader(HttpConstants.HttpHeader.AcceptEncoding).IndexOf("gzip") > -1;
 
             return usingGzip ? ReadResponseAsGZipText(httpWebRequest, encoding) : ReadResponseAsText(httpWebRequest, encoding);
         }
@@ -1437,13 +1437,14 @@ namespace Beyova
         /// </summary>
         /// <param name="destinationUrl">The destination URL.</param>
         /// <param name="httpMethod">Type of the method.</param>
-        /// <param name="referer">The referer.</param>
+        /// <param name="referrer">The referrer.</param>
         /// <param name="userAgent">The user agent.</param>
         /// <param name="cookieContainer">The cookie container.</param>
         /// <param name="cookieString">The cookie string.</param>
         /// <param name="accept">The accept.</param>
+        /// <param name="acceptGZip">The accept g zip.</param>
         /// <returns>HttpWebRequest.</returns>
-        public static HttpWebRequest CreateHttpWebRequest(this string destinationUrl, string httpMethod = HttpConstants.HttpMethod.Get, string referer = null, string userAgent = null, CookieContainer cookieContainer = null, string cookieString = null, string accept = null)
+        public static HttpWebRequest CreateHttpWebRequest(this string destinationUrl, string httpMethod = HttpConstants.HttpMethod.Get, string referrer = null, string userAgent = null, CookieContainer cookieContainer = null, string cookieString = null, string accept = null, bool acceptGZip = true)
         {
             try
             {
@@ -1453,9 +1454,14 @@ namespace Beyova
                 httpWebRequest.KeepAlive = false;
                 httpWebRequest.Accept = accept.SafeToString("*/*");
 
-                if (!string.IsNullOrWhiteSpace(referer))
+                if (!string.IsNullOrWhiteSpace(referrer))
                 {
-                    httpWebRequest.Referer = referer;
+                    httpWebRequest.Referer = referrer;
+                }
+
+                if (acceptGZip)
+                {
+                    httpWebRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.AcceptEncoding, "gzip, deflate");
                 }
 
                 if (!string.IsNullOrWhiteSpace(userAgent))
@@ -1477,7 +1483,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateHttpWebRequest", new { destinationUrl, httpMethod, referer, userAgent });
+                throw ex.Handle("CreateHttpWebRequest", new { destinationUrl, httpMethod, referrer, userAgent });
             }
         }
 
@@ -1942,8 +1948,6 @@ namespace Beyova
             return null;
         }
 
-        static readonly string[] ignoredList = new string[] { "Content-Length", "Transfer-Encoding" };
-
         /// <summary>
         /// Transports the HTTP response.
         /// </summary>
@@ -1955,10 +1959,7 @@ namespace Beyova
             {
                 foreach (var key in sourceResponse.Headers.AllKeys)
                 {
-                    if (!key.IsInString(ignoredList))
-                    {
-                        destinationResponse.SafeSetHttpHeader(key, sourceResponse.Headers.Get(key));
-                    }
+                    destinationResponse.SafeSetHttpHeader(key, sourceResponse.Headers.Get(key));
                 }
                 destinationResponse.StatusCode = (int)(sourceResponse.StatusCode);
                 destinationResponse.StatusDescription = sourceResponse.StatusDescription;

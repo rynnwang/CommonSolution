@@ -8,6 +8,7 @@ namespace Beyova.CommonAdminService
     /// <summary>
     /// Class AdminBaseController.
     /// </summary>
+    [EnvironmentBased]
     public abstract class EnvironmentBaseController : AdminBaseController
     {
         /// <summary>

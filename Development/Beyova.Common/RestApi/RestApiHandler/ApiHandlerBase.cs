@@ -140,7 +140,7 @@ namespace Beyova.RestApi
 
             context.Response.Headers.Add(HttpConstants.HttpHeader.SERVERENTRYTIME, entryStamp.ToFullDateTimeTzString());
 
-            var acceptEncoding = context.Request.Headers["Accept-Encoding"].SafeToLower();
+            var acceptEncoding = context.Request.Headers[HttpConstants.HttpHeader.AcceptEncoding].SafeToLower();
 
             try
             {
