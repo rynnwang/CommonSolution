@@ -119,6 +119,26 @@
             /// The accept encoding
             /// </summary>
             public const string AcceptEncoding="Accept-Encoding";
+
+            /// <summary>
+            /// The transfer encoding
+            /// </summary>
+            public const string TransferEncoding="Transfer-Encoding";
+
+            /// <summary>
+            /// The access control allow origin
+            /// </summary>
+            public const string AccessControlAllowOrigin = "Access-Control-Allow-Origin";
+
+            /// <summary>
+            /// The access control allow headers
+            /// </summary>
+            public const string AccessControlAllowHeaders = "Access-Control-Allow-Headers";
+
+            /// <summary>
+            /// The access control allow methods
+            /// </summary>
+            public const string AccessControlAllowMethods = "Access-Control-Allow-Methods";
         }
     }
 }

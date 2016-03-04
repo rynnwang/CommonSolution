@@ -1948,6 +1948,8 @@ namespace Beyova
             return null;
         }
 
+        public readonly static string[] ignoredHeaders = new string[] { HttpConstants.HttpHeader.TransferEncoding, HttpConstants.HttpHeader.AccessControlAllowHeaders, HttpConstants.HttpHeader.AccessControlAllowMethods, HttpConstants.HttpHeader.AccessControlAllowOrigin };
+
         /// <summary>
         /// Transports the HTTP response.
         /// </summary>
@@ -1959,7 +1961,10 @@ namespace Beyova
             {
                 foreach (var key in sourceResponse.Headers.AllKeys)
                 {
-                    destinationResponse.SafeSetHttpHeader(key, sourceResponse.Headers.Get(key));
+                    if (!key.IsInString(ignoredHeaders))
+                    {
+                        destinationResponse.SafeSetHttpHeader(key, sourceResponse.Headers.Get(key));
+                    }
                 }
                 destinationResponse.StatusCode = (int)(sourceResponse.StatusCode);
                 destinationResponse.StatusDescription = sourceResponse.StatusDescription;
@@ -2096,7 +2101,7 @@ namespace Beyova
                         httpResponse.ContentType = value.SafeToString();
                         break;
                     case "host":
-                    case "connection":
+                    //case "connection":
                     case "close":
                     case "content-length":
                     case "proxy-connection":
