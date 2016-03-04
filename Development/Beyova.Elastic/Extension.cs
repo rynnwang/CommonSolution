@@ -158,9 +158,9 @@ namespace Beyova.Elastic
                     matchList.Add("Platform", ((int)criteria.Platform));
                 }
 
-                if (criteriaUrl != null)
+                if (criteria.RawUrl != null)
                 {
-                    matchList.Add("RawUrl", criteriaUrl);
+                    matchList.Add("RawUrl", criteria.RawUrl);
                 }
 
                 if (criteria.ReferrerUrl != null)

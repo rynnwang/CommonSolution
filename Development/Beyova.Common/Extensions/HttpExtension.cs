@@ -1958,8 +1958,11 @@ namespace Beyova
                 destinationResponse.StatusCode = (int)(sourceResponse.StatusCode);
                 destinationResponse.StatusDescription = sourceResponse.StatusDescription;
 
-                var bytes = sourceResponse.ReadAsBytes(true);
-                destinationResponse.BinaryWrite(bytes);
+                using (var sourceStream = sourceResponse.GetResponseStream())
+                {
+                    sourceStream.CopyTo(destinationResponse.OutputStream);
+                    destinationResponse.Flush();
+                }
             }
         }
 

@@ -467,5 +467,18 @@ namespace Beyova
 
             return root.IsInString("", "\\", "/");
         }
+
+        /// <summary>
+        /// Copies the stream.
+        /// </summary>
+        /// <param name="sourceStream">The source stream.</param>
+        /// <param name="destinationStream">The destination stream.</param>
+        public static void CopyStream(this Stream sourceStream, Stream destinationStream)
+        {
+            if (sourceStream != null && destinationStream != null)
+            {
+                sourceStream.CopyTo(destinationStream);
+            }
+        }
     }
 }
