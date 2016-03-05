@@ -34,6 +34,13 @@ namespace Beyova.Elastic
         public object Matches { get; set; }
 
         /// <summary>
+        /// Gets or sets the filters.
+        /// </summary>
+        /// <value>The filters.</value>
+        [JsonProperty(PropertyName = "filtered", NullValueHandling = NullValueHandling.Ignore)]
+        public FilterCriteria Filters { get; set; }
+
+        /// <summary>
         /// Gets or sets the range.
         /// </summary>
         /// <value>The range.</value>

@@ -150,7 +150,7 @@ namespace Beyova.Elastic
         /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name="criteriaJson">The criteria json.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <returns>QueryResult&lt;T&gt;.</returns>
         protected QueryResult<T> InternalSearch<T>(string indexName, string type, SearchCriteria criteria)
         {

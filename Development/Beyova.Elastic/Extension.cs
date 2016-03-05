@@ -1,17 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Beyova.ApiTracking;
 
 namespace Beyova.Elastic
 {
+    /// <summary>
+    /// Class Extension.
+    /// </summary>
     internal static class Extension
     {
+        #region Constants
+
+        /// <summary>
+        /// The created stamp
+        /// </summary>
         const string CreatedStamp = "CreatedStamp";
 
+        /// <summary>
+        /// The descending
+        /// </summary>
         const string Descending = "desc";
+
+        /// <summary>
+        /// The exception key
+        /// </summary>
+        const string ExceptionKey = "ExceptionKey";
+
+        #endregion
 
         /// <summary>
         /// Exceptions the criteria to elastic criteria.
@@ -40,17 +54,27 @@ namespace Beyova.Elastic
             {
                 if (criteria.ServerIdentifier != null)
                 {
-                    matchList.Add("ServerIdentifier", criteria.ServerIdentifier);
+                    termList.Add("ServerIdentifier", criteria.ServerIdentifier);
                 }
 
                 if (criteria.ServiceIdentifier != null)
                 {
-                    matchList.Add("ServiceIdentifier", criteria.ServiceIdentifier);
+                    termList.Add("ServiceIdentifier", criteria.ServiceIdentifier);
                 }
 
                 if (criteria.UserIdentifier != null)
                 {
-                    matchList.Add("UserIdentifier", criteria.UserIdentifier);
+                    termList.Add("UserIdentifier", criteria.UserIdentifier);
+                }
+
+                if (criteria.MajorCode != null)
+                {
+                    matchList.Add("Code.MajorCode", (int)criteria.MajorCode.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(criteria.MinorCode))
+                {
+                    termList.Add("Code.MinorCode", criteria.MinorCode);
                 }
 
                 queryCriteria = new QueryCriteria
@@ -208,6 +232,13 @@ namespace Beyova.Elastic
                     Terms = termList.Count > 0 ? termList : null,
                     Matches = matchList.Count > 0 ? matchList : null,
                 };
+
+                // Only when ExceptionKey is not specified, HasException has chance to use.
+                if (criteria.ExceptionKey == null && criteria.HasException != null)
+                {
+                    queryCriteria.Filters = new FilterCriteria();
+                    queryCriteria.Filters.Items = criteria.HasException.Value ? new { exists = new { field = ExceptionKey } } : new { missing = new { field = ExceptionKey } } as object;
+                }
 
                 if (criteria.FromStamp != null)
                 {

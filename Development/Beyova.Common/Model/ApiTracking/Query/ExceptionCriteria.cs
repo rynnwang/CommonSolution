@@ -11,6 +11,18 @@ namespace Beyova.ApiTracking
         #region Property
 
         /// <summary>
+        /// Gets or sets the major code.
+        /// </summary>
+        /// <value>The major code.</value>
+        public ExceptionCode.MajorCode? MajorCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the minor code.
+        /// </summary>
+        /// <value>The minor code.</value>
+        public string MinorCode { get; set; }
+
+        /// <summary>
         /// Gets the key.
         /// </summary>
         /// <value>The key.</value>

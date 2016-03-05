@@ -45,6 +45,22 @@ namespace Beyova.ApiTracking
         public GeoInfoBase GeoInfo { get; set; }
 
         /// <summary>
+        /// Gets the duration. Unit: TotalMilliseconds
+        /// </summary>
+        /// <value>The duration.</value>
+        public double? Duration
+        {
+            get
+            {
+                return (ExitStamp != null && EntryStamp != null) ? (ExitStamp.Value - EntryStamp.Value).TotalMilliseconds : null as double?;
+            }
+            set
+            {
+                //Do nothing.
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventLog"/> class.
         /// </summary>
         public ApiEventLog(ApiEventLogBase eventLogBase)

@@ -580,6 +580,28 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Enums to string.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumValue">The enum value.</param>
+        /// <returns>System.String.</returns>
+        public static string EnumToString<T>(this T? enumValue) where T : struct, IConvertible
+        {
+            return enumValue == null ? string.Empty : EnumToString(enumValue.Value);
+        }
+
+        /// <summary>
+        /// Enums to string.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumValue">The enum value.</param>
+        /// <returns>System.String.</returns>
+        public static string EnumToString<T>(this T enumValue) where T : struct, IConvertible
+        {
+            return string.Format("{0} ({1})", enumValue.ToString(), enumValue.ToInt32(CultureInfo.InvariantCulture));
+        }
+
+        /// <summary>
         /// Enums to int32.
         /// </summary>
         /// <typeparam name="T"></typeparam>

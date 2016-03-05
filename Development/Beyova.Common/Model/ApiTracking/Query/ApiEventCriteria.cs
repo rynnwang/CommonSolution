@@ -44,6 +44,12 @@ namespace Beyova.ApiTracking
         public int Count { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this instance has exception.
+        /// </summary>
+        /// <value><c>null</c> if [has exception] contains no value, <c>true</c> if [has exception]; otherwise, <c>false</c>.</value>
+        public bool? HasException { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventCriteria" /> class.
         /// </summary>
         public ApiEventCriteria(ApiEventLogBase eventLogBase)

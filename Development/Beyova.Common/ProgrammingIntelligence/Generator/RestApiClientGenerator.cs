@@ -532,7 +532,7 @@ namespace Beyova.RestApi
             if (builder != null)
             {
                 builder.AppendIndent(CodeIndent, 2);
-                builder.AppendLineWithFormat("public {0}(ApiEndpoint endpoint, bool enableExceptionRestore = false):base(endpoint, enableExceptionRestore)", className);
+                builder.AppendLineWithFormat("public {0}(ApiEndpoint endpoint, bool enableExceptionRestore = false, bool acceptGZip = false):base(endpoint, enableExceptionRestore, acceptGZip)", className);
                 builder.AppendIndent(CodeIndent, 2);
                 builder.AppendLine("{");
                 builder.AppendIndent(CodeIndent, 2);

@@ -44,27 +44,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the application base directory.
-        /// </summary>
-        /// <returns>System.String.</returns>
-        public static string GetApplicationBaseDirectory(this object anyObject)
-        {
-            return GetApplicationBaseDirectory();
-        }
-
-        /// <summary>
-        /// Gets the application base directory.
-        /// </summary>
-        /// <returns>System.String.</returns>
-        public static string GetApplicationBaseDirectory()
-        {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            bool isWeb = !string.IsNullOrWhiteSpace(HttpRuntime.AppDomainAppVirtualPath);
-            baseDirectory = isWeb ? Path.Combine(baseDirectory, Path_BinFolder) : baseDirectory;
-            return baseDirectory;
-        }
-
-        /// <summary>
         /// Gets the assembly public key token.
         /// </summary>
         /// <param name="anyAssembly">Any assembly.</param>
@@ -144,7 +123,7 @@ namespace Beyova
         #endregion
 
         /// <summary>
-        /// Gets the actual affected properties.
+        /// Gets the actual affected properties. This method helps to get properties without duplication.
         /// </summary>
         /// <param name="anyType">Any type.</param>
         /// <param name="bindingFlags">The binding flags.</param>
@@ -172,7 +151,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the actual affected fields.
+        /// Gets the actual affected fields. This method helps to get fields without duplication.
         /// </summary>
         /// <param name="anyType">Any type.</param>
         /// <param name="bindingFlags">The binding flags.</param>

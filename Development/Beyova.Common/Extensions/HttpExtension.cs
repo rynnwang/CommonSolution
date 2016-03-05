@@ -1948,6 +1948,9 @@ namespace Beyova
             return null;
         }
 
+        /// <summary>
+        /// The ignored headers
+        /// </summary>
         public readonly static string[] ignoredHeaders = new string[] { HttpConstants.HttpHeader.TransferEncoding, HttpConstants.HttpHeader.AccessControlAllowHeaders, HttpConstants.HttpHeader.AccessControlAllowMethods, HttpConstants.HttpHeader.AccessControlAllowOrigin };
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using Beyova;
+using Newtonsoft.Json;
 
 namespace Beyova.ApiTracking
 {
@@ -36,6 +37,7 @@ namespace Beyova.ApiTracking
         /// Gets or sets the exception key.
         /// </summary>
         /// <value>The exception key.</value>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Guid? ExceptionKey { get; set; }
 
         /// <summary>
