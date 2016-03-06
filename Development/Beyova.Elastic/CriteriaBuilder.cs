@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Beyova.Elastic
 {
+    /// <summary>
+    /// Class CriteriaBuilder.
+    /// </summary>
     public static class CriteriaBuilder
     {
       

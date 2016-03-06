@@ -6,7 +6,7 @@ namespace Beyova.ExceptionSystem
     /// <summary>
     /// Class ExceptionBase.
     /// </summary>
-    public class ExceptionBase : ApiLogBase, IExceptionInfo
+    public class ExceptionBase : ApiLogBase
     {
         #region Property
 
@@ -29,12 +29,6 @@ namespace Beyova.ExceptionSystem
         public string StackTrace { get; set; }
 
         /// <summary>
-        /// Gets or sets the code.
-        /// </summary>
-        /// <value>The code.</value>
-        public ExceptionCode Code { get; set; }
-
-        /// <summary>
         /// Gets or sets the type of the exception.
         /// </summary>
         /// <value>The type of the exception.</value>
@@ -52,12 +46,6 @@ namespace Beyova.ExceptionSystem
         /// <value>The source.</value>
         public string Source { get; set; }
 
-        /// <summary>
-        /// Gets or sets the data.
-        /// </summary>
-        /// <value>The data.</value>
-        public JObject Data { get; set; }
-
         #endregion
 
         /// <summary>
@@ -72,10 +60,8 @@ namespace Beyova.ExceptionSystem
                 this.Message = exceptionBase.Message;
                 this.TargetSite = exceptionBase.TargetSite;
                 this.StackTrace = exceptionBase.StackTrace;
-                this.Code = exceptionBase.Code;
                 this.Level = exceptionBase.Level;
                 this.Source = exceptionBase.Source;
-                this.Data = exceptionBase.Data;
             }
         }
     }

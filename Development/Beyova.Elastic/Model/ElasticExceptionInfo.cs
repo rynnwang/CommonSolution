@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Beyova;
 using Beyova.ExceptionSystem;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.Elastic
 {
@@ -31,5 +32,17 @@ namespace Beyova.Elastic
         /// </summary>
         /// <value>The inner exception.</value>
         public string InnerException { get; set; }
+
+        /// <summary>
+        /// Gets or sets the code.
+        /// </summary>
+        /// <value>The code.</value>
+        public ExceptionCode Code { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data.
+        /// </summary>
+        /// <value>The data.</value>
+        public JObject Data { get; set; }
     }
 }

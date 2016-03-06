@@ -51,8 +51,35 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\" />
-    <Folder Include="DatabaseScripts\" />
+    <Folder Include="DatabaseScripts\Full\StoredProcedure\" />
     <Folder Include="Model\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DatabaseScripts\Configuration.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="DatabaseScripts\Full\Function\fn_GenerateSqlExpression.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_GenerateWherePattern.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_SplitStringToList.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_XmlListToGuidTable.sql" />
+    <Content Include="DatabaseScripts\Full\Function\fn_XmlListToStringTable.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\All_ObjectStateFunction.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ContainsValue.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_GetWorkflowValue.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectCanUpdateOrDelete.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsApproved.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsVisible.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_ObjectIsWorkable.sql" />
+    <Content Include="DatabaseScripts\Full\Function\ObjectStateFuntions\fn_SetObjectDeleted.sql" />
+    <Content Include="DatabaseScripts\Full\Table\DeviceManagement\DeviceWarehouse.sql" />
+    <Content Include="DatabaseScripts\Full\Table\DeviceManagement\DeviceAudit.sql" />
+    <Content Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe" />
+    <Content Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe" />
+    <Content Include="DatabaseScripts\Output.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DatabaseScripts\ifunction.DBScript.SqlScript.exe.config" />
+    <None Include="DatabaseScripts\ifunction.MicrosoftSqlDeployTool.exe.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

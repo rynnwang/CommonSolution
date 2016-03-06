@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <Full>
+    <Function>
+      <Item>ObjectStateFuntions\All_ObjectStateFunction.sql</Item>
+      <Item>ObjectStateFuntions\fn_ContainsValue.sql</Item>
+      <Item>ObjectStateFuntions\fn_GetWorkflowValue.sql</Item>
+      <Item>ObjectStateFuntions\fn_ObjectCanUpdateOrDelete.sql</Item>
+      <Item>ObjectStateFuntions\fn_ObjectIsApproved.sql</Item>
+      <Item>ObjectStateFuntions\fn_ObjectIsVisible.sql</Item>
+      <Item>ObjectStateFuntions\fn_ObjectIsWorkable.sql</Item>
+      <Item>ObjectStateFuntions\fn_SetObjectDeleted.sql</Item>
+      <Item>fn_GenerateSqlExpression.sql</Item>
+      <Item>fn_GenerateWherePattern.sql</Item>
+      <Item>fn_SplitStringToList.sql</Item>
+      <Item>fn_XmlListToGuidTable.sql</Item>
+      <Item>fn_XmlListToStringTable.sql</Item>
+    </Function>
+    <Storedprocedure></Storedprocedure>
+    <Table>
+      <Item>DeviceManagement\DeviceAudit.sql</Item>
+      <Item>DeviceManagement\DeviceWarehouse.sql</Item>
+    </Table>
+  </Full>
+</Database>

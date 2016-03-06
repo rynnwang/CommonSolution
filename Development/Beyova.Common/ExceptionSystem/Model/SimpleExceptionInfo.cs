@@ -6,7 +6,7 @@ namespace Beyova.ExceptionSystem
     /// <summary>
     /// Class SimpleExceptionInfo.
     /// </summary>
-    public class SimpleExceptionInfo : IExceptionInfo
+    public class SimpleExceptionInfo
     {
         /// <summary>
         /// Gets or sets the error message.

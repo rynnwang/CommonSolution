@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Database>
+    <Solution Name="DEV">
+        <ConnectionString Server="WIN-GJHO0TM3LEL" Database="TeamManagementService" />
+        <Full TargetVersion="1.0">
+            <Function>
+                <Item>ObjectStateFuntions\All_ObjectStateFunction.sql</Item>
+                <Item>fn_SplitStringToList.sql</Item>
+                <Item>fn_GenerateSqlExpression.sql</Item>
+                <Item>fn_GenerateWherePattern.sql</Item>
+                <Item>fn_XmlListToGuidTable.sql</Item>
+                <Item>fn_XmlListToStringTable.sql</Item>
+            </Function>
+            <StoredProcedure>
+              
+            </StoredProcedure>
+            <Table>
+                <Item>DeviceManagement\DeviceAudit.sql</Item>
+                <Item>DeviceManagement\DeviceWarehouse.sql</Item>
+            </Table>
+            <View>
+            </View>
+            <Data>
+             
+            </Data>
+        </Full>
+    </Solution>
+</Database>

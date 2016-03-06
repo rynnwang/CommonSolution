@@ -560,7 +560,7 @@ namespace Beyova.RestApi
                     Message = ex.Hint != null ? (ex.Hint.Message ?? ex.Hint.Cause) : ex.RootCause.Message,
                     Data = data == null ? null : JObject.FromObject(data),
                     Code = ex.Hint?.Code ?? ex.Code
-                } as IExceptionInfo) : data;
+                } as object) : data;
 
                 response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
                 response.Headers.AddIfNotNull(HttpConstants.HttpHeader.TRACEID, ApiTraceContext.TraceId);

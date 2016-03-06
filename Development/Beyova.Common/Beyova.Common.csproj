@@ -144,7 +144,6 @@
     <Compile Include="Interfaces\AuthenticationProfile\IAuthenticationResult.cs" />
     <Compile Include="Interfaces\CommonServiceInterface\IResourceService.cs" />
     <Compile Include="Interfaces\CommonServiceInterface\IAuthenticationProfileService.cs" />
-    <Compile Include="ExceptionSystem\IExceptionInfo.cs" />
     <Compile Include="Interfaces\ICredential.cs" />
     <Compile Include="Interfaces\AuthenticationProfile\IUserCriteria.cs" />
     <Compile Include="Interfaces\IWorkflowBasedObject.cs" />

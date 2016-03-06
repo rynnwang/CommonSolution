@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
 {
@@ -49,16 +50,28 @@ namespace Beyova.ExceptionSystem
         public ExceptionInfo InnerException { get; set; }
 
         /// <summary>
+        /// Gets or sets the code.
+        /// </summary>
+        /// <value>The code.</value>
+        public ExceptionCode Code { get; set; }
+
+        /// <summary>
         /// Gets or sets the created stamp.
         /// </summary>
         /// <value>The created stamp.</value>
         public DateTime? CreatedStamp { get; set; }
 
         /// <summary>
+        /// Gets or sets the data.
+        /// </summary>
+        /// <value>The data.</value>
+        public JObject Data { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionInfo"/> class.
         /// </summary>
         public ExceptionInfo(ExceptionBase exceptionBase = null)
-            : base(exceptionBase)
+            : base()
         {
             this.Key = Guid.NewGuid();
             this.CreatedStamp = DateTime.UtcNow;
