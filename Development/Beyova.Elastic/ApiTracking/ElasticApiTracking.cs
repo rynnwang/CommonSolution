@@ -230,7 +230,7 @@ namespace Beyova.Elastic
         {
             try
             {
-                return elasticClient.Query<ExceptionInfo>(apiEventType, criteria.ToElasticCriteria());
+                return ToExceptionInfo(elasticClient.Query<ElasticExceptionInfo>(exceptionType, criteria.ToElasticCriteria()));
             }
             catch (Exception ex)
             {
@@ -328,6 +328,37 @@ namespace Beyova.Elastic
         //}
 
         #endregion
+
+        /// <summary>
+        /// To the exception information.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>QueryResult&lt;ExceptionInfo&gt;.</returns>
+        protected static QueryResult<ExceptionInfo> ToExceptionInfo(QueryResult<ElasticExceptionInfo> data)
+        {
+            return data != null ? new QueryResult<ExceptionInfo>
+            {
+                Shards = data.Shards,
+                Total = data.Total,
+                Hits = data.Hits.Select((x) => ToExceptionInfo(x)).ToList()
+            } : null;
+        }
+
+        /// <summary>
+        /// To the exception information.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>RawDataItem&lt;ExceptionInfo&gt;.</returns>
+        protected static RawDataItem<ExceptionInfo> ToExceptionInfo(RawDataItem<ElasticExceptionInfo> data)
+        {
+            return data != null ? new RawDataItem<ExceptionInfo>
+            {
+                Id = data.Id,
+                Index = data.Index,
+                Type = data.Type,
+                Source = ToExceptionInfo(data.Source)
+            } : null;
+        }
 
         /// <summary>
         /// To the exception information.

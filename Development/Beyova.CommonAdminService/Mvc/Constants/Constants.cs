@@ -75,11 +75,11 @@ namespace Beyova.CommonAdminService
 
             public const string ApiTraceDetailView = "~/Views/shared/Beyova/features/ApiTracking/_ApiTraceDetail.cshtml";
 
-            public const string ExceptionPanelView = "~/Views/shared/Beyova/features/ApiTracking/ExceptionPanel.cshtml";
+            public const string ExceptionPanelView = "~/Views/shared/Beyova/features/ApiTracking/ApiExceptionPanel.cshtml";
 
-            public const string ExceptionListView = "~/Views/shared/Beyova/features/ApiTracking/_ExceptionList.cshtml";
+            public const string ExceptionListView = "~/Views/shared/Beyova/features/ApiTracking/_ApiExceptionList.cshtml";
 
-            public const string ExceptionDetailView = "~/Views/shared/Beyova/features/ApiTracking/_ExceptionDetail.cshtml";
+            public const string ExceptionDetailView = "~/Views/shared/Beyova/features/ApiTracking/_ApiExceptionDetail.cshtml";
 
             #endregion
 
