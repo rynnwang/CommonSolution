@@ -47,7 +47,7 @@ namespace Beyova.ExceptionSystem
         public Guid Key
         {
             get;
-            protected set;
+            internal set;
         }
 
         /// <summary>

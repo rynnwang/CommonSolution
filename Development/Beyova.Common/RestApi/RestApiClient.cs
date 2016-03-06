@@ -205,11 +205,14 @@ namespace Beyova.RestApi
             catch (HttpOperationException httpEx)
             {
                 var reference = httpEx.ExceptionReference;
-                var exceptionInfo = reference.ResponseText.TryDeserializeAsObject<ExceptionInfo>();
+                var exceptionInfo = reference?.ResponseText.TryDeserializeAsObject<ExceptionInfo>();
 
                 if (this.EnableExceptionRestore)
                 {
-                    throw exceptionInfo.ToException().Handle("InvokeAsJToken", new { httpMethod, resourceName, resourceAction, key, queryString });
+                    var exception = exceptionInfo.ToException().Handle("InvokeAsJToken", new { httpMethod, resourceName, resourceAction, key, queryString });
+                    //Reset key to new one so that in log system, this exception can be identified correctly.
+                    exception.Key = Guid.NewGuid();
+                    throw exception;
                 }
                 else
                 {
