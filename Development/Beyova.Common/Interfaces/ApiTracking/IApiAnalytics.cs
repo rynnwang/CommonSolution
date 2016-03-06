@@ -27,11 +27,11 @@ namespace Beyova
         List<ExceptionInfo> QueryException(ExceptionCriteria criteria);
 
         /// <summary>
-        /// Gets the API trace log by key.
+        /// Gets the API trace log by identifier.
         /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns>ApiTraceLog.</returns>
-        ApiTraceLog GetApiTraceLogByKey(Guid? key);
+        /// <param name="traceId">The trace identifier.</param>
+        /// <returns>List&lt;ApiTraceLog&gt;.</returns>
+        List<ApiTraceLog> GetApiTraceLogById(string traceId);
 
         #endregion
 

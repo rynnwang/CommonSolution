@@ -239,6 +239,33 @@ namespace Beyova.Elastic
         }
 
         /// <summary>
+        /// Internals the query trace log.
+        /// </summary>
+        /// <param name="traceId">The trace identifier.</param>
+        /// <returns>QueryResult&lt;ApiTraceLog&gt;.</returns>
+        protected QueryResult<ApiTraceLog> InternalQueryTraceLog(string traceId)
+        {
+            try
+            {
+                return elasticClient.Query<ApiTraceLog>(apiEventType, new SearchCriteria
+                {
+                    Count = 200,
+                    QueryCriteria = new QueryCriteria
+                    {
+                        Matches = new
+                        {
+                            TraceId = traceId
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("InternalQueryTraceLog", traceId);
+            }
+        }
+
+        /// <summary>
         /// Queries the API event.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
@@ -272,9 +299,23 @@ namespace Beyova.Elastic
             }
         }
 
-        public ApiTraceLog GetApiTraceLogByKey(Guid? key)
+        /// <summary>
+        /// Gets the API trace log by identifier.
+        /// </summary>
+        /// <param name="traceId">The trace identifier.</param>
+        /// <returns>List&lt;ApiTraceLog&gt;.</returns>
+        public List<ApiTraceLog> GetApiTraceLogById(string traceId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                traceId.CheckEmptyString("traceId");
+
+                return InternalQueryTraceLog(traceId).Hits.Select((x) => x.Source).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("GetApiTraceLogById", traceId);
+            }
         }
 
         public List<ApiEventGroupStatistic> GetApiEventStatistic(ApiEventStatisticCriteria criteria)

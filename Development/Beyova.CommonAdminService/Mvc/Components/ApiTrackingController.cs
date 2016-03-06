@@ -214,12 +214,21 @@ namespace Beyova.CommonAdminService
         public ActionResult EventTrace(string traceId, string environment)
         {
             var client = GetClient(environment);
-            if (client != null && !string.IsNullOrWhiteSpace(traceId))
+
+            try
             {
+                List<ApiTraceLog> result = null;
+                if (client != null && !string.IsNullOrWhiteSpace(traceId))
+                {
+                    result = client.GetApiTraceLogById(traceId);
+                }
 
+                return PartialView(Constants.ViewNames.ApiTraceDetailView, result);
             }
-
-            return RedirectToNotFoundPage();
+            catch (Exception ex)
+            {
+                return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "EventTrace", traceId);
+            }
         }
     }
 }
