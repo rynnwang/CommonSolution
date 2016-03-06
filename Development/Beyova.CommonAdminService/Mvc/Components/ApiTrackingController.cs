@@ -165,6 +165,40 @@ namespace Beyova.CommonAdminService
             }
         }
 
+        /// <summary>
+        /// Exceptions the detail.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="environment">The environment.</param>
+        /// <returns>ActionResult.</returns>
+        [HttpGet]
+        public ActionResult ExceptionDetail(Guid? key, string environment)
+        {
+            var client = GetClient(environment);
+
+            try
+            {
+                ExceptionInfo result = null;
+                if (client != null && key != null)
+                {
+                    result = client.QueryException(new ExceptionCriteria { Key = key, Count = 1 }).SafeFirstOrDefault();
+                }
+
+                if (result != null)
+                {
+                    return View(Constants.ViewNames.ExceptionDetailView, result);
+                }
+                else
+                {
+                    return this.RedirectToNotFoundPage();
+                }
+            }
+            catch (Exception ex)
+            {
+                return this.HandleExceptionToRedirection(ex, HttpConstants.HttpMethod.Get, "ExceptionDetail", key);
+            }
+        }
+
         [HttpGet]
         public ActionResult EventTrace()
         {
