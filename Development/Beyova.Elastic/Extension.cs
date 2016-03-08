@@ -69,12 +69,12 @@ namespace Beyova.Elastic
 
                 if (criteria.MajorCode != null)
                 {
-                    matchList.Add("Code.MajorCode", (int)criteria.MajorCode.Value);
+                    matchList.Add("Code.Major", (int)criteria.MajorCode.Value);
                 }
 
                 if (!string.IsNullOrWhiteSpace(criteria.MinorCode))
                 {
-                    termList.Add("Code.MinorCode", criteria.MinorCode);
+                    termList.Add("Code.Minor", criteria.MinorCode);
                 }
 
                 queryCriteria = new QueryCriteria

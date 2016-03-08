@@ -150,7 +150,7 @@ namespace Beyova
                     destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
                     cookieCollection = webResponse.Cookies;
 
-                    var responseText = webResponse.ReadAsText();
+                    var responseText = webResponse.SmartReadAsText();
 
                     throw new HttpOperationException(httpWebRequest.RequestUri.ToString(),
                         httpWebRequest.Method,
@@ -192,7 +192,7 @@ namespace Beyova
         /// <exception cref="OperationFailureException">ReadResponseAsText</exception>
         public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
-            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
+            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.SmartReadAsText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
         }
 
         /// <summary>
@@ -370,6 +370,27 @@ namespace Beyova
         {
             return ReadAsText(webResponse, encoding, true);
         }
+
+        /// <summary>
+        /// Smarts the read as text.
+        /// </summary>
+        /// <param name="webResponse">The web response.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="closeResponse">The close response.</param>
+        /// <returns>System.String.</returns>
+        public static string SmartReadAsText(this WebResponse webResponse, Encoding encoding = null, bool closeResponse = true)
+        {
+            try
+            {
+                var contentEncoding = webResponse.Headers.Get(HttpConstants.HttpHeader.ContentEncoding);
+                return contentEncoding.SafeToString().Equals("gzip", StringComparison.InvariantCultureIgnoreCase) ? webResponse.ReadAsGZipText(encoding ?? Encoding.UTF8, closeResponse) : webResponse.ReadAsText(encoding, closeResponse);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("SmartReadAsText", closeResponse);
+            }
+        }
+
 
         /// <summary>
         /// Reads as text.
