@@ -137,11 +137,11 @@ namespace Beyova.WebExtension.HttpLongPolling
             {
                 var request = CreateHttpRequest(uri, from, this.Identifier, PollingAction.Pull, jsonBody, batchSize);
 
-                request.ProceedResponseAsync((response) =>
+                request.ProceedResponseAsync((Action<WebResponse>)((response) =>
                 {
-                    string json = response.ReadAsText();
+                    string json = HttpExtension.ReadAsText(response);
                     result = callback(json, response.Headers, ((HttpWebResponse)response).Cookies);
-                });
+                }));
             }
             catch (Exception ex)
             {

@@ -27,7 +27,7 @@ Connection: close
 ";
 
             var request = raw.CreateHttpWebRequestByRaw();
-            var result = request.SmartReadResponseAsText();
+            var result = request.ReadResponseAsText();
 
             Assert.IsNotNull(result);
 
