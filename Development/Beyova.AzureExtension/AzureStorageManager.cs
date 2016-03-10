@@ -9,6 +9,7 @@ using Beyova.ExceptionSystem;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Shared.Protocol;
 
 namespace Beyova.AzureExtension
 {
@@ -22,12 +23,12 @@ namespace Beyova.AzureExtension
         /// <summary>
         /// The storage account
         /// </summary>
-        protected CloudStorageAccount storageAccount;
+        internal CloudStorageAccount storageAccount;
 
         /// <summary>
         /// The BLOB client
         /// </summary>
-        protected CloudBlobClient blobClient;
+        internal CloudBlobClient blobClient;
 
         #endregion
 
@@ -1046,5 +1047,59 @@ namespace Beyova.AzureExtension
         {
             return new AzureStorageManager(storageConnectionString);
         }
+
+        #region Service Properties
+
+        /// <summary>
+        /// Sets the service properties.
+        /// </summary>
+        /// <param name="serviceProperty">The service property.</param>
+        public void SetServiceProperties(ServiceProperties serviceProperty)
+        {
+            try
+            {
+                serviceProperty.CheckNullObject("serviceProperty");
+                this.blobClient.SetServiceProperties(serviceProperty);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("ChangeServiceConfiguration", serviceProperty);
+            }
+        }
+
+        /// <summary>
+        /// Gets the service properties.
+        /// </summary>
+        /// <returns>Microsoft.WindowsAzure.Storage.Shared.Protocol.ServiceProperties.</returns>
+        public ServiceProperties GetServiceProperties()
+        {
+            try
+            {
+                return this.blobClient.GetServiceProperties();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("GetServiceProperties");
+            }
+        }
+
+        /// <summary>
+        /// Sets the service version to 2013-08-15.
+        /// </summary>
+        public void SetServiceVersionTo20130815()
+        {
+            try
+            {
+                var p = GetServiceProperties();
+                p.DefaultServiceVersion = "2013-08-15";
+                SetServiceProperties(p);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle("SetServiceVersionTo20130815");
+            }
+        }
+
+        #endregion
     }
 }
