@@ -150,7 +150,7 @@ namespace Beyova
                     destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
                     cookieCollection = webResponse.Cookies;
 
-                    var responseText = webResponse.SmartReadAsText();
+                    var responseText = webResponse.ReadAsText();
 
                     throw new HttpOperationException(httpWebRequest.RequestUri.ToString(),
                         httpWebRequest.Method,
@@ -192,21 +192,7 @@ namespace Beyova
         /// <exception cref="OperationFailureException">ReadResponseAsText</exception>
         public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
-            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.SmartReadAsText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
-        }
-
-        /// <summary>
-        /// Reads the response as g zip text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="statusCode">The status code.</param>
-        /// <param name="headers">The headers.</param>
-        /// <param name="cookieCollection">The cookie collection.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
-        {
-            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsGZipText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
+            return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
         }
 
         /// <summary>
@@ -219,7 +205,7 @@ namespace Beyova
         /// <returns>System.Byte[].</returns>
         public static byte[] ReadResponseAsBytes(this HttpWebRequest httpWebRequest, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
-            return ReadResponseAsT<byte[]>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsBytes(webResponse, false); }, out statusCode, out headers, out cookieCollection);
+            return ReadResponseAsT<byte[]>(httpWebRequest, (webResponse) => { return HttpExtension.InternalReadAsBytes(webResponse, false); }, out statusCode, out headers, out cookieCollection);
         }
 
         /// <summary>
@@ -237,20 +223,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Reads the response as g zip text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadResponseAsGZipText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
-        {
-            CookieCollection cookieCollection;
-            WebHeaderCollection headers;
-            HttpStatusCode statusCode;
-            return ReadResponseAsGZipText(httpWebRequest, encoding, out statusCode, out headers, out cookieCollection);
-        }
-
-        /// <summary>
         /// Reads the response as bytes.
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
@@ -261,19 +233,6 @@ namespace Beyova
             WebHeaderCollection headers;
             HttpStatusCode statusCode;
             return ReadResponseAsBytes(httpWebRequest, out statusCode, out headers, out cookieCollection);
-        }
-
-        /// <summary>
-        /// Smarts the read response as text.
-        /// </summary>
-        /// <param name="httpWebRequest">The HTTP web request.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>System.String.</returns>
-        public static string SmartReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding = null)
-        {
-            var usingGzip = httpWebRequest.TryGetHeader(HttpConstants.HttpHeader.AcceptEncoding).IndexOf("gzip") > -1;
-
-            return usingGzip ? ReadResponseAsGZipText(httpWebRequest, encoding) : ReadResponseAsText(httpWebRequest, encoding);
         }
 
         #region As Text Async
@@ -297,7 +256,7 @@ namespace Beyova
                 }
 
                 var response = (HttpWebResponse)(await httpWebRequest.GetResponseAsync());
-                return response.ReadAsText(encoding, true);
+                return response.InternalReadAsText(encoding, true);
             }
             catch (Exception ex)
             {
@@ -360,37 +319,24 @@ namespace Beyova
         #region WebResponse Extension
 
         /// <summary>
-        /// Gets text content from WebResponse by specified encoding.
-        /// </summary>
-        /// <param name="webResponse">The WebResponse instance.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>The content string.</returns>
-        /// <exception cref="OperationFailureException">ReadAsText</exception>
-        public static string ReadAsText(this WebResponse webResponse, Encoding encoding = null)
-        {
-            return ReadAsText(webResponse, encoding, true);
-        }
-
-        /// <summary>
-        /// Smarts the read as text.
+        /// Reads as text. This method would try to detect GZip and decode it correctly.
         /// </summary>
         /// <param name="webResponse">The web response.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="closeResponse">The close response.</param>
         /// <returns>System.String.</returns>
-        public static string SmartReadAsText(this WebResponse webResponse, Encoding encoding = null, bool closeResponse = true)
+        public static string ReadAsText(this WebResponse webResponse, Encoding encoding = null, bool closeResponse = true)
         {
             try
             {
                 var contentEncoding = webResponse.Headers.Get(HttpConstants.HttpHeader.ContentEncoding);
-                return contentEncoding.SafeToString().Equals("gzip", StringComparison.InvariantCultureIgnoreCase) ? webResponse.ReadAsGZipText(encoding ?? Encoding.UTF8, closeResponse) : webResponse.ReadAsText(encoding, closeResponse);
+                return contentEncoding.SafeToString().Equals("gzip", StringComparison.InvariantCultureIgnoreCase) ? webResponse.InternalReadAsGZipText(encoding ?? Encoding.UTF8, closeResponse) : webResponse.InternalReadAsText(encoding, closeResponse);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("SmartReadAsText", closeResponse);
+                throw ex.Handle("ReadAsText", new { encoding = encoding?.EncodingName, closeResponse });
             }
         }
-
 
         /// <summary>
         /// Reads as text.
@@ -400,7 +346,7 @@ namespace Beyova
         /// <param name="closeResponse">if set to <c>true</c> [close response].</param>
         /// <returns>System.String.</returns>
         /// <exception cref="OperationFailureException">ReadAsText</exception>
-        private static string ReadAsText(this WebResponse webResponse, Encoding encoding, bool closeResponse)
+        private static string InternalReadAsText(this WebResponse webResponse, Encoding encoding, bool closeResponse)
         {
             string result = string.Empty;
 
@@ -421,7 +367,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ReadAsText");
+                    throw ex.Handle("InternalReadAsText", new { encoding = encoding?.EncodingName, closeResponse });
                 }
                 finally
                 {
@@ -436,14 +382,14 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Reads as g zip text.
+        /// Reads as GZip text.
         /// </summary>
         /// <param name="webResponse">The web response.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="closeResponse">if set to <c>true</c> [close response].</param>
         /// <returns>System.String.</returns>
         /// <exception cref="OperationFailureException">ReadAsGZipText</exception>
-        private static string ReadAsGZipText(this WebResponse webResponse, Encoding encoding, bool closeResponse)
+        private static string InternalReadAsGZipText(this WebResponse webResponse, Encoding encoding, bool closeResponse)
         {
             var stringBuilder = new StringBuilder();
 
@@ -472,7 +418,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ReadAsGZipText");
+                    throw ex.Handle("InternalReadAsGZipText", new { encoding = encoding?.EncodingName, closeResponse });
                 }
                 finally
                 {
@@ -493,7 +439,7 @@ namespace Beyova
         /// <param name="closeResponse">if set to <c>true</c> [close response].</param>
         /// <returns>System.Byte[].</returns>
         /// <exception cref="OperationFailureException">ReadAsBytes</exception>
-        private static byte[] ReadAsBytes(this WebResponse webResponse, bool closeResponse)
+        private static byte[] InternalReadAsBytes(this WebResponse webResponse, bool closeResponse)
         {
             byte[] result = null;
 
@@ -508,7 +454,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ReadAsBytes");
+                    throw ex.Handle("InternalReadAsBytes", new { closeResponse });
                 }
                 finally
                 {
