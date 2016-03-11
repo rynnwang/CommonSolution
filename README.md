@@ -1,14 +1,12 @@
 # CommonSolution
-ifunction.Common, ifunction.WebExtension and other common used library for .NET
+Beyova.Common, Beyova.WebExtension, Beyova.AzureExtension and other common used library for .NET
 
 License: Apache2.0
 
 NuGet: 
 
-ifunction.Common: 
+Beyova.Common: 
 ```
-  PM> Install-Package ifunction.Common
+  PM> Install-Package Beyova.Common
 ```
 
-
-[REST API Handler Usage](https://github.com/rynnwang/CommonSolution/wiki/How-to-use-REST-API-handler/) 
