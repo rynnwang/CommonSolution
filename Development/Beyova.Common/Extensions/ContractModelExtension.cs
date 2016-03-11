@@ -222,6 +222,8 @@ namespace Beyova
                     var n = XmlConstants.node_Item.CreateXml();
                     n.SetAttributeValue(XmlConstants.attribute_Key, one.Key);
                     n.SetValue(converter == null ? item.ToString() : converter(item));
+
+                    node.Add(n);
                 }
             }
 
