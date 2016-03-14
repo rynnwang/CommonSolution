@@ -2098,7 +2098,7 @@ namespace Beyova
             ExceptionCode result = new ExceptionCode { Minor = webExceptionStatus == WebExceptionStatus.Success ? string.Empty : webExceptionStatus.ToString() };
 
             var statudCodeString = ((int)httpStatusCode).ToString();
-            if (!(statudCodeString.StartsWith("4") && statudCodeString.StartsWith("5")))
+            if (!(statudCodeString.StartsWith("4") || statudCodeString.StartsWith("5")))
             {
                 return null;
             }
