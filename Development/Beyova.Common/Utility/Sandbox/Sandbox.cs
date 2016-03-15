@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Reflection;
 using Beyova.ExceptionSystem;
+using System.Linq;
 
 namespace Beyova
 {
@@ -113,7 +114,18 @@ namespace Beyova
 
                 if (compilerResult.Errors.HasErrors)
                 {
-                    throw new OperationFailureException("CompileAssemblyFromSource", null, compilerResult.Errors);
+                    List<dynamic> errors = new List<dynamic>();
+                    foreach (CompilerError one in compilerResult.Errors)
+                    {
+                        errors.Add(new
+                        {
+                            one.ErrorText,
+                            one.ErrorNumber,
+                            one.Line
+                        });
+                    }
+
+                    throw new OperationFailureException("CompileAssemblyFromSource", null, errors);
                 }
 
                 return compilerResult.CompiledAssembly;
