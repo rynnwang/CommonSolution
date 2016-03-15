@@ -103,6 +103,18 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Sets the global default api tracking.
+        /// </summary>
+        /// <param name="apiTracking">The API tracking.</param>
+        public static void SetGlobalDefaultApiTracking(IApiTracking apiTracking)
+        {
+            if (apiTracking != null)
+            {
+                ApiTracking = apiTracking;
+            }
+        }
+
+        /// <summary>
         /// Initializes this instance.
         /// </summary>
         private static void Initialize()
