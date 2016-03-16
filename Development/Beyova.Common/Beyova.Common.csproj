@@ -233,6 +233,7 @@
     <Compile Include="Framework\DualToken.cs" />
     <Compile Include="Utility\LambdaComparer.cs" />
     <Compile Include="Utility\Logger\DiagnosticFileLogger.cs" />
+    <Compile Include="Utility\Sandbox\SandboxAssembly.cs" />
     <Compile Include="Utility\Sandbox\Sandbox.cs" />
     <Compile Include="Utility\SerializableJsonObject\StrickJsonSerializer.cs" />
     <Compile Include="Utility\SerializableJsonObject\JsonXmlSerializer.cs" />

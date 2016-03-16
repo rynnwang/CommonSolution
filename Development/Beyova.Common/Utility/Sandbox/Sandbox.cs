@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using Beyova.ExceptionSystem;
 using System.Linq;
+using System.IO;
+using System.Text;
 
 namespace Beyova
 {
@@ -25,7 +27,7 @@ namespace Beyova
         public Sandbox(string name = null)
         {
             var appDomainSetup = new AppDomainSetup();
-            appDomainSetup.ApplicationBase = AppDomain.CurrentDomain.BaseDirectory;
+            appDomainSetup.ApplicationBase = EnvironmentCore.ApplicationBaseDirectory;
             AppDomain = AppDomain.CreateDomain(name.SafeToString(Guid.NewGuid().ToString()), null, appDomainSetup);
         }
 
@@ -42,55 +44,23 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            AppDomain.Unload(AppDomain);
-        }
-
-        /// <summary>
-        /// Executes the specified assembly name.
-        /// </summary>
-        /// <param name="assemblyName">Name of the assembly.</param>
-        /// <param name="typeName">Name of the type.</param>
-        /// <param name="method">The method.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>System.Object.</returns>
-        public object Execute(string assemblyName, string typeName, string method, params object[] parameters)
-        {
-            try
-            {
-                method.CheckEmptyString("method");
-
-                var objectToRun = CreateInstance(assemblyName, typeName);
-                objectToRun.CheckNullObject("objectToRun");
-
-                var methodInfo = objectToRun.GetType().GetMethod(method);
-                methodInfo.CheckNullObject("methodInfo");
-
-                return methodInfo.Invoke(objectToRun, parameters);
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("Execute", new { assemblyName, typeName, method });
-            }
-        }
-
-        /// <summary>
-        /// Adds the dynamic assembly.
+        /// Creates the dynamic assembly.
         /// </summary>
         /// <param name="provider">The provider.</param>
         /// <param name="referencedAssemblies">The referenced assemblies.</param>
-        /// <param name="codesToCompile">The codes to compile.</param>
+        /// <param name="namespace">The namespace.</param>
+        /// <param name="usingNameSpaces">The using nameSpaces.</param>
+        /// <param name="classCodesToCompile">The class codes to compile.</param>
         /// <returns>Assembly.</returns>
         /// <exception cref="OperationFailureException">CompileAssemblyFromSource;null</exception>
-        public Assembly AddDynamicAssembly(CodeDomProvider provider, List<string> referencedAssemblies, string codesToCompile)
+        public SandboxAssembly CreateDynamicAssembly(CodeDomProvider provider, List<string> referencedAssemblies, string @namespace, IEnumerable<string> usingNameSpaces, string classCodesToCompile)
         {
             try
             {
                 provider.CheckNullObject("provider");
-                codesToCompile.CheckEmptyString("codesToCompile");
+                classCodesToCompile.CheckEmptyString("classCodesToCompile");
+
+                @namespace = @namespace.SafeToString("Beyova.DynamicCompile.Sandbox");
 
                 var objCompilerParameters = new CompilerParameters
                 {
@@ -98,19 +68,45 @@ namespace Beyova
                     GenerateInMemory = true
                 };
 
-                if (referencedAssemblies != null)
+                // Prepare references.
+
+                var references = GetCommonAssemblyNameList();
+
+                if (referencedAssemblies.HasItem())
                 {
-                    objCompilerParameters.ReferencedAssemblies.AddRange(referencedAssemblies.ToArray());
-                }
-                else
-                {
-                    foreach (var one in ReflectionExtension.GetAppDomainAssemblies())
-                    {
-                        objCompilerParameters.ReferencedAssemblies.Add(one.FullName);
-                    }
+                    references.AddRange(referencedAssemblies);
                 }
 
-                var compilerResult = provider.CompileAssemblyFromSource(objCompilerParameters, codesToCompile);
+                objCompilerParameters.ReferencedAssemblies.AddRange(references.ToArray());
+
+                // Prepare references done.
+
+                // Prepare namespace
+
+                var nameSpaces = GetCommonNamespaces();
+
+                if (usingNameSpaces.HasItem())
+                {
+                    nameSpaces.AddRange(usingNameSpaces);
+                }
+
+                // Prepare namespace done;
+
+                StringBuilder builder = new StringBuilder(512);
+                foreach (var one in nameSpaces)
+                {
+                    builder.AppendLineWithFormat("using {0};", one);
+                }
+
+                builder.AppendLineWithFormat("namespace {0}", @namespace);
+                //Namespace start
+                builder.AppendLine("{");
+                builder.AppendLine(classCodesToCompile);
+
+                //End of namespace
+                builder.Append("}");
+
+                var compilerResult = provider.CompileAssemblyFromSource(objCompilerParameters, classCodesToCompile);
 
                 if (compilerResult.Errors.HasErrors)
                 {
@@ -128,37 +124,62 @@ namespace Beyova
                     throw new OperationFailureException("CompileAssemblyFromSource", null, errors);
                 }
 
-                return compilerResult.CompiledAssembly;
+                return new SandboxAssembly(compilerResult.CompiledAssembly, @namespace);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("AddDynamicAssembly");
+                throw ex.Handle("CreateDynamicAssembly");
             }
         }
 
         /// <summary>
-        /// Creates the and get instance.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        /// <param name="assemblyName">Name of the assembly.</param>
-        /// <param name="typeName">Name of the type.</param>
-        /// <returns>System.Object.</returns>
-        public object CreateAndGetInstance(string assemblyName, string typeName)
+        public void Dispose()
         {
-            return CreateInstance(assemblyName, typeName);
+            AppDomain.Unload(AppDomain);
+        }
+
+
+        /// <summary>
+        /// Gets the common assembly name list.
+        /// </summary>
+        /// <returns>HashSet&lt;System.String&gt;.</returns>
+        protected static HashSet<string> GetCommonAssemblyNameList()
+        {
+            var assemblyToAdd = new HashSet<string>();
+
+            assemblyToAdd.Add("System.dll");
+            assemblyToAdd.Add("System.Core.dll");
+            assemblyToAdd.Add("System.Xml.dll");
+            assemblyToAdd.Add("System.Xml.Linq.dll");
+            assemblyToAdd.Add("Microsoft.VisualBasic.dll");
+            assemblyToAdd.Add(Path.Combine(EnvironmentCore.ApplicationBaseDirectory, "Newtonsoft.Json.dll"));
+            assemblyToAdd.Add(Path.Combine(EnvironmentCore.ApplicationBaseDirectory, "Beyova.Common.dll"));
+
+            return assemblyToAdd;
         }
 
         /// <summary>
-        /// Creates the instance.
+        /// Gets the common namespaces.
         /// </summary>
-        /// <param name="assemblyName">Name of the assembly.</param>
-        /// <param name="typeName">Name of the type.</param>
-        /// <returns>System.Object.</returns>
-        protected object CreateInstance(string assemblyName, string typeName)
+        /// <returns>HashSet&lt;System.String&gt;.</returns>
+        private static HashSet<string> GetCommonNamespaces()
         {
-            assemblyName.CheckEmptyString("assemblyName");
-            assemblyName.CheckEmptyString("typeName");
+            var namespaces = new HashSet<string>();
+            namespaces.Add("System");
+            namespaces.Add("System.Collections.Generic");
+            namespaces.Add("System.Linq");
+            namespaces.Add("System.Net");
+            namespaces.Add("System.Reflection");
+            namespaces.Add("System.Text");
+            namespaces.Add("Beyova.ExceptionSystem");
+            namespaces.Add("Beyova");
+            namespaces.Add("Beyova.RestApi");
+            namespaces.Add("Newtonsoft.Json");
+            namespaces.Add("Newtonsoft.Json.Linq");
 
-            return AppDomain.CreateInstanceAndUnwrap(assemblyName, typeName);
+            return namespaces;
         }
     }
 }
