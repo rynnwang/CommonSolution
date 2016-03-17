@@ -121,6 +121,35 @@ namespace Beyova.RestApi
 
                 foreach (var one in apiTraceLog.Children)
                 {
+                    result.InnerTraces.Add(ConvertApiTraceLogPiece(one));
+                }
+
+                return result;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Converts the API trace log piece.
+        /// </summary>
+        /// <param name="apiTraceLog">The API trace log.</param>
+        /// <returns>ApiTraceLogPiece.</returns>
+        private static ApiTraceLogPiece ConvertApiTraceLogPiece(RuntimeApiTraceLog apiTraceLog)
+        {
+            if (apiTraceLog != null)
+            {
+                var result = new ApiTraceLogPiece
+                {
+                    EntryStamp = apiTraceLog.EntryStamp,
+                    Exception = apiTraceLog.Exception,
+                    ExitStamp = apiTraceLog.ExitStamp,
+                    MethodFullName = apiTraceLog.MethodFullName,
+                    MethodParameters = apiTraceLog.MethodParameters
+                };
+
+                foreach (var one in apiTraceLog.Children)
+                {
                     result.InnerTraces.Add(ConvertApiTraceLog(one));
                 }
 

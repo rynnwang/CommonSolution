@@ -120,6 +120,7 @@
     <Compile Include="Interfaces\IGeographyLocation.cs" />
     <Compile Include="Model\Admin\AdminAuthenticationResult.cs" />
     <Compile Include="Model\Admin\User\AdminUserInfoBase.cs" />
+    <Compile Include="Model\ApiTracking\Entity\ApiTraceLogPiece.cs" />
     <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
     <Compile Include="Model\ComparisonResult.cs" />

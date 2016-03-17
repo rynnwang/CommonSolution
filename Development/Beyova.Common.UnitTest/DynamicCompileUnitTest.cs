@@ -19,9 +19,7 @@ namespace Beyova.Common.UnitTest
         {
             CSharpCodeProvider _provider = new CSharpCodeProvider();
             Sandbox sandbox = new Sandbox("sandbox");
-            var assembly = sandbox.AddDynamicAssembly(_provider, new List<string>(new string[] { "System.dll" }), @"
-namespace Beyova.Compile
-{
+            var assembly = sandbox.CreateDynamicAssembly(_provider, new List<string>(new string[] { "System.dll" }), null, null, @"
     public class Test
     {
         public int Run(int x)
@@ -29,11 +27,9 @@ namespace Beyova.Compile
             return x + 1;
         }
     }
-}
 ");
-            var type = assembly.GetType("Beyova.Compile.Test");
-            var obj = assembly.CreateInstance("Beyova.Compile.Test", false);
-            var method = type.GetMethod("Run");
+            var obj = assembly.CreateInstance("Test");
+            var method = obj.GetType().GetMethod("Run");
             var result = method.Invoke(obj, (2 as object).AsArray());
 
 

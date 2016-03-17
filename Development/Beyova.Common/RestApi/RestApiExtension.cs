@@ -47,6 +47,39 @@ namespace Beyova.RestApi
             if (log != null)
             {
                 builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendLineWithFormat("Trace ID: {0}", log.TraceId);
+
+                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendLineWithFormat("Entry: {0}", log.EntryStamp.ToFullDateTimeString());
+                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendLineWithFormat("Exit: {0}", log.ExitStamp.ToFullDateTimeString());
+                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendLineWithFormat("Parameters: {0}", log.MethodParameters.ToJson());
+                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendLineWithFormat("Exception: {0}", log.Exception == null ? "NA" : log.Exception.ToJson());
+                builder.AppendIndent(' ', 2 * (level + 1));
+                foreach (var one in log.InnerTraces)
+                {
+                    builder.AppendLineWithFormat("Inner trace: {0}", ApiTraceLogToString(one, level + 1));
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// APIs the trace log to string.
+        /// </summary>
+        /// <param name="log">The log.</param>
+        /// <param name="level">The level.</param>
+        /// <returns>System.String.</returns>
+        private static string ApiTraceLogToString(ApiTraceLogPiece log, int level)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            if (log != null)
+            {
+                builder.AppendIndent(' ', 2 * (level + 1));
                 builder.AppendLineWithFormat("Entry: {0}", log.EntryStamp.ToFullDateTimeString());
                 builder.AppendIndent(' ', 2 * (level + 1));
                 builder.AppendLineWithFormat("Exit: {0}", log.ExitStamp.ToFullDateTimeString());
