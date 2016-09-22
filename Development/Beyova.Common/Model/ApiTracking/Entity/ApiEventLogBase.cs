@@ -1,5 +1,6 @@
 ﻿using System;
 using Beyova;
+using Beyova.ExceptionSystem;
 using Newtonsoft.Json;
 
 namespace Beyova.ApiTracking
@@ -102,6 +103,18 @@ namespace Beyova.ApiTracking
         public string Content { get; set; }
 
         /// <summary>
+        /// Gets or sets the protocol.
+        /// </summary>
+        /// <value>The protocol.</value>
+        public string Protocol { get; set; }
+
+        /// <summary>
+        /// Gets or sets the operator credential.
+        /// </summary>
+        /// <value>The operator credential.</value>
+        public BaseCredential OperatorCredential { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventLogBase"/> class.
         /// </summary>
         public ApiEventLogBase()
@@ -130,6 +143,7 @@ namespace Beyova.ApiTracking
                 this.ExceptionKey = eventLogBase.ExceptionKey;
                 this.Platform = eventLogBase.Platform;
                 this.DeviceType = eventLogBase.DeviceType;
+                this.OperatorCredential = eventLogBase.OperatorCredential;
             }
         }
     }

@@ -58,7 +58,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("DatabaseOperator", sqlConnection == null ? null : sqlConnection.ConnectionString);
+                throw ex.Handle(sqlConnection == null ? null : sqlConnection.ConnectionString);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Beyova
 
             if (SqlTransactionScope.SqlTransaction != null)
             {
-                throw new DataConflictException("sqlTransaction", objectIdentity: null, hintMessage: "A transaction has already been initialized and using.");
+                throw new DataConflictException("sqlTransaction", hint: new FriendlyHint { Message = "A transaction has already been initialized and using." });
             }
 
             var sqlTransaction = this.sqlConnection.BeginTransaction(iso, transactionName);
@@ -93,12 +93,12 @@ namespace Beyova
             try
             {
                 var sqlTransaction = SqlTransactionScope.SqlTransaction;
-                sqlTransaction.CheckNullObject("sqlTransaction");
+                sqlTransaction.CheckNullObject(nameof(sqlTransaction));
                 sqlTransaction.Commit();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Commit");
+                throw ex.Handle();
             }
         }
 
@@ -110,12 +110,12 @@ namespace Beyova
             try
             {
                 var sqlTransaction = SqlTransactionScope.SqlTransaction;
-                sqlTransaction.CheckNullObject("sqlTransaction");
+                sqlTransaction.CheckNullObject(nameof(sqlTransaction));
                 sqlTransaction.Rollback();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Rollback");
+                throw ex.Handle();
             }
         }
 
@@ -130,13 +130,13 @@ namespace Beyova
         {
             try
             {
-                name.CheckEmptyString("name");
+                name.CheckEmptyString(nameof(name));
 
                 return sqlCommand.Parameters[name];
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetOutputParameterValue", name);
+                throw ex.Handle(name);
             }
         }
 
@@ -152,7 +152,7 @@ namespace Beyova
         {
             try
             {
-                procedureName.CheckEmptyString("procedureName");
+                procedureName.CheckEmptyString(nameof(procedureName));
 
                 sqlCommand.CommandText = procedureName;
                 sqlCommand.Parameters.Clear();
@@ -171,7 +171,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Fail to execute procedure [{0}]", procedureName), ex);
+                throw ex.Handle(new { procedureName, sqlParameters });
             }
         }
 
@@ -187,7 +187,7 @@ namespace Beyova
 
             try
             {
-                procedureName.CheckEmptyString("procedureName");
+                procedureName.CheckEmptyString(nameof(procedureName));
 
                 sqlCommand.CommandText = procedureName;
                 sqlCommand.Parameters.Clear();
@@ -206,7 +206,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Fail to execute procedure [{0}]", procedureName), ex);
+                throw ex.Handle(new { procedureName, sqlParameters });
             }
             finally
             {
@@ -226,7 +226,7 @@ namespace Beyova
         {
             try
             {
-                procedureName.CheckEmptyString("procedureName");
+                procedureName.CheckEmptyString(nameof(procedureName));
 
                 sqlCommand.CommandText = procedureName;
                 sqlCommand.Parameters.Clear();
@@ -245,7 +245,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Fail to execute procedure [{0}]", procedureName), ex);
+                throw ex.Handle(new { procedureName, sqlParameters });
             }
             finally
             {
@@ -263,7 +263,7 @@ namespace Beyova
         {
             try
             {
-                sqlText.CheckEmptyString("sqlText");
+                sqlText.CheckEmptyString(nameof(sqlText));
                 sqlCommand.CommandType = CommandType.Text;
                 sqlCommand.CommandText = sqlText;
                 sqlCommand.Parameters.Clear();
@@ -281,7 +281,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Fail to execute SQL text: [{0}]", sqlText), ex);
+                throw ex.Handle(new { sqlText });
             }
             finally
             {
@@ -289,11 +289,17 @@ namespace Beyova
             }
         }
 
+        /// <summary>
+        /// Executes the SQL text scalar.
+        /// </summary>
+        /// <param name="sqlText">The SQL text.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
         internal object ExecuteSqlTextScalar(string sqlText)
         {
             try
             {
-                sqlText.CheckEmptyString("sqlText");
+                sqlText.CheckEmptyString(nameof(sqlText));
                 sqlCommand.CommandType = CommandType.Text;
                 sqlCommand.CommandText = sqlText;
                 sqlCommand.Parameters.Clear();
@@ -311,7 +317,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Fail to execute SQL text: [{0}]", sqlText), ex);
+                throw ex.Handle(new { sqlText });
             }
             finally
             {
@@ -341,10 +347,7 @@ namespace Beyova
         /// <exception cref="System.NullReferenceException">dataTableContainer</exception>
         public void ExecuteDataTable(string procedureName, DataTable dataTableContainer, List<SqlParameter> sqlParameters = null)
         {
-            if (dataTableContainer == null)
-            {
-                throw new NullReferenceException("dataTableContainer");
-            }
+            dataTableContainer.CheckNullObject(nameof(dataTableContainer));
 
             using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand))
             {
@@ -386,10 +389,7 @@ namespace Beyova
         /// <exception cref="System.NullReferenceException">dataSetContainer</exception>
         public void ExecuteDataSet(string procedureName, DataSet dataSetContainer, List<SqlParameter> sqlParameters = null)
         {
-            if (dataSetContainer == null)
-            {
-                throw new NullReferenceException("dataSetContainer");
-            }
+            dataSetContainer.CheckNullObject(nameof(dataSetContainer));
 
             using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sqlCommand))
             {
@@ -427,10 +427,6 @@ namespace Beyova
 
             try
             {
-                using (var databaseOperator = new DatabaseOperator(sqlConnection))
-                {
-                    databaseOperator.ExecuteSqlTextNonQuery("SELECT @@VERSION");
-                }
                 tempSqlConnection = new SqlConnection(sqlConnection);
 
                 var tempSqlCommand = tempSqlConnection.CreateCommand();
@@ -448,7 +444,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("AboutSQLServer");
+                throw ex.Handle(sqlConnection);
             }
             finally
             {

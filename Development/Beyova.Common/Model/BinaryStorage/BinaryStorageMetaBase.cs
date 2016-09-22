@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using Beyova;
 
-namespace Beyova.BinaryStorage
+namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageMetaData.
@@ -12,8 +12,7 @@ namespace Beyova.BinaryStorage
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        /// <value>The name.</value>
-        
+        /// <value>The name.</value>        
         public string Name { get; set; }
 
         /// <summary>
@@ -22,15 +21,13 @@ namespace Beyova.BinaryStorage
         /// http://www.w3.org/wiki/Evolution/MIME
         /// </remarks>
         /// </summary>
-        /// <value>The MIME.</value>
-        
+        /// <value>The MIME.</value>        
         public string Mime { get; set; }
 
         /// <summary>
         /// Gets or sets the length.
         /// </summary>
         /// <value>The length.</value>
-        
         public long? Length { get; set; }
 
         /// <summary>
@@ -38,7 +35,6 @@ namespace Beyova.BinaryStorage
         /// <remarks>It is used when storage is image or video.</remarks>
         /// </summary>
         /// <value>The width.</value>
-        
         public int? Width { get; set; }
 
         /// <summary>
@@ -46,7 +42,6 @@ namespace Beyova.BinaryStorage
         /// <remarks>It is used when storage is image or video.</remarks>
         /// </summary>
         /// <value>The height.</value>
-        
         public int? Height { get; set; }
 
         /// <summary>
@@ -54,14 +49,14 @@ namespace Beyova.BinaryStorage
         /// <remarks>It is used when storage is audio or video. Unit: second.</remarks>
         /// </summary>
         /// <value>The duration.</value>
-        
         public int? Duration { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinaryStorageMetaBase"/> class.
         /// </summary>
         /// <param name="metaBase">The meta base.</param>
-        public BinaryStorageMetaBase(BinaryStorageMetaBase metaBase = null)
+        public BinaryStorageMetaBase(BinaryStorageMetaBase metaBase)
+            : this(metaBase as BinaryStorageIdentifier)
         {
             if (metaBase != null)
             {
@@ -71,6 +66,19 @@ namespace Beyova.BinaryStorage
                 this.Width = metaBase.Width;
                 this.Height = metaBase.Height;
                 this.Duration = metaBase.Duration;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinaryStorageMetaBase"/> class.
+        /// </summary>
+        /// <param name="identifier">The identifier.</param>
+        public BinaryStorageMetaBase(BinaryStorageIdentifier identifier = null)
+        {
+            if (identifier != null)
+            {
+                this.Container = identifier.Container;
+                this.Identifier = identifier.Identifier;
             }
         }
     }

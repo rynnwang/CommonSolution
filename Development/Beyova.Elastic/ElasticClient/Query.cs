@@ -6,11 +6,21 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Beyova;
+using Beyova.ApiTracking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.Elastic
 {
+    /// <summary>
+    /// Delegate searchResultConvertDelegate
+    /// </summary>
+    /// <typeparam name="TResult">The type of the t result.</typeparam>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="jsonString">The json string.</param>
+    /// <returns>QueryResult&lt;T&gt;.</returns>
+    public delegate TResult SearchResultConvertDelegate<TResult, T>(string jsonString);
+
     /// <summary>
     /// Class ElasticClient.
     /// </summary>
@@ -38,7 +48,36 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetById", new { indexName, type, id });
+                throw ex.Handle(new { indexName, type, id });
+            }
+        }
+
+        /// <summary>
+        /// Gets the by elastic identifier.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="indexName">Name of the index.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="id">The identifier.</param>
+        /// <param name="wildCardSuffix">The wild card suffix.</param>
+        /// <returns>T.</returns>
+        public RawDataItem<T> GetByElasticId<T>(string indexName, string type, string id, string wildCardSuffix = null)
+        {
+            try
+            {
+                id.CheckEmptyString("id");
+
+                return (InternalSearch<T>(GetFullIndexName(indexName, wildCardSuffix), type, new SearchCriteria
+                {
+                    QueryCriteria = new QueryCriteria
+                    {
+                        PhraseMatches = new Dictionary<string, object> { { "_id", id } }
+                    }
+                })?.Hits?.FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { indexName, type, id });
             }
         }
 
@@ -61,10 +100,7 @@ namespace Beyova.Elastic
                 {
                     QueryCriteria = new QueryCriteria
                     {
-                        Terms = new
-                        {
-                            Key = key.ToString()
-                        }.AsList()
+                        PhraseMatches = new Dictionary<string, object> { { "Key", key.ToString() } }
                     }
                 }, wildCardSuffix);
 
@@ -81,7 +117,7 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetByKey", new
+                throw ex.Handle(new
                 {
                     indexName,
                     type,
@@ -115,7 +151,7 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Search", new { indexName, type, queryString });
+                throw ex.Handle(new { indexName, type, queryString });
             }
 
             return null;
@@ -127,20 +163,65 @@ namespace Beyova.Elastic
         /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name=nameof(criteria)>The criteria.</param>
         /// <param name="wildCardSuffix">The wild card suffix.</param>
         /// <returns>QueryResult&lt;T&gt;.</returns>
         public QueryResult<T> Search<T>(string indexName, string type, SearchCriteria criteria, string wildCardSuffix = null)
         {
             try
             {
-                criteria.CheckNullObject("criteria");
+                criteria.CheckNullObject(nameof(criteria));
 
                 return InternalSearch<T>(GetFullIndexName(indexName, wildCardSuffix), type, criteria);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Search", new { indexName, type, criteria, wildCardSuffix });
+                throw ex.Handle(new { indexName, type, criteria, wildCardSuffix });
+            }
+        }
+
+        /// <summary>
+        /// Gets the search HTTP request raw.
+        /// </summary>
+        /// <param name="indexName">Name of the index.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="wildCardSuffix">The wild card suffix.</param>
+        /// <returns></returns>
+        public string GetSearchHttpRequestRaw(string indexName, string type, SearchCriteria criteria, string wildCardSuffix = null)
+        {
+            try
+            {
+                criteria.CheckNullObject(nameof(criteria));
+
+                return InternalGetSearchHttpRequestRaw(GetFullIndexName(indexName, wildCardSuffix), type, criteria);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { indexName, type, criteria, wildCardSuffix });
+            }
+        }
+
+        /// <summary>
+        /// Aggregations the search.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="indexName">Name of the index.</param>
+        /// <param name="type">The type.</param>
+        /// <param name=nameof(criteria)>The criteria.</param>
+        /// <param name="wildCardSuffix">The wild card suffix.</param>
+        /// <returns>AggregationsQueryResult&lt;T&gt;.</returns>
+        public AggregationsQueryResult<T> AggregationSearch<T>(string indexName, string type, SearchCriteria criteria, string wildCardSuffix = null)
+        {
+            try
+            {
+                criteria.CheckNullObject(nameof(criteria));
+
+                return InternalAggregationSearch<T>(GetFullIndexName(indexName, wildCardSuffix), type, criteria);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { indexName, type, criteria, wildCardSuffix });
             }
         }
 
@@ -150,13 +231,54 @@ namespace Beyova.Elastic
         /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name="criteria">The criteria.</param>
+        /// <param name=nameof(criteria)>The criteria.</param>
         /// <returns>QueryResult&lt;T&gt;.</returns>
         protected QueryResult<T> InternalSearch<T>(string indexName, string type, SearchCriteria criteria)
         {
             try
             {
-                criteria.CheckNullObject("criteria");
+                return InternalSearch<QueryResult<T>, T>(indexName, type, criteria, ConvertSearchResultJsonToQueryResult<T>);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { indexName, type, criteria });
+            }
+        }
+
+        /// <summary>
+        /// Internals the aggregation search.
+        /// </summary>
+        /// <param name="indexName">Name of the index.</param>
+        /// <param name="type">The type.</param>
+        /// <param name=nameof(criteria)>The criteria.</param>
+        /// <returns>AggregationsQueryResult&lt;T&gt;.</returns>
+        protected AggregationsQueryResult<T> InternalAggregationSearch<T>(string indexName, string type, SearchCriteria criteria)
+        {
+            try
+            {
+                return InternalSearch<AggregationsQueryResult<T>, object>(indexName, type, criteria, ConvertSearchResultJsonToAggregationResult<T>);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { indexName, type, criteria });
+            }
+        }
+
+        /// <summary>
+        /// Internals the search.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the t result.</typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="indexName">Name of the index.</param>
+        /// <param name="type">The type.</param>
+        /// <param name=nameof(criteria)>The criteria.</param>
+        /// <param name="convertDelegate">The convert delegate.</param>
+        /// <returns>TResult.</returns>
+        protected TResult InternalSearch<TResult, T>(string indexName, string type, SearchCriteria criteria, SearchResultConvertDelegate<TResult, T> convertDelegate)
+        {
+            try
+            {
+                criteria.CheckNullObject(nameof(criteria));
 
                 var httpRequest = (GetHttpRequestUri(indexName, type) + "_search").CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
                 httpRequest.FillData(HttpConstants.HttpMethod.Post, criteria.ToJson(), Encoding.UTF8);
@@ -165,15 +287,39 @@ namespace Beyova.Elastic
 
                 if (!string.IsNullOrWhiteSpace(responseText))
                 {
-                    return ConvertSearchResultJsonToQueryResult<T>(responseText);
+                    return convertDelegate(responseText);
                 }
             }
             catch (Exception ex)
             {
-                throw ex.Handle("InternalSearch", new { indexName, type, criteria });
+                throw ex.Handle(new { indexName, type, criteria });
             }
 
-            return null;
+            return default(TResult);
+        }
+
+        /// <summary>
+        /// Internals the get search HTTP request raw.
+        /// </summary>
+        /// <param name="indexName">Name of the index.</param>
+        /// <param name="type">The type.</param>
+        /// <param name=nameof(criteria)>The criteria.</param>
+        /// <returns></returns>
+        protected string InternalGetSearchHttpRequestRaw(string indexName, string type, SearchCriteria criteria)
+        {
+            try
+            {
+                criteria.CheckNullObject(nameof(criteria));
+
+                var httpRequest = (GetHttpRequestUri(indexName, type) + "_search").CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
+                httpRequest.FillData(HttpConstants.HttpMethod.Post, criteria.ToJson(), Encoding.UTF8);
+
+                return httpRequest.ToRaw();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { indexName, type, criteria });
+            }
         }
 
         /// <summary>
@@ -212,7 +358,53 @@ namespace Beyova.Elastic
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ConvertSearchResultJsonToQueryResult", new { type = typeof(T).FullName, json });
+                    throw ex.Handle(new { type = typeof(T).FullName, json });
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Converts the search result json to aggregation result.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json">The json.</param>
+        /// <returns>Beyova.Elastic.AggregationsQueryResult.</returns>
+        protected AggregationsQueryResult<T> ConvertSearchResultJsonToAggregationResult<T>(string json)
+        {
+            //Reference:https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html
+
+            if (!string.IsNullOrWhiteSpace(json))
+            {
+                try
+                {
+                    var jObject = JObject.Parse(json);
+
+                    var shards = jObject.GetProperty("_shards")?.ToObject<QueryResultShard>();
+                    var hitsNode = jObject.GetProperty("hits") as JObject;
+                    var aggregationNodes = jObject.GetProperty("aggregations") as JObject;
+
+                    if (shards != null && aggregationNodes != null)
+                    {
+                        var bucketJson = aggregationNodes.Properties().FirstOrDefault();
+
+                        if (bucketJson != null)
+                        {
+                            var result = new AggregationsQueryResult<T>
+                            {
+                                Total = hitsNode?.Value<int>("total") ?? 0,
+                                Shards = shards,
+                                Aggregations = new MatrixList<AggregationGroupObject<T>>()
+                            };
+                            result.Aggregations.Add(bucketJson.Name, (bucketJson.Value as JObject).ConvertToAggregationBucketObject<T>(bucketJson.Name));
+                            return result;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(new { json });
                 }
             }
 

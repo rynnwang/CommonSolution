@@ -10,11 +10,6 @@ namespace Beyova.CommonAdminService.DataAccessController
     /// </summary>
     internal class AdminUserInfoAccessController : AdminDataAccessController<AdminUserInfo>
     {
-        /// <summary>
-        /// The column_ permission
-        /// </summary>
-        protected const string column_Permission = "Permission";
-
         #region Constructor
 
         /// <summary>
@@ -72,7 +67,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("AuthenticateAdminUser", accessCredential);
+                throw ex.Handle(accessCredential);
             }
         }
 
@@ -98,7 +93,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetAdminUserInfoByToken", token);
+                throw ex.Handle(token);
             }
         }
 
@@ -106,6 +101,7 @@ namespace Beyova.CommonAdminService.DataAccessController
         /// Creates the or update admin user information.
         /// </summary>
         /// <param name="adminUserInfo">The admin user information.</param>
+        /// <param name="operatorKey">The operator key.</param>
         /// <returns>AdminUserInfo.</returns>
         public Guid? CreateOrUpdateAdminUserInfo(AdminUserInfo adminUserInfo, Guid? operatorKey)
         {
@@ -119,7 +115,7 @@ namespace Beyova.CommonAdminService.DataAccessController
                 {
                     this.GenerateSqlSpParameter(column_Key, adminUserInfo.Key),
                     this.GenerateSqlSpParameter(column_LoginName, adminUserInfo.LoginName),
-                    this.GenerateSqlSpParameter(column_Password, null),
+                    this.GenerateSqlSpParameter(column_Password, null as object),
                     this.GenerateSqlSpParameter(column_Name, adminUserInfo.Name),
                     this.GenerateSqlSpParameter(column_Email, adminUserInfo.Email),
                     this.GenerateSqlSpParameter(column_ThirdPartyId, adminUserInfo.ThirdPartyId),
@@ -131,7 +127,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateAdminUserInfo", new { adminUserInfo, operatorKey });
+                throw ex.Handle(new { adminUserInfo, operatorKey });
             }
         }
 
@@ -163,7 +159,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAdminUserInfo", criteria);
+                throw ex.Handle(criteria);
             }
         }
 
@@ -192,7 +188,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("BindRoleOnUser", new { binding, operatorKey });
+                throw ex.Handle(new { binding, operatorKey });
             }
         }
 
@@ -221,7 +217,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("UnbindRoleOnUser", new { binding, operatorKey });
+                throw ex.Handle(new { binding, operatorKey });
             }
         }
 
@@ -249,7 +245,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("RequestAdminPasswordReset", new { loginName, expiration });
+                throw ex.Handle(new { loginName, expiration });
             }
         }
     }

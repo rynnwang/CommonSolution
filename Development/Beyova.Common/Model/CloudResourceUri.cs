@@ -77,22 +77,29 @@ namespace Beyova
         /// <exception cref="InvalidObjectException">cloudProtocolUri;null</exception>
         public static CloudResourceUri Parse(string cloudProtocolUri)
         {
-            cloudProtocolUri.CheckEmptyString("cloudProtocolUri");
-
-            var match = UriRegex.Match(cloudProtocolUri);
-
-            if (match.Success)
+            try
             {
-                return new CloudResourceUri()
+                cloudProtocolUri.CheckEmptyString("cloudProtocolUri");
+
+                var match = UriRegex.Match(cloudProtocolUri);
+
+                if (match.Success)
                 {
-                    Type = match.Result("${Type}"),
-                    Container = match.Result("${Container}"),
-                    Identifier = match.Result("${Identifier}")
-                };
+                    return new CloudResourceUri()
+                    {
+                        Type = match.Result("${Type}"),
+                        Container = match.Result("${Container}"),
+                        Identifier = match.Result("${Identifier}")
+                    };
+                }
+                else
+                {
+                    throw ExceptionFactory.CreateInvalidObjectException("cloudProtocolUri", data: cloudProtocolUri);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new InvalidObjectException("cloudProtocolUri", null, cloudProtocolUri);
+                throw ex.Handle(cloudProtocolUri);
             }
         }
 

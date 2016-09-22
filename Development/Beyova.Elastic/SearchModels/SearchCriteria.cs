@@ -27,18 +27,25 @@ namespace Beyova.Elastic
         public QueryCriteria QueryCriteria { get; set; }
 
         /// <summary>
+        /// Gets or sets the aggregations criteria.
+        /// </summary>
+        /// <value>The aggregations criteria.</value>
+        [JsonProperty(PropertyName = "aggregations", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, AggregationsCriteria> AggregationsCriteria { get; set; }
+
+        /// <summary>
         /// Gets or sets the order by desc.
         /// </summary>
         /// <value>The order by desc.</value>
         [JsonProperty(PropertyName = "sort", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, string> OrderByDesc { get; set; }
+        public Dictionary<string, string> OrderBy { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SearchCriteria"/> class.
         /// </summary>
         public SearchCriteria()
         {
-            this.OrderByDesc = new Dictionary<string, string>();
+            this.OrderBy = new Dictionary<string, string>();
         }
     }
 }

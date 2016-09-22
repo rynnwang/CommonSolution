@@ -54,9 +54,13 @@ namespace Beyova.ExceptionSystem
             /// </summary>
             ServiceUnavailable = 503,
             /// <summary>
-            /// The HTTP block error
+            /// Value indicating it is HTTP block error
             /// </summary>
-            HttpBlockError = 504
+            HttpBlockError = 504,
+            /// <summary>
+            /// Value indicating it is Unsupported
+            /// </summary>
+            Unsupported = 505
         }
 
         /// <summary>
@@ -195,9 +199,9 @@ namespace Beyova.ExceptionSystem
         public static explicit operator ExceptionCode(int exceptionMajorCode)
         {
             return new ExceptionCode
-                        {
-                            Major = (MajorCode)exceptionMajorCode
-                        };
+            {
+                Major = (MajorCode)exceptionMajorCode
+            };
         }
 
         /// <summary>

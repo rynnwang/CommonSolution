@@ -43,6 +43,12 @@ namespace Beyova.Elastic
         /// Gets or sets the data.
         /// </summary>
         /// <value>The data.</value>
-        public JObject Data { get; set; }
+        public string Data { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scene.
+        /// </summary>
+        /// <value>The scene.</value>
+        public ExceptionScene Scene { get; set; }
     }
 }

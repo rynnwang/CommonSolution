@@ -1,44 +1,37 @@
-﻿using Beyova.ExceptionSystem;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Beyova.ExceptionSystem;
 
 namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ExceptionGroupStatistic.
     /// </summary>
-    public class ExceptionGroupStatistic : ExceptionBase, IAnalyticStatistic
+    public class ExceptionGroupStatistic : GroupStatistic
     {
         /// <summary>
-        /// Gets or sets the stamp identifier.
+        /// Gets or sets the service identifier.
         /// </summary>
-        /// <value>The stamp identifier.</value>
-        public string StampIdentifier { get; set; }
+        /// <value>The service identifier.</value>
+        public string ServiceIdentifier { get; set; }
 
         /// <summary>
-        /// Gets or sets the count.
+        /// Gets or sets the server identifier.
         /// </summary>
-        /// <value>The count.</value>
-        public int Count { get; set; }
+        /// <value>The server identifier.</value>
+        public string ServerIdentifier { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionGroupStatistic"/> class.
+        /// Gets or sets the exception code.
         /// </summary>
-        public ExceptionGroupStatistic()
-            : this(null)
+        /// <value>The exception code.</value>
+        public ExceptionCode.MajorCode ExceptionCode { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExceptionGroupStatistic" /> class.
+        /// </summary>
+        public ExceptionGroupStatistic() : base()
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionGroupStatistic"/> class.
-        /// </summary>
-        /// <param name="statistic">The statistic.</param>
-        public ExceptionGroupStatistic(ExceptionGroupStatistic statistic)
-            : base(statistic)
-        {
-            if (statistic != null)
-            {
-                this.StampIdentifier = statistic.StampIdentifier;
-                this.Count = statistic.Count;
-            }
         }
     }
 }

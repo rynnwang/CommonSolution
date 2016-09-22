@@ -33,6 +33,13 @@ namespace Beyova
         /// <returns>List&lt;ApiTraceLog&gt;.</returns>
         List<ApiTraceLog> GetApiTraceLogById(string traceId);
 
+        /// <summary>
+        /// Queries the API message.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;ApiMessage&gt;.</returns>
+        List<ApiMessage> QueryApiMessage(ApiMessageCriteria criteria);
+
         #endregion
 
         #region Time frame based query
@@ -41,28 +48,28 @@ namespace Beyova
         /// Gets the API event statistic.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
-        /// <returns>List&lt;ApiEventGroupStatistic&gt;.</returns>
-        List<ApiEventGroupStatistic> GetApiEventStatistic(ApiEventStatisticCriteria criteria);
-
-        /// <summary>
-        /// Gets the API event group statistic.
-        /// </summary>
-        /// <param name="criteria">The criteria.</param>
-        /// <returns>List&lt;ApiEventGroupStatistic&gt;.</returns>
-        List<ApiEventGroupStatistic> GetApiEventGroupStatistic(ApiEventGroupingCriteria criteria);
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.GroupStatistic&gt;.</returns>
+        List<GroupStatistic> GetApiEventStatistic(ApiEventStatisticCriteria criteria);
 
         /// <summary>
         /// Gets the API exception statistic.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
-        /// <returns>List&lt;ExceptionGroupStatistic&gt;.</returns>
-        List<ExceptionGroupStatistic> GetApiExceptionStatistic(ExceptionStatisticCriteria criteria);
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.GroupStatistic&gt;.</returns>
+        List<GroupStatistic> GetApiExceptionStatistic(ExceptionStatisticCriteria criteria);
+
+        /// <summary>
+        /// Gets the API event group statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.ApiEventGroupStatistic&gt;.</returns>
+        List<ApiEventGroupStatistic> GetApiEventGroupStatistic(ApiEventGroupingCriteria criteria);
 
         /// <summary>
         /// Gets the API exception grouping statistic.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
-        /// <returns>List&lt;ExceptionGroupStatistic&gt;.</returns>
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.ExceptionGroupStatistic&gt;.</returns>
         List<ExceptionGroupStatistic> GetApiExceptionGroupingStatistic(ExceptionGroupingCriteria criteria);
 
         #endregion

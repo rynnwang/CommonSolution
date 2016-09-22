@@ -9,9 +9,19 @@ namespace Beyova
 {
     /// <summary>
     /// Class JsonXmlSerializer, which is used for converting between Json and Xml
-    /// </summary>
+    /// </summary> 
     public static class JsonXmlSerializer
     {
+        /// <summary>
+        /// The version value
+        /// </summary>
+        internal const string VersionValue = "v1";
+
+        /// <summary>
+        /// The node name prefix
+        /// </summary>
+        private const string nodeNamePrefix = "__";
+
         /// <summary>
         /// The attribute type
         /// </summary>
@@ -28,12 +38,12 @@ namespace Beyova
         private const string nodeRoot = "Root";
 
         /// <summary>
-        /// The null j token
+        /// The null JToken
         /// </summary>
         public static readonly JToken NullJToken = JToken.Parse("null");
 
         /// <summary>
-        /// The undefined j token
+        /// The undefined JToken
         /// </summary>
         public static readonly JToken UndefinedJToken = JToken.Parse("undefined");
 
@@ -53,10 +63,11 @@ namespace Beyova
         /// <summary>
         /// To the XML.
         /// </summary>
-        /// <param name="jToken">The j token.</param>
+        /// <param name="jToken">The JToken.</param>
         /// <param name="nodeName">Name of the node.</param>
         /// <param name="arrayItemName">Name of the array item.</param>
         /// <returns>XElement.</returns>
+        [Obsolete("Use JsonXmlizer.Xmlize instead.", true)]
         public static XElement ToXml(this JToken jToken, string nodeName = null, string arrayItemName = null)
         {
             return XElement.Parse(ToXmlString(jToken, nodeName, arrayItemName));
@@ -65,10 +76,11 @@ namespace Beyova
         /// <summary>
         /// To the XML string.
         /// </summary>
-        /// <param name="jToken">The j token.</param>
+        /// <param name="jToken">The JToken.</param>
         /// <param name="nodeName">Name of the node.</param>
         /// <param name="arrayItemName">Name of the array item.</param>
         /// <returns>System.String.</returns>
+        [Obsolete("Use JsonXmlizer.XmlizeToString instead.", true)]
         public static string ToXmlString(this JToken jToken, string nodeName = null, string arrayItemName = null)
         {
             StringBuilder builder = new StringBuilder();
@@ -85,7 +97,7 @@ namespace Beyova
         /// To the XML.
         /// </summary>
         /// <param name="writer">The writer.</param>
-        /// <param name="jToken">The j token.</param>
+        /// <param name="jToken">The JToken.</param>
         /// <param name="nodeName">Name of the node.</param>
         /// <param name="arrayItemName">Name of the array item.</param>
         /// <returns>XElement.</returns>
@@ -115,7 +127,9 @@ namespace Beyova
                     case JTokenType.Object:
                         foreach (var one in ((JObject)jToken).Properties())
                         {
-                            FillXml(writer, one.Value, one.Name);
+                            // Force to prepend nodeNamePrefix to avoid numeric node started.
+                            var name = nodeNamePrefix + one.Name;
+                            FillXml(writer, one.Value, name);
                         }
                         break;
                     case JTokenType.TimeSpan:
@@ -148,11 +162,22 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the j token.
+        /// To the JToken
+        /// </summary>
+        /// <param name="xml">The XML.</param>
+        /// <returns></returns>
+        [Obsolete("Use JsonXmlizer.Dexmlize instead.", true)]
+        public static JToken ToJToken(this XElement xml)
+        {
+            return InternalToJToken(xml);
+        }
+
+        /// <summary>
+        /// To the JToken.
         /// </summary>
         /// <param name="xml">The XML.</param>
         /// <returns>JToken.</returns>
-        public static JToken ToJToken(this XElement xml)
+        internal static JToken InternalToJToken(this XElement xml)
         {
             JToken result = null;
             JTokenType tokenType;
@@ -168,7 +193,7 @@ namespace Beyova
 
                             foreach (var one in xml.Elements())
                             {
-                                array.AddIfNotNull(ToJToken(one));
+                                array.AddIfNotNull(InternalToJToken(one));
                             }
 
                             result = array;
@@ -189,7 +214,9 @@ namespace Beyova
                             var jObject = new JObject();
                             foreach (var one in xml.Elements())
                             {
-                                jObject.Add(one.Name.LocalName, ToJToken(one));
+                                // Keep compatibility for those which not use nodeNamePrefix.
+                                var name = one.Name.LocalName.StartsWith(nodeNamePrefix) ? one.Name.LocalName.Substring(nodeNamePrefix.Length) : one.Name.LocalName;
+                                jObject.Add(name, InternalToJToken(one));
                             }
                             result = jObject;
                             break;

@@ -17,7 +17,7 @@ BEGIN
     BEGIN
         CREATE TABLE #Identifier(
             [Identifier] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(), 
-            [Container] [varchar](128) NOT NULL
+            [Container] [nvarchar](128) NOT NULL
         );
 
         INSERT INTO #Identifier([Container], [Identifier])
@@ -35,13 +35,15 @@ BEGIN
               ,BSMD.[Height]
               ,BSMD.[Width]
               ,BSMD.[Duration]
-              ,BSMD.[OwnerKey]
+              ,NULL AS [OwnerKey]
               ,BSMD.[CreatedStamp]
               ,BSMD.[LastUpdatedStamp]
+              ,BSMD.[CreatedBy]
+              ,BSMD.[LastUpdatedBy]
               ,BSMD.[State]
             FROM [dbo].[BinaryStorageMetaData] AS BSMD
                 JOIN #Identifier AS IDTABLE
-                    ON BSMD.[Identifier] = IDTABLE.[Identifier] AND BSMD.[Container] = IDTABLE.[Container]
+                    ON BSMD.[Identifier] = IDTABLE.[Identifier] AND (IDTABLE.[Container] IS NULL OR IDTABLE.[Container] = '' OR BSMD.[Container] = IDTABLE.[Container])
                 WHERE [dbo].[fn_ObjectIsWorkable](BSMD.[State]) = 1;
 
     END

@@ -53,6 +53,22 @@ namespace Beyova
         public string ServerName { get; set; }
 
         /// <summary>
+        /// Gets or sets the local ip address.
+        /// </summary>
+        /// <value>
+        /// The local ip address.
+        /// </value>
+        public string LocalIpAddress { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the local host.
+        /// </summary>
+        /// <value>
+        /// The name of the local host.
+        /// </value>
+        public string LocalHostName { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EnvironmentInfo"/> class.
         /// </summary>
         public EnvironmentInfo()

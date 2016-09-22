@@ -36,6 +36,51 @@ namespace Beyova.Elastic
         /// <value>The index suffix.</value>
         public string IndexSuffix { get { return DateTime.UtcNow.ToString("-yyyy-MM-dd"); } }
 
+        #region Cache
+
+        /// <summary>
+        /// The cached index full name
+        /// </summary>
+        protected string cachedIndexFullName;
+
+        /// <summary>
+        /// The cached date
+        /// </summary>
+        protected DateTime? cachedDate;
+
+        /// <summary>
+        /// The cached date locker
+        /// </summary>
+        protected object cachedDateLocker = new object();
+
+        /// <summary>
+        /// Gets the full name of the index.
+        /// </summary>
+        /// <value>The full name of the index.</value>
+        public string IndexFullName
+        {
+            get
+            {
+                var nowDate = DateTime.UtcNow;
+                if (cachedDate == null || cachedDate.Value.DayOfYear != nowDate.DayOfYear)
+                {
+                    lock (cachedDateLocker)
+                    {
+                        if (cachedDate == null || cachedDate.Value.DayOfYear != nowDate.DayOfYear)
+                        {
+                            cachedDate = nowDate;
+                            cachedIndexFullName = IndexName + IndexSuffix;
+                            return cachedIndexFullName;
+                        }
+                    }
+                }
+
+                return cachedIndexFullName;
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ElasticIndexClient" /> class.
         /// </summary>
@@ -54,43 +99,57 @@ namespace Beyova.Elastic
         /// <summary>
         /// Indexes the asynchronous.
         /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="data">The data.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="F"></typeparam>
+        /// <param name="workObject">The work object.</param>
+        /// <param name="timeout">The timeout.</param>
         /// <returns>Task&lt;System.String&gt;.</returns>
-        public async Task<string> IndexAsync(string type, object data)
+        public async Task<string> IndexAsync<T, F>(IElasticWorkObject<T, F> workObject, int? timeout = null)
         {
-            try
+            if (workObject != null && !string.IsNullOrWhiteSpace(workObject.Type))
             {
-                type.CheckEmptyString("type");
-                data.CheckNullObject("data");
+                workObject.IndexName = IndexFullName;
+                return await BaseClient.IndexAsync(workObject, timeout);
+            }
 
-                return await BaseClient.IndexAsync(IndexName + IndexSuffix, type, data);
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("IndexAsync", new { type, data });
-            }
+            return null;
         }
 
         /// <summary>
         /// Indexes the specified type.
         /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="data">The data.</param>
-        public string Index(string type, object data)
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="F"></typeparam>
+        /// <param name="workObject">The work object.</param>
+        /// <param name="timeout">The timeout.</param>
+        /// <returns>System.String.</returns>
+        public string Index<T, F>(IElasticWorkObject<T, F> workObject, int? timeout = null)
+        {
+            if (workObject != null && !string.IsNullOrWhiteSpace(workObject.Type))
+            {
+                workObject.IndexName = IndexFullName;
+                return BaseClient.Index(workObject, timeout);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Deletes the index.
+        /// </summary>
+        public void DeleteIndex()
         {
             try
             {
-                type.CheckEmptyString("type");
-                data.CheckNullObject("data");
-
-                return BaseClient.Index(IndexName + IndexSuffix, type, data);
+                BaseClient.InternalDeleteIndex(IndexName + wildCardSuffix);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Index", new { type, data });
+                throw ex.Handle();
             }
         }
+
+
 
         #endregion
 
@@ -114,7 +173,29 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetById", new { type, id });
+                throw ex.Handle(new { type, id });
+            }
+        }
+
+        /// <summary>
+        /// Gets the by elastic identifier.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="id">The identifier.</param>
+        /// <returns>RawDataItem&lt;T&gt;.</returns>
+        public RawDataItem<T> GetByElasticId<T>(string type, string id)
+        {
+            try
+            {
+                type.CheckEmptyString("type");
+                id.CheckEmptyString("id");
+
+                return BaseClient.GetByElasticId<T>(IndexName, type, id, wildCardSuffix);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { type, id });
             }
         }
 
@@ -136,7 +217,7 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetByKey", new { type, key });
+                throw ex.Handle(new { type, key });
             }
         }
 
@@ -158,11 +239,73 @@ namespace Beyova.Elastic
                 type.CheckEmptyString("type");
                 criteria.CheckNullObject("criteria");
 
-                return BaseClient.Search<T>(IndexName + wildCardSuffix, type, criteria);
+                return BaseClient.Search<T>(IndexName, type, criteria, wildCardSuffix);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Query", new { type, criteria });
+                throw ex.Handle(new { type, criteria });
+            }
+        }
+
+        /// <summary>
+        /// Gets the query HTTP request raw.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns></returns>
+        public string GetQueryHttpRequestRaw(string type, SearchCriteria criteria)
+        {
+            try
+            {
+                type.CheckEmptyString("type");
+                criteria.CheckNullObject("criteria");
+
+                return BaseClient.GetSearchHttpRequestRaw(IndexName, type, criteria, wildCardSuffix);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { type, criteria });
+            }
+        }
+
+        /// <summary>
+        /// Aggregations the query.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>AggregationsQueryResult.</returns>
+        public AggregationsQueryResult<T> AggregationQuery<T>(string type, SearchCriteria criteria)
+        {
+            try
+            {
+                type.CheckEmptyString("type");
+                criteria.CheckNullObject("criteria");
+
+                return BaseClient.AggregationSearch<T>(IndexName + wildCardSuffix, type, criteria);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { type, criteria });
+            }
+        }
+
+        #endregion
+
+        #region Status
+
+        /// <summary>
+        /// Gets the indices status.
+        /// </summary>
+        /// <returns></returns>
+        public List<ElasticIndicesStatus> GetIndicesStatus()
+        {
+            try
+            {
+                return BaseClient.GetIndicesStatus();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle();
             }
         }
 

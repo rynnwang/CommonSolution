@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
 {
@@ -12,12 +13,10 @@ namespace Beyova.ExceptionSystem
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceNotFoundException" /> class.
         /// </summary>
-        /// <param name="entityName">Name of the entity.</param>
-        /// <param name="objectIdentity">The object identity.</param>
-        /// <param name="innerException">The inner exception.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
-        public ResourceNotFoundException(string entityName, string objectIdentity, Exception innerException = null, string operatorIdentifier = null)
-            : base(string.Format("Resource for [{0}] at [{1}] is not found.", entityName, objectIdentity), ExceptionCode.MajorCode.ResourceNotFound, null, innerException, operatorIdentifier)
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceIdentifier">The resource identifier.</param>
+        public ResourceNotFoundException(string resourceName, string resourceIdentifier)
+            : base(string.Format("Resource [{0}] of [{1}] is not found.", resourceIdentifier, resourceName), new ExceptionCode { Major = ExceptionCode.MajorCode.ResourceNotFound, Minor = resourceName })
         {
         }
 
@@ -25,33 +24,25 @@ namespace Beyova.ExceptionSystem
         /// Initializes a new instance of the <see cref="ResourceNotFoundException" /> class.
         /// </summary>
         /// <param name="resourceName">Name of the resource.</param>
-        /// <param name="reason">The reason.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
-        public ResourceNotFoundException(string resourceName, string reason, string operatorIdentifier = null)
-            : base(string.Format("Resource [{0}] is not found caused by [{1}].", resourceName, reason), ExceptionCode.MajorCode.ResourceNotFound, null, null, operatorIdentifier)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceNotFoundException"/> class.
-        /// </summary>
-        /// <param name="resourceName">Name of the resource.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
-        public ResourceNotFoundException(string resourceName, string operatorIdentifier = null)
-            : base(string.Format("Resource [{0}] is not found.", resourceName), ExceptionCode.MajorCode.ResourceNotFound, null, null, operatorIdentifier)
+        public ResourceNotFoundException(string resourceName)
+            : base(string.Format("Resource [{0}] is not found.", resourceName), new ExceptionCode { Major = ExceptionCode.MajorCode.ResourceNotFound })
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceNotFoundException" /> class.
         /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="createdStamp">The created stamp.</param>
         /// <param name="message">The message.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="minor">The minor.</param>
+        /// <param name="scene">The scene.</param>
+        /// <param name="code">The code.</param>
         /// <param name="innerException">The inner exception.</param>
+        /// <param name="operatorCredential">The operator credential.</param>
         /// <param name="data">The data.</param>
-        internal ResourceNotFoundException(string message, string operatorIdentifier, string minor, Exception innerException, object data)
-            : base(message, new ExceptionCode { Major = ExceptionCode.MajorCode.ResourceNotFound, Minor = minor }, operatorIdentifier: operatorIdentifier, parameterData: data)
+        /// <param name="hint">The hint.</param>
+        internal ResourceNotFoundException(Guid key, DateTime createdStamp, string message, ExceptionScene scene, ExceptionCode code, Exception innerException, BaseCredential operatorCredential, JToken data, FriendlyHint hint)
+          : base(key, createdStamp, message, scene, code, innerException, operatorCredential, data, hint)
         {
         }
 

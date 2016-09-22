@@ -19,18 +19,6 @@ namespace Beyova
         /// </summary>
         /// <value>The gender.</value>
         Gender Gender { get; set; }
-
-        /// <summary>
-        /// Gets or sets the language.
-        /// </summary>
-        /// <value>The language.</value>
-        string Language { get; set; }
-
-        /// <summary>
-        /// Gets or sets the time zone. Unit: minute
-        /// </summary>
-        /// <value>The time zone.</value>
-        int? TimeZone { get; set; }
     }
 
     /// <summary>
@@ -55,5 +43,17 @@ namespace Beyova
         /// </summary>
         /// <value>The avatar URL.</value>
         string AvatarUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the language.
+        /// </summary>
+        /// <value>The language.</value>
+        string Language { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time zone. Unit: minute
+        /// </summary>
+        /// <value>The time zone.</value>
+        int? TimeZone { get; set; }
     }
 }

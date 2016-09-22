@@ -19,7 +19,7 @@ namespace Beyova
         /// <param name="bytesObject">The bytes object.</param>
         /// <returns>System.String.</returns>
         /// <exception cref="OperationFailureException">Compress</exception>
-        public static string CompressBytesToString(this  byte[] bytesObject)
+        public static string CompressBytesToString(this byte[] bytesObject)
         {
             if (bytesObject != null && bytesObject.Length > 0)
             {
@@ -43,7 +43,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("Compress", bytesObject);
+                    throw ex.Handle(bytesObject);
                 }
             }
 
@@ -58,11 +58,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string Compress(this string stringObject, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-            var buffer = string.IsNullOrWhiteSpace(stringObject) ? null : encoding.GetBytes(stringObject);
+            var buffer = string.IsNullOrWhiteSpace(stringObject) ? null : (encoding ?? Encoding.UTF8).GetBytes(stringObject);
             return CompressBytesToString(buffer);
         }
 
@@ -98,12 +94,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string Decompress(this string stringObject, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
-            return encoding.GetString(DecompressStringToBytes(stringObject));
+            return (encoding ?? Encoding.UTF8).GetString(DecompressStringToBytes(stringObject));
         }
 
         /// <summary>
@@ -145,7 +136,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("Decompress", stringObject);
+                    throw ex.Handle(stringObject);
                 }
             }
 
@@ -182,7 +173,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw new OperationFailureException("Decompress", ex, bytes);
+                    throw ex.Handle(bytes);
                 }
             }
 
@@ -200,18 +191,13 @@ namespace Beyova
         {
             if (!string.IsNullOrWhiteSpace(zipFilePath) && !string.IsNullOrWhiteSpace(extractPath))
             {
-                if (encoding == null)
-                {
-                    encoding = Encoding.UTF8;
-                }
-
                 try
                 {
-                    ZipFile.ExtractToDirectory(zipFilePath, extractPath, encoding);
+                    ZipFile.ExtractToDirectory(zipFilePath, extractPath, encoding ?? Encoding.UTF8);
                 }
                 catch (Exception ex)
                 {
-                    throw new OperationFailureException("ExtractZipFile", ex, new { zipFilePath, extractPath });
+                    throw ex.Handle(new { zipFilePath, extractPath });
                 }
             }
         }
@@ -235,7 +221,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetArchiveEntryByPath", new { entryPathToExtract });
+                throw ex.Handle(new { entryPathToExtract });
             }
         }
 
@@ -260,7 +246,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ExtractZipByEntryPath", new { entryPathToExtract, destinationDirectoryPath });
+                throw ex.Handle(new { entryPathToExtract, destinationDirectoryPath });
             }
         }
 
@@ -291,7 +277,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ExtractZipByEntryPath", new { entryPathToExtract });
+                throw ex.Handle(new { entryPathToExtract });
             }
 
             return null;
@@ -336,7 +322,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ZipAsBytes", new { compressionLevel, items = items.Keys });
+                throw ex.Handle(new { compressionLevel, items = items.Keys });
             }
         }
 
@@ -359,7 +345,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ZipAsBytes", new { compressionLevel, fileName });
+                throw ex.Handle(new { compressionLevel, fileName });
             }
         }
 
@@ -378,7 +364,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ZipToPath", new { items = items?.Keys, destinationPath });
+                throw ex.Handle(new { items = items?.Keys, destinationPath });
             }
         }
 
@@ -400,7 +386,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ZipToPath", new { destinationPath, fileName });
+                throw ex.Handle(new { destinationPath, fileName });
             }
         }
 

@@ -12,9 +12,10 @@
         /// </summary>
         /// <param name="reason">The reason.</param>
         /// <param name="data">The data.</param>
-        /// <param name="hintMessage">The hint message.</param>
-        public UnauthorizedAccountException(string reason, object data = null, string hintMessage = null)
-            : base(string.Format("Failed to authenticate account caused by [{0}].", reason), ExceptionCode.MajorCode.UnauthorizedOperation, reason.SafeToString("Account"), parameterData: data, hintMessage: hintMessage)
+        /// <param name="hint">The hint.</param>
+        /// <param name="scene">The scene.</param>
+        public UnauthorizedAccountException(string reason, object data = null, FriendlyHint hint = null, ExceptionScene scene = null)
+            : base(string.Format("Failed to authenticate account caused by [{0}].", reason), new ExceptionCode { Major = ExceptionCode.MajorCode.UnauthorizedOperation, Minor = reason.SafeToString("Account") }, data: data, hint: hint, scene: scene)
         {
         }
 

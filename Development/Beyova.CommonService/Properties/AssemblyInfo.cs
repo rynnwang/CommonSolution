@@ -14,7 +14,7 @@ using Beyova.ProgrammingIntelligence;
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("Beyova")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.CommonService", "1.0.1")]
+[assembly: BeyovaComponent("Beyova.CommonService", "1.1.4")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -34,5 +34,5 @@ using Beyova.ProgrammingIntelligence;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0")]
+[assembly: AssemblyVersion("1.0")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]

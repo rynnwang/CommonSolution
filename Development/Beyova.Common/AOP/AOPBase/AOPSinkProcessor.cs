@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
+using Beyova.Api;
+using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 
 namespace Beyova.AOP
@@ -28,10 +30,9 @@ namespace Beyova.AOP
         /// Gets the next message sink in the sink chain.
         /// </summary>
         /// <value>The next sink.</value>
-        /// <returns>The next message sink in the sink chain.</returns>
-        ///   <PermissionSet>
+        /// <PermissionSet>
         ///   <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="Infrastructure" />
-        ///   </PermissionSet>
+        /// </PermissionSet>
         public IMessageSink NextSink
         {
             get;
@@ -118,7 +119,7 @@ namespace Beyova.AOP
             }
 
             //Trace
-            ApiTraceContext.Exit(exception);
+            ApiTraceContext.Exit(returnMessage);
 
             return returnMessage;
         }

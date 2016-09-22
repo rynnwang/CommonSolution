@@ -17,14 +17,6 @@ namespace Beyova
         /// <summary>
         /// Logs the exception asynchronous.
         /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="serviceIdentifier">The service identifier.</param>
-        /// <param name="serverIdentifier">The server identifier.</param>
-        void LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null);
-
-        /// <summary>
-        /// Logs the exception asynchronous.
-        /// </summary>
         /// <param name="exceptionInfo">The exception information.</param>
         void LogException(ExceptionInfo exceptionInfo);
 

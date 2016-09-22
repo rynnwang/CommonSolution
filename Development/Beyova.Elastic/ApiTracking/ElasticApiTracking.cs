@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using Beyova;
+using Beyova.Api;
 using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.Elastic
 {
@@ -46,15 +48,45 @@ namespace Beyova.Elastic
         protected LookupService geoService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ElasticApiTracking" /> class.
+        /// Gets or sets the request timeout.
         /// </summary>
-        /// <param name="baseUrl">The base URL.</param>
+        /// <value>The request timeout.</value>
+        public int? RequestTimeout { get; protected set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElasticApiTracking"/> class.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="geoDbPath">The geo database path.</param>
-        public ElasticApiTracking(string baseUrl, string indexName, string geoDbPath = null)
+        /// <param name="requestTimeout">The request timeout.</param>
+        public ElasticApiTracking(ApiEndpoint endpoint, string indexName, string geoDbPath = null, int? requestTimeout = null) : this(endpoint?.ToUri(false)?.ToString(), indexName, geoDbPath, requestTimeout)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElasticApiTracking"/> class.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="indexName">Name of the index.</param>
+        /// <param name="geoDbPath">The geo database path.</param>
+        /// <param name="requestTimeout">The request timeout.</param>
+        public ElasticApiTracking(UriEndpoint endpoint, string indexName, string geoDbPath = null, int? requestTimeout = null) : this(endpoint?.ToString(), indexName, geoDbPath, requestTimeout)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ElasticApiTracking" /> class.
+        /// </summary>
+        /// <param name="baseUrl">The base URL. Example: http://elastic.co:9200</param>
+        /// <param name="indexName">Name of the index. </param>
+        /// <param name="geoDbPath">The geo database path. </param>
+        /// <param name="requestTimeout">The request timeout.</param>
+        public ElasticApiTracking(string baseUrl, string indexName, string geoDbPath = null, int? requestTimeout = null)
         {
             elasticClient = new ElasticIndexClient(baseUrl, indexName);
             geoService = TryInitializeGeoService(geoDbPath);
+            this.RequestTimeout = requestTimeout;
         }
 
         /// <summary>
@@ -65,7 +97,8 @@ namespace Beyova.Elastic
             Framework.GetConfiguration("ElasticsearchIndex", "apitracking"),
             Framework.GetConfiguration("ElasticsearchGeoPath", string.Empty)
             )
-        { }
+        {
+        }
 
         /// <summary>
         /// Tries the initialize geo service.
@@ -81,7 +114,6 @@ namespace Beyova.Elastic
 
             return null;
         }
-
         /// <summary>
         /// Fills the location information.
         /// </summary>
@@ -109,6 +141,54 @@ namespace Beyova.Elastic
             }
         }
 
+        /// <summary>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="F"></typeparam>
+        /// <param name="obj">The object.</param>
+        protected void WorkAction<T, F>(object obj)
+        {
+            try
+            {
+                ElasticWorkObject<T, F> objectToWork = obj as ElasticWorkObject<T, F>;
+                objectToWork.Preprocess();
+                elasticClient.Index(objectToWork, objectToWork.Timeout);
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Works the item.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="F"></typeparam>
+        /// <param name="workObject">The work object.</param>
+        protected void WorkItem<T, F>(ElasticWorkObject<T, F> workObject)
+        {
+            try
+            {
+                if (elasticClient != null)
+                {
+                    Task.Factory.StartNew(new Action<object>(WorkAction<T, F>), workObject);
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Works the item.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="workObject">The work object.</param>
+        protected void WorkItem<T>(ElasticWorkObject<T> workObject)
+        {
+            try
+            {
+                Task.Factory.StartNew(new Action<object>(WorkAction<T, object>), workObject);
+            }
+            catch { }
+        }
+
         #region IApiTracking
 
         /// <summary>
@@ -117,17 +197,12 @@ namespace Beyova.Elastic
         /// <param name="eventLog">The event log.</param>
         public void LogApiEvent(ApiEventLog eventLog)
         {
-            ThreadPool.QueueUserWorkItem((x) =>
+            WorkItem(new ElasticApiEventWorkObject
             {
-                try
-                {
-                    FillLocationInfo(eventLog);
-                    elasticClient.Index(apiEventType, eventLog);
-                }
-                catch (Exception ex)
-                {
-                    Framework.ApiTracking.LogException(ex.Handle("LogApiEvent", eventLog));
-                }
+                ProcessFactor = geoService,
+                RawData = eventLog,
+                Type = apiEventType,
+                Timeout = this.RequestTimeout
             });
         }
 
@@ -137,16 +212,11 @@ namespace Beyova.Elastic
         /// <param name="traceLog">The trace log.</param>
         public void LogApiTraceLog(ApiTraceLog traceLog)
         {
-            ThreadPool.QueueUserWorkItem((x) =>
+            WorkItem(new ElasticWorkObject<ElasticTraceLog>
             {
-                try
-                {
-                    elasticClient.Index(traceLogType, traceLog);
-                }
-                catch (Exception ex)
-                {
-                    Framework.ApiTracking.LogException(ex.Handle("LogApiTraceLog", traceLog));
-                }
+                RawData = ToElasticTraceLog(traceLog),
+                Type = traceLogType,
+                Timeout = this.RequestTimeout
             });
         }
 
@@ -156,16 +226,11 @@ namespace Beyova.Elastic
         /// <param name="exceptionInfo">The exception information.</param>
         public void LogException(ExceptionInfo exceptionInfo)
         {
-            ThreadPool.QueueUserWorkItem((x) =>
+            WorkItem(new ElasticWorkObject<ElasticExceptionInfo>
             {
-                try
-                {
-                    elasticClient.Index(exceptionType, ToExceptionInfo(exceptionInfo));
-                }
-                catch (Exception ex)
-                {
-                    Framework.ApiTracking.LogException(ex.Handle("LogException", exceptionInfo));
-                }
+                RawData = ToExceptionInfo(exceptionInfo),
+                Type = exceptionType,
+                Timeout = this.RequestTimeout
             });
         }
 
@@ -173,11 +238,9 @@ namespace Beyova.Elastic
         /// Logs the exception asynchronous.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="serviceIdentifier">The service identifier.</param>
-        /// <param name="serverIdentifier">The server identifier.</param>
-        public void LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
+        public void LogException(BaseException exception)
         {
-            LogException(exception.ToExceptionInfo(serviceIdentifier, serverIdentifier));
+            LogException(exception.ToExceptionInfo());
         }
 
         /// <summary>
@@ -187,17 +250,51 @@ namespace Beyova.Elastic
         public void LogMessage(string message)
         {
             if (string.IsNullOrWhiteSpace(message)) return;
-            ThreadPool.QueueUserWorkItem((x) =>
+
+            WorkItem(new ElasticWorkObject<ElasticMessage>
             {
-                try
-                {
-                    elasticClient.Index(messageType, new { CreatedStamp = DateTime.UtcNow, Message = message.SafeToString() });
-                }
-                catch (Exception ex)
-                {
-                    Framework.ApiTracking.LogException(ex.Handle("LogMessage", message));
-                }
+                RawData = new ElasticMessage { Message = message },
+                Type = messageType,
+                Timeout = this.RequestTimeout
             });
+        }
+
+        #endregion
+
+        #region Get Http Request Raw
+
+        /// <summary>
+        /// Gets the API event query HTTP request raw.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns></returns>
+        public string GetApiEventQueryHttpRequestRaw(ApiEventCriteria criteria)
+        {
+            try
+            {
+                return elasticClient.GetQueryHttpRequestRaw(apiEventType, criteria.ToElasticCriteria());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
+        }
+
+        /// <summary>
+        /// Gets the exception query HTTP request raw.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns></returns>
+        public string GetExceptionQueryHttpRequestRaw(ExceptionCriteria criteria)
+        {
+            try
+            {
+                return elasticClient.GetQueryHttpRequestRaw(exceptionType, criteria.ToElasticCriteria());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
         }
 
         #endregion
@@ -217,7 +314,7 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryApiEventLog", criteria);
+                throw ex.Handle(criteria);
             }
         }
 
@@ -234,7 +331,24 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryException", criteria);
+                throw ex.Handle(criteria);
+            }
+        }
+
+        /// <summary>
+        /// Internals the query API message.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>QueryResult&lt;ApiMessage&gt;.</returns>
+        protected QueryResult<ApiMessage> InternalQueryApiMessage(ApiMessageCriteria criteria)
+        {
+            try
+            {
+                return elasticClient.Query<ApiMessage>(messageType, criteria.ToElasticCriteria());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
             }
         }
 
@@ -247,21 +361,86 @@ namespace Beyova.Elastic
         {
             try
             {
-                return elasticClient.Query<ApiTraceLog>(apiEventType, new SearchCriteria
+                return ToApiTraceLog(elasticClient.Query<ElasticTraceLog>(traceLogType, new SearchCriteria
                 {
                     Count = 200,
                     QueryCriteria = new QueryCriteria
                     {
-                        Matches = new
-                        {
-                            TraceId = traceId
-                        }
+                        PhraseMatches = new Dictionary<string, object> { { "TraceId", traceId } }
                     }
-                });
+                }));
             }
             catch (Exception ex)
             {
-                throw ex.Handle("InternalQueryTraceLog", traceId);
+                throw ex.Handle(traceId);
+            }
+        }
+
+        /// <summary>
+        /// Internals the aggregation query exception grouping.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>AggregationsQueryResult.</returns>
+        protected AggregationsQueryResult<JToken> InternalAggregationQueryExceptionGrouping(ExceptionGroupingCriteria criteria)
+        {
+            try
+            {
+                return elasticClient.AggregationQuery<JToken>(exceptionType, criteria.ToElasticCriteria());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
+        }
+
+        /// <summary>
+        /// Internals the aggregation query exception statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>AggregationsQueryResult.</returns>
+        protected AggregationsQueryResult<DateTime> InternalAggregationQueryExceptionStatistic(ExceptionStatisticCriteria criteria)
+        {
+            try
+            {
+                return elasticClient.AggregationQuery<DateTime>(exceptionType, criteria.ToElasticCriteria());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
+        }
+
+        /// <summary>
+        /// Internals the aggregation query API event grouping.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>AggregationsQueryResult.</returns>
+        protected AggregationsQueryResult<JToken> InternalAggregationQueryApiEventGrouping(ApiEventGroupingCriteria criteria)
+        {
+            try
+            {
+                return elasticClient.AggregationQuery<JToken>(apiEventType, criteria.ToElasticCriteria());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
+        }
+
+        /// <summary>
+        /// Internals the aggregation query API event statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>AggregationsQueryResult.</returns>
+        protected AggregationsQueryResult<DateTime> InternalAggregationQueryApiEventStatistic(ApiEventStatisticCriteria criteria)
+        {
+            try
+            {
+                return elasticClient.AggregationQuery<DateTime>(apiEventType, criteria.ToElasticCriteria());
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
             }
         }
 
@@ -274,11 +453,11 @@ namespace Beyova.Elastic
         {
             try
             {
-                return InternalQueryApiEventLog(criteria).Hits.Select((x) => { return x.Source; }).ToList();
+                return InternalQueryApiEventLog(criteria).ToEntityList();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryApiEvent", criteria);
+                throw ex.Handle(criteria);
             }
         }
 
@@ -291,11 +470,23 @@ namespace Beyova.Elastic
         {
             try
             {
-                return InternalQueryException(criteria).Hits.Select((x) => { return x.Source; }).ToList();
+                return InternalQueryException(criteria).ToEntityList();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryLogApiEvent", criteria);
+                throw ex.Handle(criteria);
+            }
+        }
+
+        public List<ApiMessage> QueryApiMessage(ApiMessageCriteria criteria)
+        {
+            try
+            {
+                return InternalQueryApiMessage(criteria).ToEntityList();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
             }
         }
 
@@ -310,32 +501,105 @@ namespace Beyova.Elastic
             {
                 traceId.CheckEmptyString("traceId");
 
-                return InternalQueryTraceLog(traceId).Hits.Select((x) => x.Source).ToList();
+                return InternalQueryTraceLog(traceId).ToEntityList();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetApiTraceLogById", traceId);
+                throw ex.Handle(traceId);
             }
         }
 
-        public List<ApiEventGroupStatistic> GetApiEventStatistic(ApiEventStatisticCriteria criteria)
+        /// <summary>
+        /// Gets the API event statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.GroupStatistic&gt;.</returns>
+        public List<GroupStatistic> GetApiEventStatistic(ApiEventStatisticCriteria criteria)
         {
-            throw new NotImplementedException();
+            try
+            {
+                criteria.CheckNullObject("criteria");
+                criteria.FrameInterval.CheckNullObject("criteria.FrameInterval");
+
+                return InternalAggregationQueryApiEventStatistic(criteria).Aggregations.ToGroupStatistic(criteria.FrameInterval.Value);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
         }
 
+        /// <summary>
+        /// Gets the API event group statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.ApiEventGroupStatistic&gt;.</returns>
         public List<ApiEventGroupStatistic> GetApiEventGroupStatistic(ApiEventGroupingCriteria criteria)
         {
-            throw new NotImplementedException();
+            try
+            {
+                criteria.CheckNullObject("criteria");
+
+                return InternalAggregationQueryApiEventGrouping(criteria).Aggregations.ToApiEventGroupStatistic(criteria.FrameInterval);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
         }
 
-        public List<ExceptionGroupStatistic> GetApiExceptionStatistic(ExceptionStatisticCriteria criteria)
+        /// <summary>
+        /// Gets the API exception statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.GroupStatistic&gt;.</returns>
+        public List<GroupStatistic> GetApiExceptionStatistic(ExceptionStatisticCriteria criteria)
         {
-            throw new NotImplementedException();
+            try
+            {
+                criteria.CheckNullObject("criteria");
+                criteria.FrameInterval.CheckNullObject("criteria.FrameInterval");
+
+                return InternalAggregationQueryExceptionStatistic(criteria).Aggregations.ToGroupStatistic(criteria.FrameInterval.Value);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
         }
 
+        /// <summary>
+        /// Gets the API exception grouping statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>List&lt;GroupStatistic&gt;.</returns>
         public List<ExceptionGroupStatistic> GetApiExceptionGroupingStatistic(ExceptionGroupingCriteria criteria)
         {
-            throw new NotImplementedException();
+            try
+            {
+                criteria.CheckNullObject("criteria");
+
+                return InternalAggregationQueryExceptionGrouping(criteria).Aggregations.ToExceptionGroupStatistic(criteria.FrameInterval);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(criteria);
+            }
+        }
+
+        /// <summary>
+        /// Deletes the index.
+        /// </summary>
+        public void DeleteIndex()
+        {
+            try
+            {
+                elasticClient.DeleteIndex();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle();
+            }
         }
 
         #endregion
@@ -369,6 +633,18 @@ namespace Beyova.Elastic
         //}
 
         #endregion
+
+        /// <summary>
+        /// Aggregations the search.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>AggregationsQueryResult&lt;T&gt;.</returns>
+        public AggregationsQueryResult<T> AggregationSearch<T>(string type, SearchCriteria criteria)
+        {
+            return elasticClient.AggregationQuery<T>(type, criteria);
+        }
 
         /// <summary>
         /// To the exception information.
@@ -414,7 +690,7 @@ namespace Beyova.Elastic
                 {
                     Code = exceptionInfo.Code,
                     CreatedStamp = exceptionInfo.CreatedStamp,
-                    Data = exceptionInfo.Data,
+                    Data = exceptionInfo.Data.TryParseToJToken(),
                     ExceptionType = exceptionInfo.ExceptionType,
                     Key = exceptionInfo.Key,
                     Level = exceptionInfo.Level,
@@ -424,7 +700,6 @@ namespace Beyova.Elastic
                     Source = exceptionInfo.Source,
                     StackTrace = exceptionInfo.StackTrace,
                     TargetSite = exceptionInfo.TargetSite,
-                    UserIdentifier = exceptionInfo.UserIdentifier,
                     InnerException = JsonConvert.DeserializeObject<ExceptionInfo>(exceptionInfo.InnerException)
                 };
             }
@@ -445,7 +720,7 @@ namespace Beyova.Elastic
                 {
                     Code = exceptionInfo.Code,
                     CreatedStamp = exceptionInfo.CreatedStamp,
-                    Data = exceptionInfo.Data,
+                    Data = exceptionInfo.Data?.ToString(),
                     ExceptionType = exceptionInfo.ExceptionType,
                     Key = exceptionInfo.Key,
                     Level = exceptionInfo.Level,
@@ -455,12 +730,84 @@ namespace Beyova.Elastic
                     Source = exceptionInfo.Source,
                     StackTrace = exceptionInfo.StackTrace,
                     TargetSite = exceptionInfo.TargetSite,
-                    UserIdentifier = exceptionInfo.UserIdentifier,
                     InnerException = JsonConvert.SerializeObject(exceptionInfo.InnerException)
                 };
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// To the API trace log.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>QueryResult&lt;ApiTraceLog&gt;.</returns>
+        protected static QueryResult<ApiTraceLog> ToApiTraceLog(QueryResult<ElasticTraceLog> data)
+        {
+            return data != null ? new QueryResult<ApiTraceLog>
+            {
+                Shards = data.Shards,
+                Total = data.Total,
+                Hits = data.Hits.Select((x) => ToApiTraceLog(x)).ToList()
+            } : null;
+        }
+
+        /// <summary>
+        /// To the API trace log.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>RawDataItem&lt;ApiTraceLog&gt;.</returns>
+        protected static RawDataItem<ApiTraceLog> ToApiTraceLog(RawDataItem<ElasticTraceLog> data)
+        {
+            return data != null ? new RawDataItem<ApiTraceLog>
+            {
+                Id = data.Id,
+                Index = data.Index,
+                Type = data.Type,
+                Source = ToApiTraceLog(data.Source)
+            } : null;
+        }
+
+        /// <summary>
+        /// To the API trace log.
+        /// </summary>
+        /// <param name="traceLog">The trace log.</param>
+        /// <returns>ApiTraceLog.</returns>
+        public static ApiTraceLog ToApiTraceLog(ElasticTraceLog traceLog)
+        {
+            return traceLog == null ? null : new ApiTraceLog
+            {
+                CreatedStamp = traceLog.CreatedStamp,
+                ServiceName = traceLog.ServiceName,
+                EntryStamp = traceLog.EntryStamp,
+                ExceptionKey = traceLog.ExceptionKey,
+                ExitStamp = traceLog.ExitStamp,
+                MethodFullName = traceLog.MethodFullName,
+                TraceId = traceLog.TraceId,
+                TraceSequence = traceLog.TraceSequence,
+                InnerTraces = JsonExtension.TryDeserializeAsObject<List<ApiTraceLogPiece>>(traceLog.InnerTraces)
+            };
+        }
+
+        /// <summary>
+        /// To the elastic trace log.
+        /// </summary>
+        /// <param name="traceLog">The trace log.</param>
+        /// <returns>ElasticTraceLog.</returns>
+        public static ElasticTraceLog ToElasticTraceLog(ApiTraceLog traceLog)
+        {
+            return traceLog == null ? null : new ElasticTraceLog
+            {
+                CreatedStamp = traceLog.CreatedStamp,
+                ServiceName = traceLog.ServiceName,
+                EntryStamp = traceLog.EntryStamp,
+                ExceptionKey = traceLog.ExceptionKey,
+                ExitStamp = traceLog.ExitStamp,
+                MethodFullName = traceLog.MethodFullName,
+                TraceId = traceLog.TraceId,
+                TraceSequence = traceLog.TraceSequence,
+                InnerTraces = JsonConvert.SerializeObject(traceLog.InnerTraces)
+            };
         }
     }
 }

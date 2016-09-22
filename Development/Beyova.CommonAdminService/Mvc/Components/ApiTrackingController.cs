@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web.Mvc;
 using Beyova;
+using Beyova.Api;
 using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
@@ -11,6 +12,7 @@ namespace Beyova.CommonAdminService
     /// <summary>
     /// Class ApiTrackingBaseController.
     /// </summary>
+    /// <typeparam name="T"></typeparam>
     [TokenRequired]
     public abstract class ApiTrackingController<T> : EnvironmentBaseController where T : IApiAnalytics
     {
@@ -35,6 +37,16 @@ namespace Beyova.CommonAdminService
         }
 
         /// <summary>
+        /// Gets the view full path.
+        /// </summary>
+        /// <param name="viewName">Name of the view.</param>
+        /// <returns>System.String.</returns>
+        protected override string GetViewFullPath(string viewName)
+        {
+            return string.Format(Constants.ViewNames.BeyovaComponentDefaultViewPath, "ApiTracking", viewName);
+        }
+
+        /// <summary>
         /// Gets the client.
         /// </summary>
         /// <param name="environment">The environment.</param>
@@ -47,7 +59,7 @@ namespace Beyova.CommonAdminService
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiTrackingController" /> class.
+        /// Initializes a new instance of the <see cref="ApiTrackingController{T}" /> class.
         /// </summary>
         /// <param name="analyticIndexName">Name of the analytic index.</param>
         public ApiTrackingController(string analyticIndexName = null) : base("ApiTracking")
@@ -60,42 +72,48 @@ namespace Beyova.CommonAdminService
         /// <summary>
         /// Initializes the client.
         /// </summary>
-        /// <param name="baseUrl">The base URL.</param>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="indexName">Name of the index.</param>
         /// <returns>IApiAnalytics.</returns>
         protected IApiAnalytics InitializeClient(EnvironmentEndpoint endpoint, string indexName)
         {
-            return new Elastic.ElasticApiTracking(string.Format("{0}://{1}:{2}", endpoint.Protocol.SafeToString("http"), endpoint.Host, endpoint.Port ?? 9200), indexName);
+            return new Elastic.ElasticApiTracking(endpoint, indexName);
         }
 
+        /// <summary>
+        /// APIs the event.
+        /// </summary>
+        /// <returns>ActionResult.</returns>
         [HttpGet]
         public ActionResult ApiEvent()
         {
-            return View(Constants.ViewNames.ApiEventPanelView);
+            return View(GetViewFullPath(Constants.ViewNames.ApiEventPanelView));
         }
 
         /// <summary>
         /// APIs the event.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
+        /// <param name="environment">The environment.</param>
         /// <returns>ActionResult.</returns>
         [HttpPost]
         public ActionResult ApiEvent(ApiEventCriteria criteria, string environment)
         {
-            var client = GetClient(environment);
-
             try
             {
+                var client = GetClient(environment);
+
                 List<ApiEventLog> result = null;
                 if (client != null && criteria != null)
                 {
                     result = client.QueryApiEvent(criteria);
                 }
 
-                return PartialView(Constants.ViewNames.ApiEventListView, result);
+                return PartialView(GetViewFullPath(Constants.ViewNames.ApiEventListView), result);
             }
             catch (Exception ex)
             {
-                return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "ApiEvent", criteria);
+                return this.HandleExceptionToPartialView(ex, criteria);
             }
         }
 
@@ -108,10 +126,10 @@ namespace Beyova.CommonAdminService
         [HttpGet]
         public ActionResult ApiEventDetail(Guid? key, string environment)
         {
-            var client = GetClient(environment);
-
             try
             {
+                var client = GetClient(environment);
+
                 ApiEventLog result = null;
                 if (client != null && key != null)
                 {
@@ -120,48 +138,53 @@ namespace Beyova.CommonAdminService
 
                 if (result != null)
                 {
-                    return View(Constants.ViewNames.ApiEventDetailView, result);
+                    return View(GetViewFullPath(Constants.ViewNames.ApiEventDetailView), result);
                 }
                 else
                 {
-                    return this.RedirectToNotFoundPage();
+                    return this.RenderAsNotFoundPage();
                 }
             }
             catch (Exception ex)
             {
-                return this.HandleExceptionToRedirection(ex, HttpConstants.HttpMethod.Get, "ApiEventDetail", key);
+                return this.HandleExceptionToRedirection(ex, key);
             }
         }
 
+        /// <summary>
+        /// Exceptions this instance.
+        /// </summary>
+        /// <returns>ActionResult.</returns>
         [HttpGet]
         public ActionResult Exception()
         {
-            return View(Constants.ViewNames.ExceptionPanelView);
+            return View(GetViewFullPath(Constants.ViewNames.ExceptionPanelView));
         }
 
         /// <summary>
         /// Exceptions the specified criteria.
         /// </summary>
         /// <param name="criteria">The criteria.</param>
+        /// <param name="environment">The environment.</param>
         /// <returns>ActionResult.</returns>
         [HttpPost]
         public ActionResult Exception(ExceptionCriteria criteria, string environment)
         {
-            var client = GetClient(environment);
-
             try
             {
+                var client = GetClient(environment);
+
                 List<ExceptionInfo> result = null;
                 if (client != null && criteria != null)
                 {
                     result = client.QueryException(criteria);
                 }
 
-                return PartialView(Constants.ViewNames.ExceptionListView, result);
+                return PartialView(GetViewFullPath(Constants.ViewNames.ExceptionListView), result);
             }
             catch (Exception ex)
             {
-                return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "Exception", criteria);
+                return this.HandleExceptionToPartialView(ex, criteria);
             }
         }
 
@@ -174,10 +197,10 @@ namespace Beyova.CommonAdminService
         [HttpGet]
         public ActionResult ExceptionDetail(Guid? key, string environment)
         {
-            var client = GetClient(environment);
-
             try
             {
+                var client = GetClient(environment);
+
                 ExceptionInfo result = null;
                 if (client != null && key != null)
                 {
@@ -186,48 +209,98 @@ namespace Beyova.CommonAdminService
 
                 if (result != null)
                 {
-                    return View(Constants.ViewNames.ExceptionDetailView, result);
+                    return View(GetViewFullPath(Constants.ViewNames.ExceptionDetailView), result);
                 }
                 else
                 {
-                    return this.RedirectToNotFoundPage();
+                    return this.RenderAsNotFoundPage();
                 }
             }
             catch (Exception ex)
             {
-                return this.HandleExceptionToRedirection(ex, HttpConstants.HttpMethod.Get, "ExceptionDetail", key);
+                return this.HandleExceptionToRedirection(ex, key);
             }
         }
 
+        /// <summary>
+        /// Events the trace.
+        /// </summary>
+        /// <returns>ActionResult.</returns>
         [HttpGet]
         public ActionResult EventTrace()
         {
-            return View(Constants.ViewNames.ApiTracePanelView);
+            return View(GetViewFullPath(Constants.ViewNames.ApiTracePanelView));
         }
 
         /// <summary>
         /// Events the trace.
         /// </summary>
         /// <param name="traceId">The trace identifier.</param>
+        /// <param name="environment">The environment.</param>
         /// <returns>ActionResult.</returns>
         [HttpPost]
         public ActionResult EventTrace(string traceId, string environment)
         {
-            var client = GetClient(environment);
-
             try
             {
+                var client = GetClient(environment);
+
                 List<ApiTraceLog> result = null;
                 if (client != null && !string.IsNullOrWhiteSpace(traceId))
                 {
                     result = client.GetApiTraceLogById(traceId);
                 }
 
-                return PartialView(Constants.ViewNames.ApiTraceDetailView, result);
+                return PartialView(GetViewFullPath(Constants.ViewNames.ApiTraceDetailView), result);
             }
             catch (Exception ex)
             {
-                return this.HandleExceptionToPartialView(ex, HttpConstants.HttpMethod.Post, "EventTrace", traceId);
+                return this.HandleExceptionToPartialView(ex, traceId);
+            }
+        }
+
+        /// <summary>
+        /// APIs the event statistic.
+        /// </summary>
+        /// <returns>ActionResult.</returns>
+        [HttpGet]
+        public ActionResult ApiEventStatistic()
+        {
+            return View(GetViewFullPath(Constants.ViewNames.ApiEventStatisticPanel));
+        }
+
+        /// <summary>
+        /// Exceptions the statistic.
+        /// </summary>
+        /// <returns>ActionResult.</returns>
+        [HttpGet]
+        public ActionResult ExceptionStatistic()
+        {
+            return View(GetViewFullPath(Constants.ViewNames.ApiExceptionStatisticPanel));
+        }
+
+        /// <summary>
+        /// APIs the event statistic.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <param name="environment">The environment.</param>
+        /// <returns>ActionResult.</returns>
+        [HttpPost]
+        public ActionResult ApiEventStatistic(ApiEventStatisticCriteria criteria, string environment)
+        {
+            try
+            {
+                var client = GetClient(environment);
+                criteria.HasException = null;
+                var events = client.GetApiEventStatistic(criteria);
+                criteria.HasException = true;
+                var eventsWithException = client.GetApiEventStatistic(criteria);
+
+                return PartialView(GetViewFullPath(Constants.ViewNames.ApiEventStatisticLineBarMixedChart), new { eventsWithException, events });
+            }
+            catch (Exception ex)
+            {
+                return this.HandleExceptionToPartialView(ex, new { criteria, environment });
             }
         }
     }

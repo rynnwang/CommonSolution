@@ -62,7 +62,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GenerateCriteriaSqlParameters", new { entity = typeof(TCriteria).GetFullName(), ignoredProperty });
+                throw ex.Handle( new { entity = typeof(TCriteria).GetFullName(), ignoredProperty });
             }
         }
 
@@ -85,7 +85,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Query", new { criteria, spName });
+                throw ex.Handle( new { criteria, spName });
             }
         }
     }
@@ -222,7 +222,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GenerateSqlParameters", new { entity = typeof(TObject).GetFullName(), ignoredProperty });
+                throw ex.Handle( new { entity = typeof(TObject).GetFullName(), ignoredProperty });
             }
         }
 
@@ -242,7 +242,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GenerateEntitySqlParameters", new { entity = typeof(T).GetFullName(), ignoredProperty });
+                throw ex.Handle( new { entity = typeof(T).GetFullName(), ignoredProperty });
             }
         }
 
@@ -270,7 +270,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ConvertObject: " + typeof(T).ToString());
+                throw ex.Handle(new { type = typeof(T).GetFullName() });
             }
             finally
             {
@@ -307,7 +307,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ConvertEntityObject", new { Converters = fieldConverter.Select((x) => new { x.ColumnName, x.PropertyName }) });
+                throw ex.Handle( new { Converters = fieldConverter.Select((x) => new { x.ColumnName, x.PropertyName }) });
             }
         }
 
@@ -328,7 +328,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ExecuteReader", new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle( new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
             }
             finally
             {
@@ -367,7 +367,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdate", new { entity, operatorKey, spName });
+                throw ex.Handle( new { entity, operatorKey, spName });
             }
         }
     }

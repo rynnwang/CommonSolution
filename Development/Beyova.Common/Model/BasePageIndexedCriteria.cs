@@ -3,7 +3,6 @@
     /// <summary>
     /// Class BasePageIndexedCriteria.
     /// </summary>
-    
     public class BasePageIndexedCriteria : BaseCriteria
     {
         #region Properties

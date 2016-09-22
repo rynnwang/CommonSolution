@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Beyova;
-using Beyova.BinaryStorage;
 
 namespace Beyova.CommonService.DataAccessController
 {
@@ -71,7 +70,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetBinaryCapacitySummary", criteria);
+                throw ex.Handle( criteria);
             }
         }
     }

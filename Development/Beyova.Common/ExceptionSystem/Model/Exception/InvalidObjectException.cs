@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
 {
@@ -16,9 +17,10 @@ namespace Beyova.ExceptionSystem
         /// <param name="innerException">The inner exception.</param>
         /// <param name="data">The data.</param>
         /// <param name="reason">The reason.</param>
-        /// <param name="hintMessage">The hint message.</param>
-        public InvalidObjectException(string objectIdentity, Exception innerException = null, object data = null, string reason = null, string hintMessage = null)
-            : base(string.Format("[{0}] is invalid.", objectIdentity), new ExceptionCode { Major = ExceptionCode.MajorCode.NullOrInvalidValue, Minor = reason.SafeToString("InvalidObject") }, innerException, null, data, hintMessage: hintMessage)
+        /// <param name="hint">The hint.</param>
+        /// <param name="scene">The scene.</param>
+        public InvalidObjectException(string objectIdentity, Exception innerException = null, object data = null, string reason = null, FriendlyHint hint = null, ExceptionScene scene = null)
+            : base(string.Format("Object [{0}] is invalid.", objectIdentity), new ExceptionCode { Major = ExceptionCode.MajorCode.NullOrInvalidValue, Minor = reason.SafeToString("InvalidObject") }, innerException, data, hint, scene)
         {
         }
 
@@ -28,23 +30,27 @@ namespace Beyova.ExceptionSystem
         /// <param name="innerException">The inner exception.</param>
         /// <param name="data">The data.</param>
         /// <param name="reason">The reason.</param>
-        /// <param name="hintMessage">The hint message.</param>
-        public InvalidObjectException(Exception innerException, object data = null, string reason = null, string hintMessage = null)
-            : base(innerException?.Message.SafeToString("Invalid object."), new ExceptionCode { Major = ExceptionCode.MajorCode.NullOrInvalidValue, Minor = reason.SafeToString("InvalidObject") }, innerException, null, data, hintMessage: hintMessage)
+        /// <param name="hint">The hint.</param>
+        /// <param name="scene">The scene.</param>
+        internal InvalidObjectException(Exception innerException, object data = null, string reason = null, FriendlyHint hint = null, ExceptionScene scene = null)
+            : base((innerException?.Message).SafeToString("Invalid object."), new ExceptionCode { Major = ExceptionCode.MajorCode.NullOrInvalidValue, Minor = reason.SafeToString("InvalidObject") }, innerException, data, hint, scene)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidObjectException" /> class.
         /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="createdStamp">The created stamp.</param>
         /// <param name="message">The message.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="reason">The reason.</param>
+        /// <param name="scene">The scene.</param>
+        /// <param name="code">The code.</param>
         /// <param name="innerException">The inner exception.</param>
+        /// <param name="operatorCredential">The operator credential.</param>
         /// <param name="data">The data.</param>
-        /// <param name="hintMessage">The hint message.</param>
-        internal InvalidObjectException(string message, string operatorIdentifier, string reason, Exception innerException, object data, string hintMessage = null)
-            : base(message, new ExceptionCode { Major = ExceptionCode.MajorCode.NullOrInvalidValue, Minor = reason }, operatorIdentifier: operatorIdentifier, parameterData: data, hintMessage: hintMessage)
+        /// <param name="hint">The hint.</param>
+        internal InvalidObjectException(Guid key, DateTime createdStamp, string message, ExceptionScene scene, ExceptionCode code, Exception innerException, BaseCredential operatorCredential, JToken data, FriendlyHint hint)
+          : base(key, createdStamp, message, scene, code, innerException, operatorCredential, data, hint)
         {
         }
 

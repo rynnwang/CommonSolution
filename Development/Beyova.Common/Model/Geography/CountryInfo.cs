@@ -5,9 +5,15 @@ namespace Beyova
     /// <summary>
     /// Class CountryInfo.
     /// </summary>
-    public class CountryInfo : BaseObject, IGlobalObjectName
+    public class CountryInfo : IIdentifier, IGlobalObjectName
     {
         #region Properties
+
+        /// <summary>
+        /// Gets or sets the key.
+        /// </summary>
+        /// <value>The key.</value>
+        public Guid? Key { get; set; }
 
         /// <summary>
         /// Gets or sets the name.
@@ -34,10 +40,10 @@ namespace Beyova
         public string Iso3Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the time zone key.
+        /// Gets or sets the time zone.
         /// </summary>
-        /// <value>The time zone key.</value>
-        public Guid? TimeZoneKey { get; set; }
+        /// <value>The time zone.</value>
+        public int? TimeZone { get; set; }
 
         /// <summary>
         /// Gets or sets the tel code.
@@ -46,12 +52,6 @@ namespace Beyova
         /// The tel code.
         /// </value>
         public string TelCode { get; set; }
-
-        /// <summary>
-        /// Gets or sets the geography key.
-        /// </summary>
-        /// <value>The geography key.</value>
-        public Guid? GeographyKey { get; set; }
 
         /// <summary>
         /// Gets or sets the culture code.

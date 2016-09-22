@@ -3,7 +3,7 @@ DROP PROCEDURE [dbo].[sp_GetBinaryCapacitySummary]
 GO
 
 CREATE PROCEDURE [dbo].[sp_GetBinaryCapacitySummary](
-    @Container VARCHAR(128),
+    @Container NVARCHAR(128),
     @OwnerKey UNIQUEIDENTIFIER
 )
 AS
@@ -13,14 +13,12 @@ BEGIN
         @Container AS [Container],
         @OwnerKey AS [OwnerKey],
         (SELECT COUNT(*)
-            FROM [dbo].[BinaryStorageMetaData]
+            FROM [dbo].[view_UserBinaryStorageMetaData]
                 WHERE (@OwnerKey IS NULL OR [OwnerKey] = @OwnerKey) 
-                AND (@Container IS NULL OR [Container] = @Container)
-                AND [State] = 2) AS [Count],
+                AND (@Container IS NULL OR [Container] = @Container)) AS [Count],
         (SELECT SUM([Length])
-            FROM [dbo].[BinaryStorageMetaData]
+            FROM [dbo].[view_UserBinaryStorageMetaData]
                 WHERE (@OwnerKey IS NULL OR [OwnerKey] = @OwnerKey) 
-                AND (@Container IS NULL OR [Container] = @Container)
-                AND [State] = 2) AS [Size];
+                AND (@Container IS NULL OR [Container] = @Container)) AS [Size];
 END
 GO

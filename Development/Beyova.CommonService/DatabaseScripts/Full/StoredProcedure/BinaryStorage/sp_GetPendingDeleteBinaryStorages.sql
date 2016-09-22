@@ -15,9 +15,11 @@ BEGIN
           ,[Height]
           ,[Width]
           ,[Duration]
-          ,[OwnerKey]
+          ,NULL AS [OwnerKey]
           ,[CreatedStamp]
           ,[LastUpdatedStamp]
+          ,[CreatedBy]
+          ,[LastUpdatedBy]
           ,[State]
       FROM [dbo].[BinaryStorageMetaData]
       WHERE [State] = 3; --DeletePending

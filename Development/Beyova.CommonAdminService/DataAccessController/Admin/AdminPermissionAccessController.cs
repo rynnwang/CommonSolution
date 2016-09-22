@@ -63,7 +63,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateAdminPermission", new { permission, operatorKey });
+                throw ex.Handle(new { permission, operatorKey });
             }
         }
 
@@ -94,7 +94,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAdminPermission", criteria);
+                throw ex.Handle(criteria);
             }
         }
     }

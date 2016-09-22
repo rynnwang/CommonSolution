@@ -22,7 +22,7 @@ namespace Beyova
         /// <param name="root">The root.</param>
         /// <param name="throwException">if set to <c>true</c> [throw exception].</param>
         /// <returns>T.</returns>
-        public static T BuildTreeHierarchy<T>(this IList<T> nodes, Guid root, bool throwException = false) where T : ITreeNode<T>
+        public static T BuildTreeHierarchy<T>(this List<T> nodes, Guid root, bool throwException = false) where T : ITreeNode<T>
         {
             try
             {
@@ -48,7 +48,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("BuildTreeHierarchy", new { nodes, root, type = typeof(T).FullName });
+                throw ex.Handle(new { nodes, root, type = typeof(T).FullName });
             }
         }
 
@@ -181,13 +181,13 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the XML.
+        /// Matrixes to XML.
         /// </summary>
         /// <param name="matrixList">The matrix list.</param>
         /// <returns>XElement.</returns>
-        public static XElement ToXml(this MatrixList<Guid> matrixList)
+        public static XElement MatrixToXml(this MatrixList<string> matrixList)
         {
-            return ToXml<Guid>(matrixList, (x) => { return x.ToString(); });
+            return MatrixToXml<string>(matrixList, (x) => { return x.SafeToString(); });
         }
 
         /// <summary>
@@ -195,9 +195,19 @@ namespace Beyova
         /// </summary>
         /// <param name="matrixList">The matrix list.</param>
         /// <returns>XElement.</returns>
-        public static XElement ToXml(this MatrixList<DateTime> matrixList)
+        public static XElement MatrixToXml(this MatrixList<Guid> matrixList)
         {
-            return ToXml<DateTime>(matrixList, (x) => { return x.ToFullDateTimeTzString(); });
+            return MatrixToXml<Guid>(matrixList, (x) => { return x.ToString(); });
+        }
+
+        /// <summary>
+        /// To the XML.
+        /// </summary>
+        /// <param name="matrixList">The matrix list.</param>
+        /// <returns>XElement.</returns>
+        public static XElement MatrixToXml(this MatrixList<DateTime> matrixList)
+        {
+            return MatrixToXml<DateTime>(matrixList, (x) => { return x.ToFullDateTimeTzString(); });
         }
 
         /// <summary>
@@ -207,7 +217,7 @@ namespace Beyova
         /// <param name="matrixList">The matrix list.</param>
         /// <param name="converter">The converter.</param>
         /// <returns>XElement.</returns>
-        public static XElement ToXml<T>(this MatrixList<T> matrixList, Func<T, string> converter)
+        public static XElement MatrixToXml<T>(this MatrixList<T> matrixList, Func<T, string> converter)
         {
             if (matrixList == null)
             {
@@ -228,6 +238,16 @@ namespace Beyova
             }
 
             return node;
+        }
+
+        /// <summary>
+        /// XMLs to matrix.
+        /// </summary>
+        /// <param name="xml">The XML.</param>
+        /// <returns>MatrixList&lt;System.String&gt;.</returns>
+        public static MatrixList<string> XmlToMatrix(this XElement xml)
+        {
+            return XmlToMatrix(xml, (x) => { return x; });
         }
 
         /// <summary>

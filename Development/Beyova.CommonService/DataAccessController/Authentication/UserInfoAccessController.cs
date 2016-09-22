@@ -12,7 +12,7 @@ namespace Beyova.CommonService.DataAccessController
     /// <typeparam name="TUserInfo">The type of the t user information.</typeparam>
     /// <typeparam name="TUserCriteria">The type of the t user criteria.</typeparam>
     /// <typeparam name="TFunctionalRole">The type of the t functional role.</typeparam>
-    public abstract class UserInfoAccessController<TUserInfo, TUserCriteria, TFunctionalRole> : BaseCommonServiceController<TUserInfo, TUserCriteria>
+    public abstract class UserInfoAccessController<TUserInfo, TUserCriteria, TFunctionalRole> : BaseAuthenticationController<TUserInfo, TUserCriteria>
         where TUserInfo : IUserInfo<TFunctionalRole>, IBaseObject, new()
         where TUserCriteria : IUserCriteria<TFunctionalRole>, new()
         where TFunctionalRole : struct, IConvertible
@@ -20,7 +20,7 @@ namespace Beyova.CommonService.DataAccessController
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserInfoAccessController" /> class.
+        /// Initializes a new instance of the <see cref="UserInfoAccessController{TUserInfo, TUserCriteria, TFunctionalRole}"/> class.
         /// </summary>
         public UserInfoAccessController()
             : base()
@@ -77,7 +77,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetUserByToken", token);
+                throw ex.Handle( token);
             }
         }
 
@@ -110,7 +110,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryUserInfo", criteria);
+                throw ex.Handle( criteria);
             }
         }
 
@@ -141,7 +141,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("UpdateUserAvatar", new { userKey, avatarKey, operatorKey });
+                throw ex.Handle( new { userKey, avatarKey, operatorKey });
             }
         }
 
@@ -167,7 +167,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetUserInfoByKeys", keys);
+                throw ex.Handle( keys);
             }
         }
 
@@ -187,7 +187,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetUserInfoByKey", userKey);
+                throw ex.Handle( userKey);
             }
         }
 
@@ -195,6 +195,8 @@ namespace Beyova.CommonService.DataAccessController
         /// Updates the user information.
         /// </summary>
         /// <param name="userInfo">The user information.</param>
+        /// <param name="operatorKey">The operator key.</param>
+        /// <returns>TUserInfo.</returns>
         public TUserInfo CreateOrUpdateUserInfo(TUserInfo userInfo, Guid? operatorKey)
         {
             const string spName = "sp_CreateOrUpdateUserInfo";
@@ -222,7 +224,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateUserInfo", new { userInfo, operatorKey });
+                throw ex.Handle( new { userInfo, operatorKey });
             }
         }
     }

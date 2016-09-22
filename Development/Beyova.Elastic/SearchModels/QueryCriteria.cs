@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Beyova.Elastic
 {
     /// <summary>
-    /// Class SearchCriteria.
+    /// Class QueryCriteria.
     /// </summary>
     public class QueryCriteria
     {
@@ -24,14 +20,21 @@ namespace Beyova.Elastic
         /// </summary>
         /// <value>The terms.</value>
         [JsonProperty(PropertyName = "term", NullValueHandling = NullValueHandling.Ignore)]
-        public object Terms { get; set; }
+        public Dictionary<string, object> Terms { get; set; }
 
         /// <summary>
         /// Gets or sets the match.
         /// </summary>
         /// <value>The match.</value>
         [JsonProperty(PropertyName = "match", NullValueHandling = NullValueHandling.Ignore)]
-        public object Matches { get; set; }
+        public Dictionary<string, object> Matches { get; set; }
+
+        /// <summary>
+        /// Gets or sets the phrase matches.
+        /// </summary>
+        /// <value>The phrase matches.</value>
+        [JsonProperty(PropertyName = "match_phrase", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, object> PhraseMatches { get; set; }
 
         /// <summary>
         /// Gets or sets the filters.
@@ -45,6 +48,13 @@ namespace Beyova.Elastic
         /// </summary>
         /// <value>The range.</value>
         [JsonProperty(PropertyName = "range", NullValueHandling = NullValueHandling.Ignore)]
-        public object Range { get; set; }
+        public Dictionary<string, Dictionary<string, object>> Range { get; set; }
+
+        /// <summary>
+        /// Gets or sets the boolean criteria.
+        /// </summary>
+        /// <value>The boolean criteria.</value>
+        [JsonProperty(PropertyName = "bool", NullValueHandling = NullValueHandling.Ignore)]
+        public BooleanCriteria BooleanCriteria { get; set; }
     }
 }

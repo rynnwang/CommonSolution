@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Beyova.ExceptionSystem;
+using Beyova.Gravity;
 using Newtonsoft.Json;
 
 namespace Beyova
@@ -17,7 +18,7 @@ namespace Beyova
         #region Html encode
 
         /// <summary>
-        /// To the URL path encoded text.
+        /// To the URL path encoded text. It is used for URL Query String or when passing a URL as parameter of antoher URL. (Space to '%20', but not encode special charactor like '/', '=', '?' and '&amp;'. Any charactor after first '?' would not be encoded)
         /// </summary>
         /// <param name="originalText">The original text.</param>
         /// <returns>System.String.</returns>
@@ -32,7 +33,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the URL encoded text.
+        /// To the URL encoded text. It is used for URL Path. (Space to '+', and encode any special charactor, including '/', '=', '?' and '&amp;')
         /// </summary>
         /// <param name="originalText">The original text.</param>
         /// <returns>System.String.</returns>
@@ -213,7 +214,7 @@ namespace Beyova
         /// <returns>System.Byte[].</returns>
         public static byte[] ToMD5Bytes(this byte[] bytes)
         {
-            if (bytes == null)
+            if (bytes != null)
             {
                 try
                 {
@@ -222,7 +223,36 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ToMD5Bytes");
+                    throw ex.Handle();
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// To the m d5 bytes.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="resetPosition">The reset position.</param>
+        /// <returns>System.Byte[].</returns>
+        public static byte[] ToMD5Bytes(this Stream stream, long? resetPosition = null)
+        {
+            if (stream != null)
+            {
+                try
+                {
+                    MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
+                    var hash = md5Provider.ComputeHash(stream);
+
+                    if (stream.CanSeek && resetPosition.HasValue)
+                    {
+                        stream.Position = resetPosition.Value;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle();
                 }
             }
 
@@ -244,7 +274,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ToMD5String", stringObject);
+                throw ex.Handle(stringObject);
             }
         }
 
@@ -253,16 +283,20 @@ namespace Beyova
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <returns>System.String.</returns>
-        public static string ToMD5Base64String(this byte[] bytes)
+        public static string ToBase64Md5(this byte[] bytes)
         {
-            try
-            {
-                return ToMD5Bytes(bytes)?.ToBase64();
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle("ToMD5Base64String");
-            }
+            return ToMD5Bytes(bytes)?.ToBase64();
+        }
+
+        /// <summary>
+        /// To the m d5 base64 string.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="resetPosition">The reset position.</param>
+        /// <returns>System.String.</returns>
+        public static string ToBase64Md5(this Stream stream, long? resetPosition = null)
+        {
+            return ToMD5Bytes(stream, resetPosition)?.ToBase64();
         }
 
         /// <summary>
@@ -274,32 +308,29 @@ namespace Beyova
         {
             try
             {
-                MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
-                byte[] hashByte = md5Provider.ComputeHash(bytes);
-                string result = BitConverter.ToString(hashByte);
-                return result.Replace("-", "").ToUpperInvariant();
+                return ToMD5Bytes(bytes).ToHex();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ToMD5String");
+                throw ex.Handle();
             }
         }
 
         /// <summary>
-        /// To the base64 MD5.
+        /// To the m d5 string.
         /// </summary>
-        /// <param name="bytes">The bytes.</param>
+        /// <param name="stream">The stream.</param>
+        /// <param name="resetPosition">The reset position.</param>
         /// <returns>System.String.</returns>
-        public static string ToBase64Md5(this byte[] bytes)
+        public static string ToMD5String(this Stream stream, long? resetPosition = null)
         {
             try
             {
-                MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider();
-                return md5Provider.ComputeHash(bytes).ToBase64();
+                return ToMD5Bytes(stream, resetPosition).ToHex();
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ToBase64Md5");
+                throw ex.Handle();
             }
         }
 
@@ -316,18 +347,13 @@ namespace Beyova
         /// <exception cref="OperationFailureException">ToSHA1</exception>
         public static string ToSHA1(this string stringObject, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
             try
             {
-                return ToSHA1(encoding.GetBytes(stringObject));
+                return ToSHA1((encoding ?? Encoding.UTF8).GetBytes(stringObject));
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("ToSHA1", ex, stringObject);
+                throw ex.Handle(stringObject);
             }
         }
 
@@ -349,7 +375,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("ToSHA1", ex, data);
+                throw ex.Handle(data);
             }
         }
 
@@ -403,6 +429,7 @@ namespace Beyova
                 byte[] Buffer = encoding.GetBytes(content);
                 result = Convert.ToBase64String(DESEncrypt.TransformFinalBlock(Buffer, 0, Buffer.Length));
             }
+
             return result;
         }
 
@@ -473,7 +500,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("RsaDecrypt", new { publicKey, dwKeySize });
+                throw ex.Handle(new { publicKey, dwKeySize });
             }
         }
 
@@ -493,7 +520,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("RsaDecrypt", new { content, privateKey, dwKeySize });
+                throw ex.Handle(new { content, privateKey, dwKeySize });
             }
         }
 
@@ -515,7 +542,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("RsaDecrypt");
+                throw ex.Handle();
             }
         }
 
@@ -537,7 +564,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateRsaKeys");
+                throw ex.Handle();
             }
         }
 
@@ -588,7 +615,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw new OperationFailureException("EncryptDES", ex, new { content, encryptKey });
+                    throw ex.Handle(new { content, encryptKey });
                 }
             }
 
@@ -629,7 +656,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw new OperationFailureException("DecryptDES", ex, new { content, encryptKey });
+                    throw ex.Handle(new { content, encryptKey });
                 }
             }
 
@@ -657,17 +684,12 @@ namespace Beyova
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
         /// <exception cref="OperationFailureException">R3DEncrypt3DES</exception>
-        public static string R3DEncrypt3DES(this string content, Encoding encoding = null)
+        internal static string R3DEncrypt3DES(this string content, Encoding encoding = null)
         {
             string result = content;
 
             if (!string.IsNullOrWhiteSpace(content))
             {
-                if (encoding == null)
-                {
-                    encoding = Encoding.UTF8;
-                }
-
                 try
                 {
                     byte[] keyBytes = content.GenerateRandom3DESKey();
@@ -679,7 +701,7 @@ namespace Beyova
 
                     ICryptoTransform DESEncrypt = DES.CreateEncryptor();
 
-                    byte[] buffer = encoding.GetBytes(content);
+                    byte[] buffer = (encoding ?? Encoding.UTF8).GetBytes(content);
                     buffer = DESEncrypt.TransformFinalBlock(buffer, 0, buffer.Length);
                     List<byte> data = new List<byte>(keyBytes);
                     data.AddRange(buffer);
@@ -687,7 +709,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw new OperationFailureException("R3DEncrypt3DES", ex, content);
+                    throw ex.Handle(new { content });
                 }
             }
 
@@ -700,17 +722,12 @@ namespace Beyova
         /// <param name="content">The content.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        public static string R3DDecrypt3DES(this string content, Encoding encoding = null)
+        internal static string R3DDecrypt3DES(this string content, Encoding encoding = null)
         {
             string result = content;
 
             if (!string.IsNullOrWhiteSpace(content))
             {
-                if (encoding == null)
-                {
-                    encoding = Encoding.UTF8;
-                }
-
                 try
                 {
                     byte[] buffer = Convert.FromBase64String(content);
@@ -724,11 +741,11 @@ namespace Beyova
 
                     ICryptoTransform DESDecrypt = DES.CreateDecryptor();
                     buffer = DESDecrypt.TransformFinalBlock(buffer, 0, buffer.Length);
-                    result = encoding.GetString(buffer);
+                    result = (encoding ?? Encoding.UTF8).GetString(buffer);
                 }
                 catch (Exception ex)
                 {
-                    throw new OperationFailureException("R3DDecrypt3DES", ex, content);
+                    throw ex.Handle(content);
                 }
             }
 
@@ -749,8 +766,7 @@ namespace Beyova
         {
             using (var hmac = new HMACSHA1(secretKey))
             {
-                return Convert.ToBase64String(
-                   hmac.ComputeHash(Encoding.UTF8.GetBytes(message)));
+                return Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(message)));
             }
         }
 
@@ -771,7 +787,7 @@ namespace Beyova
 
         #endregion
 
-        #region SecureSynchronize
+        #region Secure Communication
 
         /// <summary>
         /// Secures the synchronize.
@@ -780,32 +796,75 @@ namespace Beyova
         /// <param name="data">The data.</param>
         /// <param name="rsaPublicKey">The RSA public key.</param>
         /// <returns>System.String.</returns>
-        public static string SecureSynchronize(this Uri uri, object data, string rsaPublicKey)
+        internal static string SecureHttpInvoke<T>(this Uri uri, T data, string rsaPublicKey)
         {
             if (uri != null && data != null && !string.IsNullOrWhiteSpace(rsaPublicKey))
             {
                 try
                 {
-                    var httpRequest = uri.CreateHttpWebRequest("POST");
+                    var httpRequest = uri.CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
+                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.SECUREKEY, rsaPublicKey);
 
                     var rsaProvider = new RSACryptoServiceProvider(2048);
                     var responsePublicKey = rsaProvider.ExportCspBlob(false).ToBase64();
 
-                    var package = new SecureCommunicationPackage
+                    var package = new SecureMessageObject<T>
                     {
                         PublicKey = responsePublicKey,
                         Data = data
                     };
 
-                    var postBodyBytes = RsaEncrypt(Encoding.UTF32.GetBytes(package.ToJson()), rsaPublicKey);
-                    httpRequest.FillData("POST", postBodyBytes);
+                    var postBodyBytes = RsaEncrypt(Encoding.UTF8.GetBytes(package.ToJson()), rsaPublicKey);
+                    httpRequest.FillData(HttpConstants.HttpMethod.Post, postBodyBytes);
 
                     var responseBytes = httpRequest.ReadResponseAsBytes();
-                    return Encoding.UTF32.GetString(rsaProvider.Decrypt(responseBytes, true));
+                    return Encoding.UTF8.GetString(rsaProvider.Decrypt(responseBytes, true));
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("SecureSynchronize", new { uri, rsaPublicKey });
+                    throw ex.Handle(new { uri, rsaPublicKey });
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Processes the secure HTTP invoke.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input.</typeparam>
+        /// <typeparam name="TOuput">The type of the ouput.</typeparam>
+        /// <param name="httpContext">The HTTP context.</param>
+        /// <param name="processFunc">The process function.</param>
+        /// <param name="getPrivateKeyByPublicKey">The get private key by public key.</param>
+        /// <returns>Beyova.ExceptionSystem.BaseException.</returns>
+        internal static BaseException ProcessSecureHttpInvoke<TInput, TOuput>(this HttpContext httpContext, Func<TInput, TOuput> processFunc, Func<string, string> getPrivateKeyByPublicKey)
+        {
+            if (httpContext != null)
+            {
+                try
+                {
+                    var rsaPublicKey = httpContext.Request.TryGetHeader(HttpConstants.HttpHeader.SECUREKEY);
+                    string rsaPrivateKey = null;
+                    if (!string.IsNullOrWhiteSpace(rsaPublicKey) && getPrivateKeyByPublicKey != null)
+                    {
+                        rsaPrivateKey = getPrivateKeyByPublicKey(rsaPublicKey);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(rsaPrivateKey))
+                    {
+                        var inputPackage = httpContext.Request.GetSecureCommunicationPackage<TInput>(rsaPrivateKey);
+                        inputPackage.CheckNullObject("inputPackage");
+                        inputPackage.PublicKey.CheckNullObject("inputPackage.PublicKey");
+                        inputPackage.Data.CheckNullObject("inputPackage.Data");
+
+                        var ouput = processFunc(inputPackage.Data);
+                        httpContext.Response.ResponseSecureCommunicationPackage<TOuput>(ouput, inputPackage.PublicKey);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return ex.Handle();
                 }
             }
 
@@ -815,22 +874,23 @@ namespace Beyova
         /// <summary>
         /// Gets the secure communication package.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="httpRequest">The HTTP request.</param>
         /// <param name="rsaPrivateKey">The RSA private key.</param>
         /// <returns>SecureSynchronizePackage.</returns>
-        public static SecureCommunicationPackage GetSecureCommunicationPackage(this HttpRequest httpRequest, string rsaPrivateKey)
+        internal static SecureMessageObject<T> GetSecureCommunicationPackage<T>(this HttpRequest httpRequest, string rsaPrivateKey)
         {
             if (httpRequest != null)
             {
                 try
                 {
                     var requestData = httpRequest.GetPostData();
-                    var jsonString = Encoding.UTF32.GetString(RsaDecrypt(requestData, rsaPrivateKey));
-                    return JsonConvert.DeserializeObject<SecureCommunicationPackage>(jsonString);
+                    var jsonString = Encoding.UTF8.GetString(RsaDecrypt(requestData, rsaPrivateKey));
+                    return JsonConvert.DeserializeObject<SecureMessageObject<T>>(jsonString);
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("GetSecureSynchronizePackage");
+                    throw ex.Handle(data: new { rsaPrivateKey });
                 }
             }
 
@@ -840,21 +900,22 @@ namespace Beyova
         /// <summary>
         /// Responses the secure communication package.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="response">The response.</param>
         /// <param name="responseObject">The response object.</param>
         /// <param name="rsaPublicKey">The RSA public key.</param>
-        public static void ResponseSecureCommunicationPackage(this HttpResponse response, object responseObject, string rsaPublicKey)
+        internal static void ResponseSecureCommunicationPackage<T>(this HttpResponse response, T responseObject, string rsaPublicKey)
         {
             if (response != null && responseObject != null)
             {
                 try
                 {
-                    var responseBodyBytes = RsaEncrypt(Encoding.UTF32.GetBytes(responseObject.ToJson()), rsaPublicKey);
+                    var responseBodyBytes = RsaEncrypt(Encoding.UTF8.GetBytes(responseObject.ToJson()), rsaPublicKey);
                     response.OutputStream.Write(responseBodyBytes, 0, responseBodyBytes.Length);
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ResponseSecureSynchronize");
+                    throw ex.Handle(data: new { responseObject, rsaPublicKey });
                 }
             }
         }

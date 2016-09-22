@@ -1,6 +1,6 @@
 ﻿using Beyova;
 
-namespace Beyova.BinaryStorage
+namespace Beyova
 {
     /// <summary>
     /// Class BinaryCapacitySummary.

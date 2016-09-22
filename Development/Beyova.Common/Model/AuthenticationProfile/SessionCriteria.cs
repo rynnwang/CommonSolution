@@ -39,12 +39,6 @@ namespace Beyova
         public bool? IsExpired { get; set; }
 
         /// <summary>
-        /// Gets or sets the created stamp.
-        /// </summary>
-        /// <value>The created stamp.</value>
-        public DateTime? CreatedStamp { get; set; }
-
-        /// <summary>
         /// Gets or sets the platform.
         /// </summary>
         /// <value>The platform.</value>

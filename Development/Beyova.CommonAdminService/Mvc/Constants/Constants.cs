@@ -11,15 +11,30 @@ namespace Beyova.CommonAdminService
     /// </summary>
     public static class Constants
     {
+        /// <summary>
+        /// Class Permission.
+        /// </summary>
         public static class Permission
         {
+            /// <summary>
+            /// The administration
+            /// </summary>
             public const string Administration = "Administration";
 
+            /// <summary>
+            /// The create or update admin user
+            /// </summary>
             public const string CreateOrUpdateAdminUser = "CreateOrUpdateAdminUser";
 
+            /// <summary>
+            /// The create or update admin permission
+            /// </summary>
             public const string CreateOrUpdateAdminPermission = "CreateOrUpdateAdminPermission";
         }
 
+        /// <summary>
+        /// Class RouteValues.
+        /// </summary>
         public static class RouteValues
         {
 
@@ -30,6 +45,11 @@ namespace Beyova.CommonAdminService
         /// </summary>
         public static class ViewNames
         {
+            /// <summary>
+            /// The default view path. {0}: Feature name, {1}: View Name
+            /// </summary>
+            public const string BeyovaComponentDefaultViewPath = "~/Views/shared/Beyova/features/{0}/{1}.cshtml";
+
             #region Error
 
             /// <summary>
@@ -49,57 +69,250 @@ namespace Beyova.CommonAdminService
             /// <summary>
             /// The environment view
             /// </summary>
-            public const string EnvironmentView = "~/Views/shared/Beyova/features/EnvironmentEndpoint/Selection.cshtml";
+            public const string EnvironmentView = "Selection";
 
             /// <summary>
             /// The environment endpoint panel view
             /// </summary>
-            public const string EnvironmentEndpointPanelView = "~/Views/shared/Beyova/features/EnvironmentEndpoint/Panel.cshtml";
+            public const string EnvironmentEndpointPanelView = "Panel";
 
             /// <summary>
             /// The environment endpoint ListView
             /// </summary>
-            public const string EnvironmentEndpointListView = "~/Views/shared/Beyova/features/EnvironmentEndpoint/_EndpointList.cshtml";
+            public const string EnvironmentEndpointListView = "_EndpointList";
+
+            #endregion
+
+            #region SSO
+
+            /// <summary>
+            /// The sso authorization partner panel view
+            /// </summary>
+            public const string SSOAuthorizationPartnerPanelView = "SSOAuthorizationPartnerPanel";
+
+            /// <summary>
+            /// The sso authorization partner ListView
+            /// </summary>
+            public const string SSOAuthorizationPartnerListView = "_SSOAuthorizationPartnerList";
+
+            /// <summary>
+            /// The sso authorization panel view
+            /// </summary>
+            public const string SSOAuthorizationPanelView = "SSOAuthorizationPanel";
+
+            /// <summary>
+            /// The sso authorization ListView
+            /// </summary>
+            public const string SSOAuthorizationListView = "_SSOAuthorizationList";
+
+            #endregion
+
+            #region Azure Blob Console
+
+            /// <summary>
+            /// The azure BLOB new item view
+            /// </summary>
+            public const string AzureBlobNewItemView = "AzureNewBlob";
+
+            /// <summary>
+            /// The azure BLOB panel view
+            /// </summary>
+            public const string AzureBlobPanelView = "AzureBlobPanel";
+
+            /// <summary>
+            /// The azure BLOB ListView
+            /// </summary>
+            public const string AzureBlobListView = "_AzureBlobList";
+
+            #endregion
+
+            #region Binary Storage
+
+            /// <summary>
+            /// The binary storage panel view
+            /// </summary>
+            public const string BinaryStoragePanelView = "BinaryStoragePanel";
+
+            /// <summary>
+            /// The new binary storage view
+            /// </summary>
+            public const string NewBinaryStorageView = "UploadBinaryStorage";
+
+            /// <summary>
+            /// The binary storage ListView
+            /// </summary>
+            public const string BinaryStorageListView = "_BinaryStorageList";
 
             #endregion
 
             #region API Tracking
 
-            public const string ApiEventDetailView = "~/Views/shared/Beyova/features/ApiTracking/ApiEventDetail.cshtml";
+            /// <summary>
+            /// The API event detail view
+            /// </summary>
+            public const string ApiEventDetailView = "ApiEventDetail";
 
-            public const string ApiEventPanelView = "~/Views/shared/Beyova/features/ApiTracking/ApiEventPanel.cshtml";
+            /// <summary>
+            /// The API event panel view
+            /// </summary>
+            public const string ApiEventPanelView = "ApiEventPanel";
 
-            public const string ApiEventListView = "~/Views/shared/Beyova/features/ApiTracking/_ApiEventList.cshtml";
+            /// <summary>
+            /// The API event ListView
+            /// </summary>
+            public const string ApiEventListView = "_ApiEventList";
 
-            public const string ApiTracePanelView = "~/Views/shared/Beyova/features/ApiTracking/ApiTracePanel.cshtml";
+            /// <summary>
+            /// The API event statistic panel
+            /// </summary>
+            public const string ApiEventStatisticPanel = "ApiEventStatisticPanel";
 
-            public const string ApiTraceDetailView = "~/Views/shared/Beyova/features/ApiTracking/_ApiTraceDetail.cshtml";
+            /// <summary>
+            /// The API event statistic line bar mixed chart
+            /// </summary>
+            public const string ApiEventStatisticLineBarMixedChart = "_ApiEventStatisticLineBarMixedChart";
 
-            public const string ExceptionPanelView = "~/Views/shared/Beyova/features/ApiTracking/ApiExceptionPanel.cshtml";
+            /// <summary>
+            /// The API event duration statistic ranged line chart
+            /// </summary>
+            public const string ApiEventDurationStatisticRangedLineChart = "_ApiEventDurationStatisticRangedLineChart";
 
-            public const string ExceptionListView = "~/Views/shared/Beyova/features/ApiTracking/_ApiExceptionList.cshtml";
+            /// <summary>
+            /// The API event server statistic bar chart
+            /// </summary>
+            public const string ApiEventServerStatisticBarChart = "_ApiEventServerStatisticBarChart";
 
-            public const string ExceptionDetailView = "~/Views/shared/Beyova/features/ApiTracking/_ApiExceptionDetail.cshtml";
+            /// <summary>
+            /// The API event service statistic bar chart
+            /// </summary>
+            public const string ApiEventServiceStatisticBarChart = "_ApiEventServiceStatisticBarChart";
+
+            /// <summary>
+            /// The API trace panel view
+            /// </summary>
+            public const string ApiTracePanelView = "ApiTracePanel";
+
+            /// <summary>
+            /// The API trace detail view
+            /// </summary>
+            public const string ApiTraceDetailView = "_ApiTraceDetail";
+
+            /// <summary>
+            /// The exception panel view
+            /// </summary>
+            public const string ExceptionPanelView = "ApiExceptionPanel";
+
+            /// <summary>
+            /// The exception ListView
+            /// </summary>
+            public const string ExceptionListView = "_ApiExceptionList";
+
+            /// <summary>
+            /// The exception detail view
+            /// </summary>
+            public const string ExceptionDetailView = "_ApiExceptionDetail";
+
+            /// <summary>
+            /// The API exception statistic panel
+            /// </summary>
+            public const string ApiExceptionStatisticPanel = "ApiExceptionStatisticPanel";
+
+            /// <summary>
+            /// The API exception statistic stack column chart
+            /// </summary>
+            public const string ApiExceptionStatisticStackColumnChart = "_ApiExceptionStatisticStackColumnChart";
 
             #endregion
 
             #region Administration
 
-            public const string AdminUserPanel = "~/Views/shared/Beyova/features/Admin/AdminUserPanel.cshtml";
+            /// <summary>
+            /// The admin user panel
+            /// </summary>
+            public const string AdminUserPanel = "AdminUserPanel";
 
-            public const string AdminUserList = "~/Views/shared/Beyova/features/Admin/_AdminUserList.cshtml";
+            /// <summary>
+            /// The admin user list
+            /// </summary>
+            public const string AdminUserList = "_AdminUserList";
 
-            public const string AdminRolePanel = "~/Views/shared/Beyova/features/Admin/AdminRolePanel.cshtml";
+            /// <summary>
+            /// The admin role panel
+            /// </summary>
+            public const string AdminRolePanel = "AdminRolePanel";
 
-            public const string AdminRoleList = "~/Views/shared/Beyova/features/Admin/_AdminRoleList.cshtml";
+            /// <summary>
+            /// The admin role list
+            /// </summary>
+            public const string AdminRoleList = "_AdminRoleList";
 
-            public const string AdminPermissionPanel = "~/Views/shared/Beyova/features/Admin/AdminPermissionPanel.cshtml";
+            /// <summary>
+            /// The admin permission panel
+            /// </summary>
+            public const string AdminPermissionPanel = "AdminPermissionPanel";
 
-            public const string AdminPermissionList = "~/Views/shared/Beyova/features/Admin/_AdminPermissionList.cshtml";
+            /// <summary>
+            /// The admin permission list
+            /// </summary>
+            public const string AdminPermissionList = "_AdminPermissionList";
 
-            public const string AdminUserRoleBinding = "~/Views/shared/Beyova/features/Admin/AdminUserRoleBinding.cshtml";
+            /// <summary>
+            /// The admin user role binding
+            /// </summary>
+            public const string AdminUserRoleBinding = "AdminUserRoleBinding";
 
-            public const string AdminRolePermissionBinding = "~/Views/shared/Beyova/features/Admin/AdminRolePermissionBinding.cshtml";
+            /// <summary>
+            /// The admin role permission binding
+            /// </summary>
+            public const string AdminRolePermissionBinding = "AdminRolePermissionBinding";
+
+            #endregion
+
+            #region  Code Smith
+
+            /// <summary>
+            /// The code smith panel
+            /// </summary>
+            public const string CodeSmithPanel = "CodeSmithPanel";
+
+            /// <summary>
+            /// The code workshop
+            /// </summary>
+            public const string CodeWorkshop = "CodeWorkshop";
+
+            #endregion
+
+            #region Authentication
+
+            /// <summary>
+            /// The user panel
+            /// </summary>
+            public const string UserPanel = "UserPanel";
+
+            /// <summary>
+            /// The user detail
+            /// </summary>
+            public const string UserDetail = "UserDetail";
+
+            /// <summary>
+            /// The user list
+            /// </summary>
+            public const string UserList = "_UserList";
+
+            /// <summary>
+            /// The session panel
+            /// </summary>
+            public const string SessionPanel = "SessionPanel";
+
+            /// <summary>
+            /// The session list
+            /// </summary>
+            public const string SessionList = "_SessionList";
+
+            /// <summary>
+            /// The session detail
+            /// </summary>
+            public const string SessionDetail = "SessionDetail";
 
             #endregion
         }

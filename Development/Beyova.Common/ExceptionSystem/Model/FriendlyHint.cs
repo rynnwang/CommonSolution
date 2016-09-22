@@ -9,10 +9,10 @@ namespace Beyova.ExceptionSystem
     public class FriendlyHint
     {
         /// <summary>
-        /// Gets or sets the cause.
+        /// Gets or sets the cause objects.
         /// </summary>
-        /// <value>The cause.</value>
-        public string Cause { get; set; }
+        /// <value>The cause objects.</value>
+        public string[] CauseObjects { get; set; }
 
         /// <summary>
         /// Gets or sets the message.
@@ -21,9 +21,9 @@ namespace Beyova.ExceptionSystem
         public string Message { get; set; }
 
         /// <summary>
-        /// Gets or sets the code.
+        /// Gets or sets the hint code.
         /// </summary>
-        /// <value>The code.</value>
-        public ExceptionCode Code { get; set; }
+        /// <value>The hint code.</value>
+        public string HintCode { get; set; }
     }
 }

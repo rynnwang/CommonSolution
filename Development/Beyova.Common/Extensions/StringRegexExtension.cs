@@ -179,6 +179,111 @@ namespace Beyova
         #endregion
 
         /// <summary>
+        /// Determines whether [contains any of] [the specified items].
+        /// </summary>
+        /// <param name="sourceString">The source string.</param>
+        /// <param name="items">The items.</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <returns>
+        ///   <c>true</c> if [contains any of] [the specified items]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool ContainsAnyOf(this string sourceString, IEnumerable<string> items, bool ignoreCase = false)
+        {
+            bool result = false;
+
+            if (!string.IsNullOrEmpty(sourceString) && items.HasItem())
+            {
+                foreach (var one in items)
+                {
+                    if (sourceString.IndexOf(one, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)>-1)
+                    {
+                        result = true;
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Splits the by upper cases.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <param name="seperator">The seperator.</param>
+        /// <returns></returns>
+        public static string SplitByUpperCases(this string anyString, string seperator = StringConstants.WhiteSpace)
+        {
+            var builder = new StringBuilder();
+
+            if (seperator == null)
+            {
+                seperator = StringConstants.WhiteSpace;
+            }
+
+            if (!string.IsNullOrEmpty(anyString))
+            {
+                var start = 0;
+                var isInShortTerm = false;
+                var lastIsUpperCase = Char.IsUpper(anyString[0]);
+
+                for (var i = 1; i < anyString.Length; i++)
+                {
+                    if (Char.IsUpper(anyString[i]))
+                    {
+                        if (!lastIsUpperCase)
+                        {
+                            builder.Append(anyString.Substring(start, i - start));
+                            builder.Append(seperator);
+                            start = i;
+                        }
+                        else
+                        {
+                            isInShortTerm = true;
+                        }
+
+                        lastIsUpperCase = true;
+                    }
+                    else
+                    {
+                        if (isInShortTerm)
+                        {
+                            builder.Append(anyString.Substring(start, i - start - 1));
+                            builder.Append(seperator);
+                            start = i - 1;
+                        }
+                        isInShortTerm = false;
+                        lastIsUpperCase = false;
+                    }
+                }
+
+                builder.Append(anyString.Substring(start));
+            }
+
+            return builder.ToString().TrimEnd();
+        }
+
+        /// <summary>
+        /// To the hexadecimal string.
+        /// </summary>
+        /// <param name="anyGuid">Any unique identifier.</param>
+        /// <returns>System.String.</returns>
+        public static string ToHexString(this Guid? anyGuid)
+        {
+            return anyGuid.HasValue ? anyGuid.Value.ToHexString() : string.Empty;
+        }
+
+        /// <summary>
+        /// To the hexadecimal string.
+        /// </summary>
+        /// <param name="anyGuid">Any unique identifier.</param>
+        /// <returns>System.String.</returns>
+        public static string ToHexString(this Guid anyGuid)
+        {
+            return anyGuid.ToString("N");
+        }
+
+        /// <summary>
         /// Determines whether the specified string obj is number.
         /// </summary>
         /// <param name="stringObj">The string obj.</param>
@@ -422,7 +527,7 @@ namespace Beyova
             {
                 if (throwException)
                 {
-                    throw ex.Handle("ToCultureInfo", cultureCode);
+                    throw ex.Handle(cultureCode);
                 }
                 else
                 {
@@ -432,7 +537,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Capitalizes the specified any string.
+        /// Capitalizes the specified any string. 
         /// </summary>
         /// <param name="anyString">Any string.</param>
         /// <returns>System.String.</returns>
@@ -447,7 +552,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Propers the specified any string.
+        /// Propers the specified any string. Capitalizes the first letter in a text string and any other letters in text that follow any character other than a letter. Converts all other letters to lowercase letters.
         /// </summary>
         /// <param name="anyString">Any string.</param>
         /// <returns>System.String.</returns>
@@ -526,7 +631,7 @@ namespace Beyova
                 }
                 else if (index >= 0)
                 {
-                    return original.Substring(index);
+                    return original.Substring(index + 1);
                 }
             }
 
@@ -550,7 +655,7 @@ namespace Beyova
                 }
                 else if (index >= 0)
                 {
-                    return original.Substring(index);
+                    return original.Substring(index + 1);
                 }
             }
 
@@ -792,7 +897,34 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Wilds the card to regex.
+        /// Converts static string to regex pattern.
+        /// </summary>
+        /// <param name="staticString">The static string.</param>
+        /// <returns>System.String.</returns>
+        public static string StaticStringToRegexPattern(this string staticString)
+        {
+            if (!string.IsNullOrEmpty(staticString))
+            {
+                var pattern = staticString.Replace(@"\", @"\\")
+                    .Replace("/", @"\/")
+                    .Replace("(", @"\(")
+                    .Replace(")", @"\)")
+                    .Replace("[", @"\[")
+                    .Replace("]", @"\]")
+                    .Replace(".", @"\.")
+                    .Replace("-", @"\-")
+                    .Replace("?", @"\?")
+                    .Replace("*", @"\*")
+                    .Replace(" ", @"\s");
+
+                return pattern;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Converts wild card string to regex.
         /// </summary>
         /// <param name="wildCard">The wild card.</param>
         /// <returns>Regex.</returns>
@@ -837,5 +969,39 @@ namespace Beyova
         {
             return regex == null ? null : regex.Matches(input);
         }
+
+        #region Regex convert
+
+        /// <summary>
+        /// To the regex shad.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <returns>System.String.</returns>
+        public static string ToRegexShad(this string anyString)
+        {
+            if (!string.IsNullOrEmpty(anyString))
+            {
+                return anyString.Replace("\\", "\\\\")
+                    .Replace(@" ", @"\s")
+                    .Replace("(", @"\(")
+                    .Replace(")", @"\)")
+                    .Replace("[", @"\[")
+                    .Replace("]", @"\]")
+                    .Replace("{", @"\{")
+                    .Replace("}", @"\}")
+                    .Replace(".", @"\.")
+                    .Replace("?", @"\?")
+                    .Replace("+", @"\+")
+                    .Replace("^", @"\^")
+                    .Replace("$", @"\$")
+                    .Replace("!", @"\!")
+                    .Replace("~", @"\~")
+                    .Replace("*", @"\*");
+            }
+
+            return string.Empty;
+        }
+
+        #endregion
     }
 }

@@ -52,7 +52,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("SerializeToStream", objectToSerialize);
+                throw ex.Handle(objectToSerialize);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("SerializeToBase64String", objectToSerialize);
+                throw ex.Handle(objectToSerialize);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("SerializeToXml", new { Encoding = encoding.EncodingName, OmitXmlDeclaration = omitXmlDeclaration, IndentedXml = indentedXml });
+                throw ex.Handle( new { Encoding = encoding.EncodingName, OmitXmlDeclaration = omitXmlDeclaration, IndentedXml = indentedXml });
             }
         }
 
@@ -137,7 +137,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("DeserializeToObject");
+                throw ex.Handle(closeStream);
             }
             finally
             {
@@ -164,7 +164,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("DeserializeFromBase64StringToObject", base64String);
+                throw ex.Handle( base64String);
             }
         }
 
@@ -186,7 +186,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("DeserializeToObject");
+                throw ex.Handle();
             }
         }
 
@@ -264,7 +264,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("DeserializeXmlToObject", xml);
+                    throw ex.Handle( xml);
                 }
             }
 
@@ -289,7 +289,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("DeserializeXmlToObject", xml?.ToString());
+                    throw ex.Handle( xml?.ToString());
                 }
             }
 
@@ -297,41 +297,6 @@ namespace Beyova
         }
 
         #region Serialization
-
-        /// <summary>
-        /// To the pure XML.
-        /// </summary>
-        /// <param name="anyObject">Any object.</param>
-        /// <param name="createDeclaration">if set to <c>true</c> [create declaration].</param>
-        /// <returns>XElement.</returns>
-        public static XElement ToPureXml(this object anyObject, bool createDeclaration = false)
-        {
-            if (anyObject != null)
-            {
-                var stringBuilder = new StringBuilder();
-
-                var ns = new XmlSerializerNamespaces();
-                //Add an empty namespace and empty value
-                ns.Add(string.Empty, string.Empty);
-                var settings = new XmlWriterSettings { OmitXmlDeclaration = !createDeclaration };
-
-                // Remove the <?xml version="1.0" encoding="utf-8"?>
-
-                var writer = XmlWriter.Create(stringBuilder, settings);
-                //Create the serializer
-                var serializer = new XmlSerializer(anyObject.GetType());
-
-                //Serialize the object with our own namespaces (notice the overload)
-                serializer.Serialize(writer, anyObject, ns);
-                writer.Flush();
-
-                return XElement.Parse(stringBuilder.ToString());
-            }
-            else
-            {
-                return null;
-            }
-        }
 
         /// <summary>
         /// Converts from pure XML to object.

@@ -71,7 +71,7 @@ namespace Beyova.CommonService.DataAccessController
         //    }
         //    catch (Exception ex)
         //    {
-        //        throw ex.Handle("ThirdPartyLogin", accessCredential);
+        //        throw ex.Handle( accessCredential);
         //    }
         //}
 
@@ -98,7 +98,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("AuthenticateAccessCredential", accessCredential);
+                throw ex.Handle( accessCredential);
             }
         }
 
@@ -128,16 +128,16 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAccessCredential", criteria);
+                throw ex.Handle( criteria);
             }
         }
 
-        /// <summary>
-        /// Binds the access credential on account.
-        /// </summary>
-        /// <param name="accessCredential">The access credential.</param>
-        /// <param name="operatorKey">The operator key.</param>
-        /// <returns></returns>
+        ///// <summary>
+        ///// Binds the access credential on account.
+        ///// </summary>
+        ///// <param name="accessCredential">The access credential.</param>
+        ///// <param name="operatorKey">The operator key.</param>
+        ///// <returns></returns>
         //public List<AccessCredentialInfo> BindThirdPartyAccessCredentialOnAccount(AccessCredential accessCredential, Guid? operatorKey)
         //{
         //    const string spName = "sp_BindAccessCredentialOnAccount";
@@ -161,7 +161,7 @@ namespace Beyova.CommonService.DataAccessController
         //    }
         //    catch (Exception ex)
         //    {
-        //        throw ex.Handle("BindAccessCredentialOnAccount", new { operatorKey, accessCredential });
+        //        throw ex.Handle( new { operatorKey, accessCredential });
         //    }
         //}
 

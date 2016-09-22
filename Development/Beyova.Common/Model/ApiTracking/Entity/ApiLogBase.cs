@@ -19,10 +19,12 @@
         public string ServerIdentifier { get; set; }
 
         /// <summary>
-        /// Gets or sets the user identifier.
+        /// Gets or sets the server host.
         /// </summary>
-        /// <value>The user identifier.</value>
-        public string UserIdentifier { get; set; }
+        /// <value>
+        /// The server host.
+        /// </value>
+        public string ServerHost { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiLogBase" /> class.
@@ -34,7 +36,7 @@
             {
                 this.ServerIdentifier = logBase.ServerIdentifier;
                 this.ServiceIdentifier = logBase.ServiceIdentifier;
-                this.UserIdentifier = logBase.UserIdentifier;
+                this.ServerHost = logBase.ServerHost;
             }
         }
 

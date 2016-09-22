@@ -6,25 +6,13 @@ namespace Beyova
     /// <summary>
     /// Class AdminUserInfoBase.
     /// </summary>
-    public class AdminUserInfoBase : IUserInfo, IIdentifier, ICredential
+    public class AdminUserInfoBase : BaseCredential, IUserInfo, IIdentifier, ICredential
     {
-        /// <summary>
-        /// Gets or sets the key.
-        /// </summary>
-        /// <value>The key.</value>
-        public Guid? Key { get; set; }
-
         /// <summary>
         /// Gets or sets the name of the login.
         /// </summary>
         /// <value>The name of the login.</value>
         public string LoginName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>The name.</value>
-        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the email.
@@ -55,6 +43,18 @@ namespace Beyova
         /// </summary>
         /// <value>The avatar URL.</value>
         public string AvatarUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the language.
+        /// </summary>
+        /// <value>The language.</value>
+        public string Language { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time zone. Unit: minute
+        /// </summary>
+        /// <value>The time zone.</value>
+        public int? TimeZone { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminUserInfoBase"/> class.

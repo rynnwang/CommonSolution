@@ -27,12 +27,6 @@ namespace Beyova.ApiTracking
         public bool GroupByExceptionCode { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [group by criticality level].
-        /// </summary>
-        /// <value><c>true</c> if [group by criticality level]; otherwise, <c>false</c>.</value>
-        public bool GroupByCriticalityLevel { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionGroupingCriteria" /> class.
         /// </summary>
         public ExceptionGroupingCriteria()

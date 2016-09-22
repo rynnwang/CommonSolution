@@ -41,13 +41,12 @@ namespace Beyova.Elastic
             try
             {
                 indexName.CheckEmptyString("indexName");
-                type.CheckEmptyString("type");
 
-                return string.Format(fullUrl, BaseUrl, indexName.ToUrlPathEncodedText(), type);
+                return string.Format(fullUrl, BaseUrl, indexName.ToUrlEncodedText(), type);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetHttpRequestUri", new { indexName, type });
+                throw ex.Handle(new { indexName, type });
             }
         }
 
@@ -73,7 +72,7 @@ namespace Beyova.Elastic
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateHttpRequest", new { indexName, type, httpMethod });
+                throw ex.Handle(new { indexName, type, httpMethod });
             }
         }
 
@@ -86,6 +85,26 @@ namespace Beyova.Elastic
         protected string GetFullIndexName(string indexName, string suffix)
         {
             return string.IsNullOrWhiteSpace(suffix) ? indexName : (indexName.SafeToString() + suffix);
+        }
+
+        /// <summary>
+        /// Internals the index of the delete.
+        /// </summary>
+        /// <param name="indexName">Name of the index.</param>
+        internal void InternalDeleteIndex(string indexName)
+        {
+            try
+            {
+                indexName.CheckEmptyString("indexName");
+
+                var httpRequest = GetHttpRequestUri(indexName, string.Empty).TrimEnd('/').CreateHttpWebRequest(HttpConstants.HttpMethod.Delete);
+
+                var responseText = httpRequest.ReadResponseAsText(Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { indexName });
+            }
         }
     }
 }

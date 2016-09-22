@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Beyova;
-using Beyova.BinaryStorage;
 
 namespace Beyova.CommonService.DataAccessController
 {
@@ -11,15 +10,6 @@ namespace Beyova.CommonService.DataAccessController
     /// </summary>
     public class BinaryStorageIdentifierAccessController : BaseCommonServiceController<BinaryStorageIdentifier, BinaryStorageMetaDataCriteria>
     {
-        #region Constants
-
-        /// <summary>
-        /// The column_ stamp
-        /// </summary>
-        protected const string column_Stamp = "Stamp";
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
@@ -69,7 +59,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetPendingDeleteStorages");
+                throw ex.Handle();
             }
         }
 
@@ -95,7 +85,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ConvertPendingCommitToPendingDelete", stamp);
+                throw ex.Handle( stamp);
             }
         }
 
@@ -131,7 +121,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CommitDeletion", identifiers);
+                throw ex.Handle( identifiers);
             }
         }
     }

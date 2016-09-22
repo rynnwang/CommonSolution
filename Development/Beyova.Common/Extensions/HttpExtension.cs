@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Beyova;
 using Beyova.RestApi;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace Beyova
 {
@@ -20,6 +22,15 @@ namespace Beyova
     /// </summary>
     public static class HttpExtension
     {
+        /// <summary>
+        /// Initializes static members of the <see cref="HttpExtension"/> class.
+        /// </summary>
+        static HttpExtension()
+        {
+            // ServicePointManager.ServerCertificateValidationCallback += delegate { return true; };
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+        }
+
         #region Uri and Credential
 
         /// <summary>
@@ -130,35 +141,40 @@ namespace Beyova
                 try
                 {
                     response = httpWebRequest.GetResponse();
-                    if (responseDelegate != null)
-                    {
-                        webResponse = (HttpWebResponse)response;
-                        statusCode = webResponse.StatusCode;
-                        headers = webResponse.Headers;
-                        destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
-                        cookieCollection = webResponse.Cookies;
 
-                        result = responseDelegate(response);
-                    }
-                }
-                catch (WebException webEx)
-                {
+                    webResponse = (HttpWebResponse)response;
+                    webResponse.CheckNullObject(nameof(webResponse));
 
-                    webResponse = (HttpWebResponse)webEx.Response;
                     statusCode = webResponse.StatusCode;
                     headers = webResponse.Headers;
                     destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
                     cookieCollection = webResponse.Cookies;
 
-                    var responseText = webResponse.ReadAsText();
+                    if (responseDelegate != null)
+                    {
+                        result = responseDelegate(response);
+                    }
+                }
+                catch (WebException webEx)
+                {
+                    webResponse = (HttpWebResponse)webEx.Response;
+                    if (webResponse != null)
+                    {
+                        statusCode = webResponse.StatusCode;
+                        headers = webResponse.Headers;
+                        destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
+                        cookieCollection = webResponse.Cookies;
 
-                    throw new HttpOperationException(httpWebRequest.RequestUri.ToString(),
-                        httpWebRequest.Method,
-                        webEx.Message,
-                        httpWebRequest.ContentLength,
-                        responseText,
-                        webResponse.StatusCode,
-                        webEx.Status, destinationMachine);
+                        var responseText = webResponse.ReadAsText();
+
+                        throw new HttpOperationException(httpWebRequest.RequestUri.ToString(),
+                            httpWebRequest.Method,
+                            webEx.Message,
+                            httpWebRequest.ContentLength,
+                            responseText,
+                            webResponse.StatusCode,
+                            webEx.Status, destinationMachine);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -260,7 +276,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ReadResponseAsTextAsync");
+                throw ex.Handle();
             }
         }
 
@@ -298,7 +314,7 @@ namespace Beyova
                             }
                             catch (Exception ex)
                             {
-                                throw ex.Handle("ProcessAsyncResponse.Callback");
+                                throw ex.Handle();
                             }
                             finally
                             {
@@ -309,7 +325,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ReadResponseAsTextUsingTraditionalAsync");
+                    throw ex.Handle();
                 }
             }
         }
@@ -329,12 +345,13 @@ namespace Beyova
         {
             try
             {
-                var contentEncoding = webResponse.Headers.Get(HttpConstants.HttpHeader.ContentEncoding);
-                return contentEncoding.SafeToString().Equals("gzip", StringComparison.InvariantCultureIgnoreCase) ? webResponse.InternalReadAsGZipText(encoding ?? Encoding.UTF8, closeResponse) : webResponse.InternalReadAsText(encoding, closeResponse);
+                return webResponse.IsGZip() ?
+                    webResponse.InternalReadAsGZipText(encoding ?? Encoding.UTF8, closeResponse)
+                    : webResponse.InternalReadAsText(encoding, closeResponse);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ReadAsText", new { encoding = encoding?.EncodingName, closeResponse });
+                throw ex.Handle(new { encoding = encoding?.EncodingName, closeResponse });
             }
         }
 
@@ -356,18 +373,13 @@ namespace Beyova
                 {
                     using (var responseStream = webResponse.GetResponseStream())
                     {
-                        if (encoding == null)
-                        {
-                            encoding = Encoding.UTF8;
-                        }
-
-                        var streamReader = new StreamReader(responseStream, encoding, true);
+                        var streamReader = new StreamReader(responseStream, (encoding ?? Encoding.UTF8), true);
                         result = streamReader.ReadToEnd();
                     }
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("InternalReadAsText", new { encoding = encoding?.EncodingName, closeResponse });
+                    throw ex.Handle(new { encoding = encoding?.EncodingName, closeResponse });
                 }
                 finally
                 {
@@ -395,11 +407,6 @@ namespace Beyova
 
             if (webResponse != null)
             {
-                if (encoding == null)
-                {
-                    encoding = Encoding.UTF8;
-                }
-
                 try
                 {
                     using (var responseStream = webResponse.GetResponseStream())
@@ -410,7 +417,7 @@ namespace Beyova
                             var length = gZipStream.Read(buffer, 0, 2048);
                             while (length > 0)
                             {
-                                stringBuilder.Append(encoding.GetString(buffer, 0, length));
+                                stringBuilder.Append((encoding ?? Encoding.UTF8).GetString(buffer, 0, length));
                                 length = gZipStream.Read(buffer, 0, 2048);
                             }
                         }
@@ -418,7 +425,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("InternalReadAsGZipText", new { encoding = encoding?.EncodingName, closeResponse });
+                    throw ex.Handle(new { encoding = encoding?.EncodingName, closeResponse });
                 }
                 finally
                 {
@@ -454,7 +461,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("InternalReadAsBytes", new { closeResponse });
+                    throw ex.Handle(new { closeResponse });
                 }
                 finally
                 {
@@ -545,7 +552,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("FillFileData", fileCollection);
+                throw ex.Handle(fileCollection);
             }
         }
 
@@ -572,7 +579,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("FillFileData", new { fileFullName, paramName });
+                    throw ex.Handle(new { fileFullName, paramName });
                 }
             }
         }
@@ -588,11 +595,6 @@ namespace Beyova
         {
             if (httpWebRequest != null)
             {
-                if (encoding == null)
-                {
-                    encoding = Encoding.ASCII;
-                }
-
                 var stringBuilder = new StringBuilder();
                 if (dataMappings != null)
                 {
@@ -608,7 +610,7 @@ namespace Beyova
                     stringBuilder.Remove(stringBuilder.Length - 1, 1);
                 }
 
-                var data = encoding.GetBytes(stringBuilder.ToString());
+                var data = (encoding ?? Encoding.ASCII).GetBytes(stringBuilder.ToString());
 
                 httpWebRequest.Method = method;
                 httpWebRequest.ContentType = "application/x-www-form-urlencoded";
@@ -644,6 +646,33 @@ namespace Beyova
                 httpWebRequest.ContentLength = data.Length;
                 var dataStream = httpWebRequest.GetRequestStream();
                 dataStream.Write(data, 0, data.Length);
+                dataStream.Close();
+            }
+        }
+
+        /// <summary>
+        /// Internals the fill data.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="method">The method.</param>
+        /// <param name="stream">The stream.</param>
+        /// <param name="contentType">Type of the content.</param>
+        private static void InternalFillData(this HttpWebRequest httpWebRequest, string method, Stream stream, string contentType)
+        {
+            if (httpWebRequest != null && stream != null)
+            {
+                if (!string.IsNullOrWhiteSpace(method))
+                {
+                    httpWebRequest.Method = method;
+                }
+
+                if (!string.IsNullOrWhiteSpace(contentType))
+                {
+                    httpWebRequest.ContentType = contentType;
+                }
+                httpWebRequest.ContentLength = stream.Length;
+                var dataStream = httpWebRequest.GetRequestStream();
+                stream.CopyTo(dataStream);
                 dataStream.Close();
             }
         }
@@ -690,6 +719,18 @@ namespace Beyova
         public static void FillData(this HttpWebRequest httpWebRequest, byte[] data, string contentType = "application/json")
         {
             InternalFillData(httpWebRequest, null, data, contentType);
+        }
+
+        /// <summary>
+        /// Fills the data.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="stream">The stream.</param>
+        /// <param name="contentType">Type of the content.</param>
+        /// <param name="method">The method.</param>
+        public static void FillData(this HttpWebRequest httpWebRequest, Stream stream, string contentType = "application/json", string method = null)
+        {
+            InternalFillData(httpWebRequest, method, stream, contentType);
         }
 
         /// <summary>
@@ -820,7 +861,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("FillFileData", fileCollection);
+                throw ex.Handle(fileCollection);
             }
         }
 
@@ -847,7 +888,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("FillFileData", new { fileFullName, paramName });
+                    throw ex.Handle(new { fileFullName, paramName });
                 }
             }
         }
@@ -863,11 +904,6 @@ namespace Beyova
         {
             if (httpWebRequest != null)
             {
-                if (encoding == null)
-                {
-                    encoding = Encoding.ASCII;
-                }
-
                 var stringBuilder = new StringBuilder();
                 if (dataMappings != null)
                 {
@@ -883,7 +919,7 @@ namespace Beyova
                     stringBuilder.Remove(stringBuilder.Length - 1, 1);
                 }
 
-                var data = encoding.GetBytes(stringBuilder.ToString());
+                var data = (encoding ?? Encoding.ASCII).GetBytes(stringBuilder.ToString());
 
                 httpWebRequest.Method = method;
                 httpWebRequest.ContentType = "application/x-www-form-urlencoded";
@@ -1091,7 +1127,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetPostJson");
+                throw ex.Handle();
             }
 
             return result;
@@ -1118,7 +1154,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetPostJson");
+                throw ex.Handle();
             }
 
             return result;
@@ -1145,7 +1181,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetPostJson");
+                throw ex.Handle();
             }
 
             return result;
@@ -1183,7 +1219,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("WriteContent");
+                throw ex.Handle();
             }
         }
 
@@ -1210,7 +1246,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("WriteContent");
+                throw ex.Handle();
             }
         }
 
@@ -1224,14 +1260,9 @@ namespace Beyova
         /// <exception cref="InvalidObjectException">WriteContent</exception>
         public static void WriteContent(this HttpResponse httpResponse, string content, Encoding encoding = null, bool closeStream = true)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
             try
             {
-                byte[] buffer = encoding.GetBytes(content.SafeToString());
+                byte[] buffer = (encoding ?? Encoding.UTF8).GetBytes(content.SafeToString());
                 Stream output = httpResponse.OutputStream;
                 output.Write(buffer, 0, buffer.Length);
 
@@ -1242,7 +1273,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("WriteContent");
+                throw ex.Handle();
             }
         }
 
@@ -1300,7 +1331,7 @@ namespace Beyova
 
                 if (raw.Length < 1)
                 {
-                    throw new InvalidObjectException("raw");
+                    throw ExceptionFactory.CreateInvalidObjectException("raw");
                 }
 
                 destinationString = rawPieces[0];
@@ -1314,7 +1345,7 @@ namespace Beyova
                 }
                 else
                 {
-                    throw new InvalidObjectException("raw.destination");
+                    throw ExceptionFactory.CreateInvalidObjectException("raw.destination");
                 }
 
                 // Process headers and body
@@ -1351,7 +1382,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateHttpWebRequestByRaw", new { raw });
+                throw ex.Handle(new { raw });
             }
         }
 
@@ -1400,6 +1431,19 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Omits the remote certificate validation callback.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="certificate">The certificate.</param>
+        /// <param name="chain">The chain.</param>
+        /// <param name="sslPolicyErrors">The SSL policy errors.</param>
+        /// <returns>System.Boolean.</returns>
+        private static bool OmitRemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Creates the HTTP web request.
         /// </summary>
         /// <param name="destinationUrl">The destination URL.</param>
@@ -1410,8 +1454,9 @@ namespace Beyova
         /// <param name="cookieString">The cookie string.</param>
         /// <param name="accept">The accept.</param>
         /// <param name="acceptGZip">The accept g zip.</param>
+        /// <param name="omitServerCertificateValidation">The omit server certificate validation.</param>
         /// <returns>HttpWebRequest.</returns>
-        public static HttpWebRequest CreateHttpWebRequest(this string destinationUrl, string httpMethod = HttpConstants.HttpMethod.Get, string referrer = null, string userAgent = null, CookieContainer cookieContainer = null, string cookieString = null, string accept = null, bool acceptGZip = true)
+        public static HttpWebRequest CreateHttpWebRequest(this string destinationUrl, string httpMethod = HttpConstants.HttpMethod.Get, string referrer = null, string userAgent = null, CookieContainer cookieContainer = null, string cookieString = null, string accept = null, bool acceptGZip = true, bool omitServerCertificateValidation = false)
         {
             try
             {
@@ -1420,6 +1465,11 @@ namespace Beyova
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(destinationUrl);
                 httpWebRequest.KeepAlive = false;
                 httpWebRequest.Accept = accept.SafeToString("*/*");
+
+                if (omitServerCertificateValidation)
+                {
+                    httpWebRequest.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(OmitRemoteCertificateValidationCallback);
+                }
 
                 if (!string.IsNullOrWhiteSpace(referrer))
                 {
@@ -1450,7 +1500,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateHttpWebRequest", new { destinationUrl, httpMethod, referrer, userAgent });
+                throw ex.Handle(new { destinationUrl, httpMethod, referrer, userAgent });
             }
         }
 
@@ -1524,6 +1574,22 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Expireses all.
+        /// </summary>
+        /// <param name="cookies">The cookies.</param>
+        public static void ExpiresAll(this CookieCollection cookies)
+        {
+            if (cookies != null)
+            {
+                foreach (Cookie one in cookies)
+                {
+                    one.Expired = true;
+                    one.Expires = DateTime.UtcNow.AddDays(-1);
+                }
+            }
+        }
+
+        /// <summary>
         /// Automatics the cookie raw string.
         /// </summary>
         /// <param name="cookieCollection">The cookie collection.</param>
@@ -1588,7 +1654,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("SupplyBinaryDownload", new { physicalPath, originalFullFileName });
+                    throw ex.Handle(new { physicalPath, originalFullFileName });
                 }
                 finally
                 {
@@ -1631,39 +1697,45 @@ namespace Beyova
         /// <summary>
         /// Parses to key value pair collection.
         /// <remarks>
-        /// Define separator = '&amp;', 
+        /// Define separator = '&amp;',
         /// Parse string like a=1&amp;b=2&amp;c=3 into name value collection.
-        /// Define separator = ';', 
+        /// Define separator = ';',
         /// Parse string like a=1;b=2;c=3 into name value collection.
-        /// </remarks>
-        /// </summary>
+        /// </remarks></summary>
         /// <param name="keyValuePairString">The key value pair string.</param>
         /// <param name="separator">The separator. Default is '&amp;'.</param>
-        /// <returns>WebDictionary.</returns>
+        /// <returns>System.Collections.Specialized.NameValueCollection.</returns>
         public static NameValueCollection ParseToKeyValuePairCollection(this string keyValuePairString, char separator = '&')
         {
             var result = new NameValueCollection();
 
             if (!string.IsNullOrWhiteSpace(keyValuePairString))
             {
-                var pairs = keyValuePairString.Split(separator);
-                foreach (var one in pairs)
+                try
                 {
-                    if (!string.IsNullOrWhiteSpace(one))
+                    var pairs = keyValuePairString.Split(separator);
+                    foreach (var one in pairs)
                     {
-                        var keyValuePair = one.Split(new char[] { '=' }, 2);
-
-                        if (keyValuePair.Length == 2)
+                        if (!string.IsNullOrWhiteSpace(one))
                         {
-                            var key = keyValuePair[0];
-                            var value = keyValuePair[1];
+                            var keyValuePair = one.Split(new char[] { '=' }, 2);
 
-                            if (!string.IsNullOrWhiteSpace(key))
+                            if (keyValuePair.Length == 2)
                             {
-                                result.Set(key, value.SafeToString());
+                                var key = keyValuePair[0];
+                                var value = keyValuePair[1];
+
+                                if (!string.IsNullOrWhiteSpace(key))
+                                {
+                                    result.Set(key, value.SafeToString());
+                                }
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(new { keyValuePairString, separator = separator.ToString() });
                 }
             }
 
@@ -1782,7 +1854,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("AsyncGetResponse", this.RequestUrl);
+                    throw ex.Handle(this.RequestUrl);
                 }
             }
 
@@ -1825,7 +1897,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ResponseCallback", asyncHttpState.RequestUrl);
+                    throw ex.Handle(asyncHttpState.RequestUrl);
                 }
                 finally
                 {
@@ -1859,14 +1931,18 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string TryGetHeader(this HttpRequest httpRequest, string headerKey)
         {
-            if (httpRequest != null
-                && !string.IsNullOrWhiteSpace(headerKey)
-                && httpRequest.Headers.AllKeys.Contains(headerKey, true))
-            {
-                return httpRequest.Headers.Get(headerKey);
-            }
+            return httpRequest?.Headers?.Get(headerKey).SafeToString();
+        }
 
-            return string.Empty;
+        /// <summary>
+        /// Tries the get header.
+        /// </summary>
+        /// <param name="httpRequest">The HTTP request.</param>
+        /// <param name="headerKey">The header key.</param>
+        /// <returns>System.String.</returns>
+        public static string TryGetHeader(this HttpRequestBase httpRequest, string headerKey)
+        {
+            return httpRequest?.Headers?.Get(headerKey).SafeToString();
         }
 
         /// <summary>
@@ -1877,14 +1953,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string TryGetHeader(this HttpWebRequest httpRequest, string headerKey)
         {
-            if (httpRequest != null
-                && !string.IsNullOrWhiteSpace(headerKey)
-                && httpRequest.Headers.AllKeys.Contains(headerKey, true))
-            {
-                return httpRequest.Headers.Get(headerKey);
-            }
-
-            return string.Empty;
+            return httpRequest?.Headers?.Get(headerKey).SafeToString();
         }
 
         #region Http proxy
@@ -1982,7 +2051,7 @@ namespace Beyova
                     var exception = rewriteDelegate(request.Headers, httpRequest.Headers);
                     if (exception != null)
                     {
-                        throw exception.Handle("FillHttpRequestToHttpWebRequest");
+                        throw exception.Handle();
                     }
                 }
 
@@ -2132,12 +2201,42 @@ namespace Beyova
                 case HttpStatusCode.ServiceUnavailable: //503
                     result.Major = ExceptionCode.MajorCode.ServiceUnavailable;
                     break;
+                case HttpStatusCode.HttpVersionNotSupported: //505
+                    result.Major = ExceptionCode.MajorCode.Unsupported;
+                    break;
                 default:
                     result.Major = ExceptionCode.MajorCode.HttpBlockError;
                     break;
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Determines whether [is g zip] [the specified web response].
+        /// </summary>
+        /// <param name="webResponse">The web response.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool IsGZip(this WebResponse webResponse)
+        {
+            var contentEncoding = webResponse?.Headers?.Get(HttpConstants.HttpHeader.ContentEncoding);
+            return contentEncoding != null && contentEncoding.Equals(HttpConstants.HttpValues.GZip, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines whether [is mobile user agent].
+        /// </summary>
+        /// <param name="userAgent">The user agent.</param>
+        /// <returns>
+        ///   <c>true</c> if [is mobile user agent] [the specified user agent]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsMobileUserAgent(this string userAgent)
+        {
+            return !string.IsNullOrWhiteSpace(userAgent) && (
+                  userAgent.IndexOf("pad", StringComparison.InvariantCultureIgnoreCase) > -1
+                      || userAgent.IndexOf("android", StringComparison.InvariantCultureIgnoreCase) > -1
+                      || userAgent.IndexOf("phone", StringComparison.InvariantCultureIgnoreCase) > -1
+                  );
         }
     }
 }

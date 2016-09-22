@@ -56,7 +56,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("AuthenticateAdminUser", accessCredential);
+                throw ex.Handle( accessCredential);
             }
 
             return null;
@@ -101,7 +101,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("AuthenticateAdminUser", thirdPartyId);
+                throw ex.Handle( thirdPartyId);
             }
 
             return null;
@@ -124,7 +124,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("SignOut", token);
+                throw ex.Handle( token);
             }
         }
 
@@ -146,7 +146,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetAdminUserInfoByToken", token);
+                throw ex.Handle( token);
             }
         }
 
@@ -178,7 +178,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAdminUser", criteria);
+                throw ex.Handle( criteria);
             }
         }
 
@@ -200,7 +200,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateAdminUser", userInfo);
+                throw ex.Handle( userInfo);
             }
         }
 
@@ -222,7 +222,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("BindRoleOnUser", binding);
+                throw ex.Handle( binding);
             }
         }
 
@@ -243,7 +243,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("UnbindRoleOnUser", binding);
+                throw ex.Handle( binding);
             }
         }
 
@@ -266,7 +266,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("RequestAdminPasswordReset", new { loginName, expiration });
+                throw ex.Handle( new { loginName, expiration });
             }
         }
 
@@ -298,7 +298,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAdminRole", criteria);
+                throw ex.Handle( criteria);
             }
         }
 
@@ -320,7 +320,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateAdminRole", role);
+                throw ex.Handle( role);
             }
         }
 
@@ -342,7 +342,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("BindPermissionOnRole", binding);
+                throw ex.Handle( binding);
             }
         }
 
@@ -363,7 +363,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("UnbindPermissionOnRole", binding);
+                throw ex.Handle( binding);
             }
         }
 
@@ -395,7 +395,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAdminPermission", criteria);
+                throw ex.Handle( criteria);
             }
         }
 
@@ -417,7 +417,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateAdminPermission", permission);
+                throw ex.Handle( permission);
             }
         }
     }

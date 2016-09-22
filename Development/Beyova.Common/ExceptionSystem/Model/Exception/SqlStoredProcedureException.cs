@@ -17,7 +17,7 @@ namespace Beyova.ExceptionSystem
         /// <param name="message">The message.</param>
         /// <param name="errorCode">The error code.</param>
         /// <param name="reason">The reason.</param>
-        public SqlStoredProcedureException(string storedProcedureName, string message, int errorCode, string reason)
+        internal SqlStoredProcedureException(string storedProcedureName, string message, int errorCode, string reason)
             : base(string.Format("Error occurred when executing SQL stored procedure [{0}]. {1}", storedProcedureName, message),
                   new ExceptionCode { Major = (ExceptionCode.MajorCode)errorCode, Minor = reason })
         {

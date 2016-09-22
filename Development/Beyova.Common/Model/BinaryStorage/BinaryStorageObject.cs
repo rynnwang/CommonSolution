@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Beyova.BinaryStorage
+namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageObject.
@@ -69,7 +69,6 @@ namespace Beyova.BinaryStorage
                 Width = metaData.Width;
                 Height = metaData.Height;
                 Duration = metaData.Duration;
-                OwnerKey = metaData.OwnerKey;
             }
         }
     }

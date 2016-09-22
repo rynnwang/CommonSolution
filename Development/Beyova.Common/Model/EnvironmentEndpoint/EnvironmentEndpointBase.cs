@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Beyova;
+using Beyova.Api;
 using Beyova.RestApi;
 
 namespace Beyova
@@ -30,12 +31,6 @@ namespace Beyova
         /// </summary>
         /// <value>The code.</value>
         public string Code { get; set; }
-
-        /// <summary>
-        /// Gets or sets the connection strings.
-        /// </summary>
-        /// <value>The connection strings.</value>
-        public Dictionary<string, string> ConnectionStrings { get; set; }
 
         /// <summary>
         /// Gets or sets the key.

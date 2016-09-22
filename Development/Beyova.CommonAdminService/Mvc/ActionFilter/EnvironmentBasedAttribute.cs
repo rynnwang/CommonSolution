@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Web.Mvc;
-using System.Web.Routing;
-using Beyova;
+﻿using System.Web.Mvc;
 
 namespace Beyova.CommonAdminService
 {
@@ -29,6 +25,18 @@ namespace Beyova.CommonAdminService
 
             AdminBaseController.CurrentEnvironment = filterContext.RouteData.Values["environment"].SafeToString();
             AdminBaseController.CurrentController = filterContext.RouteData.Values["controller"].ObjectToString();
+        }
+
+        /// <summary>
+        /// Called by the ASP.NET MVC framework after the action result executes.
+        /// </summary>
+        /// <param name="filterContext">The filter context.</param>
+        public override void OnResultExecuted(ResultExecutedContext filterContext)
+        {
+            base.OnResultExecuted(filterContext);
+
+            AdminBaseController.CurrentEnvironment = null;
+            AdminBaseController.CurrentController = null;
         }
     }
 }

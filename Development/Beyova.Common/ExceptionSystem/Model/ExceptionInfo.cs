@@ -65,7 +65,19 @@ namespace Beyova.ExceptionSystem
         /// Gets or sets the data.
         /// </summary>
         /// <value>The data.</value>
-        public JObject Data { get; set; }
+        public JToken Data { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scene.
+        /// </summary>
+        /// <value>The scene.</value>
+        public ExceptionScene Scene { get; set; }
+
+        /// <summary>
+        /// Gets or sets the hint.
+        /// </summary>
+        /// <value>The hint.</value>
+        public FriendlyHint Hint { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionInfo"/> class.

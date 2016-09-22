@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 using System.Linq;
+using Beyova.Api;
 
 namespace Beyova.CommonAdminService
 {
@@ -29,7 +30,7 @@ namespace Beyova.CommonAdminService
         /// <returns>ActionResult.</returns>
         public ActionResult Index()
         {
-            return View(Constants.ViewNames.EnvironmentEndpointPanelView);
+            return View(GetViewFullPath(Constants.ViewNames.EnvironmentEndpointPanelView));
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace Beyova.CommonAdminService
         public ActionResult Selection()
         {
             var endpoints = service.QueryEnvironmentEndpoint(null, null, null);
-            return View(Constants.ViewNames.EnvironmentView, endpoints);
+            return View(GetViewFullPath(Constants.ViewNames.EnvironmentView), endpoints);
         }
 
         /// <summary>
@@ -54,11 +55,11 @@ namespace Beyova.CommonAdminService
             try
             {
                 var result = service.QueryEnvironmentEndpoint(key, code, environment);
-                return PartialView(Constants.ViewNames.EnvironmentEndpointListView, result);
+                return PartialView(GetViewFullPath(Constants.ViewNames.EnvironmentEndpointListView), result);
             }
             catch (Exception ex)
             {
-                return this.HandleExceptionToPartialView(ex, Request.HttpMethod, "QueryEnvironmentEndpoint", new { key, code, environment });
+                return this.HandleExceptionToPartialView(ex, new { key, code, environment });
             }
         }
 
@@ -99,11 +100,21 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                exception = ex.Handle("CreateOrUpdateEnvironmentEndpoint", endpoint);
+                exception = ex.Handle(endpoint);
             }
 
             ApiHandlerBase.PackageResponse(this.Response, returnedObject, exception);
             return null;
+        }
+
+        /// <summary>
+        /// Gets the view full path.
+        /// </summary>
+        /// <param name="viewName">Name of the view.</param>
+        /// <returns>System.String.</returns>
+        protected override string GetViewFullPath(string viewName)
+        {
+            return string.Format(Constants.ViewNames.BeyovaComponentDefaultViewPath, "EnvironmentEndpoint", viewName);
         }
     }
 }

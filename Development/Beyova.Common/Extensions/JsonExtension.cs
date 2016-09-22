@@ -252,6 +252,35 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Tries the parse to JTOKEN.
+        /// </summary>
+        /// <param name="jsonString">The json string.</param>
+        /// <returns>JToken.</returns>
+        public static JToken TryParseToJToken(this string jsonString)
+        {
+            if (!string.IsNullOrWhiteSpace(jsonString))
+            {
+                try
+                {
+                    return JToken.Parse(jsonString);
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Objects to j token.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>JToken.</returns>
+        public static JToken ObjectToJToken(this object obj)
+        {
+            return obj == null ? null : JToken.FromObject(obj);
+        }
+
+        /// <summary>
         /// Finds the object.
         /// </summary>
         /// <param name="jObject">The j object.</param>

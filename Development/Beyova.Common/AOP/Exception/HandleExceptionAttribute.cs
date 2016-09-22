@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
+using Beyova.ExceptionSystem;
 
 namespace Beyova.AOP
 {
@@ -47,14 +48,13 @@ namespace Beyova.AOP
             }
 
             var operationName = returnedMessage.MethodName;
-            var operatorIdentity = Framework.OperatorInfo.ObjectToString();
 
-            var newException = exception.Handle(operationName, operatorIdentity, data);
+            var newException = exception.Handle(data, operationName: operationName);
 
             if (!ThrowException)
             {
                 removeException = true;
-                Framework.ApiTracking?.LogException(newException, EnvironmentCore.ServerName, EnvironmentCore.ServerName);
+                Framework.ApiTracking?.LogException(newException.ToExceptionInfo());
             }
 
             return newException;

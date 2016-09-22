@@ -34,17 +34,5 @@ namespace Beyova.AOP
         {
             constructionCallMessage.ContextProperties.Add(new AOPMessageProcessor(this.Name, this.messageDelegates));
         }
-
-        /// <summary>
-        /// Gets the name of the application.
-        /// </summary>
-        /// <value>The name of the application.</value>
-        protected static string ApplicationName
-        {
-            get
-            {
-                return EnvironmentCore.ApplicationName;
-            }
-        }
     }
 }

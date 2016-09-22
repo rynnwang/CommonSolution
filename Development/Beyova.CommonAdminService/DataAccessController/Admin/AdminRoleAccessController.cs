@@ -64,7 +64,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateAdminRole", new { role, operatorKey });
+                throw ex.Handle(new { role, operatorKey });
             }
         }
 
@@ -94,7 +94,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAdminRole", criteria);
+                throw ex.Handle(criteria);
             }
         }
 
@@ -123,7 +123,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("BindPermissionOnRole", new { binding, operatorKey });
+                throw ex.Handle(new { binding, operatorKey });
             }
         }
 
@@ -151,7 +151,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("UnbindPermissionOnRole", new { binding, operatorKey });
+                throw ex.Handle(new { binding, operatorKey });
             }
         }
 

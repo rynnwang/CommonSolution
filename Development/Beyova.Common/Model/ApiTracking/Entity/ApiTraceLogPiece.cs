@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Beyova.ExceptionSystem;
+using Newtonsoft.Json;
 
 namespace Beyova.ApiTracking
 {
@@ -10,16 +10,17 @@ namespace Beyova.ApiTracking
     public class ApiTraceLogPiece
     {
         /// <summary>
+        /// Gets or sets the parent.
+        /// </summary>
+        /// <value>The parent.</value>
+        [JsonIgnore]
+        internal ApiTraceLogPiece Parent { get; set; }
+
+        /// <summary>
         /// Gets or sets the full name of the method.
         /// </summary>
         /// <value>The full name of the method.</value>
         public string MethodFullName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the method parameters.
-        /// </summary>
-        /// <value>The method parameters.</value>
-        public Dictionary<string, object> MethodParameters { get; set; }
 
         /// <summary>
         /// Gets or sets the entry stamp.
@@ -34,16 +35,30 @@ namespace Beyova.ApiTracking
         public DateTime? ExitStamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the exception.
+        /// Gets or sets the exception key.
         /// </summary>
-        /// <value>The exception.</value>
-        public ExceptionInfo Exception { get; set; }
+        /// <value>The exception key.</value>
+        public Guid? ExceptionKey { get; set; }
 
         /// <summary>
         /// Gets or sets the detail.
         /// </summary>
         /// <value>The detail.</value>
-        public List<ApiTraceLogPiece> InnerTraces { get; protected set; }
+        public List<ApiTraceLogPiece> InnerTraces { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiTraceLogPiece"/> class.
+        /// </summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="methodFullName">Full name of the method.</param>
+        /// <param name="entryStamp">The entry stamp.</param>
+        internal ApiTraceLogPiece(ApiTraceLogPiece parent, string methodFullName = null, DateTime? entryStamp = null)
+            : this()
+        {
+            this.Parent = parent;
+            this.MethodFullName = methodFullName;
+            this.EntryStamp = entryStamp ?? DateTime.UtcNow;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiTraceLog"/> class.

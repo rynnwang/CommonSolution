@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Routing;
 
 namespace Beyova.WebExtension
 {
@@ -13,6 +14,36 @@ namespace Beyova.WebExtension
     public static class MVCExtension
     {
         /// <summary>
+        /// Gets the name of the controller.
+        /// </summary>
+        /// <param name="routeData">The route data.</param>
+        /// <returns>System.String.</returns>
+        public static string GetControllerName(this RouteData routeData)
+        {
+            return routeData?.Values["controller"]?.ToString();
+        }
+
+        /// <summary>
+        /// Gets the name of the area.
+        /// </summary>
+        /// <param name="routeData">The route data.</param>
+        /// <returns>System.String.</returns>
+        public static string GetAreaName(this RouteData routeData)
+        {
+            return routeData?.Values["area"]?.ToString();
+        }
+
+        /// <summary>
+        /// Gets the name of the action.
+        /// </summary>
+        /// <param name="routeData">The route data.</param>
+        /// <returns>System.String.</returns>
+        public static string GetActionName(this RouteData routeData)
+        {
+            return routeData?.Values["action"]?.ToString();
+        }
+
+        /// <summary>
         /// Gets the name of the current controller.
         /// </summary>
         /// <param name="anyObject">Any object.</param>
@@ -21,7 +52,7 @@ namespace Beyova.WebExtension
         {
             try
             {
-                return HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+                return HttpContext.Current.Request.RequestContext.RouteData.GetControllerName();
             }
             catch
             {
@@ -38,7 +69,7 @@ namespace Beyova.WebExtension
         {
             try
             {
-                return HttpContext.Current.Request.RequestContext.RouteData.Values["area"].ToString();
+                return HttpContext.Current.Request.RequestContext.RouteData.GetAreaName();
             }
             catch
             {
@@ -55,7 +86,7 @@ namespace Beyova.WebExtension
         {
             try
             {
-                return HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString();
+                return HttpContext.Current.Request.RequestContext.RouteData.GetActionName();
             }
             catch
             {

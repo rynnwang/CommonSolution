@@ -7,12 +7,6 @@ namespace Beyova.ApiTracking
     public class ApiEventGroupingCriteria : ApiEventStatisticCriteria
     {
         /// <summary>
-        /// Gets or sets a value indicating whether [group by resource name].
-        /// </summary>
-        /// <value><c>true</c> if [group by resource name]; otherwise, <c>false</c>.</value>
-        public bool GroupByResourceName { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether [group by service identifier].
         /// </summary>
         /// <value><c>true</c> if [group by service identifier]; otherwise, <c>false</c>.</value>

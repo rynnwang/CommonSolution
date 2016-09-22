@@ -12,7 +12,7 @@ namespace Beyova.ApiTracking
         /// Gets or sets the frame interval.
         /// </summary>
         /// <value>The frame interval.</value>
-        public TimeInterval FrameInterval { get; set; }
+        public TimeScope? FrameInterval { get; set; }
 
         /// <summary>
         /// Gets or sets the last n days.

@@ -7,7 +7,7 @@ GO
 CREATE TABLE [dbo].[BinaryStorageMetaData](
     [RowId] INT NOT NULL IDENTITY(1,1),
     [Identifier] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(), 
-    [Container] [varchar](128) NOT NULL,
+    [Container] [nvarchar](128) NOT NULL,
     [Name] [nvarchar](512) NOT NULL,
     [Mime] [varchar](64) NOT NULL,
     [Hash] [varchar](256) NULL,
@@ -15,11 +15,10 @@ CREATE TABLE [dbo].[BinaryStorageMetaData](
     [Height] [int] NULL,
     [Width] [int] NULL,
     [Duration] [int] NULL,
-    [OwnerKey] UNIQUEIDENTIFIER NULL,
     [CreatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
     [LastUpdatedStamp] DATETIME NOT NULL DEFAULT GETUTCDATE(),
-    [CreatedBy] [varchar](128) NOT NULL,
-    [LastUpdatedBy] [varchar](128) NOT NULL,
+    [CreatedBy] UNIQUEIDENTIFIER NULL,
+    [LastUpdatedBy] UNIQUEIDENTIFIER NULL,
     [State] [int] NOT NULL DEFAULT 0,
 CONSTRAINT [PK_BinaryStorageMetaData_Key] PRIMARY KEY NONCLUSTERED 
 (

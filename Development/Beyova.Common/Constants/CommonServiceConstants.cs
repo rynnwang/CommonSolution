@@ -21,6 +21,16 @@
             public const string BinaryStorageDataAdministrator = "BinaryStorageDataAdministrator";
 
             /// <summary>
+            /// The preference administrator
+            /// </summary>
+            public const string PreferenceAdministrator = "PreferenceAdministrator";
+
+            /// <summary>
+            /// The authentication administrator
+            /// </summary>
+            public const string AuthenticationAdministrator = "AuthenticationAdministrator";
+
+            /// <summary>
             /// The administration owner
             /// </summary>
             public const string AdministrationOwner = "AdministrationOwner";

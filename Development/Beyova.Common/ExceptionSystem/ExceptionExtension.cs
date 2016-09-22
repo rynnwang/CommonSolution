@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
-using System.Xml.Linq;
 using Beyova.ExceptionSystem;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,6 +18,62 @@ namespace Beyova
     public static class ExceptionExtension
     {
         private const char indentChar = '-';
+
+        /// <summary>
+        /// To the HTTP operation exception.
+        /// </summary>
+        /// <param name="webException">The web exception.</param>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="cookies">The cookies.</param>
+        /// <param name="headers">The headers.</param>
+        /// <returns></returns>
+        public static HttpOperationException ToHttpOperationException(this WebException webException, HttpWebRequest httpWebRequest, out CookieCollection cookies, out WebHeaderCollection headers)
+        {
+            HttpOperationException result = null;
+            cookies = null;
+            headers = null;
+
+            if (webException != null)
+            {
+                var webResponse = (HttpWebResponse)webException.Response;
+                headers = webResponse.Headers;
+                var destinationMachine = headers?.Get(HttpConstants.HttpHeader.SERVERNAME);
+                cookies = webResponse.Cookies;
+
+                var responseText = webResponse.ReadAsText();
+
+                result = new HttpOperationException(httpWebRequest.RequestUri.ToString(),
+                    httpWebRequest.Method,
+                    webException.Message,
+                    httpWebRequest.ContentLength,
+                    responseText,
+                    webResponse.StatusCode,
+                    webException.Status, destinationMachine);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converts the exception to base exception.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="sourceFilePath">The source file path.</param>
+        /// <param name="sourceLineNumber">The source line number.</param>
+        /// <returns>BaseException.</returns>
+        public static BaseException ConvertExceptionToBaseException(this Exception exception, object data = null, [CallerMemberName] string memberName = null,
+            [CallerFilePath] string sourceFilePath = null,
+            [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            return exception == null ? null : ((exception as BaseException) ?? exception.Handle(new ExceptionScene
+            {
+                FilePath = sourceFilePath,
+                LineNumber = sourceLineNumber,
+                MethodName = memberName
+            }, data));
+        }
 
         /// <summary>
         /// Roots the exception.
@@ -39,31 +90,12 @@ namespace Beyova
             return null;
         }
 
-        #region default event log
-
-        private static EventLog eventLogWriter = CreateEventLog();
-
-        /// <summary>
-        /// Creates the event log.
-        /// </summary>
-        /// <returns>EventLog.</returns>
-        private static EventLog CreateEventLog()
-        {
-            EventLog eventLog = new EventLog();
-            eventLog.Source = "Application";
-
-            return eventLog;
-        }
-
-        #endregion
-
         /// <summary>
         /// Formats to string.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="referenceObject">The reference object.</param>
         /// <returns>System.String.</returns>
-        public static string FormatToString(this Exception exception, object referenceObject = null)
+        public static string FormatToString(this Exception exception)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -73,7 +105,7 @@ namespace Beyova
                 stringBuilder.AppendLine("-----------------------  " + DateTime.UtcNow.ToFullDateTimeString());
                 stringBuilder.AppendLine("-----------------------  Thread ID: " + Thread.CurrentThread.ManagedThreadId.ToString());
 
-                FormatToString(stringBuilder, exception, 0, referenceObject);
+                FormatToString(stringBuilder, exception, 0);
 
                 stringBuilder.AppendLine("---------------------------  End  ---------------------------");
             }
@@ -82,108 +114,12 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Formats to XML.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="referenceObject">The reference object.</param>
-        /// <param name="treeToList">if set to <c>true</c> [tree to list].</param>
-        /// <returns>XElement.</returns>
-        public static XElement FormatToXml(this Exception exception, object referenceObject = null, bool treeToList = false)
-        {
-            if (exception != null)
-            {
-                var root = node_Exception.CreateXml();
-                FormatToXml(root, exception, 0, referenceObject, treeToList);
-
-                return root;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Formats to HTML.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="referenceObject">The reference object.</param>
-        /// <returns>System.String.</returns>
-        public static string FormatToHtml(this Exception exception, object referenceObject = null)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            if (exception != null)
-            {
-                FormatToHtml(stringBuilder, exception, referenceObject);
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        /// <summary>
-        /// Writes the event log.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        public static void WriteEventLog(this BaseException exception)
-        {
-            if (exception != null)
-            {
-                try
-                {
-                    eventLogWriter.WriteEntry(exception.FormatToString(), EventLogEntryType.Error);
-                }
-                catch { }
-            }
-        }
-
-        /// <summary>
-        /// Writes the log.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="referenceObject">The reference object.</param>
-        /// <param name="eventLogEntryTypeToOverride">The event log entry type to override.</param>
-        public static void WriteLog(this Exception exception, EventLog logger, object referenceObject = null, EventLogEntryType? eventLogEntryTypeToOverride = null)
-        {
-            if (exception != null && logger != null)
-            {
-                var entryType = eventLogEntryTypeToOverride;
-
-                if (entryType != null)
-                {
-                    var baseException = exception as BaseException;
-
-                    if (baseException != null)
-                    {
-                        entryType = baseException.Code.ToEventLogEntryType();
-                    }
-                }
-
-                logger.WriteEntry(exception.FormatToString(referenceObject), entryType ?? EventLogEntryType.Error);
-            }
-        }
-
-        /// <summary>
-        /// Writes the log.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="referenceObject">The reference object.</param>
-        public static void WriteLog(this Exception exception, StreamWriter logger, object referenceObject = null)
-        {
-            if (exception != null && logger != null)
-            {
-                logger.WriteLine(exception.FormatToString(referenceObject));
-            }
-        }
-
-        /// <summary>
         /// Formats to string.
         /// </summary>
         /// <param name="stringBuilder">The string builder.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="level">The level.</param>
-        /// <param name="referenceObject">The reference object.</param>
-        private static void FormatToString(StringBuilder stringBuilder, Exception exception, int level, object referenceObject = null)
+        private static void FormatToString(StringBuilder stringBuilder, Exception exception, int level)
         {
             if (stringBuilder != null && exception != null)
             {
@@ -227,107 +163,19 @@ namespace Beyova
                 if (baseException != null)
                 {
                     stringBuilder.AppendIndent(level).AppendLineWithFormat("Exception Code: {0}({1})", baseException.Code.ToString(), (int)baseException.Code);
+                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Operator Credential: {0}", baseException.OperatorCredential.ToJson());
+                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Scene: {0}", baseException.Scene.ToJson());
+                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Hint: {0}", baseException.Hint.ToJson());
                 }
 
-                stringBuilder.AppendIndent(level).AppendLineWithFormat("Data Reference: {0}", GenerateDataString(
-                    (baseException != null && baseException.DataReference != null) ? baseException.DataReference : referenceObject));
+                stringBuilder.AppendIndent(level).AppendLineWithFormat("Data Reference: {0}", GenerateDataString(baseException?.ReferenceData?.ToJson()));
 
                 if (exception.InnerException != null)
                 {
                     level++;
                     stringBuilder.AppendIndent(level).AppendLine("--------------------  Inner Exception  --------------------");
-                    FormatToString(stringBuilder, exception.InnerException, level, null);
+                    FormatToString(stringBuilder, exception.InnerException, level);
                 }
-            }
-        }
-
-        private const string node_Exception = "Exception";
-        private const string node_Type = "Type";
-        private const string node_Code = "Code";
-        private const string node_MajorCode = "MajorCode";
-        private const string node_MinorCode = "MinorCode";
-        private const string node_Message = "Message";
-        private const string node_Source = "Source";
-        private const string node_StackTrace = "StackTrace";
-        private const string node_TargetSite = "TargetSite";
-        private const string node_Data = "Data";
-        private const string attribute_Level = "Level";
-
-        /// <summary>
-        /// Formats to XML.
-        /// </summary>
-        /// <param name="root">The root.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="level">The level.</param>
-        /// <param name="referenceObject">The reference object.</param>
-        /// <param name="treeAsList">if set to <c>true</c> [tree as list].</param>
-        private static void FormatToXml(XElement root, Exception exception, int level, object referenceObject = null, bool treeAsList = false)
-        {
-            if (root != null && exception != null)
-            {
-                var thisXml = node_Exception.CreateXml();
-                thisXml.SetAttributeValue(attribute_Level, level);
-
-                var baseException = exception as BaseException;
-                thisXml.CreateChildNode(node_Type, exception.GetType().FullName);
-
-                if (baseException != null)
-                {
-                    thisXml.CreateChildNode(node_Code, (int)baseException.Code);
-                }
-
-                thisXml.CreateChildNode(node_Message, exception.Message);
-                thisXml.CreateChildNode(node_Source, exception.Source);
-                thisXml.CreateChildNode(node_TargetSite, exception.TargetSite);
-                thisXml.CreateChildNode(node_StackTrace, exception.StackTrace);
-                thisXml.CreateChildNode(node_Data, GenerateDataString(
-                    (baseException != null && baseException.DataReference != null) ? baseException.DataReference : referenceObject)
-                    );
-
-                if (exception.InnerException != null)
-                {
-                    FormatToXml(treeAsList ? root : thisXml, exception.InnerException, level + 1, null, treeAsList);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Formats to HTML.
-        /// </summary>
-        /// <param name="stringBuilder">The string builder.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="referenceObject">The reference object.</param>
-        private static void FormatToHtml(StringBuilder stringBuilder, Exception exception, object referenceObject = null)
-        {
-            if (stringBuilder != null)
-            {
-                BaseException baseException = exception as BaseException;
-
-                stringBuilder.AppendLine("<div class='exception'>");
-                stringBuilder.AppendLineWithFormat("<div class='row'>Exception Type: {0}</div>", exception.GetType().ToString());
-
-                if (baseException != null)
-                {
-                    stringBuilder.AppendLineWithFormat("<div class='row'>Exception Code: {0}</div>", baseException.Code.ToString());
-                }
-
-                stringBuilder.AppendLineWithFormat("<div class='row'>Exception Message: {0}</div>", exception.Message);
-                stringBuilder.AppendLineWithFormat("<div class='row'>Source: {0}</div>", exception.Source);
-                stringBuilder.AppendLineWithFormat("<div class='row'>Site: {0}</div>", exception.TargetSite);
-                stringBuilder.AppendLineWithFormat("<div class='row'>StackTrace: {0}</div>", exception.StackTrace);
-
-                stringBuilder.AppendLineWithFormat("<div class='row'>Data Reference: {0}</div>", GenerateDataString(
-                    (baseException != null && baseException.DataReference != null) ? baseException.DataReference : referenceObject));
-
-                if (exception.InnerException != null)
-                {
-                    stringBuilder.AppendLine("<div class='innerException'><div class='title'><span />Inner Exception</div>");
-
-                    FormatToHtml(stringBuilder, exception.InnerException, null);
-                    stringBuilder.AppendLine("</div>");
-                }
-
-                stringBuilder.AppendLine("</div>");
             }
         }
 
@@ -393,39 +241,50 @@ namespace Beyova
         #region Handle exception
 
         /// <summary>
+        /// Handles the specified exception.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="hint">The hint.</param>
+        /// <param name="operationName">Name of the operation.</param>
+        /// <param name="sourceFilePath">The source file path.</param>
+        /// <param name="sourceLineNumber">The source line number.</param>
+        /// <returns>Beyova.ExceptionSystem.BaseException.</returns>
+        public static BaseException Handle(this Exception exception, object data = null, FriendlyHint hint = null,
+                    [CallerMemberName] string operationName = null,
+                    [CallerFilePath] string sourceFilePath = null,
+                    [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            return Handle(exception, new ExceptionScene
+            {
+                MethodName = operationName,
+                FilePath = sourceFilePath,
+                LineNumber = sourceLineNumber
+            }, data, hint);
+        }
+
+        /// <summary>
         /// Handles the exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="operationName">Name of the operation.</param>
-        /// <param name="operatorIdentity">The operator identity.</param>
+        /// <param name="scene">The scene.</param>
         /// <param name="data">The data.</param>
+        /// <param name="hint">The hint.</param>
         /// <returns>BaseServiceException.</returns>
-        public static BaseException Handle(this Exception exception, string operationName, string operatorIdentity, object data = null)
+        public static BaseException Handle(this Exception exception, ExceptionScene scene, object data = null, FriendlyHint hint = null)
         {
             TargetInvocationException targetInvocationException = exception as TargetInvocationException;
 
             if (targetInvocationException != null)
             {
-                return Handle(targetInvocationException.InnerException, operationName, operatorIdentity, data);
+                return targetInvocationException.InnerException.Handle(scene, data, hint);
             }
             else
             {
                 var baseException = exception as BaseException;
-                var notImplementException = exception as NotImplementedException;
-                var sqlException = exception as SqlException;
+                var operationName = scene?.MethodName;
 
-                operationName = operationName.SafeToString();
-                operatorIdentity = operatorIdentity.SafeToString();
-
-                if (sqlException != null)
-                {
-                    return new OperationFailureException(operationName, exception, data) as BaseException;
-                }
-                else if (notImplementException != null)
-                {
-                    return new UnimplementedException("operationName", notImplementException);
-                }
-                else if (baseException != null)
+                if (baseException != null)
                 {
                     if (string.IsNullOrWhiteSpace(operationName))
                     {
@@ -436,42 +295,42 @@ namespace Beyova
                         switch (baseException.Code.Major)
                         {
                             case ExceptionCode.MajorCode.UnauthorizedOperation:
-                                return new UnauthorizedOperationException(operationName, operatorIdentity, baseException.Code.Minor, baseException, data) as BaseException;
+                                return new UnauthorizedOperationException(baseException, baseException.Code.Minor, data, scene: scene) as BaseException;
                             case ExceptionCode.MajorCode.OperationForbidden:
-                                return new OperationForbiddenException(operationName, baseException.Code?.Minor, baseException, operatorIdentity, data) as BaseException;
+                                return new OperationForbiddenException(operationName, baseException.Code?.Minor, baseException, data, scene: scene) as BaseException;
                             case ExceptionCode.MajorCode.NullOrInvalidValue:
                             case ExceptionCode.MajorCode.DataConflict:
                             case ExceptionCode.MajorCode.NotImplemented:
                             case ExceptionCode.MajorCode.ResourceNotFound:
                             case ExceptionCode.MajorCode.CreditNotAfford:
+                            case ExceptionCode.MajorCode.ServiceUnavailable:
                                 return baseException;
                             default:
                                 break;
                         }
                     }
                 }
-
-                if (string.IsNullOrWhiteSpace(operationName))
-                {
-                    return new OperationFailureException(exception, data) as BaseException;
-                }
                 else
                 {
-                    return new OperationFailureException(operationName, exception, data) as BaseException;
-                }
-            }
-        }
+                    var sqlException = exception as SqlException;
 
-        /// <summary>
-        /// Handles the exception.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="operationName">Name of the operation.</param>
-        /// <param name="data">The data.</param>
-        /// <returns>BaseException.</returns>
-        public static BaseException Handle(this Exception exception, string operationName, object data = null)
-        {
-            return Handle(exception, operationName, Framework.OperatorInfo.ObjectToString(), data);
+                    if (sqlException != null)
+                    {
+                        return new OperationFailureException(exception, data, hint: hint, scene: scene) as BaseException;
+                    }
+                    else
+                    {
+                        var notImplementException = exception as NotImplementedException;
+
+                        if (notImplementException != null)
+                        {
+                            return new UnimplementedException(operationName, notImplementException);
+                        }
+                    }
+                }
+
+                return new OperationFailureException(exception, data, scene: scene) as BaseException;
+            }
         }
 
         #endregion
@@ -480,14 +339,12 @@ namespace Beyova
         /// To the exception information.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="appIdentifier">The application identifier.</param>
-        /// <param name="serverIdentifier">The server identifier.</param>
         /// <param name="level">The level.</param>
         /// <param name="operatorIdentifier">The operator identifier.</param>
         /// <returns>ExceptionInfo.</returns>
-        public static ExceptionInfo ToExceptionInfo(this Exception exception, string appIdentifier = null, string serverIdentifier = null, ExceptionInfo.ExceptionCriticality level = ExceptionInfo.ExceptionCriticality.Error, string operatorIdentifier = null)
+        public static ExceptionInfo ToExceptionInfo(this Exception exception, ExceptionInfo.ExceptionCriticality level = ExceptionInfo.ExceptionCriticality.Error, string operatorIdentifier = null)
         {
-            return ToExceptionInfo(exception, null, appIdentifier, serverIdentifier);
+            return ToExceptionInfo(exception, null);
         }
 
         /// <summary>
@@ -495,12 +352,9 @@ namespace Beyova
         /// </summary>
         /// <param name="exception">The exception.</param>
         /// <param name="key">The key.</param>
-        /// <param name="appIdentifier">The application identifier.</param>
-        /// <param name="serverIdentifier">The server identifier.</param>
         /// <param name="level">The level.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
         /// <returns>ExceptionInfo.</returns>
-        private static ExceptionInfo ToExceptionInfo(Exception exception, Guid? key, string appIdentifier = null, string serverIdentifier = null, ExceptionInfo.ExceptionCriticality level = ExceptionInfo.ExceptionCriticality.Error, string operatorIdentifier = null)
+        private static ExceptionInfo ToExceptionInfo(Exception exception, Guid? key, ExceptionInfo.ExceptionCriticality level = ExceptionInfo.ExceptionCriticality.Error)
         {
             if (exception != null)
             {
@@ -510,34 +364,56 @@ namespace Beyova
                     key = baseException != null ? baseException.Key : Guid.NewGuid();
                 }
 
-                serverIdentifier = serverIdentifier.SafeToString(EnvironmentCore.ServerName);
-                operatorIdentifier = operatorIdentifier.SafeToString(ContextHelper.CurrentCredential?.Key?.ToString());
+                var operatorIdentifier = ContextHelper.CurrentCredential?.Key?.ToString();
 
                 var exceptionInfo = new ExceptionInfo
                 {
-                    ExceptionType = exception.GetType().GetFullName(),
+                    ExceptionType = exception.GetType()?.GetFullName(),
                     Level = level,
-                    ServerIdentifier = serverIdentifier,
-                    ServiceIdentifier = appIdentifier,
+                    ServerIdentifier = EnvironmentCore.ServerName,
+                    ServiceIdentifier = EnvironmentCore.ProjectName,
+                    ServerHost = string.Format("{0} {1}", EnvironmentCore.LocalMachineHostName, EnvironmentCore.LocalMachineIpAddress),
                     Message = exception.Message,
                     Source = exception.Source,
-                    TargetSite = exception.TargetSite.ObjectToString(),
-                    UserIdentifier = operatorIdentifier,
+                    TargetSite = exception.TargetSite.SafeToString(),
                     Code = baseException == null ? new ExceptionCode { Major = ExceptionCode.MajorCode.OperationFailure } : baseException.Code,
                     StackTrace = exception.StackTrace,
-                    Data = (baseException != null && baseException.DataReference != null) ? JObject.FromObject(baseException.DataReference) : null,
-                    Key = key
+                    Data = baseException?.ReferenceData,
+                    Key = key,
+                    Scene = baseException?.Scene,
+                    OperatorCredential = baseException?.OperatorCredential ?? (ContextHelper.CurrentCredential)
                 };
 
                 if (exception.InnerException != null)
                 {
-                    exceptionInfo.InnerException = ToExceptionInfo(exception.InnerException, key, appIdentifier, serverIdentifier);
+                    exceptionInfo.InnerException = ToExceptionInfo(exception.InnerException, key);
                 }
 
                 return exceptionInfo;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// To the simple exception information.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <returns>Beyova.ExceptionSystem.ExceptionInfo.</returns>
+        public static ExceptionInfo ToSimpleExceptionInfo(this BaseException exception)
+        {
+            return exception == null ? null : new ExceptionInfo
+            {
+                ExceptionType = exception.GetType()?.GetFullName(),
+                Level = ExceptionInfo.ExceptionCriticality.Error,
+                Message = exception.Hint != null ? exception.Hint.Message : exception.Message,
+                Code = exception.Hint != null ? new ExceptionCode
+                {
+                    Major = exception.Code.Major,
+                    Minor = exception.Hint.HintCode
+                } : exception.Code,
+                Data = (exception.Hint != null && exception.Hint.CauseObjects != null) ? JToken.FromObject(exception.Hint.CauseObjects) : exception.ReferenceData
+            };
         }
 
         /// <summary>
@@ -556,7 +432,7 @@ namespace Beyova
                 switch (exceptionInfo.ExceptionType)
                 {
                     case "Beyova.ExceptionSystem.HttpOperationException":
-                        return new HttpOperationException(exceptionInfo.Message, exceptionInfo.Code, exceptionInfo.Data?.Value<HttpOperationException.HttpExceptionReference>(BaseException.dataKey_ReferenceData), exceptionInfo.Data?.Value<string>(BaseException.dataKey_Operator));
+                        return new HttpOperationException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                     case "Beyova.ExceptionSystem.SqlStoredProcedureException":
                         return new SqlStoredProcedureException(exceptionInfo.Message, exceptionInfo.Code);
                     default:
@@ -566,34 +442,37 @@ namespace Beyova
                 switch (exceptionInfo.Code.Major)
                 {
                     case ExceptionCode.MajorCode.CreditNotAfford:
-                        result = new CreditNotAffordException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new CreditNotAffordException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.DataConflict:
-                        result = new DataConflictException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new DataConflictException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.NotImplemented:
-                        result = new NotImplementedException(exceptionInfo.Message);
+                        result = new UnimplementedException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.NullOrInvalidValue:
-                        result = new InvalidObjectException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new InvalidObjectException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.OperationFailure:
-                        result = new OperationFailureException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new OperationFailureException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.OperationForbidden:
-                        result = new OperationForbiddenException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new OperationForbiddenException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.ResourceNotFound:
-                        result = new ResourceNotFoundException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new ResourceNotFoundException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.ServiceUnavailable:
-                        result = new InitializationFailureException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new InitializationFailureException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.UnauthorizedOperation:
-                        result = new UnauthorizedOperationException(exceptionInfo.Message, exceptionInfo.UserIdentifier, exceptionInfo.Code.Minor, ToException(innerException), exceptionInfo.Data);
+                        result = new UnauthorizedOperationException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.HttpBlockError:
-                        result = new HttpOperationException(exceptionInfo.Message, exceptionInfo.Code, exceptionInfo.Data?.Value<HttpOperationException.HttpExceptionReference>(BaseException.dataKey_ReferenceData), exceptionInfo.Data?.Value<string>(BaseException.dataKey_Operator));
+                        result = new HttpOperationException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
+                        break;
+                    case ExceptionCode.MajorCode.Unsupported:
+                        result = new UnsupportedException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     default:
                         result = new Exception(exceptionInfo.Message);
@@ -603,5 +482,73 @@ namespace Beyova
 
             return result;
         }
+
+        /// <summary>
+        /// Converts to.
+        /// </summary>
+        /// <param name="sqlException">The SQL exception.</param>
+        /// <returns>Beyova.ExceptionSystem.BaseException.</returns>
+        public static BaseException ConvertTo(SqlStoredProcedureException sqlException)
+        {
+            BaseException result = null;
+
+            if (sqlException != null)
+            {
+                switch (sqlException.Code.Major)
+                {
+                    case ExceptionCode.MajorCode.NullOrInvalidValue:
+                        result = new InvalidObjectException(sqlException, reason: sqlException.Code.Minor);
+                        break;
+                    case ExceptionCode.MajorCode.UnauthorizedOperation:
+                        result = new UnauthorizedOperationException(sqlException, reason: sqlException.Code.Minor);
+                        break;
+                    case ExceptionCode.MajorCode.OperationForbidden:
+                        result = new OperationForbiddenException(sqlException.Code.Minor, sqlException);
+                        break;
+                    case ExceptionCode.MajorCode.DataConflict:
+                        result = new DataConflictException(sqlException.Code.Minor, innerException: sqlException);
+                        break;
+                    default:
+                        result = sqlException;
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        #region Http To Exception Scene
+
+        /// <summary>
+        /// To the exception scene.
+        /// </summary>
+        /// <param name="httpRequest">The HTTP request.</param>
+        /// <param name="controllerOrServiceName">Name of the controller or service.</param>
+        /// <returns>Beyova.ExceptionSystem.ExceptionScene.</returns>
+        public static ExceptionScene ToExceptionScene(this HttpRequest httpRequest, string controllerOrServiceName = null)
+        {
+            return httpRequest == null ? null : new ExceptionScene
+            {
+                MethodName = string.Format("{0}: {1}", httpRequest.HttpMethod, httpRequest.RawUrl),
+                FilePath = controllerOrServiceName
+            };
+        }
+
+        /// <summary>
+        /// To the exception scene.
+        /// </summary>
+        /// <param name="httpRequest">The HTTP request.</param>
+        /// <param name="controllerOrServiceName">Name of the controller or service.</param>
+        /// <returns>Beyova.ExceptionSystem.ExceptionScene.</returns>
+        public static ExceptionScene ToExceptionScene(this HttpRequestBase httpRequest, string controllerOrServiceName = null)
+        {
+            return httpRequest == null ? null : new ExceptionScene
+            {
+                MethodName = string.Format("{0}: {1}", httpRequest.HttpMethod, httpRequest.RawUrl),
+                FilePath = controllerOrServiceName
+            };
+        }
+
+        #endregion
     }
 }

@@ -1,19 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.IO.Compression;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Web;
-using Beyova.ExceptionSystem;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using Beyova;
-using Beyova.RestApi;
-using System.Management;
 using System.DirectoryServices;
+using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -48,7 +35,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetDirectoryEntry", new { ldapPath, userName, password });
+                throw ex.Handle( new { ldapPath, userName, password });
             }
         }
 
@@ -108,7 +95,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CheckUserName", new { userName });
+                throw ex.Handle( new { userName });
             }
         }
     }

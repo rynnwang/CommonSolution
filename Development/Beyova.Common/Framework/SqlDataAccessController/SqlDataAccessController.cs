@@ -4,8 +4,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Xml.Linq;
-using Beyova.AOP;
 using Beyova.ExceptionSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova
 {
@@ -40,28 +40,31 @@ namespace Beyova
         /// <summary>
         /// Converts the object.
         /// </summary>
+        /// <typeparam name="TOutput">The type of the t output.</typeparam>
         /// <param name="sqlDataReader">The SQL data reader.</param>
+        /// <param name="converter">The converter.</param>
         /// <returns>List{`0}.</returns>
-        public List<T> ConvertObject(SqlDataReader sqlDataReader)
+        protected List<TOutput> ConvertObject<TOutput>(SqlDataReader sqlDataReader, Func<SqlDataReader, TOutput> converter)
         {
             try
             {
-                sqlDataReader.CheckNullObject("sqlDataReader");
+                sqlDataReader.CheckNullObject(nameof(sqlDataReader));
+                converter.CheckNullObject(nameof(converter));
 
-                var result = new List<T>();
+                var result = new List<TOutput>();
                 // When enter this method, Read() has been called for detect exception already.
-                result.Add(ConvertEntityObject(sqlDataReader));
+                result.Add(converter(sqlDataReader));
 
                 while (sqlDataReader.Read())
                 {
-                    result.Add(ConvertEntityObject(sqlDataReader));
+                    result.Add(converter(sqlDataReader));
                 }
 
                 return result;
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ConvertObject: " + typeof(T).ToString());
+                throw ex.Handle(new { type = typeof(T).GetFullName() });
             }
             finally
             {
@@ -87,21 +90,25 @@ namespace Beyova
         /// <summary>
         /// Executes the reader.
         /// </summary>
+        /// <typeparam name="TOutput">The type of the t output.</typeparam>
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
-        /// <returns>List{`0}.</returns>
-        protected List<T> ExecuteReader(string spName, List<SqlParameter> sqlParameters)
+        /// <param name="converter">The converter.</param>
+        /// <returns>List&lt;TOutput&gt;.</returns>
+        protected List<TOutput> ExecuteReader<TOutput>(string spName, List<SqlParameter> sqlParameters, Func<SqlDataReader, TOutput> converter)
         {
             SqlDataReader reader = null;
 
             try
             {
+                converter.CheckNullObject(nameof(converter));
+
                 reader = this.Execute(spName, sqlParameters);
-                return reader == null ? new List<T>() : ConvertObject(reader);
+                return reader == null ? new List<TOutput>() : ConvertObject(reader, converter);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ExecuteReader", new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
             }
             finally
             {
@@ -113,6 +120,17 @@ namespace Beyova
                 // use Close instead of Dispose so that operator can be reuse without re-initialize.
                 databaseOperator.Close();
             }
+        }
+
+        /// <summary>
+        /// Executes the reader. If parameter <c>converter</c> is specified, use it. Otherwise, use <c>ConvertEntityObject</c>.
+        /// </summary>
+        /// <param name="spName">Name of the sp.</param>
+        /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <returns>List{`0}.</returns>
+        protected List<T> ExecuteReader(string spName, List<SqlParameter> sqlParameters = null)
+        {
+            return ExecuteReader<T>(spName, sqlParameters, ConvertEntityObject);
         }
     }
 
@@ -191,7 +209,7 @@ namespace Beyova
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
         /// <returns>System.Object.</returns>
-        protected object ExecuteScalar(string spName, List<SqlParameter> sqlParameters)
+        protected object ExecuteScalar(string spName, List<SqlParameter> sqlParameters = null)
         {
             SqlDataReader reader = null;
 
@@ -202,7 +220,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ExecuteScalar", new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
             }
             finally
             {
@@ -222,7 +240,7 @@ namespace Beyova
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
         /// <returns>System.Int32.</returns>
-        protected void ExecuteNonQuery(string spName, List<SqlParameter> sqlParameters)
+        protected void ExecuteNonQuery(string spName, List<SqlParameter> sqlParameters = null)
         {
             SqlDataReader reader = null;
 
@@ -232,7 +250,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("ExecuteNonQuery", new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
             }
             finally
             {
@@ -252,7 +270,7 @@ namespace Beyova
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
         /// <returns>SqlDataReader.</returns>
-        protected SqlDataReader Execute(string spName, List<SqlParameter> sqlParameters)
+        protected SqlDataReader Execute(string spName, List<SqlParameter> sqlParameters = null)
         {
             try
             {
@@ -282,7 +300,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Execute", new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
             }
         }
 
@@ -307,7 +325,7 @@ namespace Beyova
 
             if (sqlParameters != null)
             {
-                result.AddRange(sqlParameters.Select(one => string.Format("Name: [{0}], Type: [{1}], Value: [{2}]\n\r", one.ParameterName, one.TypeName, one.Value.ToString())));
+                result.AddRange(sqlParameters.Select(one => string.Format("Name: [{0}], Type: [{1}], Value: [{2}]\n\r", one.ParameterName, one.TypeName, one.Value)));
             }
 
             return result;
@@ -337,7 +355,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("TryGetSqlException");
+                throw ex.Handle();
             }
         }
 
@@ -363,7 +381,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("InitializeCustomizedSqlErrorStoredProcedure");
+                throw ex.Handle(sqlConnection);
             }
         }
 
@@ -411,31 +429,39 @@ END
         /// <returns>SqlParameter.</returns>
         protected SqlParameter GenerateSqlSpParameter(string columnName, object parameterObject, ParameterDirection direction = ParameterDirection.Input)
         {
+            if (parameterObject != null)
+            {
+                if (parameterObject is Enum)
+                {
+                    parameterObject = (int)parameterObject;
+                }
+                else if (parameterObject is JToken || parameterObject is XElement)
+                {
+                    parameterObject = parameterObject.ToString();
+                }
+                else
+                {
+                    var boolParameterObject = parameterObject as bool?;
+                    if (boolParameterObject != null)
+                    {
+                        parameterObject = boolParameterObject.Value ? 1 : 0;
+                    }
+                }
+            }
+
+            return InternalGenerateSqlSpParameter(columnName, parameterObject ?? Convert.DBNull, direction);
+        }
+
+        /// <summary>
+        /// Internals the generate SQL sp parameter.
+        /// </summary>
+        /// <param name="columnName">Name of the column.</param>
+        /// <param name="parameterObject">The parameter object.</param>
+        /// <param name="direction">The direction.</param>
+        /// <returns>SqlParameter.</returns>
+        protected internal SqlParameter InternalGenerateSqlSpParameter(string columnName, object parameterObject, ParameterDirection direction = ParameterDirection.Input)
+        {
             return new SqlParameter("@" + columnName.Trim(), parameterObject ?? Convert.DBNull) { Direction = direction };
-        }
-
-        /// <summary>
-        /// Generates the name of the SQL sp parameter.
-        /// </summary>
-        /// <param name="columnName">Name of the column.</param>
-        /// <param name="parameterObject">The parameter object.</param>
-        /// <param name="direction">The direction.</param>
-        /// <returns>SqlParameter.</returns>
-        protected SqlParameter GenerateSqlSpParameter(string columnName, bool parameterObject, ParameterDirection direction = ParameterDirection.Input)
-        {
-            return GenerateSqlSpParameter(columnName, parameterObject ? 1 : 0, direction);
-        }
-
-        /// <summary>
-        /// Generates the SQL sp parameter.
-        /// </summary>
-        /// <param name="columnName">Name of the column.</param>
-        /// <param name="parameterObject">The parameter object.</param>
-        /// <param name="direction">The direction.</param>
-        /// <returns>SqlParameter.</returns>
-        protected SqlParameter GenerateSqlSpParameter(string columnName, XElement parameterObject, ParameterDirection direction = ParameterDirection.Input)
-        {
-            return GenerateSqlSpParameter(columnName, parameterObject == null ? Convert.DBNull : parameterObject.ToString(), direction);
         }
 
         #endregion

@@ -12,10 +12,9 @@ namespace Beyova.ExceptionSystem
         /// Initializes a new instance of the <see cref="NullObjectException" /> class.
         /// </summary>
         /// <param name="objectIdentity">The object identity.</param>
-        /// <param name="data">The data.</param>
-        /// <param name="hintMessage">The hint message.</param>
-        public NullObjectException(string objectIdentity, object data = null, string hintMessage = null)
-            : base(string.Format("[{0}] is null.", objectIdentity), new ExceptionCode { Major = ExceptionCode.MajorCode.NullOrInvalidValue, Minor = "NullObject" }, parameterData: data, hintMessage: hintMessage)
+        /// <param name="scene">The scene.</param>
+        public NullObjectException(string objectIdentity, ExceptionScene scene = null)
+            : base(string.Format("[{0}] is null.", objectIdentity), new ExceptionCode { Major = ExceptionCode.MajorCode.NullOrInvalidValue, Minor = "NullObject" }, null, null, scene: scene)
         {
         }
 

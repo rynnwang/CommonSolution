@@ -13,6 +13,14 @@ namespace Beyova.CommonAdminService
     public class AdminEventHandlers : RestApiEventHandlers
     {
         static CommonAdminService service = new CommonAdminService();
+
+        /// <summary>
+        /// Gets the credential by secured key.
+        /// </summary>
+        /// <param name="securedKey">The secured key.</param>
+        /// <param name="privateKey">The private key.</param>
+        /// <returns>ICredential.</returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override ICredential GetCredentialBySecuredKey(string securedKey, out string privateKey)
         {
             throw new NotImplementedException();

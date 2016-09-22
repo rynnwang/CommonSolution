@@ -16,9 +16,14 @@ BEGIN
 
     IF @Value IS NOT NULL AND @ColumnName IS NOT NULL AND @Operator IS NOT NULL
     BEGIN
+        SET @Value = REPLACE(@Value, '''', '''''');
+        SET @Value = REPLACE(@Value, '--', '');
+        SET @Value = REPLACE(@Value, '/*', '');
+        SET @Value = REPLACE(@Value, '*/', '');
+
         IF LOWER(@Operator) = 'like'
         BEGIN
-            SET @Value = '%'+@Value+'%';
+            SET @Value = '%' + @Value +'%';
             SET @IsStringType = 1;
         END
         SET @Result =  dbo.fn_GenerateSqlExpression(@ColumnName,@Operator,@Value, @IsStringType) + ' AND ';

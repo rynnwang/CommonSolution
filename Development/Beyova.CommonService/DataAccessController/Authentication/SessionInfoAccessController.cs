@@ -9,17 +9,8 @@ namespace Beyova.CommonService.DataAccessController
     /// <summary>
     /// Access controller for <see cref="SessionInfo" /> class instance.
     /// </summary>
-    public class SessionInfoAccessController : BaseCommonServiceController<SessionInfo, SessionCriteria>
+    public class SessionInfoAccessController : BaseAuthenticationController<SessionInfo, SessionCriteria>
     {
-        #region Database Constants
-
-        /// <summary>
-        /// The column_ active only
-        /// </summary>
-        protected const string column_ActiveOnly = "ActiveOnly";
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
@@ -82,7 +73,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("DisposeSessionInfo", new { token });
+                throw ex.Handle(new { token });
             }
         }
 
@@ -113,15 +104,41 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateSessionInfo", new { sessionInfo });
+                throw ex.Handle(new { sessionInfo });
+            }
+        }
+
+        /// <summary>
+        /// Exchanges the sso authorization.
+        /// </summary>
+        /// <param name="authorization">The authorization.</param>
+        /// <returns>SessionInfo.</returns>
+        public SessionInfo ExchangeSSOAuthorization(SSOAuthorizationBase authorization)
+        {
+            const string spName = "sp_ExchangeToken";
+
+            try
+            {
+                authorization.CheckNullObject(nameof(authorization));
+
+                var parameters = new List<SqlParameter>
+                {
+                    this.GenerateSqlSpParameter(column_ClientRequestId,authorization.ClientRequestId),
+                    this.GenerateSqlSpParameter(column_AuthorizationToken,authorization.AuthorizationToken)
+                };
+
+                return this.ExecuteReader(spName, parameters).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle(new { authorization });
             }
         }
 
         /// <summary>
         /// Queries the session information.
         /// </summary>
-        /// <param name="userKey">The user key.</param>
-        /// <param name="activeOnly">if set to <c>true</c> [active only].</param>
+        /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;SessionInfo&gt;.</returns>
         public List<SessionInfo> QuerySessionInfo(SessionCriteria criteria)
         {
@@ -133,17 +150,23 @@ namespace Beyova.CommonService.DataAccessController
 
                 var parameters = new List<SqlParameter>
                 {
-                    this.GenerateSqlSpParameter(column_UserKey, criteria.UserKey)
+                    this.GenerateSqlSpParameter(column_UserKey, criteria.UserKey),
+                    this.GenerateSqlSpParameter(column_Token, criteria.Token),
+                    this.GenerateSqlSpParameter(column_UserAgent, criteria.UserAgent),
+                    this.GenerateSqlSpParameter(column_IpAddress, criteria.IpAddress),
+                    this.GenerateSqlSpParameter(column_Platform, criteria.Platform.EnumToInt32()),
+                    this.GenerateSqlSpParameter(column_DeviceType, criteria.DeviceType.EnumToInt32()),
+                    this.GenerateSqlSpParameter(column_IsExpired, criteria.IsExpired),
+                    this.GenerateSqlSpParameter(column_Count, criteria.Count)
                 };
 
                 return this.ExecuteReader(spName, parameters);
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QuerySessionInfo", criteria);
+                throw ex.Handle(criteria);
             }
         }
-
         /// <summary>
         /// Gets the session information by token.
         /// </summary>
@@ -155,7 +178,7 @@ namespace Beyova.CommonService.DataAccessController
 
             try
             {
-                token.CheckEmptyString("token");
+                token.CheckEmptyString(nameof(token));
 
                 var parameters = new List<SqlParameter>
                 {
@@ -166,7 +189,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("GetSessionInfoByToken", token);
+                throw ex.Handle(token);
             }
         }
 
@@ -184,7 +207,7 @@ namespace Beyova.CommonService.DataAccessController
 
             try
             {
-                stamp.CheckNullObject("stamp");
+                stamp.CheckNullObject(nameof(stamp));
 
                 var parameters = new List<SqlParameter>
                 {
@@ -195,7 +218,7 @@ namespace Beyova.CommonService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CleanSessionInfo");
+                throw ex.Handle(stamp);
             }
         }
     }

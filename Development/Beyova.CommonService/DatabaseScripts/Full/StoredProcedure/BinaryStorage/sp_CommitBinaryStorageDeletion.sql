@@ -19,13 +19,13 @@ BEGIN
     IF @Xml IS NOT NULL
     BEGIN
         CREATE TABLE #BlobIdentifiers(
-            [Container] [varchar](128) NOT NULL,
+            [Container] [nvarchar](128) NOT NULL,
             [Identifier] UNIQUEIDENTIFIER NOT NULL
         );
 
         INSERT INTO #BlobIdentifiers([Container],[Identifier])
             SELECT 
-            Items.R.value('(@Container)[1]','[varchar](128)'),
+            Items.R.value('(@Container)[1]','[nvarchar](128)'),
             Items.R.value('.','UNIQUEIDENTIFIER')
             FROM @Xml.nodes('/Storage/Item') AS Items(R);
 

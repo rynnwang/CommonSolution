@@ -46,6 +46,12 @@ namespace Beyova.ApiTracking
         /// <value>The count.</value>
         public int Count { get; set; }
 
+        /// <summary>
+        /// Gets or sets the scene.
+        /// </summary>
+        /// <value>The scene.</value>
+        public string Scene { get; set; }
+
         #endregion
 
         /// <summary>

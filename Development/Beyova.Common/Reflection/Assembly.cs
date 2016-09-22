@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
-using Beyova.ProgrammingIntelligence;
 
 namespace Beyova
 {
@@ -130,10 +127,11 @@ namespace Beyova
         /// <returns>List&lt;PropertyInfo&gt;.</returns>
         public static List<PropertyInfo> GetActualAffectedProperties(this Type anyType, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty)
         {
+            var returnedProperties = new List<PropertyInfo>();
+
             if (anyType != null)
             {
-                List<string> propertyNameList = new List<string>();
-                var returnedProperties = new List<PropertyInfo>();
+                HashSet<string> propertyNameList = new HashSet<string>();
 
                 foreach (var one in anyType.GetProperties(bindingFlags))
                 {
@@ -143,11 +141,9 @@ namespace Beyova
                         propertyNameList.Add(one.Name);
                     }
                 }
-
-                return returnedProperties.ToList();
             }
 
-            return new List<PropertyInfo>();
+            return returnedProperties;
         }
 
         /// <summary>
@@ -158,10 +154,10 @@ namespace Beyova
         /// <returns>List&lt;FieldInfo&gt;.</returns>
         public static List<FieldInfo> GetActualAffectedFields(this Type anyType, BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField)
         {
+            var returnedFields = new List<FieldInfo>();
             if (anyType != null)
             {
-                List<string> fieldNameList = new List<string>();
-                var returnedFields = new List<FieldInfo>();
+                HashSet<string> fieldNameList = new HashSet<string>();
 
                 foreach (var one in anyType.GetFields(bindingFlags))
                 {
@@ -171,11 +167,9 @@ namespace Beyova
                         fieldNameList.Add(one.Name);
                     }
                 }
-
-                return returnedFields.ToList();
             }
 
-            return new List<FieldInfo>();
+            return returnedFields;
         }
 
         #region Create instance
@@ -253,7 +247,7 @@ namespace Beyova
         /// <returns>Version.</returns>
         public static Version GetAssemblyVersion(this Assembly assemblyObject)
         {
-            return (assemblyObject != null) ? assemblyObject.GetName().Version : null;
+            return assemblyObject?.GetName()?.Version;
         }
 
         /// <summary>
@@ -273,7 +267,7 @@ namespace Beyova
             var match = (isCodeLook ? genericCodeLookClassRegex : genericClassRegex).Match(fullName);
             if (match.Success)
             {
-                genericTypeNames = match.Result("${GenericTypeName}").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                genericTypeNames = match.Result("${GenericTypeName}").Split(new char[] { StringConstants.CommaChar }, StringSplitOptions.RemoveEmptyEntries);
                 typeName = match.Result("${TypeName}");
                 return true;
             }
@@ -292,28 +286,42 @@ namespace Beyova
         {
             try
             {
+                typeName.CheckEmptyString(nameof(typeName));
+
                 string baseTypeName;
                 string[] genericTypeNames;
                 if (GetGenericTypeName(typeName, isCodeLook, out genericTypeNames, out baseTypeName))
                 {
-                    var baseType = SmartGetType(baseTypeName, isCodeLook);
+                    if (!baseTypeName.Contains('`'))
+                    {
+                        baseTypeName = string.Format("{0}`{1}", baseTypeName, genericTypeNames.Length);
+                    }
+
+                    //NOTE: here, baseTypeName would be assembly based name, so force to use false as isCodeLook.
+                    var baseType = SmartGetType(baseTypeName, false);
 
                     if (baseType == typeof(Nullable))
                     {
                         baseType = typeof(Nullable<>);
                     }
-                    return baseType.MakeGenericType((from one in genericTypeNames select SmartGetType(one)).ToArray());
+
+                    return baseType.MakeGenericType((from one in genericTypeNames select SmartGetType(one, isCodeLook)).ToArray());
                 }
                 else
                 {
-                    var assemblies = GetAppDomainAssemblies();
+                    var typeResult = Type.GetType(typeName);
 
-                    if (assemblies != null)
+                    if (typeResult == null)
                     {
-                        return assemblies.SelectMany(one => one.GetTypes()).FirstOrDefault(type => type.Name.Equals(typeName) || type.FullName.Equals(typeName));
+                        var assemblies = GetAppDomainAssemblies();
+
+                        if (assemblies != null)
+                        {
+                            return assemblies.SelectMany(one => one.GetTypes()).FirstOrDefault(type => type.Name.Equals(typeName) || type.FullName.Equals(typeName));
+                        }
                     }
 
-                    return null;
+                    return typeResult;
                 }
             }
             catch (Exception ex)
@@ -322,11 +330,11 @@ namespace Beyova
 
                 if (typeLoadException != null && typeLoadException.LoaderExceptions.Any())
                 {
-                    throw typeLoadException.LoaderExceptions.First().Handle("GetType", typeName);
+                    throw typeLoadException.LoaderExceptions.First().Handle(typeName);
                 }
                 else
                 {
-                    throw ex.Handle("GetType", typeName);
+                    throw ex.Handle(typeName);
                 }
             }
         }
@@ -345,7 +353,7 @@ namespace Beyova
 
 
         /// <summary>
-        /// Gets the interface method.
+        /// Gets the interface method. This method would try to find methods in inheritance.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="name">The name.</param>
@@ -386,13 +394,13 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the interface methods.
+        /// Gets the interface methods. This method would try to find methods in inheritance.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="attributeType">Type of the attribute.</param>
         /// <param name="attributeInherit">if set to <c>true</c> [attribute inherit].</param>
         /// <returns>List&lt;MethodInfo&gt;.</returns>
-        public static List<MethodInfo> GetInterfaceMethods(this Type type, Type attributeType, bool attributeInherit)
+        public static List<MethodInfo> GetInterfaceMethods(this Type type, Type attributeType = null, bool attributeInherit = false)
         {
             HashSet<MethodInfo> result = new HashSet<MethodInfo>();
 
@@ -432,101 +440,17 @@ namespace Beyova
         /// <returns>Type.</returns>
         public static Type GetGenericType(string typeName, string[] genericTypeNames)
         {
-            Type result = null;
-            var containerType = SmartGetType(typeName);
-
-            result = containerType.MakeGenericType(genericTypeNames.Select(one => SmartGetType(one)).ToArray());
-
-            return result;
-        }
-
-        /// <summary>
-        /// Gets the property names.
-        /// </summary>
-        /// <param name="obj">The obj.</param>
-        /// <returns></returns>
-        public static IEnumerable<string> GetPropertyNames(object obj)
-        {
-            IEnumerable<string> result = null;
-
-            if (obj != null)
+            try
             {
-                result = from one in obj.GetType().GetProperties() select one.Name;
+                typeName.CheckEmptyString(nameof(typeName));
+
+                var containerType = SmartGetType(typeName);
+                return (containerType != null) ? containerType.MakeGenericType(genericTypeNames.Select(one => SmartGetType(one)).ToArray()) : null;
             }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Gets the type of the methods from.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="methodAccessFiltering">The method access filtering.</param>
-        /// <returns>List{MethodInfo}.</returns>
-        public static List<MethodInfo> GetMethodsFromType(Type type, MethodFiltering methodAccessFiltering = null)
-        {
-            List<MethodInfo> result = new List<MethodInfo>();
-
-            if (type != null)
+            catch (Exception ex)
             {
-                if (methodAccessFiltering == null)
-                {
-                    methodAccessFiltering = new MethodFiltering();
-                }
-                var methods = type.GetMethods();
-
-                foreach (var one in methods)
-                {
-                    if (methodAccessFiltering.IncludedAttribute == null || one.HasAttribute(methodAccessFiltering.IncludedAttribute))
-                    {
-                        result.Add(one);
-                    }
-                }
+                throw ex.Handle(new { typeName, genericTypeNames });
             }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Gets the parameter type from method info.
-        /// </summary>
-        /// <param name="methodInfo">The method info.</param>
-        /// <param name="index">The index.</param>
-        /// <returns>Type.</returns>
-        public static Type GetParameterTypeFromMethodInfo(MethodInfo methodInfo, int index = 0)
-        {
-            Type result = null;
-
-            if (methodInfo != null)
-            {
-                var parameters = methodInfo.GetParameters();
-                if (parameters != null && index < parameters.Length)
-                {
-                    result = parameters[index].ParameterType;
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Gets the parameter type from method info.
-        /// </summary>
-        /// <param name="methodInfo">The method info.</param>
-        /// <param name="parameterName">Name of the parameter.</param>
-        /// <returns>Type.</returns>
-        public static Type GetParameterTypeFromMethodInfo(MethodInfo methodInfo, string parameterName)
-        {
-            Type result = null;
-
-            if (methodInfo != null && !string.IsNullOrWhiteSpace(parameterName))
-            {
-
-                var parameters = methodInfo.GetParameters();
-                result = (from one in parameters where one.Name.Equals(parameterName) select one.ParameterType).FirstOrDefault();
-            }
-
-            return result;
         }
 
         #endregion
@@ -541,6 +465,34 @@ namespace Beyova
         public static bool IsNullable(this Type type)
         {
             return type != null && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        /// <summary>
+        /// Determines whether the specified type is nullable&lt;&gt; type..
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">The object.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool IsNullable<T>(this T obj)
+        {
+            //Smart way copy from stackoverflow and msdn
+            // http://stackoverflow.com/questions/374651/how-to-check-if-an-object-is-nullable
+            // http://referencesource.microsoft.com/#mscorlib/system/collections/objectmodel/readonlycollection.cs,219
+
+            return default(T) == null;
+        }
+
+        /// <summary>
+        /// Gets the nullable value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">The object.</param>
+        /// <returns>T.</returns>
+        public static T GetNullableValue<T>(this T? obj)
+                    where T : struct
+        {
+            obj.CheckNullObject(nameof(obj));
+            return obj.Value;
         }
 
         /// <summary>
@@ -730,56 +682,9 @@ namespace Beyova
         /// <param name="methodInfo">The method information.</param>
         /// <param name="includeType">Type of the include.</param>
         /// <returns>System.String.</returns>
-        public static string ToCodeLook(this MethodInfo methodInfo, bool includeType = true)
+        internal static string ToCodeLook(this MethodInfo methodInfo, bool includeType = true)
         {
-            return ToCodeLook(methodInfo, includeType, null);
-        }
-
-        /// <summary>
-        /// To the code look.
-        /// </summary>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="includeType">Type of the include.</param>
-        /// <param name="genericParameterTypeNames">The generic parameter type names.</param>
-        /// <returns>System.String.</returns>
-        internal static string ToCodeLook(this MethodInfo methodInfo, bool includeType, ICollection<string> genericParameterTypeNames)
-        {
-            if (methodInfo != null)
-            {
-                if (methodInfo.IsGenericMethod)
-                {
-                    var builder = new StringBuilder();
-                    foreach (var t in methodInfo.GetGenericArguments())
-                    {
-                        builder.Append(t.Name + ",");
-                    }
-                    if (builder.Length > 0)
-                    {
-                        builder.RemoveLast(1);
-                    }
-
-                    return string.Format("{0} {1}<{2}>({3})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, builder, methodInfo.MethodInputParametersToCodeLook(includeType));
-                }
-                else if (genericParameterTypeNames.HasItem())
-                {
-                    HashSet<string> genericParameters = new HashSet<string>();
-                    genericParameters.AddRange(methodInfo.ReturnType.GetGenericParameterNames(genericParameterTypeNames));
-
-                    foreach (var one in methodInfo.GetParameters())
-                    {
-                        genericParameters.AddRange(one.ParameterType.GetGenericParameterNames(genericParameterTypeNames));
-                    }
-
-                    if (genericParameters.Count > 0)
-                    {
-                        return string.Format("{0} {1}<{2}>({3})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, genericParameters.Join(","), methodInfo.MethodInputParametersToCodeLook(includeType));
-                    }
-                }
-
-                return string.Format("{0} {1}({2})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, methodInfo.MethodInputParametersToCodeLook(includeType));
-            }
-
-            return string.Empty;
+            return (methodInfo != null) ? string.Format("{0} {1}({2})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, methodInfo.MethodInputParametersToCodeLook(includeType)) : string.Empty;
         }
 
         /// <summary>
@@ -787,42 +692,49 @@ namespace Beyova
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="includingNamespace">The including namespace.</param>
-        /// <param name="seperator">The seperator.</param>
+        /// <param name="separator">The separator.</param>
         /// <returns>System.String.</returns>
-        public static string ToCodeLook(this Type type, bool includingNamespace = false, string seperator = ".")
+        public static string ToCodeLook(this Type type, bool includingNamespace = false, string separator = ".")
         {
             string result = string.Empty;
 
             if (type != null)
             {
-                if (type == typeof(void))
+                try
                 {
-                    return "void";
-                }
-                else if (type.IsGenericParameter)
-                {
-                    return type.Name;
-                }
+                    if (type == typeof(void))
+                    {
+                        return "void";
+                    }
+                    else if (type.IsGenericParameter)
+                    {
+                        return type.Name;
+                    }
 
-                if (type.IsGenericType)
-                {
-                    var builder = new StringBuilder();
-                    foreach (var t in type.GetGenericArguments())
+                    if (type.IsGenericType)
                     {
-                        builder.Append(t.ToCodeLook(includingNamespace) + ",");
+                        var builder = new StringBuilder();
+                        foreach (var t in type.GetGenericArguments())
+                        {
+                            builder.Append(t.ToCodeLook(includingNamespace) + ",");
+                        }
+                        if (builder.Length > 0)
+                        {
+                            builder.RemoveLast();
+                        }
+                        result = includingNamespace ?
+                                string.Format("{0}{1}{2}<{3}>", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : separator, type.Name.SubStringBeforeFirstMatch('`'), builder) :
+                                string.Format("{0}<{1}>", type.Name.SubStringBeforeFirstMatch('`'), builder);
                     }
-                    if (builder.Length > 0)
+                    else
                     {
-                        builder.RemoveLast();
+                        // NOTE: if type is come from generic method, like: T1 Method(T2 t), FullName would be null.
+                        result = includingNamespace ? string.Format("{0}{1}{2}", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : separator, type.Name) : type.Name;
                     }
-                    result = includingNamespace ?
-                            string.Format("{0}{1}{2}<{3}>", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : seperator, type.Name.SubStringBeforeFirstMatch('`'), builder) :
-                            string.Format("{0}<{1}>", type.Name.SubStringBeforeFirstMatch('`'), builder);
                 }
-                else
+                catch (Exception ex)
                 {
-                    // NOTE: if type is come from generic method, like: T1 Method(T2 t), FullName would be null.
-                    result = includingNamespace ? string.Format("{0}{1}{2}", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : seperator, type.Name) : type.Name;
+                    throw ex.Handle(new { type = type?.Name, includingNamespace, separator });
                 }
             }
 
@@ -830,36 +742,6 @@ namespace Beyova
         }
 
         #endregion
-
-        /// <summary>
-        /// Gets the methods.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="methodAccessFiltering">The method access filtering.</param>
-        /// <returns>List{MethodInfo}.</returns>
-        public static List<MethodInfo> GetMethods(this Type type, MethodFiltering methodAccessFiltering)
-        {
-            List<MethodInfo> result = new List<MethodInfo>();
-
-            if (type != null)
-            {
-                if (methodAccessFiltering == null)
-                {
-                    methodAccessFiltering = new MethodFiltering();
-                }
-                var methods = type.GetMethods();
-
-                foreach (var one in methods)
-                {
-                    if (methodAccessFiltering.IncludedAttribute == null || one.HasAttribute(methodAccessFiltering.IncludedAttribute))
-                    {
-                        result.Add(one);
-                    }
-                }
-            }
-
-            return result;
-        }
 
         /// <summary>
         /// Gets the parameter type from method info.
@@ -1033,11 +915,12 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the assembly dependency chain.
+        /// Gets the assembly dependency chain. Descending is for referenced count. So if descending is true, then Json.NET should be ahead of common.
         /// </summary>
         /// <param name="assemblies">The assemblies.</param>
+        /// <param name="descending">The descending.</param>
         /// <returns>List&lt;Assembly&gt;.</returns>
-        public static List<Assembly> GetAssemblyDependencyChain(this ICollection<Assembly> assemblies)
+        public static List<Assembly> GetAssemblyDependencyChain(this ICollection<Assembly> assemblies, bool descending = false)
         {
             List<AssemblyDependency> container = new List<AssemblyDependency>();
 
@@ -1048,8 +931,12 @@ namespace Beyova
                     FillAssemblyDependency(container, one, null, 0);
                 }
             }
+
             List<Assembly> result = new List<Assembly>();
-            foreach (var one in (from item in container orderby item.Level descending, item.ReferencedCount descending select item))
+            foreach (var one in
+                (descending ?
+                    (from item in container orderby item.Level descending, item.ReferencedCount descending select item)
+                    : (from item in container orderby item.Level ascending, item.ReferencedCount ascending select item)))
             {
                 result.Add(one.Assembly);
             }
@@ -1143,21 +1030,8 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle("FillAssemblyDependency", new { assembly = assembly?.FullName, currentLevel });
+                throw ex.Handle(new { assembly = assembly?.FullName, currentLevel });
             }
-        }
-        #endregion
-
-        #region Assembly Attributes
-
-        /// <summary>
-        /// Gets the component attribute.
-        /// </summary>
-        /// <param name="assembly">The assembly.</param>
-        /// <returns>Beyova.ProgrammingIntelligence.BeyovaComponentAttribute.</returns>
-        public static BeyovaComponentAttribute GetComponentAttribute(this Assembly assembly)
-        {
-            return assembly?.GetCustomAttribute<BeyovaComponentAttribute>();
         }
 
         #endregion
@@ -1178,7 +1052,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the full name.
+        /// Gets the full name. Actually, it returns as code look. 
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="requiredAttribute">The required attribute.</param>
@@ -1193,6 +1067,20 @@ namespace Beyova
             {
                 return string.Empty;
             }
+        }
+
+        #endregion
+
+        #region Get Current Method info
+
+        /// <summary>
+        /// Gets the current method.
+        /// </summary>
+        /// <returns>System.Reflection.MethodBase.</returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static MethodBase GetCurrentMethod()
+        {
+            return new StackFrame(0).GetMethod();
         }
 
         #endregion

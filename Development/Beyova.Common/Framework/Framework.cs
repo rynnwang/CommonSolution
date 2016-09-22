@@ -1,7 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Beyova.Configuration;
-using Beyova;
+using System.Reflection;
+using Beyova.ProgrammingIntelligence;
+using System.IO;
+using System.Text;
+using Newtonsoft.Json;
+using Beyova.License;
+using System.Diagnostics;
+using System.Globalization;
 
 namespace Beyova
 {
@@ -13,9 +20,32 @@ namespace Beyova
         /// <summary>
         /// The configuration reader
         /// </summary>
-        internal static IConfigurationReader configurationReader = null;
+        internal readonly static IConfigurationReader ConfigurationReader = JsonConfigurationReader.Default;
+
+        /// <summary>
+        /// The global culture resource collection
+        /// </summary>
+        internal static GlobalCultureResourceCollection GlobalCultureResourceCollection;
+
+        /// <summary>
+        /// The assembly version
+        /// </summary>
+        private static Dictionary<string, object> AssemblyVersion;
 
         #region Public
+
+        /// <summary>
+        /// Sets the global default api tracking.
+        /// </summary>
+        /// <param name="apiTracking">The API tracking.</param>
+        [Obsolete("Use BeyovaComponent Attribute in assembly to set default ApiTracking instance.")]
+        public static void SetGlobalDefaultApiTracking(IApiTracking apiTracking)
+        {
+            if (apiTracking != null)
+            {
+                ApiTracking = apiTracking;
+            }
+        }
 
         /// <summary>
         /// Abouts the service.
@@ -25,34 +55,34 @@ namespace Beyova
         {
             try
             {
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                var result = new EnvironmentInfo();
+                var result = new EnvironmentInfo { AssemblyVersion = AssemblyVersion };
 
-                foreach (var one in assemblies)
-                {
-                    var info = one.GetName();
-
-                    if (!info.IsSystemAssembly())
-                    {
-                        var beyovaComponent = one.GetComponentAttribute();
-
-                        result.AssemblyVersion.Merge(info.Name, beyovaComponent == null ? info.Version : new { Version = info.Version, Component = beyovaComponent.ToString() } as object);
-                    }
-                }
-
-                result.ConfigurationBelongs = configurationReader == null ? new Dictionary<string, string>() : configurationReader.ConfigurationBelongs;
-                result.SqlDatabaseEnvironment = configurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(configurationReader.SqlConnection);
+                result.ConfigurationBelongs = ConfigurationReader == null ? new Dictionary<string, string>() : ConfigurationReader.ConfigurationBelongs;
+                result.SqlDatabaseEnvironment = ConfigurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(ConfigurationReader.SqlConnection);
                 result.MemoryUsage = SystemManagementExtension.GetProcessMemoryUsage();
                 result.GCMemory = SystemManagementExtension.GetGCMemory();
                 result.CpuUsage = SystemManagementExtension.GetCpuUsage();
                 result.ServerName = EnvironmentCore.ServerName;
+                result.LocalIpAddress = EnvironmentCore.LocalMachineIpAddress;
+                result.LocalHostName = EnvironmentCore.LocalMachineHostName;
 
                 return result;
             }
             catch (Exception ex)
             {
-                throw ex.Handle("AboutService");
+                throw ex.Handle();
             }
+        }
+
+        /// <summary>
+        /// Gets the resource by key.
+        /// </summary>
+        /// <param name="resourceKey">The resource key.</param>
+        /// <param name="languageCompatibility">The language compatibility.</param>
+        /// <returns>System.String.</returns>
+        public static string GetResourceString(string resourceKey, bool languageCompatibility = true)
+        {
+            return string.IsNullOrWhiteSpace(resourceKey) ? string.Empty : GlobalCultureResourceCollection.GetResourceString(resourceKey);
         }
 
         /// <summary>
@@ -64,7 +94,7 @@ namespace Beyova
         /// <returns>T.</returns>
         public static T GetConfiguration<T>(string key, T defaultValue = default(T))
         {
-            return configurationReader.GetConfiguration<T>(key, defaultValue);
+            return ConfigurationReader.GetConfiguration<T>(key, defaultValue);
         }
 
         /// <summary>
@@ -75,8 +105,14 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string GetConfiguration(string key, string defaultValue = null)
         {
-            return configurationReader.GetConfiguration(key, defaultValue);
+            return ConfigurationReader.GetConfiguration(key, defaultValue);
         }
+
+        /// <summary>
+        /// Gets the configuration setting count.
+        /// </summary>
+        /// <value>The configuration setting count.</value>
+        public static int ConfigurationSettingCount { get { return ConfigurationReader.SettingsCount; } }
 
         /// <summary>
         /// The API tracking
@@ -84,12 +120,15 @@ namespace Beyova
         public static IApiTracking ApiTracking { get; private set; }
 
         /// <summary>
-        /// Gets or sets the operator information.
+        /// Gets the current culture information.
         /// </summary>
-        /// <value>The operator information.</value>
-        public static ICredential OperatorInfo
+        /// <value>The current culture information.</value>
+        public static CultureInfo CurrentCultureInfo
         {
-            get { return ContextHelper.CurrentCredential; }
+            get
+            {
+                return ContextHelper.CurrentCultureInfo ?? GlobalCultureResourceCollection?.DefaultCultureInfo;
+            }
         }
 
         #endregion
@@ -100,43 +139,83 @@ namespace Beyova
         static Framework()
         {
             Initialize();
+            ApiTracking?.LogMessage(string.Format("{0}: {1} is initialized.", DateTime.UtcNow.ToFullDateTimeString(), EnvironmentCore.ProjectName));
         }
 
-        /// <summary>
-        /// Sets the global default api tracking.
-        /// </summary>
-        /// <param name="apiTracking">The API tracking.</param>
-        public static void SetGlobalDefaultApiTracking(IApiTracking apiTracking)
-        {
-            if (apiTracking != null)
-            {
-                ApiTracking = apiTracking;
-            }
-        }
+        #region Initializes
 
         /// <summary>
-        /// Initializes this instance.
+        /// Initializes the configuration.
         /// </summary>
         private static void Initialize()
         {
             try
             {
-                configurationReader = GetDefaultConfigurationReader();
-                ApiTracking = DiagnosticFileLogger.CreateOrUpdateDiagnosticFileLogger();
+                ApiTracking = InitializeApiTracking(EnvironmentCore.AscendingAssemblyDependencyChain);
+                AssemblyVersion = InitializeAssemblyVersion();
+                GlobalCultureResourceCollection = GlobalCultureResourceCollection.Instance;
             }
             catch (Exception ex)
             {
-                throw ex.Handle("Initialize");
+                throw ex.Handle();
             }
         }
 
         /// <summary>
-        /// Gets the default configuration reader.
+        /// Initializes the assembly version.
         /// </summary>
-        /// <returns>IConfigurationReader.</returns>
-        private static IConfigurationReader GetDefaultConfigurationReader()
+        /// <returns>System.Collections.Generic.Dictionary&lt;System.String, System.Object&gt;.</returns>
+        private static Dictionary<string, object> InitializeAssemblyVersion()
         {
-            return new JsonConfigurationReader();
+            Dictionary<string, object> result = new Dictionary<string, object>();
+
+            foreach (var one in EnvironmentCore.DescendingAssemblyDependencyChain)
+            {
+                var info = one.GetName();
+
+                if (!info.IsSystemAssembly())
+                {
+                    var beyovaComponent = one.GetCustomAttribute<BeyovaComponentAttribute>();
+                    var beyovaConfiguration = one.GetCustomAttribute<BeyovaConfigurationAttribute>();
+
+                    result.Merge(info.Name, beyovaComponent == null ? info.Version : new
+                    {
+                        Version = info.Version,
+                        Component = beyovaComponent.ToString(),
+                        Configuration = beyovaConfiguration.SafeToString()
+                    } as object);
+                }
+            }
+
+            return result;
         }
+
+        /// <summary>
+        /// Initializes the API tracking.
+        /// </summary>
+        /// <param name="list">The list.</param>
+        /// <returns>Beyova.IApiTracking.</returns>
+        private static IApiTracking InitializeApiTracking(List<Assembly> list)
+        {
+            IApiTracking result = null;
+
+            foreach (var one in list)
+            {
+                var componentAttribute = one.GetCustomAttribute<BeyovaComponentAttribute>();
+                if (componentAttribute != null)
+                {
+                    result = componentAttribute.GetApiTrackingInstance();
+                    if (result != null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
     }
 }

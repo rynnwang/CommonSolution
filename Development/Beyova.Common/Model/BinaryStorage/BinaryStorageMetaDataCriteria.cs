@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Beyova.BinaryStorage
+namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageMetaDataCriteria.
@@ -96,9 +96,9 @@ namespace Beyova.BinaryStorage
         public DateTime? FromStamp { get; set; }
 
         /// <summary>
-        /// Gets or sets the state.
+        /// Gets or sets the count.
         /// </summary>
-        /// <value>The state.</value>
-        public BinaryStorageState? State { get; set; }
+        /// <value>The count.</value>
+        public int? Count { get; set; }
     }
 }

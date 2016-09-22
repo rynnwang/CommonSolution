@@ -46,6 +46,41 @@ namespace Beyova
         /// <summary>
         /// Adds if not null.
         /// </summary>
+        /// <param name="collection">The collection.</param>
+        /// <param name="item">The item.</param>
+        /// <returns><c>true</c> if succeed to add, <c>false</c> otherwise.</returns>
+        public static bool AddIfNotNullOrEmpty(this ICollection<string> collection, string item)
+        {
+            if (collection != null && !string.IsNullOrWhiteSpace(item))
+            {
+                collection.Add(item);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Adds if not null.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="item">The item.</param>
+        /// <returns><c>true</c> if succeed to add, <c>false</c> otherwise.</returns>
+        public static bool AddIfNotNull<T>(this ICollection<T> collection, Nullable<T> item) where T : struct
+        {
+            if (collection != null && item.HasValue)
+            {
+                collection.Add(item.Value);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Adds if not null.
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection">The collection.</param>
         /// <param name="item">The item.</param>
@@ -59,6 +94,20 @@ namespace Beyova
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Adds if not null.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="item">The item.</param>
+        public static void AddIfNotNull<T>(this HashSet<T> collection, Nullable<T> item) where T : struct
+        {
+            if (collection != null && item.HasValue)
+            {
+                collection.Add(item.Value);
+            }
         }
 
         /// <summary>
@@ -81,7 +130,7 @@ namespace Beyova
         /// <param name="collection">The collection.</param>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        public static void AddIfNotNull(this NameValueCollection collection, string key, string value)
+        public static void AddIfNotNullOrEmpty(this NameValueCollection collection, string key, string value)
         {
             if (collection != null && !string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(value))
             {
@@ -126,7 +175,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Adds if not null or empty.
+        /// Adds if not null or empty. Key and value would be added only when neither of them is null or empty.
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>
         /// <param name="key">The key.</param>
@@ -162,12 +211,12 @@ namespace Beyova
             {
                 if (startIndex < 0 || startIndex >= collection.Count)
                 {
-                    throw new InvalidObjectException("startIndex", data: new { startIndex, collectionCount = collection.Count });
+                    throw ExceptionFactory.CreateInvalidObjectException("startIndex", data: new { startIndex, collectionCount = collection.Count });
                 }
 
                 if (count != null && (count.Value < 0 || (count.Value + startIndex - 1) > collection.Count))
                 {
-                    throw new InvalidObjectException("count", data: new { count, collectionCount = collection.Count });
+                    throw ExceptionFactory.CreateInvalidObjectException("count", data: new { count, collectionCount = collection.Count });
                 }
 
                 var result = new List<T>();
@@ -195,7 +244,7 @@ namespace Beyova
             {
                 if (startIndex < 0 || startIndex >= list.Count)
                 {
-                    throw new InvalidObjectException("startIndex", data: new { startIndex, collectionCount = list.Count });
+                    throw ExceptionFactory.CreateInvalidObjectException("startIndex", data: new { startIndex, collectionCount = list.Count });
                 }
 
                 list.RemoveRange(startIndex, list.Count - startIndex);
@@ -236,8 +285,41 @@ namespace Beyova
         /// <param name="isDescending">if set to <c>true</c> [is descending].</param>
         public static void Sort<T, TComparableType>(this List<T> list, Func<T, TComparableType> comparableSelector, bool isDescending = false) where TComparableType : IComparable
         {
-            var comparer = new LambdaComparer<T, TComparableType>(comparableSelector, isDescending);
+            var comparer = new LambdaComparableComparer<T, TComparableType>(comparableSelector, isDescending);
             list?.Sort(comparer);
+        }
+
+        /// <summary>
+        /// Sorts the specified list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TComparableType">The type of the t comparable type.</typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="comparableSelector">The comparable selector.</param>
+        /// <param name="comparison">The comparison.</param>
+        public static void Sort<T, TComparableType>(this List<T> list, Func<T, TComparableType> comparableSelector, Func<TComparableType, TComparableType, int> comparison)
+        {
+            if (list != null)
+            {
+                var comparer = new LambdaComparer<T, TComparableType>(comparableSelector, comparison);
+                list.Sort(comparer);
+            }
+        }
+
+        /// <summary>
+        /// Sorts as.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TSortFactor">The type of the sort factor.</typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="sortFactors">The sort factors.</param>
+        /// <param name="getSortFactor">The get sort factor.</param>
+        public static void SortAs<T, TSortFactor>(this List<T> list, List<TSortFactor> sortFactors, Func<T, TSortFactor> getSortFactor)
+        {
+            if (sortFactors.HasItem() && getSortFactor != null)
+            {
+                Sort(list, x => { return sortFactors.IndexOf(getSortFactor(x)); }, (a, b) => { return a.CompareTo(b); });
+            }
         }
 
         /// <summary>
@@ -343,7 +425,7 @@ namespace Beyova
         /// <param name="items">The items.</param>
         /// <param name="comparer">The comparer.</param>
         /// <returns></returns>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this ICollection<KeyValuePair<TKey, TValue>> items, IEqualityComparer<TKey> comparer = null)
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, IEqualityComparer<TKey> comparer = null)
         {
             if (items != null)
             {
@@ -351,8 +433,10 @@ namespace Beyova
 
                 foreach (var one in items)
                 {
-                    result.Add(one.Key, one.Value);
+                    result.Merge(one.Key, one.Value);
                 }
+
+                return result;
             }
 
             return null;
@@ -392,6 +476,32 @@ namespace Beyova
                     }
 
                     result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converts list to XML.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="fillXmlItemFunc">The fill XML item function. XElement item is for fill, bool is to indicating needs to add it into list as result or not.</param>
+        /// <returns></returns>
+        public static XElement ListToXml<T>(this ICollection<T> collection, Func<T, XElement, bool> fillXmlItemFunc)
+        {
+            var result = XmlConstants.node_List.CreateXml();
+
+            if (collection != null && fillXmlItemFunc != null)
+            {
+                foreach (var one in collection)
+                {
+                    var item = XmlConstants.node_Item.CreateXml();
+                    if (fillXmlItemFunc(one, item))
+                    {
+                        result.Add(item);
+                    }
                 }
             }
 
@@ -460,9 +570,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// XMLs to list.
-        /// The Xml need to match the format which equals to result from 
-        /// <see cref="ListToXml{T}" />.
+        /// Converts XML to list.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="xml">The XML.</param>
@@ -524,7 +632,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// XMLs to list.
+        /// Converts XML to list.
         /// </summary>
         /// <param name="xml">The XML.</param>
         /// <returns>List&lt;System.String&gt;.</returns>
@@ -534,8 +642,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// XMLs to list.
-        /// The Xml need to match the format which equals to result from <see cref="ListToXml{T}" />.
+        /// Converts XML to list.
         /// </summary>
         /// <param name="xmlString">The XML string.</param>
         /// <returns>List{System.String}.</returns>
@@ -677,6 +784,66 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Determines whether [contains] [the specified collection]. Rules: exists any item where equalityComparer.Equals(selector(x), factor) == true
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the t entity.</typeparam>
+        /// <typeparam name="TFactor">The type of the t factor.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="factor">The factor.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool Contains<TEntity, TFactor>(this IEnumerable<TEntity> collection, TFactor factor, Func<TEntity, TFactor> selector, IEqualityComparer<TFactor> equalityComparer = null)
+        {
+            return (collection != null && collection.Any() && selector != null)
+                && collection.Any(x =>
+             {
+                 return (equalityComparer ?? EqualityComparer<TFactor>.Default).Equals(selector(x), factor);
+             });
+        }
+
+        /// <summary>
+        /// Determines whether [contains] [the specified collection].
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TFactor">The type of the factor.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="factor">The factor.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified collection]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool Contains<TEntity, TFactor>(this IEnumerable<TEntity> collection, TFactor factor, Func<TEntity, TFactor> selector, Func<TFactor, TFactor, bool> equalityComparer)
+        {
+            return (collection != null && collection.Any() && selector != null)
+                && collection.Any(x =>
+                {
+                    return (equalityComparer ?? EqualityComparer<TFactor>.Default.Equals)(factor, selector(x));
+                });
+        }
+
+        /// <summary>
+        /// Determines whether [contains] [the specified dictionary].
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <typeparam name="TFactor">The type of the t factor.</typeparam>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="factor">The factor.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool Contains<TKey, TValue, TFactor>(this IDictionary<TKey, TValue> dictionary, TFactor factor, Func<TValue, TFactor> selector, IEqualityComparer<TFactor> equalityComparer = null)
+        {
+            return (dictionary != null && dictionary.Any() && selector != null)
+                && dictionary.Any(x =>
+                {
+                    return (equalityComparer ?? EqualityComparer<TFactor>.Default).Equals(selector(x.Value), factor);
+                });
+        }
+
+        /// <summary>
         /// Tries the get value.
         /// </summary>
         /// <param name="cookieCollection">The cookie collection.</param>
@@ -767,17 +934,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Creates the list.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="anyObject">Any object.</param>
-        /// <returns>List&lt;T&gt;.</returns>
-        public static List<T> CreateList<T>(this T anyObject)
-        {
-            return anyObject.AsList();
-        }
-
-        /// <summary>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="anyObject">Any object.</param>
@@ -796,6 +952,17 @@ namespace Beyova
         public static Collection<T> AsCollection<T>(this T anyObject)
         {
             return anyObject != null ? new Collection<T> { anyObject } : new Collection<T>();
+        }
+
+        /// <summary>
+        /// Ases the hash set.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="anyObject">Any object.</param>
+        /// <returns>System.Collections.Generic.HashSet&lt;T&gt;.</returns>
+        public static HashSet<T> AsHashSet<T>(this T anyObject)
+        {
+            return anyObject != null ? new HashSet<T> { anyObject } : new HashSet<T>();
         }
 
         /// <summary>
@@ -952,11 +1119,12 @@ namespace Beyova
         /// <param name="comparerIdentifier">The comparer identifier.</param>
         /// <param name="comparer">The comparer.</param>
         /// <returns>T.</returns>
-        public static T FindAndRemove<T, TComparerIdentifier>(this IList<T> collection, TComparerIdentifier comparerIdentifier, Func<T, TComparerIdentifier, bool> comparer)
+        public static T FindAndRemove<T, TComparerIdentifier>(this List<T> collection, TComparerIdentifier comparerIdentifier, Func<T, TComparerIdentifier, bool> comparer)
         {
+            // Can NOT use IList<T>, because Array is IList<T> too, but it does not support remove at.
             if (collection != null && comparer != null)
             {
-                for (var i = 0; i < collection.Count;)
+                for (var i = 0; i < collection.Count; i++)
                 {
                     if (comparer(collection[i], comparerIdentifier))
                     {
@@ -964,8 +1132,6 @@ namespace Beyova
                         collection.RemoveAt(i);
                         return tmp;
                     }
-
-                    i++;
                 }
             }
 
@@ -998,19 +1164,21 @@ namespace Beyova
         /// <returns>TValue.</returns>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue valueForCreate = default(TValue))
         {
-            TValue result = valueForCreate;
-
             if (instance != null && key != null)
             {
-                if (!instance.ContainsKey(key))
+                TValue result;
+                if (!instance.TryGetValue(key, out result))
                 {
                     instance.Add(key, valueForCreate);
+                    result = valueForCreate;
                 }
 
-                result = instance[key];
+                return result;
             }
-
-            return result;
+            else
+            {
+                return default(TValue);
+            }
         }
 
         /// <summary>
@@ -1071,28 +1239,6 @@ namespace Beyova
             return instance != null
                                 ? instance.Keys.Select(key => new KeyValuePair<TKey, TValue>(key, instance[key])).ToList()
                                 : null;
-        }
-
-        /// <summary>
-        /// To the dictionary.
-        /// </summary>
-        /// <typeparam name="TKey">T of the key.</typeparam>
-        /// <typeparam name="TValue">T of the value.</typeparam>
-        /// <param name="instance">The instance.</param>
-        /// <returns>
-        /// Dictionary{``0``1}.
-        /// </returns>
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this List<KeyValuePair<TKey, TValue>> instance)
-        {
-            Dictionary<TKey, TValue> result = null;
-
-            if (instance != null)
-            {
-                result = new Dictionary<TKey, TValue>();
-                result.Merge(instance);
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -1220,30 +1366,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the XML.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="instance">The instance.</param>
-        /// <returns>XElement.</returns>
-        public static XElement ToXml<TKey, TValue>(this Dictionary<TKey, TValue> instance)
-        {
-            return instance != null ? (new SerializableDictionary<TKey, TValue>(instance)).ToXml() : null;
-        }
-
-        /// <summary>
-        /// To the XML string.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="instance">The instance.</param>
-        /// <returns>System.String.</returns>
-        public static string ToXmlString<TKey, TValue>(this Dictionary<TKey, TValue> instance)
-        {
-            return ToXml(instance).SafeToString();
-        }
-
-        /// <summary>
         /// Fills the by XML.
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
@@ -1306,24 +1428,26 @@ namespace Beyova
         /// <typeparam name="TKey">The type of the t key.</typeparam>
         /// <typeparam name="TValue">The type of the t value.</typeparam>
         /// <param name="dictionary">The dictionary.</param>
+        /// <param name="separatorChar">The separator character.</param>
         /// <param name="encodeKeyValue">if set to <c>true</c> [encode key value].</param>
         /// <returns>System.String.</returns>
-        public static string ToKeyValuePairString<TKey, TValue>(this Dictionary<TKey, TValue> dictionary,
-            bool encodeKeyValue = false)
+        public static string ToKeyValuePairString<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, char separatorChar = '&', bool encodeKeyValue = false)
         {
-            var builder = new StringBuilder();
+            string format = "{0}={1}" + separatorChar;
+
+            var builder = new StringBuilder(64);
 
             if (dictionary != null)
             {
                 foreach (var one in dictionary)
                 {
-                    builder.AppendFormat("{0}={1}&", encodeKeyValue ?
+                    builder.AppendFormat(format, encodeKeyValue ?
                         one.Key.ToString().ToUrlPathEncodedText() : one.Key.ToString(),
                         encodeKeyValue ? one.Value.ToString().ToUrlPathEncodedText() : one.Value.ToString());
                 }
             }
 
-            return builder.ToString().TrimEnd('&');
+            return builder.ToString().TrimEnd(separatorChar);
         }
 
         #endregion

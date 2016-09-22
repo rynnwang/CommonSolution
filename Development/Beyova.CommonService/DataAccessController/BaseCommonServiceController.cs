@@ -1,48 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using Beyova;
-using Beyova.ExceptionSystem;
 
 namespace Beyova.CommonService.DataAccessController
 {
     /// <summary>
     /// Class BaseCommonServiceController.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TEntity">The type of the t entity.</typeparam>
+    /// <typeparam name="TCriteria">The type of the t criteria.</typeparam>
     public abstract class BaseCommonServiceController<TEntity, TCriteria> : BaseDataAccessController<TEntity>
         where TEntity : new()
     {
-        #region Database Constants
-
-        /// <summary>
-        /// The column_ permission
-        /// </summary>
-        protected const string column_Permission = "Permission";
-
-        /// <summary>
-        /// The column_ user name
-        /// </summary>
-        protected const string column_UserName = "UserName";
-
-        /// <summary>
-        /// The column_ gender
-        /// </summary>
-        protected const string column_Gender = "Gender";
-
-        /// <summary>
-        /// The column_ avatar URL
-        /// </summary>
-        protected const string column_AvatarUrl = "AvatarUrl";
-
-        /// <summary>
-        /// The column_ container
-        /// </summary>
-        protected const string column_Container = "Container";
-
-        #endregion
-
         #region Constructor
 
         /// <summary>

@@ -1,50 +1,50 @@
 ﻿
+using System;
+
 namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ApiEventGroupStatistic.
     /// </summary>
-    public class ApiEventGroupStatistic : ApiEventLogBase, IGroupByResult
+    public class ApiEventGroupStatistic : GroupStatistic, IGroupByResult
     {
         /// <summary>
-        /// Gets or sets the display name.
+        /// Gets or sets the service identifier.
         /// </summary>
-        /// <value>The display name.</value>
-        public string DisplayName { get; set; }
+        /// <value>The service identifier.</value>
+        public string ServiceIdentifier { get; set; }
+
+        /// <summary>
+        /// Gets or sets the server identifier.
+        /// </summary>
+        /// <value>The server identifier.</value>
+        public string ServerIdentifier { get; set; }
 
         /// <summary>
         /// Gets or sets the stamp identifier.
         /// </summary>
-        /// <value>The stamp identifier.</value>
-        public string StampIdentifier { get; set; }
+        /// <value>
+        /// The stamp identifier.
+        /// </value>
+        public DateTime? StampIdentifier { get; set; }
 
         /// <summary>
-        /// Gets or sets the count.
+        /// Gets or sets the country.
         /// </summary>
-        /// <value>The count.</value>
-        public int Count { get; set; }
+        /// <value>The country.</value>
+        public string Country { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApiEventGroupStatistic"/> class.
+        /// Gets or sets the city.
         /// </summary>
-        public ApiEventGroupStatistic()
-            : this(null)
-        {
-        }
+        /// <value>The city.</value>
+        public string City { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventGroupStatistic" /> class.
         /// </summary>
-        /// <param name="statistic">The statistic.</param>
-        public ApiEventGroupStatistic(ApiEventGroupStatistic statistic)
-            : base(statistic)
+        public ApiEventGroupStatistic() : base()
         {
-            if (statistic != null)
-            {
-                this.StampIdentifier = statistic.StampIdentifier;
-                this.Count = statistic.Count;
-                this.DisplayName = statistic.DisplayName;
-            }
         }
     }
 }

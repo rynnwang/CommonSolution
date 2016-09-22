@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Beyova.BinaryStorage
+namespace Beyova
 {
     /// <summary>
     /// Enum BinaryStorageState
@@ -35,6 +35,11 @@ namespace Beyova.BinaryStorage
         /// Value indicating that it is invalid
         /// <remarks>It is used when binary summary is created, but no binary uploaded when doing commit.</remarks>
         /// </summary>
-        Invalid = 6
+        Invalid = 6,
+        /// <summary>
+        /// Value indicating that it is duplicated
+        /// <remarks>It is used when a binary is uploaded and commit, whose hash and length are exactly same as which is already in system.</remarks>
+        /// </summary>
+        Duplicated = 7
     }
 }

@@ -79,14 +79,13 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateAdminSession", new { adminSession, isUnique });
+                throw ex.Handle(new { adminSession, isUnique });
             }
         }
 
         /// <summary>
         /// Deletes the admin session.
         /// </summary>
-        /// <param name="userKey">The user key.</param>
         /// <param name="token">The token.</param>
         public void DeleteAdminSession(string token)
         {
@@ -105,7 +104,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("DeleteAdminSession", new { token });
+                throw ex.Handle(new { token });
             }
         }
 
@@ -134,7 +133,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryAdminSession", criteria);
+                throw ex.Handle(criteria);
             }
         }
     }

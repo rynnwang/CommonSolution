@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Beyova.BinaryStorage
+namespace Beyova
 {
     /// <summary>
     /// Class BinaryCapacityCriteria.

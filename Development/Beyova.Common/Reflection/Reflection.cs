@@ -78,7 +78,7 @@ namespace Beyova
             {
                 if (objectType == null && instance == null)
                 {
-                    throw new InvalidCastException("Neither objectType or instance is valid.");
+                    throw new InvalidObjectException("objectType/instance");
                 }
                 else
                 {
@@ -88,11 +88,11 @@ namespace Beyova
                     }
 
                     MethodInfo methodInfo = objectType.GetMethod(methodName);
-                    methodInfo.CheckNullObject("methodName");
+                    methodInfo.CheckNullObject(nameof(methodInfo));
 
                     if (!methodInfo.IsStatic)
                     {
-                        instance.CheckNullObject("instance");
+                        instance.CheckNullObject(nameof(instance));
                     }
                     else
                     {
@@ -101,7 +101,7 @@ namespace Beyova
 
                     if (methodInfo.IsGenericMethod)
                     {
-                        genericTypes.CheckNullObject("genericTypes");
+                        genericTypes.CheckNullObject(nameof(genericTypes));
                         methodInfo = methodInfo.MakeGenericMethod(genericTypes);
                     }
 
@@ -112,7 +112,7 @@ namespace Beyova
             {
                 if (throwException)
                 {
-                    throw ex.Handle(string.Format("InvokeMethod of [{0}] in [{1}]", methodName.SafeToString(), (objectType == null ? "null" : objectType.FullName)));
+                    throw ex.Handle(new { methodName, objectType = objectType == null ? "null" : objectType.FullName });
                 }
             }
 
@@ -140,29 +140,6 @@ namespace Beyova
         /// <summary>
         /// Creates the sample object.
         /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>System.Object.</returns>
-        public static object CreateSampleObject(this Type type)
-        {
-            object result = null;
-
-            if (type != null)
-            {
-                result = Activator.CreateInstance(type);
-                var publicProperties = type.GetProperties(BindingFlags.Public | BindingFlags.SetProperty);
-
-                foreach (var one in publicProperties)
-                {
-                    one.SetValue(result, CreatePropertyValue(one));
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Creates the sample object.
-        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns>``0.</returns>
         public static T CreateSampleObject<T>() where T : new()
@@ -174,7 +151,7 @@ namespace Beyova
 
             foreach (var one in publicProperties)
             {
-                one.SetValue(result, CreatePropertyValue(one));
+                one.SetValue(result, CreateSampleObjectPropertyValue(one));
             }
 
             return result;
@@ -185,7 +162,7 @@ namespace Beyova
         /// </summary>
         /// <param name="propertyInfo">The property information.</param>
         /// <returns>System.Object.</returns>
-        public static object CreatePropertyValue(this PropertyInfo propertyInfo)
+        public static object CreateSampleObjectPropertyValue(this PropertyInfo propertyInfo)
         {
             object result = null;
 
@@ -228,6 +205,67 @@ namespace Beyova
                             result = new TimeSpan(GetRandomNumber(23, 0), GetRandomNumber(60, 0), GetRandomNumber(60, 0));
                             break;
                         default:
+                            break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates the sample object.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>System.Object.</returns>
+        public static object CreateSampleObject(this Type type)
+        {
+            object result = null;
+
+            if (type != null)
+            {
+                if (type.IsNullable())
+                {
+                    result = CreateSampleObject(type.GenericTypeArguments[0]);
+                }
+                else if (type.IsEnum)
+                {
+                    var enumValues = Enum.GetValues(type);
+                    result = (enumValues != null && enumValues.Length > 0) ? enumValues.GetValue(0) : null;
+                }
+                else
+                {
+                    switch (type.FullName)
+                    {
+                        case "System.Int16":
+                        case "System.Int32":
+                        case "System.Int64":
+                            result = GetRandomNumber(1000, 1);
+                            break;
+                        case "System.Single":
+                        case "System.Double":
+                            result = Single.Parse(GetRandomNumber(10, 0) + "." + GetRandomNumber(100, 0));
+                            break;
+                        case "System.String":
+                            result = "String Value";
+                            break;
+                        case "System.Guid":
+                            result = Guid.NewGuid();
+                            break;
+                        case "System.DateTime":
+                            result = DateTime.Now;
+                            break;
+                        case "System.TimeSpan":
+                            result = new TimeSpan(GetRandomNumber(23, 0), GetRandomNumber(60, 0), GetRandomNumber(60, 0));
+                            break;
+                        default:
+                            result = Activator.CreateInstance(type);
+                            var publicProperties = type.GetProperties(BindingFlags.Public | BindingFlags.SetProperty);
+
+                            foreach (var one in publicProperties)
+                            {
+                                one.SetValue(result, CreateSampleObjectPropertyValue(one));
+                            }
                             break;
                     }
                 }

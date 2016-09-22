@@ -181,7 +181,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("GetBytes", ex);
+                throw ex.Handle();
             }
         }
 
@@ -194,7 +194,6 @@ namespace Beyova
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <returns>Bitmap.</returns>
-        /// <exception cref="OperationFailureException">Crop</exception>
         public static Bitmap Crop(this Bitmap image, int x, int y, int width, int height)
         {
             try
@@ -213,7 +212,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("Crop", ex, new { x, y, width, height });
+                throw ex.Handle(new { x, y, width, height });
             }
         }
 

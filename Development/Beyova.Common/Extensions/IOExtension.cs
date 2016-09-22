@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Security.AccessControl;
 using System.Text;
-using System.Threading;
-using System.Xml.Linq;
 using Beyova.ExceptionSystem;
 
 namespace Beyova
@@ -83,92 +76,26 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Reads the file content lines.
-        /// This method would not impact the conflict for reading and writing.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>System.String[][].</returns>
-        /// <exception cref="OperationFailureException">GetFileContentLines</exception>
-        public static string[] ReadFileContentLines(this string path, Encoding encoding)
-        {
-            Stream stream = null;
-
-            StreamReader streamReader = null;
-            List<string> lines = new List<string>();
-
-            try
-            {
-                stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                streamReader = new StreamReader(stream, encoding); string stringLine = string.Empty;
-
-                do
-                {
-                    stringLine = streamReader.ReadLine();
-                    lines.Add(stringLine);
-                }
-                while (stringLine != null);
-
-                if (lines.Count > 0)
-                {
-                    lines.RemoveAt(lines.Count - 1);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new OperationFailureException("GetFileContentLines", ex, path);
-            }
-            finally
-            {
-                streamReader.Close();
-                stream.Close();
-            }
-
-            return lines.ToArray();
-        }
-
-        /// <summary>
-        /// Reads the file content lines.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>System.String[][].</returns>
-        public static string[] ReadFileContentLines(this string path)
-        {
-            return ReadFileContentLines(path, Encoding.UTF8);
-        }
-
-        /// <summary>
         /// Reads the file contents.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        /// <exception cref="OperationFailureException">ReadFileContents</exception>
         public static string ReadFileContents(this string path, Encoding encoding)
         {
-            Stream stream = null;
-            StreamReader streamReader = null;
-
             try
             {
-                stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                streamReader = new StreamReader(stream, encoding);
-                return streamReader.ReadToEnd();
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    using (var streamReader = new StreamReader(stream, encoding))
+                    {
+                        return streamReader.ReadToEnd();
+                    }
+                }
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("ReadFileContents", ex, path);
-            }
-            finally
-            {
-                if (streamReader != null)
-                {
-                    streamReader.Close();
-                }
-                if (stream != null)
-                {
-                    stream.Close();
-                }
+                throw ex.Handle(path);
             }
         }
 
@@ -176,27 +103,19 @@ namespace Beyova
         /// Reads the file bytes.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns>System.Byte[][].</returns>
-        /// <exception cref="OperationFailureException">ReadFileBytes</exception>
+        /// <returns>System.Byte[].</returns>
         public static byte[] ReadFileBytes(this string path)
         {
-            Stream stream = null;
-
             try
             {
-                stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                return stream.ToBytes();
+                using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    return stream.ToBytes();
+                }
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("ReadFileBytes", ex, path);
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    stream.Close();
-                }
+                throw ex.Handle(path);
             }
         }
 
@@ -294,41 +213,6 @@ namespace Beyova
             return result;
         }
 
-        /// <summary>
-        /// Creates the file stream writer.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="mode">The mode.</param>
-        /// <param name="fileAccess">The file access.</param>
-        /// <param name="share">The share.</param>
-        /// <param name="bufferSize">Size of the buffer.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>StreamWriter.</returns>
-        public static StreamWriter CreateFileStreamWriter(this string path, FileMode mode, FileAccess fileAccess = FileAccess.ReadWrite, FileShare share = FileShare.Write, int bufferSize = 4096, FileOptions options = FileOptions.None)
-        {
-            var fileStream = new FileStream(path, mode, fileAccess, share, bufferSize, options);
-            return new StreamWriter(fileStream);
-        }
-
-        /// <summary>
-        /// Clones the data.
-        /// </summary>
-        /// <param name="anyStream">Any stream.</param>
-        /// <returns>MemoryStream.</returns>
-        public static MemoryStream CloneData(this Stream anyStream)
-        {
-            if (anyStream != null)
-            {
-
-                var stream = new MemoryStream();
-                anyStream.CopyTo(stream);
-
-                return stream;
-            }
-
-            return null;
-        }
-
         #endregion
 
         #region Bytes
@@ -412,7 +296,6 @@ namespace Beyova
             }
         }
 
-
         /// <summary>
         /// To the bytes.
         /// </summary>
@@ -429,24 +312,18 @@ namespace Beyova
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <returns>The <see cref="Stream" />  for byte array.</returns>
-        /// <exception cref="OperationFailureException">BytesToStream</exception>
         public static Stream ToStream(this byte[] bytes)
         {
-            Stream stream = null;
-
             try
             {
-                if (bytes != null)
-                {
-                    stream = new MemoryStream(bytes);
-                }
+                bytes.CheckNullObject("bytes");
+
+                return new MemoryStream(bytes);
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("BytesToStream", ex);
+                throw ex.Handle();
             }
-
-            return stream;
         }
 
         #endregion        
@@ -464,7 +341,6 @@ namespace Beyova
             }
 
             var root = Path.GetPathRoot(path);
-
             return root.IsInString("", "\\", "/");
         }
 

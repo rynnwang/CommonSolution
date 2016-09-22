@@ -27,7 +27,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateEnvironmentEndpoint", endpoint);
+                throw ex.Handle( endpoint);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Beyova.CommonAdminService
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryEnvironmentEndpoint", new { key, code, environment });
+                throw ex.Handle( new { key, code, environment });
             }
         }
     }

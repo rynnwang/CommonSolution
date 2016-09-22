@@ -24,5 +24,11 @@ namespace Beyova.ApiTracking
         /// </summary>
         /// <value>The time zone.</value>
         int? TimeZone { get; set; }
+
+        /// <summary>
+        /// Gets or sets the frame interval.
+        /// </summary>
+        /// <value>The frame interval.</value>
+        TimeScope? FrameInterval { get; set; }
     }
 }

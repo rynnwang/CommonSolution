@@ -12,6 +12,31 @@ namespace Beyova
         #region Constants
 
         /// <summary>
+        /// The column_ permission
+        /// </summary>
+        protected const string column_Permission = "Permission";
+
+        /// <summary>
+        /// The column_ user name
+        /// </summary>
+        protected const string column_UserName = "UserName";
+
+        /// <summary>
+        /// The column_ gender
+        /// </summary>
+        protected const string column_Gender = "Gender";
+
+        /// <summary>
+        /// The column_ avatar URL
+        /// </summary>
+        protected const string column_AvatarUrl = "AvatarUrl";
+
+        /// <summary>
+        /// The column_ container
+        /// </summary>
+        protected const string column_Container = "Container";
+
+        /// <summary>
         /// The column_ state
         /// </summary>
         protected const string column_State = "State";
@@ -60,6 +85,11 @@ namespace Beyova
         /// The column_ identifier
         /// </summary>
         protected const string column_Identifier = "Identifier";
+
+        /// <summary>
+        /// The column_ culture code
+        /// </summary>
+        protected const string column_CultureCode = "CultureCode";
 
         /// <summary>
         /// The column_ hash
@@ -215,6 +245,21 @@ namespace Beyova
         /// The column_ avatar key
         /// </summary>
         protected const string column_AvatarKey = "AvatarKey";
+
+        /// <summary>
+        /// The column_ is expired
+        /// </summary>
+        protected const string column_IsExpired = "IsExpired";
+
+        /// <summary>
+        /// The column_ sequence
+        /// </summary>
+        protected const string column_Sequence = "Sequence";
+
+        /// <summary>
+        /// The column_ stamp
+        /// </summary>
+        protected const string column_Stamp = "Stamp";
 
         #endregion
 

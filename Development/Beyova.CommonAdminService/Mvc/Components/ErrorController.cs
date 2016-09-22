@@ -1,28 +1,38 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Web.Mvc;
 using Beyova;
 using Beyova.ExceptionSystem;
+using Beyova.WebExtension;
 
 namespace Beyova.CommonAdminService
 {
     /// <summary>
     /// Class ErrorController.
     /// </summary>
-    public class ErrorController : Controller
+    public class ErrorController : ErrorBaseController
     {
         /// <summary>
-        /// Indexes the specified error code.
+        /// Gets the error partial view.
         /// </summary>
-        /// <param name="errorCode">The error code.</param>
-        /// <returns>ActionResult.</returns>
-        public ActionResult Index(int? errorCode = null)
+        /// <value>The error partial view.</value>
+        protected override string ErrorPartialView
         {
-            var exception = "Exception".GetThreadData() as BaseException;
-            if (exception != null)
+            get
             {
-                errorCode = (int)exception.Code.Major;
+                return Constants.ViewNames.ErrorPartialView;
             }
+        }
 
-            return View(Constants.ViewNames.ErrorView, (ExceptionCode.MajorCode)(errorCode ?? 0));
+        /// <summary>
+        /// Gets the error view.
+        /// </summary>
+        /// <value>The error view.</value>
+        protected override string ErrorView
+        {
+            get
+            {
+                return Constants.ViewNames.ErrorView;
+            }
         }
 
         /// <summary>

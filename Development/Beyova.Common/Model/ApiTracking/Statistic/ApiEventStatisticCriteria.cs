@@ -11,7 +11,7 @@ namespace Beyova.ApiTracking
         /// Gets or sets the frame interval.
         /// </summary>
         /// <value>The frame interval.</value>
-        public TimeInterval FrameInterval { get; set; }
+        public TimeScope? FrameInterval { get; set; }
 
         /// <summary>
         /// Gets or sets the last n days.
@@ -36,6 +36,12 @@ namespace Beyova.ApiTracking
         /// </summary>
         /// <value>The time zone.</value>
         public int? TimeZone { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has exception.
+        /// </summary>
+        /// <value><c>null</c> if [has exception] contains no value, <c>true</c> if [has exception]; otherwise, <c>false</c>.</value>
+        public bool? HasException { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventStatisticCriteria"/> class.

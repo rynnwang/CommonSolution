@@ -46,6 +46,12 @@ namespace Beyova.ExceptionSystem
         /// <value>The source.</value>
         public string Source { get; set; }
 
+        /// <summary>
+        /// Gets or sets the operator credential.
+        /// </summary>
+        /// <value>The operator credential.</value>
+        public BaseCredential OperatorCredential { get; set; }
+
         #endregion
 
         /// <summary>
@@ -62,6 +68,7 @@ namespace Beyova.ExceptionSystem
                 this.StackTrace = exceptionBase.StackTrace;
                 this.Level = exceptionBase.Level;
                 this.Source = exceptionBase.Source;
+                this.OperatorCredential = exceptionBase.OperatorCredential;
             }
         }
     }

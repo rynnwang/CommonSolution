@@ -31,8 +31,8 @@
     <DocumentationFile>bin\Release\Beyova.Elastic.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -46,13 +46,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiTracking\ElasticApiTracking.cs" />
+    <Compile Include="Constants\Constants.cs" />
     <Compile Include="CriteriaBuilder.cs" />
-    <Compile Include="ElasticClient\Aggregations.cs" />
     <Compile Include="ElasticClient\ElasticClient.cs" />
     <Compile Include="ElasticClient\Index.cs" />
+    <Compile Include="ElasticClient\Other.cs" />
     <Compile Include="ElasticClient\Query.cs" />
     <Compile Include="ElasticIndexClient.cs" />
-    <Compile Include="Extension.cs" />
+    <Compile Include="Extension\AggregationsExtension.cs" />
+    <Compile Include="Extension\ResultExtension.cs" />
+    <Compile Include="Extension\CriteriaExtension.cs" />
+    <Compile Include="IElasticWorkObject.cs" />
+    <Compile Include="Model\Status\ElasticStatus.cs" />
+    <Compile Include="Model\Status\ElasticIndicesStatus.cs" />
+    <Compile Include="Model\ElasticApiEventWorkObject.cs" />
+    <Compile Include="Model\ElasticCriteriaObjectSerializer.cs" />
+    <Compile Include="Model\ElasticCriteriaObject.cs" />
+    <Compile Include="Model\ElasticMessage.cs" />
+    <Compile Include="Model\ElasticWorkObject.cs" />
+    <Compile Include="Model\ElasticTraceLog.cs" />
     <Compile Include="Model\ElasticExceptionInfo.cs" />
     <Compile Include="Plugins\GeoLite\Country.cs" />
     <Compile Include="Plugins\GeoLite\DatabaseInfo.cs" />
@@ -61,6 +73,13 @@
     <Compile Include="Plugins\GeoLite\Region.cs" />
     <Compile Include="Plugins\GeoLite\RegionName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SearchModels\DateHistogramInterval.cs" />
+    <Compile Include="SearchModels\GroupCriteria.cs" />
+    <Compile Include="SearchModels\BooleanCriteria.cs" />
+    <Compile Include="SearchModels\DateHistogramCriteria.cs" />
+    <Compile Include="SearchModels\ResultModel\AggregationsQueryResult.cs" />
+    <Compile Include="SearchModels\HistogramGroupCriteria.cs" />
+    <Compile Include="SearchModels\AggregationsCriteria.cs" />
     <Compile Include="SearchModels\QueryString\QueryString.cs" />
     <Compile Include="SearchModels\ResultModel\QueryResult.cs" />
     <Compile Include="SearchModels\ResultModel\QueryResultInfo.cs" />

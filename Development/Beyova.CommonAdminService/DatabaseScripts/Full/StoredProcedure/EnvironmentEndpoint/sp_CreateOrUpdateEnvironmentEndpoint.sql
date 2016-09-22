@@ -10,8 +10,9 @@ CREATE PROCEDURE [dbo].[sp_CreateOrUpdateEnvironmentEndpoint] (
     @Host NVARCHAR(256),
     @Port INT,
     @Version NVARCHAR(64),
+    @Account NVARCHAR(256),
     @Token NVARCHAR(512),
-    @ConnectionStrings XML,
+    @SecondaryToken NVARCHAR(256),
     @OperatorKey UNIQUEIDENTIFIER
 )
 AS
@@ -36,8 +37,9 @@ BEGIN
                     [Host] = ISNULL(@Host, [Host]),
                     [Port] = ISNULL(@Port, [Port]),
                     [Version] = ISNULL(@Version, [Version]),
+                    [Account] = ISNULL(@Account, [Account]),
                     [Token] = ISNULL(@Token, [Token]),
-                    [ConnectionStrings] = ISNULL(@ConnectionStrings, [ConnectionStrings]),
+                    [SecondaryToken] = ISNULL(@SecondaryToken, [SecondaryToken]),
                     [LastUpdatedStamp] = @NowTime,
                     [LastUpdatedBy] = @OperatorKey
                 WHERE [Key] = @Key;
@@ -55,11 +57,12 @@ BEGIN
            ,[Host]
            ,[Port]
            ,[Version]
+           ,[Account]
            ,[Token]
+           ,[SecondaryToken]
            ,[Name]
            ,[Code]
            ,[Environment]
-           ,[ConnectionStrings]
            ,[CreatedStamp]
            ,[LastUpdatedStamp]
            ,[CreatedBy]
@@ -71,11 +74,12 @@ BEGIN
            ,@Host
            ,@Port
            ,@Version
+           ,@Account
            ,@Token
+           ,@SecondaryToken
            ,@Name
            ,@Code
            ,@Environment
-           ,@ConnectionStrings
            ,@NowTime
            ,@NowTime
            ,@OperatorKey

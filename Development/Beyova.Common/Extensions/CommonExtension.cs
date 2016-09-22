@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Xml.Linq;
 using Beyova.ExceptionSystem;
 
@@ -54,6 +52,90 @@ namespace Beyova
         #endregion
 
         #region Extensions for all objects
+
+        /// <summary>
+        /// Safes the dispose.
+        /// </summary>
+        /// <param name="disposableObject">The disposable object.</param>
+        public static void SafeDispose(this IDisposable disposableObject)
+        {
+            if (disposableObject != null)
+            {
+                disposableObject.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Safe equals. Difference with Equals: If both null or value equals, return true, otherwise false. Would not throw NullReferenceException.
+        /// </summary>
+        /// <param name="stringA">The string a.</param>
+        /// <param name="stringB">The string b.</param>
+        /// <param name="comparisonType">Type of the comparison. Default: StringComparison.Ordinal</param>
+        /// <returns><c>true</c> if equals, <c>false</c> otherwise.</returns>
+        public static bool SafeEquals(this string stringA, string stringB, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            //Use safe strategy like Nullable equals. 
+            // http://referencesource.microsoft.com/#mscorlib/system/nullable.cs,ec76599b875ff1b7,references
+
+            if (stringA == null)
+            {
+                return stringB == null;
+            }
+
+            if (stringB == null)
+            {
+                return false;
+            }
+
+            return stringA.Equals(stringB, comparisonType);
+        }
+
+        /// <summary>
+        /// Meaningful equals. Return true if both of them are null/empty, or neither is null/empty + text equals.
+        /// </summary>
+        /// <param name="stringA">The string a.</param>
+        /// <param name="stringB">The string b.</param>
+        /// <param name="comparisonType">Type of the comparison.</param>
+        /// <returns><c>true</c> if is meaningful, <c>false</c> otherwise.</returns>
+        public static bool MeaningfulEquals(this string stringA, string stringB, StringComparison comparisonType = StringComparison.Ordinal)
+        {
+            if (string.IsNullOrWhiteSpace(stringA))
+            {
+                return string.IsNullOrWhiteSpace(stringB);
+            }
+
+            if (string.IsNullOrWhiteSpace(stringB))
+            {
+                return false;
+            }
+
+            return stringA.Equals(stringB, comparisonType);
+        }
+
+        /// <summary>
+        /// Safe equals. Difference with Equals: If both null or value equals, return true, otherwise false. Would not throw NullReferenceException.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectA">The object a.</param>
+        /// <param name="objectB">The object b.</param>
+        /// <returns><c>true</c> if equals, <c>false</c> otherwise.</returns>
+        public static bool SafeEquals<T>(this T objectA, T objectB)
+        {
+            //Use safe strategy like Nullable equals. 
+            // http://referencesource.microsoft.com/#mscorlib/system/nullable.cs,ec76599b875ff1b7,references
+
+            if (objectA == null)
+            {
+                return objectB == null;
+            }
+
+            if (objectB == null)
+            {
+                return false;
+            }
+
+            return objectA.Equals(objectB);
+        }
 
         /// <summary>
         /// Determines whether [is in values] [the specified values].
@@ -125,7 +207,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Determines whether [is in specific string] explicitely (case sensitively)
+        /// Determines whether [is in specific string] explicitly (case sensitively)
         /// </summary>
         /// <param name="anyString">Any string.</param>
         /// <param name="values">The values.</param>
@@ -153,7 +235,8 @@ namespace Beyova
         /// <typeparam name="TDestination">The type of the t destination.</typeparam>
         /// <param name="anyObject">Any object.</param>
         /// <param name="destination">The destination.</param>
-        public static void CopyInheritedPropertyValueTo<TSource, TDestination>(this TSource anyObject, TDestination destination) where TDestination : TSource
+        public static void CopyInheritedPropertyValueTo<TSource, TDestination>(this TSource anyObject, TDestination destination)
+            where TDestination : TSource
         {
             if (anyObject != null && destination != null)
             {
@@ -166,27 +249,6 @@ namespace Beyova
                     destinationProperty?.SetValue(destination, one.GetValue(anyObject));
                 }
             }
-        }
-
-        /// <summary>
-        /// To the identity string.
-        /// </summary>
-        /// <param name="anyIdentifiableObject">Any identifiable object.</param>
-        /// <returns>System.String.</returns>
-        public static string ToIdentityString(this IIdentifier anyIdentifiableObject)
-        {
-            return ToIdentityString(anyIdentifiableObject, anyIdentifiableObject != null ? anyIdentifiableObject.Key.ToString() : null);
-        }
-
-        /// <summary>
-        /// To the identity string.
-        /// </summary>
-        /// <param name="anyObject">Any object.</param>
-        /// <param name="identity">The identity.</param>
-        /// <returns>System.String.</returns>
-        public static string ToIdentityString(this object anyObject, string identity)
-        {
-            return anyObject != null ? string.Format("[{0}:{1}]", anyObject.GetType(), !string.IsNullOrWhiteSpace(identity) ? identity : "<Unknown>") : "<null>";
         }
 
         /// <summary>
@@ -225,7 +287,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Safes to string.
+        /// Safe to string.
         /// </summary>
         /// <param name="anyObject">Any object.</param>
         /// <param name="defaultString">The default string.</param>
@@ -236,7 +298,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Safes to string.
+        /// Safe to string.
         /// </summary>
         /// <param name="anyObject">Any object.</param>
         /// <param name="defaultString">The default string.</param>
@@ -244,21 +306,6 @@ namespace Beyova
         public static string SafeToString(this object anyObject, string defaultString = emptyString)
         {
             return anyObject != null ? anyObject.ToString() : defaultString;
-        }
-
-        /// <summary>
-        /// Checks the null object.
-        /// </summary>
-        /// <param name="anyObject">Any object.</param>
-        /// <param name="objectIdentity">The object identity.</param>
-        /// <param name="referenceData">The reference data.</param>
-        /// <exception cref="NullObjectException"></exception>
-        public static void CheckNullObject(this object anyObject, string objectIdentity, object referenceData = null)
-        {
-            if (anyObject == null)
-            {
-                throw new NullObjectException(objectIdentity);
-            }
         }
 
         /// <summary>
@@ -279,21 +326,7 @@ namespace Beyova
             if (anyXml == null
                 || (!anyXml.Name.LocalName.Equals(nodeName, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture)))
             {
-                throw new InvalidObjectException(nodeName, null, new { ExpectedName = nodeName, FactName = anyXml == null ? string.Empty : anyXml.Name.LocalName, IgnoreCase = ignoreCase });
-            }
-        }
-
-        /// <summary>
-        /// Checks the empty string.
-        /// </summary>
-        /// <param name="anyString">Any string.</param>
-        /// <param name="objectIdentity">The object identity.</param>
-        /// <exception cref="NullObjectException"></exception>
-        public static void CheckEmptyString(this string anyString, string objectIdentity)
-        {
-            if (string.IsNullOrWhiteSpace(anyString))
-            {
-                throw new NullObjectException(objectIdentity);
+                throw ExceptionFactory.CreateInvalidObjectException(nodeName, data: new { ExpectedName = nodeName, FactName = anyXml == null ? string.Empty : anyXml.Name.LocalName, IgnoreCase = ignoreCase });
             }
         }
 
@@ -301,7 +334,7 @@ namespace Beyova
 
         #region Type Convert Extensions
 
-        #region ObjectToXXX
+        #region Object To XXX
 
         /// <summary>
         /// To double.
@@ -552,7 +585,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle("ObjectToXml", data);
+                    throw ex.Handle(data);
                 }
             }
 
@@ -591,7 +624,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Enums to string.
+        /// Enums to string. Format: {int} ({string})
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="enumValue">The enum value.</param>
@@ -602,7 +635,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Enums to int32.
+        /// Enums to int32. Format: {int} ({string})
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="enumValue">The enum value.</param>
@@ -621,7 +654,7 @@ namespace Beyova
         public static int? EnumToInt32<T>(this T? enumValue) where T : struct, IConvertible
         {
             int? result = null;
-            if (enumValue != null)
+            if (enumValue.HasValue)
             {
                 IConvertible convertible = enumValue.Value;
                 result = convertible.ToInt32(CultureInfo.InvariantCulture);
@@ -649,7 +682,7 @@ namespace Beyova
         /// <returns>System.Nullable&lt;T&gt;.</returns>
         public static T? Int32ToEnum<T>(this int? intValue) where T : struct, IConvertible
         {
-            return intValue == null ? null : (T?)Enum.ToObject(typeof(T), intValue); ;
+            return intValue.HasValue ? (T?)Enum.ToObject(typeof(T), intValue) : null;
         }
 
         /// <summary>
@@ -843,6 +876,24 @@ namespace Beyova
         #region DateTime Extensions
 
         /// <summary>
+        /// Times the zone minute offset to time zone string.
+        /// </summary>
+        /// <param name="minuteOffset">The minute offset.</param>
+        /// <returns>
+        /// System.String.
+        /// </returns>
+        public static string TimeZoneMinuteOffsetToTimeZoneString(this int? minuteOffset)
+        {
+            if (minuteOffset.HasValue && minuteOffset.Value != 0)
+            {
+                var offset = (double)(minuteOffset.Value);
+                return string.Format("{0}{1}:{2}", offset < 0 ? "-" : "+", (int)(offset / 60), (int)(offset % 60));
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// To the UTC.
         /// </summary>
         /// <param name="dateTimeObject">The date time object.</param>
@@ -939,7 +990,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ConvertTimeZoneMinuteToTimeZone(this int? timeZone)
         {
-            return timeZone == null ? string.Empty : ConvertTimeZoneMinuteToTimeZone(timeZone.Value);
+            return timeZone.HasValue ? ConvertTimeZoneMinuteToTimeZone(timeZone.Value) : string.Empty;
         }
 
         /// <summary>
@@ -975,9 +1026,9 @@ namespace Beyova
         /// <returns></returns>
         public static DateTime? ToDifferentTimeZone(this DateTime? dateTimeObject, TimeSpan targetTimeZoneOffset, TimeSpan currentTimeZoneOffset = default(TimeSpan))
         {
-            return dateTimeObject == null
-                ? null
-                : ToDifferentTimeZone(dateTimeObject.Value, targetTimeZoneOffset, currentTimeZoneOffset) as DateTime?;
+            return dateTimeObject.HasValue ?
+                 ToDifferentTimeZone(dateTimeObject.Value, targetTimeZoneOffset, currentTimeZoneOffset) as DateTime?
+                : null;
         }
 
         /// <summary>
@@ -999,9 +1050,9 @@ namespace Beyova
         /// <returns></returns>
         public static DateTime? ToDifferentTimeZone(this DateTime? dateTimeObject, TimeZoneInfo timeZone)
         {
-            return dateTimeObject == null
-                   ? null
-                   : ToDifferentTimeZone(dateTimeObject.Value, timeZone) as DateTime?;
+            return dateTimeObject.HasValue ?
+                 ToDifferentTimeZone(dateTimeObject.Value, timeZone) as DateTime?
+                 : null;
         }
 
         /// <summary>
@@ -1028,9 +1079,9 @@ namespace Beyova
         /// <returns></returns>
         public static DateTime? ToDifferentTimeZone(this DateTime? dateTimeObject, int targetTimeZoneOffsetInMinute, int currentTimeZoneOffsetInMinute = 0)
         {
-            return dateTimeObject == null
-                     ? null
-                     : ToDifferentTimeZone(dateTimeObject.Value, targetTimeZoneOffsetInMinute, currentTimeZoneOffsetInMinute) as DateTime?;
+            return dateTimeObject.HasValue ?
+                      ToDifferentTimeZone(dateTimeObject.Value, targetTimeZoneOffsetInMinute, currentTimeZoneOffsetInMinute) as DateTime?
+                     : null;
         }
 
         /// <summary>
@@ -1040,7 +1091,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ToDateTimeString(this DateTime? dateTimeObject)
         {
-            return dateTimeObject == null ? string.Empty : dateTimeObject.Value.ToString(dateTimeFormat, CultureInfo.InvariantCulture);
+            return dateTimeObject.HasValue ? dateTimeObject.Value.ToString(dateTimeFormat, CultureInfo.InvariantCulture) : string.Empty;
         }
 
         /// <summary>
@@ -1050,7 +1101,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ToDateString(this DateTime? dateTimeObject)
         {
-            return dateTimeObject == null ? string.Empty : dateTimeObject.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+            return dateTimeObject.HasValue ? dateTimeObject.Value.ToString(dateFormat, CultureInfo.InvariantCulture) : string.Empty;
         }
 
         /// <summary>
@@ -1070,7 +1121,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ToLocalDateString(this DateTime? dateTimeObject)
         {
-            return dateTimeObject == null ? string.Empty : dateTimeObject.Value.ToLocalDateString();
+            return dateTimeObject.HasValue ? dateTimeObject.Value.ToLocalDateString() : string.Empty;
         }
 
         /// <summary>
@@ -1092,7 +1143,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ToFullDateTimeString(this DateTime? dateTimeObject)
         {
-            return dateTimeObject == null ? string.Empty : dateTimeObject.Value.ToString(fullDateTimeFormat, CultureInfo.InvariantCulture);
+            return dateTimeObject.HasValue ? dateTimeObject.Value.ToString(fullDateTimeFormat, CultureInfo.InvariantCulture) : string.Empty;
         }
 
         /// <summary>
@@ -1112,7 +1163,7 @@ namespace Beyova
         /// <returns></returns>
         public static string ToFullDateTimeTzString(this DateTime? dateTimeObject)
         {
-            return dateTimeObject == null ? string.Empty : dateTimeObject.Value.ToString(fullDateTimeTZFormat, CultureInfo.InvariantCulture);
+            return dateTimeObject.HasValue ? dateTimeObject.Value.ToString(fullDateTimeTZFormat, CultureInfo.InvariantCulture) : string.Empty;
         }
 
         /// <summary>
@@ -1132,7 +1183,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ToLogStampString(this DateTime? dateTimeObject)
         {
-            return dateTimeObject == null ? string.Empty : dateTimeObject.Value.ToLogStampString();
+            return dateTimeObject.HasValue ? dateTimeObject.Value.ToLogStampString() : string.Empty;
         }
 
         /// <summary>
@@ -1245,7 +1296,7 @@ namespace Beyova
             {
                 if (throwException)
                 {
-                    throw ex.Handle("TryParseXml", xmlString);
+                    throw ex.Handle(xmlString);
                 }
             }
 
@@ -1269,7 +1320,7 @@ namespace Beyova
             {
                 if (throwException)
                 {
-                    throw ex.Handle("TryLoadXml", xmlPath);
+                    throw ex.Handle(xmlPath);
                 }
             }
 
@@ -1533,7 +1584,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string CreateRandomNumberString(this object anyObject, int length)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(length);
 
             for (int i = 0; i < length; i++)
             {
@@ -1551,8 +1602,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string CreateRandomHexString(this object anyObject, int length)
         {
-
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(length);
             for (int i = 0; i < length; i++)
             {
                 sb.Append(alpha[random.Next(0, 16)]);
@@ -1570,11 +1620,11 @@ namespace Beyova
         public static byte[] CreateRandomHex(this object anyObject, int length)
         {
             byte[] result = new byte[length];
+            var sb = new StringBuilder(2);
 
             for (int i = 0; i < length; i++)
             {
-                var sb = new StringBuilder();
-
+                sb.Clear();
                 sb.Append(alpha[random.Next(0, 16)]);
                 sb.Append(alpha[random.Next(0, 16)]);
 
@@ -1592,7 +1642,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string CreateRandomString(this object anyObject, int length)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(length);
 
             for (var i = 0; i < length; i++)
             {

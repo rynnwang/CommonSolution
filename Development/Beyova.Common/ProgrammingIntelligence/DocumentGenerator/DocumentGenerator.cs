@@ -9,6 +9,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using Newtonsoft.Json;
+using Beyova.Api;
 
 namespace Beyova
 {
@@ -258,7 +259,7 @@ url{
 
             var serviceTypes = new List<KeyValuePair<Type, ApiContractAttribute>>();
             HashSet<Type> enumSets = new HashSet<Type>();
-            HashSet<string> apiOperationHash = new HashSet<string>();
+            //HashSet<string> apiOperationHash = new HashSet<string>();
 
             //Service List
             StringBuilder builder = new StringBuilder();
@@ -269,7 +270,7 @@ url{
                 if (apiContractAttribute != null)
                 {
                     serviceTypes.Add(new KeyValuePair<Type, ApiContractAttribute>(one, apiContractAttribute));
-                    WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute, apiOperationHash);
+                    WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute);
                 }
             }
 
@@ -307,11 +308,12 @@ url{
         /// <param name="builder">The builder.</param>
         /// <param name="apiServiceType">Type of the API service.</param>
         /// <param name="apiContractAttribute">The API class attribute.</param>
-        /// <param name="apiOperationHash">The API operation hash.</param>
-        protected void WriteApiServiceHtmlDocumentPanel(StringBuilder builder, Type apiServiceType, ApiContractAttribute apiContractAttribute, HashSet<string> apiOperationHash)
+        protected void WriteApiServiceHtmlDocumentPanel(StringBuilder builder, Type apiServiceType, ApiContractAttribute apiContractAttribute)
         {
             if (builder != null && apiServiceType != null && apiContractAttribute != null)
             {
+                HashSet<string> apiOperationHash = new HashSet<string>();
+
                 var bodyBuilder = new StringBuilder("<ul>");
                 var baseUrl = apiServiceType.FullName + ".html#";
                 var list = apiServiceType.GetMethodInfoWithinAttribute<ApiOperationAttribute>(true, BindingFlags.Instance | BindingFlags.Public).OrderBy<MethodInfo, string>((m) => m.Name);
@@ -839,7 +841,7 @@ url{
         /// <param name="builder">The builder.</param>
         private static void RemoveUnnecessaryColon(StringBuilder builder)
         {
-            builder.RemoveLastIfMatch(',', true);
+            builder.RemoveLastIfMatch(StringConstants.CommaChar, true);
             builder.AppendLine();
         }
 

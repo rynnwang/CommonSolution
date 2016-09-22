@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Beyova.ExceptionSystem;
@@ -31,40 +32,6 @@ namespace Beyova.CommonAdminService
         /// <param name="environment">The environment.</param>
         /// <returns>EnvironmentEndpoint.</returns>
         protected abstract EnvironmentEndpoint GetEnvironmentEndpoint(string environment);
-
-        /// <summary>
-        /// Handles the exception to partial view.
-        /// </summary>
-        /// <param name="ex">The ex.</param>
-        /// <param name="httpMethod">The HTTP method.</param>
-        /// <param name="methodName">Name of the method.</param>
-        /// <param name="exceptionObject">The exception object.</param>
-        /// <returns>PartialViewResult.</returns>
-        public override PartialViewResult HandleExceptionToPartialView(Exception ex,
-            string httpMethod, string methodName, object exceptionObject)
-        {
-            var baseException = ex.Handle(
-                string.Format("{0}: /{1}/{2}/", httpMethod, _moduleCode, methodName), exceptionObject);
-            "Exception".SetThreadData(baseException);
-            return PartialView(Constants.ViewNames.ErrorPartialView, baseException.Code.Major);
-        }
-
-        /// <summary>
-        /// Handles the exception to redirection.
-        /// </summary>
-        /// <param name="ex">The ex.</param>
-        /// <param name="httpMethod">The HTTP method.</param>
-        /// <param name="methodName">Name of the method.</param>
-        /// <param name="exceptionObject">The exception object.</param>
-        /// <returns>RedirectToRouteResult.</returns>
-        public override RedirectToRouteResult HandleExceptionToRedirection(Exception ex,
-            string httpMethod, string methodName, object exceptionObject = null)
-        {
-            var baseException = ex.Handle(
-                string.Format("{0}: /{1}/{2}/", httpMethod, _moduleCode, methodName), exceptionObject);
-            "Exception".SetThreadData(baseException);
-            return RedirectToAction("Index", "Error", new { errorCode = (int)(baseException.Code.Major) });
-        }
 
         /// <summary>
         /// Setups the route using URL: {controller}/{action}/{environment}/{key}

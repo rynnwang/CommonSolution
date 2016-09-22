@@ -21,11 +21,6 @@ namespace Beyova
         private static Dictionary<string, DiagnosticFileLogger> diagnosticFileLoggers = new Dictionary<string, DiagnosticFileLogger>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// The instance
-        /// </summary>
-        public Microsoft.VisualBasic.Logging.FileLogTraceListener traceListener;
-
-        /// <summary>
         /// The initialize locker
         /// </summary>
         private static object initializeLocker = new object();
@@ -39,7 +34,7 @@ namespace Beyova
         {
             lock (initializeLocker)
             {
-                applicationName = applicationName.SafeToString("Default");
+                applicationName = applicationName.SafeToString("default");
                 DiagnosticFileLogger result;
 
                 if (!diagnosticFileLoggers.TryGetValue(applicationName, out result))
@@ -52,6 +47,8 @@ namespace Beyova
             }
         }
 
+        private System.IO.StreamWriter writer;
+
         #region Constructor
 
         /// <summary>
@@ -60,18 +57,26 @@ namespace Beyova
         /// <param name="applicationName">Name of the application.</param>
         private DiagnosticFileLogger(string applicationName)
         {
-            applicationName.CheckEmptyString("applicationName");
-
-            traceListener = new Microsoft.VisualBasic.Logging.FileLogTraceListener
+            try
             {
-                AutoFlush = true,
-                Append = true,
-                BaseFileName = applicationName,
-                Encoding = Encoding.UTF8,
-                Location = Microsoft.VisualBasic.Logging.LogFileLocation.Custom,
-                CustomLocation = EnvironmentCore.LogDirectory,
-                LogFileCreationSchedule = Microsoft.VisualBasic.Logging.LogFileCreationScheduleOption.Daily
-            };
+                applicationName.CheckEmptyString("applicationName");
+                writer = new StreamWriter(Path.Combine(EnvironmentCore.LogDirectory, applicationName));
+            }
+            catch (InvalidObjectException)
+            {
+                throw;
+            }
+            catch
+            {
+                try
+                {
+                    writer = new StreamWriter(Path.Combine(EnvironmentCore.LogDirectory, applicationName + "(1)"));
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(applicationName);
+                }
+            }
         }
 
         #endregion
@@ -98,28 +103,12 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Logs the exception.
-        /// </summary>
-        /// <param name="ex">The ex.</param>
-        /// <param name="data">The data.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        private void InternalLogException(Exception ex, object data = null)
-        {
-            try
-            {
-                string errorInfo = ex.FormatToString(data);
-                InternalWriteContent(errorInfo);
-            }
-            catch { }
-        }
-
-        /// <summary>
         /// Writes the content.
         /// </summary>
         /// <param name="content">The content.</param>
         private void InternalWriteContent(string content)
         {
-            traceListener.WriteLine(content);
+            writer.WriteLine(content);
         }
 
         /// <summary>
@@ -133,24 +122,6 @@ namespace Beyova
             {
                 InternalWriteContent(eventLog.ApiEventLogToString());
                 return eventLog.Key;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Logs the exception.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="serviceIdentifier">The service identifier.</param>
-        /// <param name="serverIdentifier">The server identifier.</param>
-        /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        private Guid? InternalLogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
-        {
-            if (exception != null)
-            {
-                InternalWriteContent(exception.FormatToString());
-                return exception.Key;
             }
 
             return null;
@@ -177,20 +148,6 @@ namespace Beyova
             if (eventLog != null)
             {
                 Task.Factory.StartNew(() => InternalLogApiEvent(eventLog));
-            }
-        }
-
-        /// <summary>
-        /// Logs the exception asynchronous.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="serviceIdentifier">The service identifier.</param>
-        /// <param name="serverIdentifier">The server identifier.</param>
-        public void LogException(BaseException exception, string serviceIdentifier = null, string serverIdentifier = null)
-        {
-            if (exception != null)
-            {
-                Task.Factory.StartNew(() => InternalLogException(exception, serviceIdentifier, serverIdentifier));
             }
         }
 

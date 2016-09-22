@@ -27,41 +27,6 @@ namespace Beyova
         /// <summary>
         ///     The value indicating that object is disabled. (0x8)
         /// </summary>
-        Disabled = 0x08,
-        /// <summary>
-        ///     The value indicating that operation is succeed. (0x10)
-        /// </summary>
-        [Obsolete("Use WorkflowState instead.")]
-        Succeed = 0x10,
-        /// <summary>
-        ///     The value indicating that operation is failed. (0x11)
-        /// </summary>
-        [Obsolete("Use WorkflowState instead.")]
-        Failed = 0x11,
-        /// <summary>
-        ///     The value indicating that object or operation is pending. (0x100)
-        /// </summary>
-        [Obsolete("Use WorkflowState instead.")]
-        Pending = 0x100,
-        /// <summary>
-        ///     The value indicating that object or operation is approved. (0x110)
-        /// </summary>
-        [Obsolete("Use WorkflowState instead.")]
-        Approved = 0x110,
-        /// <summary>
-        ///     The value indicating that object or operation is rejected. (0x120)
-        /// </summary>
-        [Obsolete("Use WorkflowState instead.")]
-        Rejected = 0x120,
-        /// <summary>
-        ///     The value indicating that operation is in process. (0x140)
-        /// </summary>
-        [Obsolete("Use WorkflowState instead.")]
-        InProcess = 0x140,
-        /// <summary>
-        ///     The value indicating that object or operation is rejected. (0x180)
-        /// </summary>
-        [Obsolete("Use WorkflowState instead.")]
-        Completed = 0x180
+        Disabled = 0x08
     }
 }

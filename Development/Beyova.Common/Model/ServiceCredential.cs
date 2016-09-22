@@ -6,20 +6,8 @@ namespace Beyova
     /// <summary>
     /// Class ServiceCredential.
     /// </summary>
-    public class ServiceCredential : ICredential, IPermissionIdentifiers
+    public class ServiceCredential : BaseCredential, IPermissionIdentifiers
     {
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>The name.</value>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets the key.
-        /// </summary>
-        /// <value>The key.</value>
-        public Guid? Key { get; set; }
-
         /// <summary>
         /// Gets or sets the token.
         /// </summary>

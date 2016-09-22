@@ -15,49 +15,61 @@ namespace Beyova.Elastic
         /// <summary>
         /// Indexes the asynchronous.
         /// </summary>
-        /// <param name="indexName">Name of the index.</param>
-        /// <param name="type">The type.</param>
-        /// <param name="data">The data.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="F"></typeparam>
+        /// <param name="indexObject">The index object.</param>
+        /// <param name="timeout">The timeout.</param>
         /// <returns>Task&lt;System.String&gt;.</returns>
-        public async Task<string> IndexAsync(string indexName, string type, object data)
+        public async Task<string> IndexAsync<T, F>(IElasticWorkObject<T, F> indexObject, int? timeout = null)
         {
             try
             {
-                data.CheckNullObject("data");
+                indexObject.CheckNullObject("indexObject");
 
-                var httpRequest = GetHttpRequestUri(indexName, type).CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
-                await httpRequest.FillDataAsync(data.ToJson(false), Encoding.UTF8, "application/json").ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(indexObject.IndexName)
+                  && !string.IsNullOrWhiteSpace(indexObject.Type)
+                  && indexObject.RawData != null)
+                {
+                    var httpRequest = GetHttpRequestUri(indexObject.IndexName, indexObject.Type).CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
+                    httpRequest.Timeout = timeout ?? 10000;//10sec for timeout as default.
+                    await httpRequest.FillDataAsync(indexObject.RawData.ToJson(false), Encoding.UTF8, "application/json");
 
-                return await httpRequest.ReadResponseAsTextAsync(Encoding.UTF8);
+                    return await httpRequest.ReadResponseAsTextAsync(Encoding.UTF8);
+                }
             }
-            catch (Exception ex)
-            {
-                throw ex.Handle("IndexAsync", new { indexName, type, data });
-            }
+            catch { }
+
+            return null;
         }
 
         /// <summary>
         /// Indexes the specified index name.
         /// </summary>
-        /// <param name="indexName">Name of the index.</param>
-        /// <param name="type">The type.</param>
-        /// <param name="data">The data.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="F"></typeparam>
+        /// <param name="indexObject">The index object.</param>
+        /// <param name="timeout">The timeout.</param>
         /// <returns>System.String.</returns>
-        public string Index(string indexName, string type, object data)
+        public string Index<T, F>(IElasticWorkObject<T, F> indexObject, int? timeout = null)
         {
             try
             {
-                data.CheckNullObject("data");
+                indexObject.CheckNullObject("indexObject");
 
-                var httpRequest = GetHttpRequestUri(indexName, type).CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
-                httpRequest.FillData(data.ToJson(false), Encoding.UTF8, "application/json");
+                if (!string.IsNullOrWhiteSpace(indexObject.IndexName)
+                    && !string.IsNullOrWhiteSpace(indexObject.Type)
+                    && indexObject.RawData != null)
+                {
+                    var httpRequest = GetHttpRequestUri(indexObject.IndexName, indexObject.Type).CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
+                    httpRequest.Timeout = timeout ?? 10000;//10sec for timeout as default.
+                    httpRequest.FillData(indexObject.RawData.ToJson(false), Encoding.UTF8, "application/json");
 
-                return httpRequest.ReadResponseAsText(Encoding.UTF8);
+                    return httpRequest.ReadResponseAsText(Encoding.UTF8);
+                }
             }
-            catch (Exception ex)
-            {
-                throw ex.Handle("Index", new { indexName, type, data });
-            }
+            catch { }
+
+            return null;
         }
     }
 }

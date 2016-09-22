@@ -43,7 +43,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -53,14 +53,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>bin\Release\Beyova.Common.xml</DocumentationFile>
+    <DocumentationFile>bin\Beyova.Common.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -69,9 +69,8 @@
     <AssemblyOriginatorKeyFile>Beyova.Common.BuildKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -90,22 +89,71 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AOP\AOPBase\MessageProcessDelegates.cs" />
-    <Compile Include="AOP\AOPBase\AOPSinkProcessor.cs" />
-    <Compile Include="AOP\AOPBase\AOPMessageProcessor.cs" />
-    <Compile Include="AOP\AOPBase\BaseAOPAttribute.cs" />
-    <Compile Include="AOP\Exception\HandleExceptionAttribute.cs" />
-    <Compile Include="AOP\AOPBase\AOPInterceptorObject.cs" />
+    <Compile Include="Aop\AOPBase\MessageProcessDelegates.cs" />
+    <Compile Include="Aop\AOPBase\AOPSinkProcessor.cs" />
+    <Compile Include="Aop\AOPBase\AOPMessageProcessor.cs" />
+    <Compile Include="Aop\AOPBase\BaseAOPAttribute.cs" />
+    <Compile Include="Aop\Exception\HandleExceptionAttribute.cs" />
+    <Compile Include="Aop\AOPBase\AOPInterceptorObject.cs" />
+    <Compile Include="Api\RestApi\SecuredApiRouter.cs" />
+    <Compile Include="Api\SharedModel\UriEndpoint.cs" />
+    <Compile Include="Api\WebSocket\Attribute\WebSocketApiContractAttribute.cs" />
+    <Compile Include="Api\WebSocket\Attribute\WebSocketApiOperationAttribute.cs" />
+    <Compile Include="Api\WebSocket\BaseWebSocketHandler.cs" />
+    <Compile Include="Api\WebSocket\Model\WebSocketSettings.cs" />
+    <Compile Include="Api\WebSocket\Model\WebSocketConnection.cs" />
+    <Compile Include="Api\WebSocket\Model\WebSocketMessageMeta.cs" />
+    <Compile Include="Api\WebSocket\WebSocketMessageMetaJsonConverter.cs" />
+    <Compile Include="Api\WebSocket\WebSocketHub.cs" />
+    <Compile Include="Cache\CacheContainerSummary.cs" />
+    <Compile Include="Cache\CacheRealm.cs" />
+    <Compile Include="Cache\CacheContainer.cs" />
+    <Compile Include="Cloud\Binary\CloudBinaryStorageOperator.cs" />
+    <Compile Include="Cloud\Binary\ICloudBinaryStorageOperator.cs" />
+    <Compile Include="Constants\UnicodeConstants.cs" />
+    <Compile Include="Constants\StringConstants.cs" />
     <Compile Include="Constants\CommonServiceConstants.cs" />
     <Compile Include="Constants\XmlConstants.cs" />
     <Compile Include="Constants\HttpConstants.cs" />
+    <Compile Include="ExceptionSystem\ExceptionFactory.cs" />
+    <Compile Include="ExceptionSystem\ExceptionScene.cs" />
+    <Compile Include="ExceptionSystem\Model\Exception\UnsupportedException.cs" />
+    <Compile Include="ExceptionSystem\Model\Exception\InvalidLicenseException.cs" />
+    <Compile Include="ExceptionSystem\Model\Exception\DynamicCompileException.cs" />
+    <Compile Include="ExceptionSystem\Model\Exception\WorkflowOperationException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\SqlStoredProcedureException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\HttpOperationException.cs" />
+    <Compile Include="Extensions\WindowsProcessExtension.cs" />
+    <Compile Include="Extensions\LinqExtension.cs" />
+    <Compile Include="Extensions\DataExtension.cs" />
     <Compile Include="Extensions\ContractModelExtension.cs" />
+    <Compile Include="Extensions\FinanceExtension.cs" />
     <Compile Include="Extensions\JsonComparisonExtension.cs" />
+    <Compile Include="Extensions\GlobalizationExtension.cs" />
     <Compile Include="Extensions\LdapExtension.cs" />
-    <Compile Include="Extensions\MathExtension.cs" />
     <Compile Include="Extensions\SystemManagementExtension.cs" />
+    <Compile Include="Extensions\UiExtension.cs" />
+    <Compile Include="Framework\CultureResource\GlobalCultureResource.cs" />
+    <Compile Include="Framework\CultureResource\GlobalCultureResourceCollection.cs" />
+    <Compile Include="GravityProtocol\GravityContext.cs" />
+    <Compile Include="GravityProtocol\Client\GravityWebSocketClient.cs" />
+    <Compile Include="GravityProtocol\Client\GravityClient.cs" />
+    <Compile Include="GravityProtocol\Interface\IBaseGravityWebSocketClientProtocol.cs" />
+    <Compile Include="GravityProtocol\Interface\IBaseGravityWebSocketProtocol.cs" />
+    <Compile Include="GravityProtocol\Model\GravityBaseObject.cs" />
+    <Compile Include="GravityProtocol\Model\ComponentWorkingStatus.cs" />
+    <Compile Include="GravityProtocol\Model\GravityEntryObject.cs" />
+    <Compile Include="GravityProtocol\Model\GravityValidationResult.cs" />
+    <Compile Include="Interfaces\BooleanSearch\IBooleanComputable.cs" />
+    <Compile Include="Interfaces\IExpression.cs" />
+    <Compile Include="Interfaces\BooleanSearch\ICriteriaOperatorComputable.cs" />
+    <Compile Include="Interfaces\BooleanSearch\IRelationshipOperatorComputable.cs" />
+    <Compile Include="License\BeyovaLicenseBase.cs" />
+    <Compile Include="License\BeyovaLicenseReader.cs" />
+    <Compile Include="License\IBeyovaLicenseReader.cs" />
+    <Compile Include="License\BeyovaLicenseContainer.cs" />
+    <Compile Include="License\BeyovaLicenseInfo.cs" />
+    <Compile Include="Framework\ServiceGlobalSwitch.cs" />
     <Compile Include="Framework\SqlDataAccessController\BaseDataAccessController.cs" />
     <Compile Include="Framework\SqlDataAccessController\DatabaseOperator.cs" />
     <Compile Include="Framework\SqlDataAccessController\Smart\SmartSqlDataAccessController.cs" />
@@ -114,28 +162,80 @@
     <Compile Include="Framework\SqlDataAccessController\Smart\SqlFieldConverter.cs" />
     <Compile Include="Framework\SqlDataAccessController\SqlDataAccessController.cs" />
     <Compile Include="Framework\SqlDataAccessController\SqlTransactionScope.cs" />
+    <Compile Include="GravityProtocol\Interface\IBaseGravityProtocol.cs" />
+    <Compile Include="GravityProtocol\Model\GravityHeartbeat.cs" />
     <Compile Include="Interfaces\ApiTracking\IApiAnalytics.cs" />
+    <Compile Include="Cloud\Binary\IBinaryStorageHelper.cs" />
+    <Compile Include="Cache\ICacheContainer.cs" />
+    <Compile Include="CommonServiceInterface\ISSOAuthorizationService.cs" />
+    <Compile Include="CommonServiceInterface\IUserPreferenceService.cs" />
+    <Compile Include="Interfaces\Transaction\ITransactionCriteria.cs" />
+    <Compile Include="Interfaces\Transaction\ITransactionRequest.cs" />
+    <Compile Include="CommonServiceInterface\ITransactionService.cs" />
+    <Compile Include="CommonServiceInterface\IAppVersionService.cs" />
+    <Compile Include="CommonServiceInterface\IDualApprovalService.cs" />
+    <Compile Include="Interfaces\Transaction\ITransactionAudit.cs" />
+    <Compile Include="Interfaces\II18NResourceCollection.cs" />
+    <Compile Include="Interfaces\ICredential.cs" />
     <Compile Include="Interfaces\ITreeNode.cs" />
     <Compile Include="Interfaces\IPermissionIdentifiers.cs" />
     <Compile Include="Interfaces\IGeographyLocation.cs" />
     <Compile Include="Model\Admin\AdminAuthenticationResult.cs" />
+    <Compile Include="Model\ApiTracking\Query\ApiMessageCriteria.cs" />
+    <Compile Include="Model\ApiTracking\Entity\ApiMessage.cs" />
+    <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationBase.cs" />
+    <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationCriteria.cs" />
+    <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorization.cs" />
+    <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationRequest.cs" />
+    <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartnerCriteria.cs" />
+    <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartner.cs" />
+    <Compile Include="Model\BooleanSearch\ComputeOperator.cs" />
+    <Compile Include="Model\BooleanSearch\CriteriaOperatorComputable.cs" />
+    <Compile Include="Model\BooleanSearch\RelationshipOperatorable.cs" />
+    <Compile Include="Model\BooleanSearch\RelationshipOperator.cs" />
+    <Compile Include="Model\Configuration\RemoteConfigurationCriteria.cs" />
+    <Compile Include="Model\Configuration\RemoteConfigurationObject.cs" />
+    <Compile Include="Model\Dictionary\SequencedKeyDictionary.cs" />
+    <Compile Include="Model\DualApproval\DualApprovalRuleCriteria.cs" />
+    <Compile Include="Model\DualApproval\DualApprovalRule.cs" />
+    <Compile Include="Model\DualApproval\DualApprovalRequest.cs" />
     <Compile Include="Model\Admin\User\AdminUserInfoBase.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiTraceLogPiece.cs" />
-    <Compile Include="Model\ApiTracking\Entity\RuntimeApiTraceLog.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
+    <Compile Include="Model\BinaryStorage\BinaryStorageCommitOption.cs" />
+    <Compile Include="Model\BinaryStorage\BinaryStorageCommitRequest.cs" />
     <Compile Include="Model\ComparisonResult.cs" />
+    <Compile Include="Model\Diagnostic\NetworkDiagnosticReport.cs" />
+    <Compile Include="Model\Diagnostic\ServiceHealth.cs" />
+    <Compile Include="Model\ApiTracking\Statistic\AggregationGroupObject.cs" />
+    <Compile Include="Model\Finance\FinancialItemSummary.cs" />
+    <Compile Include="Model\Finance\FinancialItemDetail.cs" />
     <Compile Include="Model\Geography\GeoInfoBase.cs" />
+    <Compile Include="Model\Concurrent\ConcurrentMatrixList.cs" />
     <Compile Include="Model\MatrixList.cs" />
+    <Compile Include="Model\Mobile\AppServiceStatus.cs" />
+    <Compile Include="Model\Schedule\Schedule.cs" />
+    <Compile Include="Model\BaseCredential.cs" />
+    <Compile Include="Model\ServiceRunningStatus.cs" />
     <Compile Include="Model\SystemEnvironment\DiskDriveInfo.cs" />
     <Compile Include="Model\SystemEnvironment\MachineHealth.cs" />
+    <Compile Include="Model\TimeScope.cs" />
+    <Compile Include="License\BeyovaLicenseAttribute.cs" />
+    <Compile Include="Model\TransactionFlow\TransactionAudit.cs" />
+    <Compile Include="Model\TransactionFlow\TransactionBase.cs" />
+    <Compile Include="Model\TransactionFlow\TransactionCriteria.cs" />
+    <Compile Include="Model\TransactionFlow\TransactionRequest.cs" />
+    <Compile Include="Model\TransactionFlow\TransactionState.cs" />
+    <Compile Include="Model\UserPreference\UserPreferenceCriteria.cs" />
+    <Compile Include="Model\UserPreference\UserPreference.cs" />
+    <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaCultureResourceAttribute.cs" />
     <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaConfigurationAttribute.cs" />
     <Compile Include="ProgrammingIntelligence\DocumentGenerator\DocumentGenerator.cs" />
-    <Compile Include="RestApi\Attribute\ApiHeaderAttribute.cs" />
-    <Compile Include="RestApi\Context\ApiTraceContext.cs" />
+    <Compile Include="Api\RestApi\Attribute\ApiHeaderAttribute.cs" />
+    <Compile Include="Api\Trace\ApiTraceContext.cs" />
     <Compile Include="ExceptionSystem\Model\FriendlyHint.cs" />
-    <Compile Include="ExceptionSystem\Model\SimpleExceptionInfo.cs" />
     <Compile Include="Extensions\IOExtension.cs" />
-    <Compile Include="Extensions\DatabaseExtensionExtension.cs" />
+    <Compile Include="Extensions\DatabaseExtension.cs" />
     <Compile Include="Extensions\CompressionExtension.cs" />
     <Compile Include="Extensions\SentenceExtension.cs" />
     <Compile Include="Extensions\ThreadExtension.cs" />
@@ -143,16 +243,13 @@
     <Compile Include="Interfaces\IJsonSerializable.cs" />
     <Compile Include="Interfaces\IXmlSerializable.cs" />
     <Compile Include="Interfaces\AuthenticationProfile\IAuthenticationResult.cs" />
-    <Compile Include="Interfaces\CommonServiceInterface\IResourceService.cs" />
-    <Compile Include="Interfaces\CommonServiceInterface\IAuthenticationProfileService.cs" />
-    <Compile Include="Interfaces\ICredential.cs" />
+    <Compile Include="CommonServiceInterface\IBinaryStorageService.cs" />
+    <Compile Include="CommonServiceInterface\IAuthenticationProfileService.cs" />
     <Compile Include="Interfaces\AuthenticationProfile\IUserCriteria.cs" />
     <Compile Include="Interfaces\IWorkflowBasedObject.cs" />
     <Compile Include="Interfaces\ISimpleBaseObject.cs" />
     <Compile Include="Interfaces\AuthenticationProfile\IUserInfo.cs" />
-    <Compile Include="Interfaces\CommonServiceInterface\IProvisioningService.cs" />
-    <Compile Include="Interfaces\ProvisioningService\IProvisioningCriteria.cs" />
-    <Compile Include="Interfaces\ProvisioningService\IProvisioningObject.cs" />
+    <Compile Include="CommonServiceInterface\IProvisioningService.cs" />
     <Compile Include="Model\AuthenticationProfile\AccessCredential.cs" />
     <Compile Include="Model\AuthenticationProfile\AccessCredentialCriteria.cs" />
     <Compile Include="Model\AuthenticationProfile\AccessCredentialInfo.cs" />
@@ -169,17 +266,14 @@
     <Compile Include="Model\Admin\User\AdminUserCriteria.cs" />
     <Compile Include="Model\Admin\User\AdminUserInfo.cs" />
     <Compile Include="Model\ApiTracking\Statistic\GroupStatistic.cs" />
-    <Compile Include="Model\ApiTracking\Statistic\AnalyticStatistic.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ExceptionGroupStatistic.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ApiEventGroupStatistic.cs" />
-    <Compile Include="Model\App\AppPlatformBase.cs" />
-    <Compile Include="Model\App\AppVersionBase.cs" />
+    <Compile Include="Model\Mobile\App\AppPlatformBase.cs" />
+    <Compile Include="Model\Mobile\App\AppVersionBase.cs" />
     <Compile Include="Model\AuthenticationProfile\SessionCriteria.cs" />
     <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpointCriteria.cs" />
     <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpointBase.cs" />
     <Compile Include="Model\EnvironmentEndpoint\EnvironmentEndpoint.cs" />
-    <Compile Include="Model\Maintenance\MaintanenceJobLog.cs" />
-    <Compile Include="Model\PathKeyDictionary.cs" />
     <Compile Include="Model\ServiceCredential.cs" />
     <Compile Include="Model\AuthenticationProfile\SessionInfo.cs" />
     <Compile Include="Model\SimpleBaseObject.cs" />
@@ -197,61 +291,72 @@
     <Compile Include="Model\BinaryStorage\BinaryStorageMetaDataCriteria.cs" />
     <Compile Include="Model\Geography\CountryInfo.cs" />
     <Compile Include="Model\Geography\CountryInfoCriteria.cs" />
-    <Compile Include="Model\Geography\GeographyInfo.cs" />
-    <Compile Include="Model\Geography\GeographyTier.cs" />
-    <Compile Include="Model\Geography\GeographyTierCriteria.cs" />
-    <Compile Include="Model\MobileSupport\DeviceType.cs" />
-    <Compile Include="Model\MobileSupport\PlatformType.cs" />
-    <Compile Include="Configuration\JsonConfigurationReader.cs" />
+    <Compile Include="Model\Mobile\DeviceType.cs" />
+    <Compile Include="Model\Mobile\PlatformType.cs" />
+    <Compile Include="Framework\JsonConfigurationReader.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\UnimplementedException.cs" />
-    <Compile Include="Interfaces\ApiTracking\IAnalyticStatistic.cs" />
     <Compile Include="Interfaces\ApiTracking\IGroupByResult.cs" />
     <Compile Include="Interfaces\ApiTracking\ITimeFrame.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ApiEventStatisticCriteria.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiLogBase.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiEventLogBase.cs" />
-    <Compile Include="Model\ApiTracking\TimeInterval.cs" />
     <Compile Include="ExceptionSystem\Model\ExceptionBase.cs" />
-    <Compile Include="Model\ApiTracking\TimeUnit.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ExceptionStatisticCriteria.cs" />
-    <Compile Include="Model\Maintenance\MaintanenceJob.cs" />
     <Compile Include="Model\WorkflowState.cs" />
     <Compile Include="ProgrammingIntelligence\AssesmblyAttribute\BeyovaComponentAttribute.cs" />
-    <Compile Include="RestApi\Attribute\ApiDescriptionAttribute.cs" />
-    <Compile Include="RestApi\Attribute\ApiModuleAttribute.cs" />
-    <Compile Include="RestApi\Attribute\ApiTransportAttribute.cs" />
-    <Compile Include="RestApi\Attribute\StrickContractOutputAttribute.cs" />
-    <Compile Include="RestApi\Model\ApiLabel.cs" />
-    <Compile Include="RestApi\Model\ApiEndpoint.cs" />
-    <Compile Include="RestApi\Interface\IWebSocketHub.cs" />
-    <Compile Include="RestApi\Interface\IApiTransportAdapter.cs" />
-    <Compile Include="RestApi\Model\RuntimeContext.cs" />
-    <Compile Include="RestApi\Context\ApiContext.cs" />
-    <Compile Include="RestApi\ApiTraceExtension.cs" />
-    <Compile Include="RestApi\RestApiHandler\RestApiEventHandlers.cs" />
-    <Compile Include="RestApi\RestApiHandler\RestApiSettings.cs" />
+    <Compile Include="Api\SharedAttribute\ApiDescriptionAttribute.cs" />
+    <Compile Include="Api\SharedAttribute\ApiModuleAttribute.cs" />
+    <Compile Include="Api\RestApi\Attribute\StrickContractOutputAttribute.cs" />
+    <Compile Include="Api\SharedModel\ApiEndpoint.cs" />
+    <Compile Include="Api\SharedModel\ApiSettings.cs" />
+    <Compile Include="Api\RestApi\Model\RuntimeContext.cs" />
+    <Compile Include="Api\RestApi\Context\ApiContext.cs" />
+    <Compile Include="Api\Trace\ApiTraceExtension.cs" />
+    <Compile Include="Api\RestApi\RestApiEventHandlers.cs" />
+    <Compile Include="Api\RestApi\Model\RestApiSettings.cs" />
+    <Compile Include="ProgrammingIntelligence\Generator\RestApiJavaScriptClientGenerator.cs" />
     <Compile Include="ProgrammingIntelligence\Generator\RestApiClientGenerator.cs" />
     <Compile Include="Framework\DualToken.cs" />
-    <Compile Include="Utility\LambdaComparer.cs" />
+    <Compile Include="Extensions\EnumExtension.cs" />
+    <Compile Include="Sandbox\RemoteRuntimeCompileResult.cs" />
+    <Compile Include="Sandbox\Sandbox.cs" />
+    <Compile Include="Sandbox\BaseSandbox.cs" />
+    <Compile Include="Sandbox\RuntimeAssemblySandbox.cs" />
+    <Compile Include="Sandbox\SandboxInvoker.cs" />
+    <Compile Include="Sandbox\SandboxInvokeResult.cs" />
+    <Compile Include="Sandbox\SandboxWrapperContainer.cs" />
+    <Compile Include="Sandbox\SandboxWrapper.cs" />
+    <Compile Include="Utility\BooleanSearch\BooleanSearchBuilder.cs" />
+    <Compile Include="Utility\EqualityComparer\GenericComparer.cs" />
+    <Compile Include="Utility\EqualityComparer\CharComparer.cs" />
+    <Compile Include="Utility\HttpListener\HttpListenerServerBase.cs" />
+    <Compile Include="Utility\JsonNet\EnumStringConverter.cs" />
+    <Compile Include="Utility\LambdaComparer\LambdaEqualityComparer.cs" />
+    <Compile Include="Utility\LambdaComparer\LambdaComparableComparer.cs" />
+    <Compile Include="Utility\NetworkDiagnostic.cs" />
+    <Compile Include="Utility\LambdaComparer\LambdaComparer.cs" />
     <Compile Include="Utility\Logger\DiagnosticFileLogger.cs" />
-    <Compile Include="Utility\Sandbox\SandboxAssembly.cs" />
-    <Compile Include="Utility\Sandbox\Sandbox.cs" />
+    <Compile Include="Sandbox\SandboxMarshalInvokeResult.cs" />
+    <Compile Include="Sandbox\RemoteAssemblyProvider.cs" />
+    <Compile Include="Sandbox\SandboxMarshalObject.cs" />
+    <Compile Include="Sandbox\SandboxSetting.cs" />
+    <Compile Include="Sandbox\TempAssemblyProvider.cs" />
+    <Compile Include="Sandbox\TempAssembly.cs" />
+    <Compile Include="Utility\SerializableJsonObject\JsonXmlizer.cs" />
     <Compile Include="Utility\SerializableJsonObject\StrickJsonSerializer.cs" />
     <Compile Include="Utility\SerializableJsonObject\JsonXmlSerializer.cs" />
-    <Compile Include="RestApi\RestApiTransparentInvoker.cs" />
-    <Compile Include="RestApi\RestApiTransparentProxy.cs" />
-    <Compile Include="RestApi\RestApiHandler\ApiHandlerBase.cs" />
-    <Compile Include="RestApi\RestApiHandler\RestApiRouter.cs" />
-    <Compile Include="RestApi\Model\RuntimeRoute.cs" />
-    <Compile Include="RestApi\RestApiClient.cs" />
-    <Compile Include="ProgrammingIntelligence\SecuredCommunication\SecureCommunicationPackage.cs" />
+    <Compile Include="Api\RestApi\ApiHandlerBase.cs" />
+    <Compile Include="Api\RestApi\RestApiRouter.cs" />
+    <Compile Include="Api\RestApi\Model\RuntimeRoute.cs" />
+    <Compile Include="Api\RestApi\RestApiClient.cs" />
+    <Compile Include="GravityProtocol\Model\SecureMessageObject.cs" />
     <Compile Include="Framework\Framework.cs" />
     <Compile Include="Interfaces\IConfigurationReader.cs" />
     <Compile Include="Interfaces\ICriteria.cs" />
-    <Compile Include="RestApi\Attribute\ApiPermissionAttribute.cs" />
-    <Compile Include="RestApi\Attribute\ApiContractAttribute.cs" />
+    <Compile Include="Api\SharedAttribute\ApiPermissionAttribute.cs" />
+    <Compile Include="Api\RestApi\Attribute\ApiContractAttribute.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ExceptionGroupingCriteria.cs" />
-    <Compile Include="RestApi\Model\ApiPermission.cs" />
+    <Compile Include="Api\SharedModel\ApiPermission.cs" />
     <Compile Include="Model\ApiTracking\Statistic\ApiEventGroupingCriteria.cs" />
     <Compile Include="Model\ApiTracking\Query\ApiEventCriteria.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiTraceLog.cs" />
@@ -266,17 +371,14 @@
     <Compile Include="ExceptionSystem\Model\Exception\InitializationFailureException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\InvalidObjectException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\NullObjectException.cs" />
-    <Compile Include="ExceptionSystem\Model\Exception\OAuthFailureException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\OperationFailureException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\OperationForbiddenException.cs" />
-    <Compile Include="ExceptionSystem\Model\Exception\RemoteServiceOperationFailureException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\ResourceNotFoundException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\UnauthorizedOperationException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\UnauthorizedTokenException.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\UnauthorizedAccountException.cs" />
-    <Compile Include="Model\MobileSupport\ClientEnvironment.cs" />
+    <Compile Include="Model\Mobile\ClientEnvironment.cs" />
     <Compile Include="Model\Gender.cs" />
-    <Compile Include="Model\Geography\GeographyTierLevel.cs" />
     <Compile Include="Model\ObjectState.cs" />
     <Compile Include="Extensions\DrawingExtension.cs" />
     <Compile Include="Framework\I18NResourceCollection.cs" />
@@ -286,13 +388,11 @@
     <Compile Include="Model\BaseObject.cs" />
     <Compile Include="Model\BaseCriteria.cs" />
     <Compile Include="Model\SystemEnvironment\EnvironmentInfo.cs" />
-    <Compile Include="Model\EmailMessage.cs" />
-    <Compile Include="Model\TimePin.cs" />
     <Compile Include="Extensions\CollectionExtension.cs" />
     <Compile Include="ExceptionSystem\ExceptionExtension.cs" />
     <Compile Include="Extensions\JsonExtension.cs" />
     <Compile Include="Extensions\SerializationExtension.cs" />
-    <Compile Include="Model\SerializableDictionary.cs" />
+    <Compile Include="Model\Dictionary\SerializableDictionary.cs" />
     <Compile Include="Extensions\WinFormUIExtension.cs" />
     <Compile Include="Extensions\StringRegexExtension.cs" />
     <Compile Include="Extensions\HttpExtension.cs" />
@@ -300,26 +400,31 @@
     <Compile Include="Extensions\CommonExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\Assembly.cs" />
-    <Compile Include="Reflection\MethodFiltering.cs" />
     <Compile Include="Reflection\Reflection.cs" />
-    <Compile Include="RestApi\Attribute\ApiOperationAttribute.cs" />
-    <Compile Include="RestApi\Attribute\TokenRequiredAttribute.cs" />
-    <Compile Include="RestApi\RestApiExtension.cs" />
+    <Compile Include="Api\RestApi\Attribute\ApiOperationAttribute.cs" />
+    <Compile Include="Api\SharedAttribute\TokenRequiredAttribute.cs" />
+    <Compile Include="Api\RestApi\RestApiExtension.cs" />
     <Compile Include="Utility\ColorUtility.cs" />
-    <Compile Include="RestApi\Context\ContextHelper.cs" />
+    <Compile Include="Api\RestApi\Context\ContextHelper.cs" />
     <Compile Include="Utility\JsonNet\GuidConverter.cs" />
     <Compile Include="Utility\JsonNet\SafeContractResolver.cs" />
     <Compile Include="Extensions\EncodingOrSecurityExtension.cs" />
     <Compile Include="Utility\MailSender.cs" />
+    <Compile Include="Utility\StringShifter\RegexPatternBuilder.cs" />
+    <Compile Include="Utility\StringShifter\StringShifterExtension.cs" />
+    <Compile Include="Utility\StringShifter\StringShiftShard.cs" />
+    <Compile Include="Utility\StringShifter\StringShifter.cs" />
+    <Compile Include="Utility\SystemOperation\QuickDiagnostic.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Beyova.Common.BuildKey.pfx" />
-    <None Include="License">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="License.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Api\WebSocket\Interface\" />
+    <Folder Include="Interfaces\ProvisioningService\" />
+    <Folder Include="ProgrammingIntelligence\Interfaces\" />
     <Folder Include="ProgrammingIntelligence\SqlDataAccessControllerGenerator\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

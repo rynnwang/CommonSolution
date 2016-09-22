@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
 {
@@ -12,38 +13,30 @@ namespace Beyova.ExceptionSystem
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationFailureException" /> class.
         /// </summary>
-        /// <param name="actionName">Name of the action.</param>
         /// <param name="innerException">The inner exception.</param>
         /// <param name="data">The data.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
         /// <param name="minor">The minor.</param>
-        /// <param name="hintMessage">The hint message.</param>
-        public OperationFailureException(string actionName, Exception innerException = null, object data = null, string operatorIdentifier = null, string minor = null, string hintMessage = null)
-            : base(string.Format("Failed to operate to [{0}].", actionName), new ExceptionCode { Major = ExceptionCode.MajorCode.OperationFailure, Minor = minor }, innerException, operatorIdentifier, data, hintMessage)
+        /// <param name="hint">The hint.</param>
+        /// <param name="scene">The scene.</param>
+        public OperationFailureException(Exception innerException = null, object data = null, string minor = null, FriendlyHint hint = null, ExceptionScene scene = null)
+            : base(string.Format("Failed to operate to [{0}].", scene?.MethodName), new ExceptionCode { Major = ExceptionCode.MajorCode.OperationFailure, Minor = minor }, innerException, data, hint, scene)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationFailureException" /> class.
         /// </summary>
-        /// <param name="innerException">The inner exception.</param>
-        /// <param name="data">The data.</param>
-        /// <param name="minor">The minor.</param>
-        public OperationFailureException(Exception innerException, object data, string minor = null)
-            : base(innerException.Message, new ExceptionCode { Major = ExceptionCode.MajorCode.OperationFailure, Minor = minor }, innerException, null, data)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OperationFailureException" /> class.
-        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="createdStamp">The created stamp.</param>
         /// <param name="message">The message.</param>
-        /// <param name="operatorIdentifier">The operator identifier.</param>
-        /// <param name="minor">The minor.</param>
+        /// <param name="scene">The scene.</param>
+        /// <param name="code">The code.</param>
         /// <param name="innerException">The inner exception.</param>
+        /// <param name="operatorCredential">The operator credential.</param>
         /// <param name="data">The data.</param>
-        internal OperationFailureException(string message, string operatorIdentifier, string minor, Exception innerException, object data)
-            : base(message, new ExceptionCode { Major = ExceptionCode.MajorCode.OperationFailure, Minor = minor }, operatorIdentifier: operatorIdentifier, parameterData: data)
+        /// <param name="hint">The hint.</param>
+        internal OperationFailureException(Guid key, DateTime createdStamp, string message, ExceptionScene scene, ExceptionCode code, Exception innerException, BaseCredential operatorCredential, JToken data, FriendlyHint hint)
+          : base(key, createdStamp, message, scene, code, innerException, operatorCredential, data, hint)
         {
         }
 

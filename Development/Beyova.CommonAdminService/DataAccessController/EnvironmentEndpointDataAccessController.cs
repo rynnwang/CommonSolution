@@ -41,9 +41,14 @@ namespace Beyova.CommonAdminService.DataAccessController
         protected const string column_Version = "Version";
 
         /// <summary>
-        /// The column_ connection strings
+        /// The column_ account
         /// </summary>
-        protected const string column_ConnectionStrings = "ConnectionStrings";
+        protected const string column_Account = "Account";
+
+        /// <summary>
+        /// The column_ secondary token
+        /// </summary>
+        protected const string column_SecondaryToken = "SecondaryToken";
 
         #endregion
 
@@ -71,7 +76,8 @@ namespace Beyova.CommonAdminService.DataAccessController
                 Protocol = sqlDataReader[column_Protocol].ObjectToString(),
                 Token = sqlDataReader[column_Token].ObjectToString(),
                 Version = sqlDataReader[column_Version].ObjectToString(),
-                ConnectionStrings = sqlDataReader[column_ConnectionStrings].ObjectToXml().XmlToDictionary(x => x.Value)
+                SecondaryToken = sqlDataReader[column_SecondaryToken].ObjectToString(),
+                Account = sqlDataReader[column_Account].ObjectToString()
             };
 
             FillBaseObjectFields(result, sqlDataReader);
@@ -103,8 +109,9 @@ namespace Beyova.CommonAdminService.DataAccessController
                     this.GenerateSqlSpParameter(column_Host,endpoint.Host),
                     this.GenerateSqlSpParameter(column_Port,endpoint.Port),
                     this.GenerateSqlSpParameter(column_Version,endpoint.Version),
+                    this.GenerateSqlSpParameter(column_Account,endpoint.Account),
                     this.GenerateSqlSpParameter(column_Token,endpoint.Token),
-                    this.GenerateSqlSpParameter(column_ConnectionStrings,endpoint.ConnectionStrings.DictionaryToXml()),
+                    this.GenerateSqlSpParameter(column_SecondaryToken,endpoint.SecondaryToken),
                     this.GenerateSqlSpParameter(column_OperatorKey,operatorKey)
                 };
 
@@ -112,7 +119,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("CreateOrUpdateEnvironmentEndpoint", new { endpoint, operatorKey });
+                throw ex.Handle(new { endpoint, operatorKey });
             }
         }
 
@@ -140,7 +147,7 @@ namespace Beyova.CommonAdminService.DataAccessController
             }
             catch (Exception ex)
             {
-                throw ex.Handle("QueryEnvironmentEndpoint", new { key, code, environment });
+                throw ex.Handle(new { key, code, environment });
             }
         }
     }

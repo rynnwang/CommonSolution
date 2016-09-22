@@ -129,13 +129,12 @@ namespace Beyova
         /// </summary>
         /// <param name="mailMessage">The mail message.</param>
         /// <param name="fromDisplay">From display.</param>
-        /// <exception cref="OperationFailureException">SendMail</exception>
-        public virtual void SendMail(MailMessage mailMessage, string fromDisplay)
+        public virtual void SendMail(MailMessage mailMessage, string fromDisplay = null)
         {
-            mailMessage.CheckNullObject("mailMessage");
-
             try
             {
+                mailMessage.CheckNullObject("mailMessage");
+
                 var smtpClient = new SmtpClient
                 {
                     Credentials = new NetworkCredential(this.FullMailAddress, this.Password)
@@ -157,7 +156,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw new OperationFailureException("SendMail", ex, mailMessage);
+                throw ex.Handle(mailMessage);
             }
         }
 
@@ -176,7 +175,7 @@ namespace Beyova
         public void SendMail(string subject, string body, bool isHtml, Encoding encoding, MailAddress[] toList, MailAddress[] ccList, MailAddress[] bccList, List<Attachment> attachments, MailPriority mailPriority)
         {
             MailMessage mailMessage = GenerateMailMessage(subject, body, isHtml, encoding, toList, ccList, bccList, attachments, mailPriority);
-            SendMail(mailMessage, null);
+            SendMail(mailMessage);
         }
 
         #endregion
@@ -199,11 +198,11 @@ namespace Beyova
         /// <exception cref="InvalidObjectException">toList</exception>
         public static MailMessage GenerateMailMessage(string subject, string body, bool isHtml, Encoding encoding, MailAddress[] toList, MailAddress[] ccList, MailAddress[] bccList, List<Attachment> attachments, MailPriority mailPriority = MailPriority.Normal)
         {
-            toList.CheckNullObject("toList");
+            toList.CheckNullObject(nameof(toList));
 
             if (toList.Length == 0)
             {
-                throw new InvalidObjectException("toList");
+                throw ExceptionFactory.CreateInvalidObjectException(nameof(toList));
             }
 
             var mailMessage = new MailMessage();

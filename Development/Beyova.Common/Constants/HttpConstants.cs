@@ -59,6 +59,11 @@
             /// The unlock
             /// </summary>
             public const string Unlock = "UNLOCK";
+
+            /// <summary>
+            /// The fetch
+            /// </summary>
+            public const string Fetch = "FETCH";
         }
 
         /// <summary>
@@ -111,6 +116,11 @@
             public const string TRACEID = "X-BA-TRACE-ID";
 
             /// <summary>
+            /// The trace sequence
+            /// </summary>
+            public const string TRACESEQUENCE = "X-BA-TRACE-SEQ";
+
+            /// <summary>
             /// The content encoding
             /// </summary>
             public const string ContentEncoding = "Content-Encoding";
@@ -118,12 +128,17 @@
             /// <summary>
             /// The accept encoding
             /// </summary>
-            public const string AcceptEncoding="Accept-Encoding";
+            public const string AcceptEncoding = "Accept-Encoding";
 
             /// <summary>
             /// The transfer encoding
             /// </summary>
-            public const string TransferEncoding="Transfer-Encoding";
+            public const string TransferEncoding = "Transfer-Encoding";
+
+            /// <summary>
+            /// The content length
+            /// </summary>
+            public const string ContentLength = "Content-Length";
 
             /// <summary>
             /// The access control allow origin
@@ -139,6 +154,110 @@
             /// The access control allow methods
             /// </summary>
             public const string AccessControlAllowMethods = "Access-Control-Allow-Methods";
+        }
+
+        /// <summary>
+        /// Class HttpProtocols.
+        /// </summary>
+        public static class HttpProtocols
+        {
+            /// <summary>
+            /// The HTTP
+            /// </summary>
+            public const string Http = "http";
+
+            /// <summary>
+            /// The HTTP protocol
+            /// </summary>
+            public const string HttpProtocol = "http://";
+
+            /// <summary>
+            /// The HTTPS
+            /// </summary>
+            public const string Https = "https";
+
+            /// <summary>
+            /// The HTTPS protocol
+            /// </summary>
+            public const string HttpsProtocol = "https://";
+        }
+
+        /// <summary>
+        /// Class HttpValues.
+        /// </summary>
+        public static class HttpValues
+        {
+            /// <summary>
+            /// The GZIP
+            /// </summary>
+            public const string GZip = "gzip";
+
+            /// <summary>
+            /// The localhost
+            /// </summary>
+            public const string Localhost = "localhost";
+
+            /// <summary>
+            /// The localhost ip v4
+            /// </summary>
+            public const string LocalhostIpV4 = "127.0.0.1";
+
+            /// <summary>
+            /// The localhost ip v6
+            /// </summary>
+            public const string LocalhostIpV6 = "::1";
+        }
+
+        /// <summary>
+        /// Class QueryString.
+        /// </summary>
+        public static class QueryString
+        {
+            /// <summary>
+            /// The language
+            /// </summary>
+            public const string Language = "language";
+        }
+
+        /// <summary>
+        /// Class ContentType.
+        /// </summary>
+        public static class ContentType
+        {
+            /// <summary>
+            /// The language
+            /// </summary>
+            public const string Json = "application/json";
+
+            /// <summary>
+            /// The HTML
+            /// </summary>
+            public const string Html = "text/html";
+
+            /// <summary>
+            /// The binary
+            /// </summary>
+            public const string BinaryDefault = "application/octet-stream";
+
+            /// <summary>
+            /// The zip file
+            /// </summary>
+            public const string ZipFile = "application/zip";
+
+            /// <summary>
+            /// The PNG image
+            /// </summary>
+            public const string PngImage = "image/png";
+
+            /// <summary>
+            /// The JPEG image
+            /// </summary>
+            public const string JpegImage = "image/jpeg";
+
+            /// <summary>
+            /// The MP3 audio
+            /// </summary>
+            public const string Mp3Audio = "audio/mpeg";
         }
     }
 }
