@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Beyova.ExceptionSystem;
+using Newtonsoft.Json;
 
 namespace Beyova
 {
@@ -74,7 +76,7 @@ namespace Beyova
                     Directory.CreateDirectory(applicationDirectory);
                 }
 
-                this.AppDomain = AppDomain.CreateDomain(this.Key.ToString(), null, new AppDomainSetup
+                this.AppDomain = AppDomain.CreateDomain(this.Key.ToString(), AppDomain.CurrentDomain.Evidence, new AppDomainSetup
                 {
                     ApplicationBase = applicationDirectory,
                     PrivateBinPath = applicationDirectory
@@ -109,10 +111,12 @@ namespace Beyova
 
                     if (File.Exists(destinationPath))
                     {
-                        this.AppDomain.Load(new AssemblyName(Path.GetFileNameWithoutExtension(destinationPath)));
+                        this.AppDomain.Load(Path.GetFileNameWithoutExtension(destinationPath));
                         //  this.AppDomain.Load(File.ReadAllBytes(destinationPath));
                     }
                 }
+
+                this._invoker = CreateInstanceAndUnwrap<SandboxInvoker>(this.AppDomain);
 
                 // Load external byte base assemblies
                 if (setting.ExternalAssemblyToLoad.HasItem())
@@ -123,13 +127,21 @@ namespace Beyova
                         {
                             var destinationPath = Path.Combine(applicationDirectory, GetAssemblyFileNameWithExtension(one.Key));
                             File.WriteAllBytes(destinationPath, one.Value);
-                            this.AppDomain.Load(new AssemblyName(Path.GetFileNameWithoutExtension(destinationPath)));
+                            var exceptionJsonObject = _invoker.LoadAssemblyByName(Path.GetFileNameWithoutExtension(destinationPath));
+                            if (!string.IsNullOrWhiteSpace(exceptionJsonObject))
+                            {
+                                var exceptionObject = ExceptionExtension.ToException(JsonConvert.DeserializeObject<ExceptionInfo>(exceptionJsonObject));
+                                if (exceptionObject != null)
+                                {
+                                    throw exceptionObject.Handle(new { ExternalAssemblyToLoad = one });
+                                }
+                            }
+                            //this.AppDomain.Load(new AssemblyName(Path.GetFileNameWithoutExtension(destinationPath)));
+                            //this.AppDomain.ExecuteAssembly(Path.GetFileNameWithoutExtension(destinationPath));
                             // this.AppDomain.Load(one.Value);
                         }
                     }
                 }
-
-                this._invoker = CreateInstanceAndUnwrap<SandboxInvoker>(this.AppDomain);
             }
             catch (Exception ex)
             {
@@ -150,30 +162,11 @@ namespace Beyova
         /// Creates the instance and invoke method.
         /// </summary>
         /// <param name="typeFullName">Full name of the type.</param>
-        /// <param name="method">The method.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>RemoteInvokeResult.</returns>
-        public SandboxInvokeResult CreateInstanceAndInvokeMethod(string typeFullName, string method, params object[] parameters)
-        {
-            try
-            {
-                return CreateInstanceAndInvokeMethod(typeFullName, null, method, parameters);
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle(new { typeFullName, method, parameters });
-            }
-        }
-
-        /// <summary>
-        /// Creates the instance and invoke method.
-        /// </summary>
-        /// <param name="typeFullName">Full name of the type.</param>
-        /// <param name="constructorParameters">The constructor parameters.</param>
         /// <param name="methodName">Name of the method.</param>
+        /// <param name="constructorParameters">The constructor parameters.</param>
         /// <param name="methodParameters">The method parameters.</param>
         /// <returns>Beyova.RemoteInvokeResult.</returns>
-        public virtual SandboxInvokeResult CreateInstanceAndInvokeMethod(string typeFullName, object[] constructorParameters, string methodName, params object[] methodParameters)
+        public virtual SandboxInvokeResult CreateInstanceAndInvokeMethod(string typeFullName, string methodName, object[] constructorParameters, object[] methodParameters)
         {
             try
             {

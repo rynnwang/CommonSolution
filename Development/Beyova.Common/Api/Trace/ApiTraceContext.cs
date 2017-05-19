@@ -140,6 +140,17 @@ namespace Beyova.Api
         }
 
         /// <summary>
+        /// Enters the specified method call information.
+        /// </summary>
+        /// <param name="methodCallInfo">The method call information.</param>
+        /// <param name="entryStamp">The entry stamp.</param>
+        /// <param name="setNameAsMajor">if set to <c>true</c> [set name as major].</param>
+        internal static void Enter(AOP.MethodCallInfo methodCallInfo, DateTime? entryStamp = null, bool setNameAsMajor = false)
+        {
+            Enter(methodCallInfo.ToTraceLog(_current, entryStamp ?? DateTime.UtcNow), setNameAsMajor);
+        }
+
+        /// <summary>
         /// Enters the specified trace log.
         /// </summary>
         /// <param name="traceLog">The trace log.</param>

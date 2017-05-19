@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AppPlatformBase.
     /// </summary>
-    public class AppPlatformBase
+    public class AppPlatformBase : IAppPlatform
     {
         /// <summary>
         /// Gets or sets the type of the platform.
@@ -16,10 +16,16 @@ namespace Beyova
         public PlatformType PlatformType { get; set; }
 
         /// <summary>
+        /// Gets or sets the minimum os version.
+        /// </summary>
+        /// <value>The minimum os version.</value>
+        public string MinOSVersion { get; set; }
+
+        /// <summary>
         /// Gets or sets the application URL.
         /// </summary>
         /// <value>The application URL.</value>
-        public string AppStoreUrl { get; set; }
+        public string Url { get; set; }
 
         /// <summary>
         /// Gets or sets the bundle identifier.
@@ -28,5 +34,13 @@ namespace Beyova
         /// The bundle identifier.
         /// </value>
         public string BundleId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name { get; set; }
     }
 }

@@ -9,9 +9,9 @@ namespace Beyova
     public enum PlatformType
     {
         /// <summary>
-        /// Value indicating it is none (0x00)
+        /// Value indicating it is undefined (0x00)
         /// </summary>
-        None = 0,
+        Undefined = 0,
         /// <summary>
         /// Value indicating it is iOS (0x1)
         /// </summary>
@@ -21,9 +21,9 @@ namespace Beyova
         /// </summary>
         Android = 0x2,
         /// <summary>
-        /// Value indicating it is windows phone (0x4)
+        /// Value indicating it is universal windows platform (0x4)
         /// </summary>
-        WindowsPhone = 0x4,
+        UniversalWindowsPlatform = 0x4,
         /// <summary>
         /// Value indicating it is black berry (0x8)
         /// </summary>

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Beyova;
-using Beyova.Api;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -122,30 +120,26 @@ namespace Beyova.AzureExtension
         /// <returns>Microsoft.WindowsAzure.Storage.CloudStorageAccount.</returns>
         public static CloudStorageAccount ConnectionStringToCredential(this string storageConnectionString)
         {
-            var keyValues = storageConnectionString.SafeToString().ParseToKeyValuePairCollection(';');
-            var useHttps = keyValues.Get("DefaultEndpointsProtocol")?.Equals(HttpConstants.HttpProtocols.Https, StringComparison.InvariantCultureIgnoreCase) ?? false;
-            var accountKey = keyValues.Get("AccountKey");
-            var accountName = keyValues.Get("AccountName");
-            var customBlobDomain = keyValues.Get("CustomBlobDomain");
-            AzureServiceProviderRegion region;
-            Enum.TryParse(keyValues.Get("Region"), true, out region);
-
-            return new CloudStorageAccount(
-                new StorageCredentials(accountName, accountKey),
-                string.IsNullOrWhiteSpace(customBlobDomain)
-                    ? GetStorageEndpointUri(useHttps, accountName, "blob", region)
-                    : new Uri(customBlobDomain),
-                GetStorageEndpointUri(useHttps, accountName, "queue", region),
-                GetStorageEndpointUri(useHttps, accountName, "table", region),
-                GetStorageEndpointUri(useHttps, accountName, "file", region));
+            return ToCloudStorageAccount(AsAzureBlobEndpoint(storageConnectionString));
         }
 
         /// <summary>
-        /// Connections the string to credential.
+        /// To the cloud storage account.
         /// </summary>
         /// <param name="endpoint">The endpoint.</param>
         /// <returns>Microsoft.WindowsAzure.Storage.CloudStorageAccount.</returns>
-        public static CloudStorageAccount ConnectionStringToCredential(this ApiEndpoint endpoint)
+        public static CloudStorageAccount ToCloudStorageAccount(this AzureBlobEndpoint endpoint)
+        {
+            return ToCloudStorageAccount(endpoint, endpoint.Region);
+        }
+
+        /// <summary>
+        /// To the cloud storage account.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="region">The region.</param>
+        /// <returns>Microsoft.WindowsAzure.Storage.CloudStorageAccount.</returns>
+        public static CloudStorageAccount ToCloudStorageAccount(this Api.ApiEndpoint endpoint, AzureServiceProviderRegion region)
         {
             if (endpoint != null)
             {
@@ -153,9 +147,6 @@ namespace Beyova.AzureExtension
                 var accountKey = endpoint.Token;
                 var accountName = endpoint.Account;
                 var customBlobDomain = endpoint.Host;
-
-                AzureServiceProviderRegion region;
-                Enum.TryParse(endpoint.Version, true, out region);
 
                 return new CloudStorageAccount(
                     new StorageCredentials(accountName, accountKey),
@@ -171,16 +162,41 @@ namespace Beyova.AzureExtension
         }
 
         /// <summary>
+        /// As azure BLOB endpoint.
+        /// </summary>
+        /// <param name="storageConnectionString">The storage connection string.</param>
+        /// <returns>Beyova.AzureExtension.AzureBlobEndpoint.</returns>
+        public static AzureBlobEndpoint AsAzureBlobEndpoint(this string storageConnectionString)
+        {
+            var keyValues = storageConnectionString.SafeToString().ParseToNameValueCollection(';');
+            var useHttps = keyValues.Get("DefaultEndpointsProtocol")?.Equals(HttpConstants.HttpProtocols.Https, StringComparison.InvariantCultureIgnoreCase) ?? false;
+            var accountKey = keyValues.Get("AccountKey");
+            var accountName = keyValues.Get("AccountName");
+            var customBlobDomain = keyValues.Get("CustomBlobDomain");
+            AzureServiceProviderRegion region;
+            Enum.TryParse(keyValues.Get("Region"), true, out region);
+
+            return new AzureBlobEndpoint
+            {
+                Account = accountName,
+                Token = accountKey,
+                Protocol = useHttps ? HttpConstants.HttpProtocols.Https : HttpConstants.HttpProtocols.Http,
+                Host = customBlobDomain,
+                Region = region
+            };
+        }
+
+        /// <summary>
         /// To the connection string.
         /// </summary>
         /// <param name="endpoint">The endpoint.</param>
         /// <returns>System.String.</returns>
-        public static string ToConnectionString(this ApiEndpoint endpoint)
+        public static string ToConnectionString(this AzureBlobEndpoint endpoint)
         {
             if (endpoint != null)
             {
                 var values = new Dictionary<string, string>();
-                values.Add("Region", endpoint.Version.SafeToString("China"));
+                values.Add("Region", endpoint.Region.ToString());
                 values.Add("DefaultEndpointsProtocol", endpoint.Protocol.SafeToString(HttpConstants.HttpProtocols.Https));
                 values.AddIfNotNullOrEmpty("AccountKey", endpoint.Token);
                 values.AddIfNotNullOrEmpty("AccountName", endpoint.Account);

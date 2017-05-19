@@ -9,12 +9,12 @@ namespace Beyova.AOP
     /// <summary>
     /// Class AOPSinkProcessor.
     /// </summary>
-    public class AOPSinkProcessor : IMessageSink
+    internal class AOPSinkProcessor : IMessageSink
     {
         /// <summary>
         /// The method injection delegate
         /// </summary>
-        protected MessageProcessDelegates messageDelegates;
+        protected MethodMessageInjectionDelegates messageDelegates;
 
         /// <summary>
         /// Gets or sets the sender.
@@ -45,7 +45,7 @@ namespace Beyova.AOP
         /// <param name="sender">The sender.</param>
         /// <param name="nextSink">The next sink.</param>
         /// <param name="messageDelegates">The message delegates.</param>
-        public AOPSinkProcessor(MarshalByRefObject sender, IMessageSink nextSink, MessageProcessDelegates messageDelegates)
+        public AOPSinkProcessor(MarshalByRefObject sender, IMessageSink nextSink, MethodMessageInjectionDelegates messageDelegates)
         {
             this.NextSink = nextSink;
             this.Sender = sender;
@@ -75,22 +75,26 @@ namespace Beyova.AOP
         {
             IMethodCallMessage call = msg as IMethodCallMessage;
 
+            var methodCallInfo = call.ToMethodCallInfo();
+
             //Trace feature
-            ApiTraceContext.Enter(call);
+            ApiTraceContext.Enter(methodCallInfo);
 
             if (this.messageDelegates != null && this.messageDelegates.MethodInvokingEvent != null)
             {
-                this.messageDelegates.MethodInvokingEvent.Invoke(call);
+                this.messageDelegates.MethodInvokingEvent.Invoke(methodCallInfo);
             }
 
             var methodReturn = this.NextSink.SyncProcessMessage(call);
 
             IMethodReturnMessage returnMessage = methodReturn as IMethodReturnMessage;
 
+            methodCallInfo.FillReturnMessage(returnMessage);
+
             // To run ReturnMessageDelegate first in case any exception is thrown from ExceptionDelegate to interrupt it.
             if (this.messageDelegates.MethodInvokedEvent != null)
             {
-                this.messageDelegates.MethodInvokedEvent.Invoke(returnMessage);
+                this.messageDelegates.MethodInvokedEvent.Invoke(methodCallInfo);
             }
 
             Exception exception = null;
@@ -99,9 +103,8 @@ namespace Beyova.AOP
             {
                 if (returnMessage.Exception != null && this.messageDelegates.ExceptionDelegate != null)
                 {
-                    bool removeException;
-                    exception = this.messageDelegates.ExceptionDelegate(returnMessage, returnMessage.Exception, (this.messageDelegates.MethodArgumentDelegate ?? GetMethodArguments)(call), out removeException);
-                    if (removeException)
+                    var newException = this.messageDelegates.ExceptionDelegate(methodCallInfo);
+                    if (newException == null)
                     {
                         returnMessage = new ReturnMessage(returnMessage.ReturnValue, returnMessage.OutArgs, returnMessage.OutArgCount, returnMessage.LogicalCallContext, call);
                     }
@@ -125,15 +128,5 @@ namespace Beyova.AOP
         }
 
         #endregion
-
-        /// <summary>
-        /// Methods the arguments to exception data.
-        /// </summary>
-        /// <param name="callMessage">The call message.</param>
-        /// <returns>System.Object.</returns>
-        protected object GetMethodArguments(IMethodCallMessage callMessage)
-        {
-            return callMessage != null ? callMessage.Args : null;
-        }
     }
 }

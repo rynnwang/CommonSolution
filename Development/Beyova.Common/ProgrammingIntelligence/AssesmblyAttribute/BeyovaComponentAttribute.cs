@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Beyova;
 
 namespace Beyova.ProgrammingIntelligence
 {
@@ -50,7 +45,6 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="apiTrackingType">Type of the API tracking.</param>
         public BeyovaComponentAttribute(Type apiTrackingType) : this(null, null, apiTrackingType)
         {
-
         }
 
         /// <summary>

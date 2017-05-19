@@ -57,7 +57,7 @@ namespace Beyova.CommonService
                             {
                                 DeviceType = request.DeviceType ?? DeviceType.None,
                                 IpAddress = ContextHelper.IpAddress,
-                                Platform = request.Platform ?? PlatformType.None,
+                                Platform = request.Platform ?? PlatformType.Undefined,
                                 UserAgent = ContextHelper.UserAgent,
                                 UserKey = accessCredentialInfo.UserKey,
                                 ExpiredStamp = GetTokenExpiredStamp()

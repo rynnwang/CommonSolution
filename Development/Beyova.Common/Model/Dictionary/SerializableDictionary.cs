@@ -15,6 +15,7 @@ namespace Beyova
     /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     [XmlRoot("Dictionary")]
+    [Obsolete("Suggest to use JSON instead of XML.")]
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, System.Xml.Serialization.IXmlSerializable
     {
         /// <summary>

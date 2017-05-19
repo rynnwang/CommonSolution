@@ -8,7 +8,6 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using System.Web.Routing;
 using Beyova.Api;
 using Beyova.ApiTracking;
 using Beyova.Cache;
@@ -43,7 +42,7 @@ namespace Beyova.RestApi
         /// <summary>
         /// The json converters
         /// </summary>
-        protected static JsonConverter[] JsonConverters = null;
+        internal static JsonConverter[] JsonConverters = null;
 
         /// <summary>
         /// The settings container
@@ -53,7 +52,13 @@ namespace Beyova.RestApi
         /// <summary>
         /// The default rest API settings
         /// </summary>
-        protected static RestApiSettings defaultRestApiSettings = new RestApiSettings();
+        protected static RestApiSettings defaultRestApiSettings = null;
+
+        /// <summary>
+        /// Gets the default rest API settings.
+        /// </summary>
+        /// <value>The default rest API settings.</value>
+        public static RestApiSettings DefaultRestApiSettings { get { return defaultRestApiSettings; } }
 
         #endregion
 
@@ -116,6 +121,11 @@ namespace Beyova.RestApi
             settingsContainer.Merge(DefaultSettings.Name, DefaultSettings, false);
 
             this.AllowOptions = allowOptions;
+
+            if (defaultRestApiSettings == null)
+            {
+                defaultRestApiSettings = defaultApiSettings ?? new RestApiSettings();
+            }
         }
 
         #region IHttpHandler
@@ -129,7 +139,7 @@ namespace Beyova.RestApi
         {
             get
             {
-                return false;
+                return true;
             }
         }
 
@@ -182,16 +192,23 @@ namespace Beyova.RestApi
                 // Fill basic context info.
 
                 var userAgentHeaderKey = settings?.OriginalUserAgentHeaderKey;
-                ContextHelper.ApiContext.UserAgent = string.IsNullOrWhiteSpace(userAgentHeaderKey) ? context.Request.UserAgent : context.Request.TryGetHeader(userAgentHeaderKey).SafeToString(context.Request.UserAgent);
-                ContextHelper.ApiContext.IpAddress = context.Request.TryGetHeader(settings?.OriginalIpAddressHeaderKey.SafeToString(HttpConstants.HttpHeader.ORIGINAL)).SafeToString(context.Request.UserHostAddress);
-                ContextHelper.ApiContext.CultureCode = context.Request.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(context.Request.UserLanguages.SafeFirstOrDefault());
+                var apiContext = ContextHelper.ApiContext;
+                apiContext.UserAgent = string.IsNullOrWhiteSpace(userAgentHeaderKey) ? context.Request.UserAgent : context.Request.TryGetHeader(userAgentHeaderKey).SafeToString(context.Request.UserAgent);
+                apiContext.IpAddress = context.Request.TryGetHeader(settings?.OriginalIpAddressHeaderKey.SafeToString(HttpConstants.HttpHeader.ORIGINAL)).SafeToString(context.Request.UserHostAddress);
+                apiContext.CurrentUri = context.Request.Url;
+
+                apiContext.CultureCode = context.Request.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(context.Request.UserLanguages.SafeFirstOrDefault()).EnsureCultureCode();
+                if (runtimeContext.OperationParameters?.EntitySynchronizationMode != null)
+                {
+                    apiContext.LastSynchronizedStamp = context.Request.TryGetHeader(runtimeContext.OperationParameters.EntitySynchronizationMode.IfModifiedSinceKey).ObjectToDateTime();
+                }
 
                 // Fill finished.
-                if (runtimeContext.Version.Equals(BuiltInFeatureVersionKeyword, StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrWhiteSpace(runtimeContext.Realm) && runtimeContext.Version.Equals(BuiltInFeatureVersionKeyword, StringComparison.OrdinalIgnoreCase))
                 {
                     string contentType;
                     var buildInResult = ProcessBuiltInFeature(context.Request, runtimeContext, context.Request.IsLocal, out contentType);
-                    PackageOutput(context.Response, buildInResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, contentType, settings);
+                    PackageOutput(context.Response, buildInResult, new RuntimeApiOperationParameters { ContentType = contentType }, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings);
                 }
                 else
                 {
@@ -251,7 +268,7 @@ namespace Beyova.RestApi
                             eventLog.ClientIdentifier = context.Request.TryGetHeader(clientIdentifierHeaderKey);
                         }
 
-                        eventLog.ModuleName = runtimeContext.ModuleName;
+                        eventLog.ModuleName = runtimeContext.OperationParameters.ModuleName;
                         eventLog.ResourceEntityKey = runtimeContext.IsActionUsed ? runtimeContext.Parameter2 : runtimeContext.Parameter1;
                     }
 
@@ -265,8 +282,21 @@ namespace Beyova.RestApi
 
                     try
                     {
-                        var invokeResult = Invoke(runtimeContext.ApiInstance, runtimeContext.ApiMethod, context.Request, runtimeContext.EntityKey, out jsonBody);
-                        PackageOutput(context.Response, invokeResult, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings: settings);
+                        if (runtimeContext.ApiCacheStatus == ApiCacheStatus.UseCache)
+                        {
+                            jsonBody = runtimeContext.CachedResponseBody;
+                        }
+                        else
+                        {
+                            var invokeResult = Invoke(runtimeContext.ApiInstance, runtimeContext.ApiMethod, context.Request, runtimeContext.EntityKey, out jsonBody);
+
+                            if (runtimeContext.ApiCacheStatus == ApiCacheStatus.UpdateCache)
+                            {
+                                runtimeContext.ApiCacheContainer.Update(runtimeContext.ApiCacheIdentity, jsonBody);
+                            }
+
+                            PackageOutput(context.Response, invokeResult, runtimeContext.OperationParameters, null, acceptEncoding, runtimeContext.IsVoid ?? false, settings: settings);
+                        }
                     }
                     catch (Exception invokeEx)
                     {
@@ -275,7 +305,7 @@ namespace Beyova.RestApi
                     }
                     finally
                     {
-                        if (eventLog != null && !string.IsNullOrWhiteSpace(jsonBody))
+                        if (eventLog != null && !string.IsNullOrWhiteSpace(jsonBody) && !(runtimeContext.OperationParameters?.IsDataSensitive ?? false))
                         {
                             eventLog.Content = jsonBody.Length > 50 ? ((jsonBody.Substring(0, 40) + "..." + jsonBody.Substring(jsonBody.Length - 6, 6))) : jsonBody;
                         }
@@ -296,7 +326,7 @@ namespace Beyova.RestApi
                     eventLog.ExceptionKey = baseException.Key;
                 }
 
-                PackageOutput(context.Response, null, baseException, acceptEncoding, settings: settings);
+                PackageOutput(context.Response, null, null, baseException, acceptEncoding, settings: settings);
             }
             finally
             {
@@ -324,7 +354,7 @@ namespace Beyova.RestApi
                     }
                 }
 
-                ThreadExtension.Clear();
+                Dispose();
             }
         }
 
@@ -356,6 +386,9 @@ namespace Beyova.RestApi
                     break;
                 case "clearcache":
                     result = isLocalhost ? CacheRealm.ClearAll() : "This API is available at localhost machine." as object;
+                    break;
+                case "gravity":
+                    result = Gravity.GravityHost.Host?.Info;
                     break;
                 case "i18n":
                     result = GlobalCultureResourceCollection.Instance?.AvailableCultureInfo ?? new Collection<CultureInfo>();
@@ -403,6 +436,14 @@ namespace Beyova.RestApi
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Disposes this instance.
+        /// </summary>
+        protected virtual void Dispose()
+        {
+            ThreadExtension.Clear();
         }
 
         #endregion
@@ -457,6 +498,21 @@ namespace Beyova.RestApi
         /// <returns>System.Object.</returns>
         protected virtual object Invoke(object instance, MethodInfo methodInfo, HttpRequest httpRequest, string key, out string jsonBody)
         {
+            return InternalInvoke(instance, methodInfo, httpRequest.GetPostData(), httpRequest.Url, key, out jsonBody);
+        }
+
+        /// <summary>
+        /// Internals the invoke.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="methodInfo">The method information.</param>
+        /// <param name="bodyData">The body data.</param>
+        /// <param name="uri">The URI.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="jsonBody">The json body.</param>
+        /// <returns>System.Object.</returns>
+        internal static object InternalInvoke(object instance, MethodInfo methodInfo, byte[] bodyData, Uri uri, string key, out string jsonBody)
+        {
             var inputParameters = methodInfo.GetParameters();
             jsonBody = null;
 
@@ -477,7 +533,7 @@ namespace Beyova.RestApi
                 }
                 else
                 {
-                    var json = jsonBody = httpRequest.GetPostJson(Encoding.UTF8);
+                    var json = jsonBody = (bodyData == null ? null : Encoding.UTF8.GetString(bodyData));
                     return methodInfo.Invoke(instance, new object[] { DeserializeJsonObject(json, inputParameters[0].ParameterType) });
                 }
             }
@@ -485,7 +541,8 @@ namespace Beyova.RestApi
             {
                 object[] parameters = new object[inputParameters.Length];
 
-                if (httpRequest.QueryString.Count > 0)
+                var queryString = HttpUtility.ParseQueryString(uri.Query);
+                if (queryString.Count > 0)
                 {
                     var start = 1;
                     if (!string.IsNullOrWhiteSpace(key) && (inputParameters[0].ParameterType.TryGetNullableType().IsValueType))
@@ -494,7 +551,7 @@ namespace Beyova.RestApi
                     }
                     else
                     {
-                        var json = jsonBody = httpRequest.GetPostJson(Encoding.UTF8);
+                        var json = jsonBody = (bodyData == null ? null : Encoding.UTF8.GetString(bodyData));
                         parameters[0] = json.TryConvertJsonToObject();
                         if (parameters[0] == null)
                         {
@@ -505,12 +562,12 @@ namespace Beyova.RestApi
                     for (var i = start; i < inputParameters.Length; i++)
                     {
                         parameters[i] = ReflectionExtension.ConvertToObjectByType(inputParameters[i].ParameterType,
-                            httpRequest.QueryString.Get(inputParameters[i].Name));
+                            queryString.Get(inputParameters[i].Name));
                     }
                 }
                 else
                 {
-                    var json = jsonBody = httpRequest.GetPostJson(Encoding.UTF8);
+                    var json = jsonBody = (bodyData == null ? null : Encoding.UTF8.GetString(bodyData));
                     var jsonObject = string.IsNullOrWhiteSpace(json) ? null : JObject.Parse(json);
 
                     if (jsonObject != null)
@@ -527,8 +584,9 @@ namespace Beyova.RestApi
             }
         }
 
+
         /// <summary>
-        /// Processes the route.
+        /// Processes the route. More than 1 parameters, from either query string or body json.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>Exception.</returns>
@@ -539,23 +597,23 @@ namespace Beyova.RestApi
         #region PackageResponse
 
         /// <summary>
-        /// Packages the output. <c>Flush()</c> would be called in this method.
+        /// Packages the output.
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="data">The data.</param>
+        /// <param name="operationParameters">The operation parameters.</param>
         /// <param name="baseException">The base exception.</param>
         /// <param name="acceptEncoding">Name of the compress.</param>
         /// <param name="noBody">if set to <c>true</c> [no body].</param>
-        /// <param name="contentType">Type of the content.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>System.Object.</returns>
-        protected virtual void PackageOutput(HttpResponse response, object data, BaseException baseException = null, string acceptEncoding = null, bool noBody = false, string contentType = null, RestApiSettings settings = null)
+        protected internal virtual void PackageOutput(HttpResponse response, object data, RuntimeApiOperationParameters operationParameters, BaseException baseException = null, string acceptEncoding = null, bool noBody = false, RestApiSettings settings = null)
         {
-            PackageResponse(response, data, baseException, acceptEncoding, noBody, contentType, settings);
+            PackageResponse(new HttpResponseWrapper(response), data, operationParameters, baseException, acceptEncoding, noBody, settings);
         }
 
         /// <summary>
-        /// Packages the response. <c>Flush()</c> would be called in this method.
+        /// Packages the response.
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="data">The data.</param>
@@ -565,25 +623,43 @@ namespace Beyova.RestApi
         /// <param name="contentType">Type of the content.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>System.Object.</returns>
-        protected static void PackageResponse(HttpResponse response, object data, BaseException ex = null, string acceptEncoding = null, bool noBody = false, string contentType = null, RestApiSettings settings = null)
+        public static void PackageResponse(HttpResponse response, object data, BaseException ex = null, string acceptEncoding = null, bool noBody = false, string contentType = null, RestApiSettings settings = null)
         {
             if (response != null)
             {
-                PackageResponse(new HttpResponseWrapper(response), data, ex, acceptEncoding, noBody, contentType, settings);
+                PackageResponse(new HttpResponseWrapper(response), data, new RuntimeApiOperationParameters { ContentType = contentType }, ex, acceptEncoding, noBody, settings);
             }
         }
 
         /// <summary>
-        /// Packages the response. <c>Flush()</c> would be called in this method.
+        /// Packages the response.
         /// </summary>
         /// <param name="response">The response.</param>
         /// <param name="data">The data.</param>
         /// <param name="ex">The ex.</param>
         /// <param name="acceptEncoding">The accept encoding.</param>
-        /// <param name="noBody">if set to <c>true</c> [no body].</param>
+        /// <param name="noBody">The no body.</param>
         /// <param name="contentType">Type of the content.</param>
         /// <param name="settings">The settings.</param>
         public static void PackageResponse(HttpResponseBase response, object data, BaseException ex = null, string acceptEncoding = null, bool noBody = false, string contentType = null, RestApiSettings settings = null)
+        {
+            if (response != null)
+            {
+                PackageResponse(response, data, new RuntimeApiOperationParameters { ContentType = contentType }, ex, acceptEncoding, noBody, settings);
+            }
+        }
+
+        /// <summary>
+        /// Packages the response.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="operationParameters">The operation parameters.</param>
+        /// <param name="ex">The ex.</param>
+        /// <param name="acceptEncoding">The accept encoding.</param>
+        /// <param name="noBody">if set to <c>true</c> [no body].</param>
+        /// <param name="settings">The settings.</param>
+        internal static void PackageResponse(HttpResponseBase response, object data, RuntimeApiOperationParameters operationParameters, BaseException ex = null, string acceptEncoding = null, bool noBody = false, RestApiSettings settings = null)
         {
             if (response != null)
             {
@@ -596,14 +672,27 @@ namespace Beyova.RestApi
 
                 response.Headers.Add(HttpConstants.HttpHeader.SERVERNAME, EnvironmentCore.ServerName);
                 response.Headers.AddIfNotNullOrEmpty(HttpConstants.HttpHeader.TRACEID, ApiTraceContext.TraceId);
+                int httpStatusCode = (int)(ex == null ? (noBody ? HttpStatusCode.NoContent : HttpStatusCode.OK) : ex.Code.ToHttpStatusCode());
 
-                response.StatusCode = (int)(ex == null ? (noBody ? HttpStatusCode.NoContent : HttpStatusCode.OK) : ex.Code.ToHttpStatusCode());
+                if (ex == null && operationParameters?.EntitySynchronizationMode != null)
+                {
+                    DateTime? lastModifiedStamp = null;
+                    data = operationParameters.EntitySynchronizationMode.RebuildOutputObject(ContextHelper.ApiContext.LastSynchronizedStamp, data, ref httpStatusCode, ref noBody, out lastModifiedStamp);
+
+                    if (lastModifiedStamp.HasValue)
+                    {
+                        response.Headers.Set(operationParameters.EntitySynchronizationMode.LastModifiedKey, lastModifiedStamp.Value.ToFullDateTimeTzString());
+                    }
+                }
+
+                response.StatusCode = httpStatusCode;
 
                 if (!noBody)
                 {
-                    response.ContentType = contentType.SafeToString(HttpConstants.ContentType.Json);
+                    response.ContentType = (ex != null ? HttpConstants.ContentType.Json : operationParameters?.ContentType).SafeToString(HttpConstants.ContentType.Json);
+                    bool isStreamBased = (objectToReturn != null && response.ContentType.StartsWith("application/", StringComparison.OrdinalIgnoreCase) && objectToReturn.GetType() == typeof(byte[]));
 
-                    if (settings.EnableContentCompression)
+                    if (settings.EnableContentCompression && !isStreamBased)
                     {
                         acceptEncoding = acceptEncoding.SafeToString().ToLower();
                         if (acceptEncoding.Contains(HttpConstants.HttpValues.GZip))
@@ -613,16 +702,25 @@ namespace Beyova.RestApi
                             response.Headers.Remove(HttpConstants.HttpHeader.ContentEncoding);
                             response.AppendHeader(HttpConstants.HttpHeader.ContentEncoding, HttpConstants.HttpValues.GZip);
                         }
-                        else if (acceptEncoding.Contains("deflate"))
+                        else if (acceptEncoding.Contains(HttpConstants.HttpValues.Deflate))
                         {
                             response.Filter = new System.IO.Compression.DeflateStream(response.Filter,
                                                 System.IO.Compression.CompressionMode.Compress);
                             response.Headers.Remove(HttpConstants.HttpHeader.ContentEncoding);
-                            response.AppendHeader(HttpConstants.HttpHeader.ContentEncoding, "deflate");
+                            response.AppendHeader(HttpConstants.HttpHeader.ContentEncoding, HttpConstants.HttpValues.Deflate);
                         }
                     }
 
-                    response.Write(objectToReturn.ToJson(true, JsonConverters));
+                    if (isStreamBased)
+                    {
+                        ((byte[])objectToReturn).ToStream().CopyStream(response.OutputStream);
+                        // return as bytes;
+                    }
+                    else
+                    {
+                        //return  as string;
+                        response.Write(response.ContentType.Equals(HttpConstants.ContentType.Json, StringComparison.OrdinalIgnoreCase) ? objectToReturn.ToJson(true, JsonConverters) : objectToReturn);
+                    }
                 }
 
                 response.Headers.Add(HttpConstants.HttpHeader.SERVEREXITTIME, DateTime.UtcNow.ToFullDateTimeTzString());
@@ -655,7 +753,7 @@ namespace Beyova.RestApi
         /// <param name="value">The value.</param>
         /// <param name="type">The type.</param>
         /// <returns>System.Object.</returns>
-        protected object DeserializeJsonObject(string value, Type type)
+        protected static object DeserializeJsonObject(string value, Type type)
         {
             try
             {
@@ -663,7 +761,7 @@ namespace Beyova.RestApi
                 {
                     type = typeof(JToken);
                 }
-                return JsonConvert.DeserializeObject(value, type);
+                return JsonConvert.DeserializeObject(value, type, JsonConverters);
             }
             catch (Exception ex)
             {
@@ -672,25 +770,12 @@ namespace Beyova.RestApi
         }
 
         /// <summary>
-        /// Gets the route key.
-        /// </summary>
-        /// <param name="version">The version.</param>
-        /// <param name="resource">The resource.</param>
-        /// <param name="httpMethod">The HTTP method.</param>
-        /// <param name="action">The action.</param>
-        /// <returns>System.String.</returns>
-        internal static string GetRouteKey(string version, string resource, string httpMethod, string action)
-        {
-            return string.Format("{0}:/{1}/{2}/{3}/", httpMethod, version, resource, action);
-        }
-
-        /// <summary>
         /// Gets the name of the rest API setting by.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="useDefaultIfNotFound">The use default if not found.</param>
         /// <returns>Beyova.RestApi.RestApiSettings.</returns>
-        public static RestApiSettings GetRestApiSettingByName(string name, bool useDefaultIfNotFound = false)
+        public static RestApiSettings GetRestApiSettingByName(string name, bool useDefaultIfNotFound = true)
         {
             RestApiSettings setting;
             return settingsContainer.TryGetValue(name.SafeToString(), out setting) ? setting : (useDefaultIfNotFound ? settingsContainer[defaultSettingName] : null);

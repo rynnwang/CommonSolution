@@ -73,7 +73,7 @@ namespace Beyova
                 {
                     if (!one.Currency.MeaningfulEquals(result.Currency, System.StringComparison.InvariantCultureIgnoreCase))
                     {
-                        throw ExceptionFactory.CreateInvalidObjectException("Currency", data: new { currency1 = result.Currency, currency2 = one.Currency }, reason: "Inconsistance currency.");
+                        throw ExceptionFactory.CreateInvalidObjectException(nameof(one.Currency), data: new { currency1 = result.Currency, currency2 = one.Currency }, reason: "Inconsistance currency.");
                     }
 
                     result.TotalPrice += one.TotalPrice;

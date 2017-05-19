@@ -21,10 +21,7 @@ namespace Beyova
         /// <returns>System.Object.</returns>
         public static object ConvertToObjectByType(Type type, string value, bool throwException = true)
         {
-            MethodInfo method = typeof(ReflectionExtension).GetMethod("ConvertToObject");
-
-            MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { type });
-            return genericMethod.Invoke(null, new object[] { value, throwException });
+            return ConvertStringToObject(value, type, throwException);
         }
 
         /// <summary>
@@ -35,7 +32,7 @@ namespace Beyova
         /// <param name="throwException">if set to <c>true</c> [throw exception].</param>
         /// <returns>``0.</returns>
         /// <exception cref="InvalidObjectException"></exception>
-        public static T ConvertToObject<T>(this string value, bool throwException = true)
+        public static T ConvertStringToObject<T>(this string value, bool throwException = true)
         {
             try
             {
@@ -50,11 +47,36 @@ namespace Beyova
             {
                 if (throwException)
                 {
-                    throw new InvalidObjectException(ex);
+                    throw ex.Handle(new { value, type = typeof(T)?.Name });
                 }
             }
 
             return default(T);
+        }
+
+        /// <summary>
+        /// Converts the string to object.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="throwException">The throw exception.</param>
+        /// <returns>System.Object.</returns>
+        public static object ConvertStringToObject(this string value, Type type, bool throwException = true)
+        {
+            try
+            {
+                var converter = TypeDescriptor.GetConverter(type);
+                return converter?.ConvertFromString(value);
+            }
+            catch (Exception ex)
+            {
+                if (throwException)
+                {
+                    throw ex.Handle(new { value, type = type?.Name });
+                }
+            }
+
+            return null;
         }
 
         #endregion

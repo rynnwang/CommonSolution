@@ -6,7 +6,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminUserInfo.
     /// </summary>
-    public class AdminAuthenticationResult : IAuthenticationResult<AdminUserInfo>
+    public class AdminAuthenticationResult : IAuthenticationResult<AdminUserInfoBase>
     {
         /// <summary>
         /// Gets or sets the token.
@@ -24,6 +24,6 @@ namespace Beyova
         /// Gets or sets the user information.
         /// </summary>
         /// <value>The user information.</value>
-        public AdminUserInfo UserInfo { get; set; }
+        public AdminUserInfoBase UserInfo { get; set; }
     }
 }

@@ -20,18 +20,20 @@ namespace Beyova
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlDataAccessController{T}" /> class.
         /// </summary>
-        /// <param name="sqlConnectionString">The SQL connection string.</param>
-        protected SqlDataAccessController(string sqlConnectionString)
-            : base(sqlConnectionString)
+        /// <param name="primarySqlConnectionString">The primary SQL connection string.</param>
+        /// <param name="readOnlySqlConnectionString">The read only SQL connection string.</param>
+        protected SqlDataAccessController(string primarySqlConnectionString, string readOnlySqlConnectionString = null)
+            : base(primarySqlConnectionString, readOnlySqlConnectionString)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlDataAccessController{T}" /> class.
         /// </summary>
-        /// <param name="sqlConnection">The SQL connection.</param>
-        protected SqlDataAccessController(SqlConnection sqlConnection)
-            : base(sqlConnection)
+        /// <param name="primarySqlConnection">The SQL connection.</param>
+        /// <param name="readOnlySqlConnection">The read only SQL connection.</param>
+        protected SqlDataAccessController(SqlConnection primarySqlConnection, SqlConnection readOnlySqlConnection = null)
+            : base(primarySqlConnection, readOnlySqlConnection)
         {
         }
 
@@ -73,9 +75,9 @@ namespace Beyova
                     sqlDataReader.Close();
                 }
 
-                if (databaseOperator != null)
+                if (_primaryDatabaseOperator != null)
                 {
-                    databaseOperator.Close();
+                    _primaryDatabaseOperator.Close();
                 }
             }
         }
@@ -94,21 +96,23 @@ namespace Beyova
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
         /// <param name="converter">The converter.</param>
+        /// <param name="preferReadOnlyOperator">The prefer read only operator.</param>
         /// <returns>List&lt;TOutput&gt;.</returns>
-        protected List<TOutput> ExecuteReader<TOutput>(string spName, List<SqlParameter> sqlParameters, Func<SqlDataReader, TOutput> converter)
+        protected List<TOutput> ExecuteReader<TOutput>(string spName, List<SqlParameter> sqlParameters, Func<SqlDataReader, TOutput> converter, bool preferReadOnlyOperator = false)
         {
             SqlDataReader reader = null;
+            DatabaseOperator databaseOperator = null;
 
             try
             {
                 converter.CheckNullObject(nameof(converter));
 
-                reader = this.Execute(spName, sqlParameters);
+                reader = this.Execute(spName, sqlParameters, preferReadOnlyOperator, out databaseOperator);
                 return reader == null ? new List<TOutput>() : ConvertObject(reader, converter);
             }
             catch (Exception ex)
             {
-                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters), PreferReadOnlyOperator = preferReadOnlyOperator });
             }
             finally
             {
@@ -118,7 +122,7 @@ namespace Beyova
                 }
 
                 // use Close instead of Dispose so that operator can be reuse without re-initialize.
-                databaseOperator.Close();
+                databaseOperator?.Close();
             }
         }
 
@@ -127,10 +131,11 @@ namespace Beyova
         /// </summary>
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <param name="preferReadOnlyOperator">The prefer read only operator.</param>
         /// <returns>List{`0}.</returns>
-        protected List<T> ExecuteReader(string spName, List<SqlParameter> sqlParameters = null)
+        protected List<T> ExecuteReader(string spName, List<SqlParameter> sqlParameters = null, bool preferReadOnlyOperator = false)
         {
-            return ExecuteReader<T>(spName, sqlParameters, ConvertEntityObject);
+            return ExecuteReader<T>(spName, sqlParameters, ConvertEntityObject, preferReadOnlyOperator);
         }
     }
 
@@ -160,30 +165,39 @@ namespace Beyova
         protected const string column_SqlStoredProcedureName = "SqlStoredProcedureName";
 
         /// <summary>
-        /// The database operator
+        /// The primary database operator
         /// </summary>
-        protected DatabaseOperator databaseOperator = null;
+        protected DatabaseOperator _primaryDatabaseOperator = null;
+
+        /// <summary>
+        /// The read only database operator
+        /// </summary>
+        protected DatabaseOperator _readOnlyDatabaseOperator = null;
 
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqlDataAccessController{T}" /> class.
+        /// Initializes a new instance of the <see cref="SqlDataAccessController" /> class.
         /// </summary>
-        /// <param name="sqlConnectionString">The SQL connection string.</param>
-        protected SqlDataAccessController(string sqlConnectionString)
+        /// <param name="primarySqlConnectionString">The primary SQL connection string.</param>
+        /// <param name="readOnlySqlConnectionString">The read only SQL connection string.</param>
+        protected SqlDataAccessController(string primarySqlConnectionString, string readOnlySqlConnectionString = null)
             : base()
         {
-            this.databaseOperator = new DatabaseOperator(sqlConnectionString);
+            this._primaryDatabaseOperator = new DatabaseOperator(primarySqlConnectionString);
+            this._readOnlyDatabaseOperator = string.IsNullOrWhiteSpace(readOnlySqlConnectionString) ? null : new DatabaseOperator(readOnlySqlConnectionString);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlDataAccessController{T}" /> class.
         /// </summary>
-        /// <param name="sqlConnection">The SQL connection.</param>
-        protected SqlDataAccessController(SqlConnection sqlConnection)
+        /// <param name="primarySqlConnection">The SQL connection.</param>
+        /// <param name="readOnlySqlConnection">The read only SQL connection.</param>
+        protected SqlDataAccessController(SqlConnection primarySqlConnection, SqlConnection readOnlySqlConnection = null)
             : base()
         {
-            this.databaseOperator = new DatabaseOperator(sqlConnection);
+            this._primaryDatabaseOperator = new DatabaseOperator(primarySqlConnection);
+            this._readOnlyDatabaseOperator = readOnlySqlConnection == null ? null : new DatabaseOperator(readOnlySqlConnection);
         }
 
         #endregion
@@ -198,29 +212,41 @@ namespace Beyova
         /// <returns>SqlTransactionScope.</returns>
         internal SqlTransactionScope BeginTransaction(IsolationLevel iso = IsolationLevel.Unspecified, string transactionName = null)
         {
-            return this.databaseOperator.BeginTransaction(iso, transactionName);
+            return this._primaryDatabaseOperator.BeginTransaction(iso, transactionName);
         }
 
         #endregion
+
+        /// <summary>
+        /// Gets the database operator.
+        /// </summary>
+        /// <param name="preferReadOnlyOperator">if set to <c>true</c> [prefer read only operator].</param>
+        /// <returns>DatabaseOperator.</returns>
+        protected DatabaseOperator GetDatabaseOperator(bool preferReadOnlyOperator)
+        {
+            return (preferReadOnlyOperator && _readOnlyDatabaseOperator != null) ? _readOnlyDatabaseOperator : _primaryDatabaseOperator;
+        }
 
         /// <summary>
         /// Executes the scalar.
         /// </summary>
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <param name="preferReadOnlyOperator">The prefer read only operator.</param>
         /// <returns>System.Object.</returns>
-        protected object ExecuteScalar(string spName, List<SqlParameter> sqlParameters = null)
+        protected object ExecuteScalar(string spName, List<SqlParameter> sqlParameters = null, bool preferReadOnlyOperator = false)
         {
             SqlDataReader reader = null;
+            DatabaseOperator databaseOperator = null;
 
             try
             {
-                reader = this.Execute(spName, sqlParameters);
+                reader = this.Execute(spName, sqlParameters, preferReadOnlyOperator, out databaseOperator);
                 return reader == null ? DBNull.Value : reader[0];
             }
             catch (Exception ex)
             {
-                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters), PreferReadOnlyOperator = preferReadOnlyOperator });
             }
             finally
             {
@@ -230,7 +256,7 @@ namespace Beyova
                 }
 
                 // use Close instead of Dispose so that operator can be reuse without re-initialize.
-                databaseOperator.Close();
+                databaseOperator?.Close();
             }
         }
 
@@ -239,18 +265,20 @@ namespace Beyova
         /// </summary>
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <param name="preferReadOnlyOperator">The prefer read only operator.</param>
         /// <returns>System.Int32.</returns>
-        protected void ExecuteNonQuery(string spName, List<SqlParameter> sqlParameters = null)
+        protected void ExecuteNonQuery(string spName, List<SqlParameter> sqlParameters = null, bool preferReadOnlyOperator = false)
         {
+            DatabaseOperator databaseOperator = null;
             SqlDataReader reader = null;
 
             try
             {
-                reader = this.Execute(spName, sqlParameters);
+                reader = this.Execute(spName, sqlParameters, preferReadOnlyOperator, out databaseOperator);
             }
             catch (Exception ex)
             {
-                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters), PreferReadOnlyOperator = preferReadOnlyOperator });
             }
             finally
             {
@@ -260,7 +288,7 @@ namespace Beyova
                 }
 
                 // use Close instead of Dispose so that operator can be reuse without re-initialize.
-                databaseOperator.Close();
+                databaseOperator?.Close();
             }
         }
 
@@ -269,11 +297,16 @@ namespace Beyova
         /// </summary>
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <param name="preferReadOnlyOperator">if set to <c>true</c> [prefer read only operator].</param>
+        /// <param name="databaseOperator">The database operator.</param>
         /// <returns>SqlDataReader.</returns>
-        protected SqlDataReader Execute(string spName, List<SqlParameter> sqlParameters = null)
+        protected SqlDataReader Execute(string spName, List<SqlParameter> sqlParameters, bool preferReadOnlyOperator, out DatabaseOperator databaseOperator)
         {
             try
             {
+                databaseOperator = GetDatabaseOperator(preferReadOnlyOperator);
+                databaseOperator.CheckNullObject(nameof(databaseOperator));
+
                 var reader = databaseOperator.ExecuteReader(spName, sqlParameters);
                 if (reader.HasRows)
                 {
@@ -340,7 +373,8 @@ namespace Beyova
         {
             try
             {
-                reader.CheckNullObject("reader");
+                reader.CheckNullObject(nameof(reader));
+
                 var storedProcedureName = reader.HasColumn(column_SqlStoredProcedureName) ? reader[column_SqlStoredProcedureName].ObjectToString() : null;
                 var errorCode = reader.HasColumn(column_SqlErrorCode) ? reader[column_SqlErrorCode].ObjectToNullableInt32() : null;
                 var errorReason = reader.HasColumn(column_SqlErrorReason) ? reader[column_SqlErrorReason].ObjectToString() : null;
@@ -376,44 +410,14 @@ namespace Beyova
             {
                 using (var databaseOperator = new DatabaseOperator(sqlConnection))
                 {
-                    InitializeCustomizedSqlErrorStoredProcedure(databaseOperator);
+                    var throwExceptionSp = ProgrammingIntelligence.SqlScriptGenerator.GenerateDefaultStoredProcedure("dbo");
+                    databaseOperator.ExecuteSqlTextNonQuery(throwExceptionSp);
                 }
             }
             catch (Exception ex)
             {
                 throw ex.Handle(sqlConnection);
             }
-        }
-
-        /// <summary>
-        /// Initializes the customized SQL error stored procedure.
-        /// </summary>
-        /// <param name="databaseOperator">The database operator.</param>
-        protected static void InitializeCustomizedSqlErrorStoredProcedure(DatabaseOperator databaseOperator)
-        {
-            const string storedProcedureDrop = @"
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sp_ThrowException]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[sp_ThrowException];
-";
-            const string storedProcedureCreate = @"
-CREATE PROCEDURE [dbo].[sp_ThrowException](
-    @Name [NVARCHAR](256),
-    @Code INT,
-    @Reason [NVARCHAR](256),
-    @Message [NVARCHAR](512)
-)
-AS
-BEGIN
-    SELECT 
-        @Name AS [SqlStoredProcedureName],
-        ISNULL(@Code, 500) AS [SqlErrorCode],
-        @Reason AS [SqlErrorReason],
-        @Message AS [SqlErrorMessage];
-END
-
-";
-            databaseOperator.ExecuteSqlTextNonQuery(storedProcedureDrop);
-            databaseOperator.ExecuteSqlTextNonQuery(storedProcedureCreate);
         }
 
         #endregion
@@ -442,7 +446,7 @@ END
                 else
                 {
                     var boolParameterObject = parameterObject as bool?;
-                    if (boolParameterObject != null)
+                    if (boolParameterObject.HasValue)
                     {
                         parameterObject = boolParameterObject.Value ? 1 : 0;
                     }
@@ -471,10 +475,8 @@ END
         /// </summary>
         public void Dispose()
         {
-            if (this.databaseOperator != null)
-            {
-                this.databaseOperator.Dispose();
-            }
+            this._primaryDatabaseOperator?.Dispose();
+            this._readOnlyDatabaseOperator?.Dispose();
         }
     }
 }

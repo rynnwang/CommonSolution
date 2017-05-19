@@ -13,6 +13,23 @@ namespace Beyova
     public static class SystemManagementExtension
     {
         /// <summary>
+        /// Fills the health data.
+        /// </summary>
+        /// <param name="healthObject">The health object.</param>
+        internal static void FillHealthData(this IMachineHealth healthObject)
+        {
+            if (healthObject != null)
+            {
+                healthObject.CpuUsage = GetCpuUsage();
+                healthObject.MemoryUsage = GetPhysicalMemoryUsage();
+                healthObject.TotalMemory = GetPhysicalTotalMemory();
+                healthObject.ServerName = EnvironmentCore.ServerName;
+                healthObject.IpAddress = EnvironmentCore.LocalMachineIpAddress;
+                healthObject.HostName = EnvironmentCore.LocalMachineHostName;
+            };
+        }
+
+        /// <summary>
         /// Gets the machine health.
         /// </summary>
         /// <returns>MachineHealth.</returns>
@@ -22,7 +39,6 @@ namespace Beyova
             {
                 MemoryUsage = GetPhysicalMemoryUsage(),
                 CpuUsage = GetCpuUsage(),
-                DiskUsages = GetDiskUsages(),
                 TotalMemory = GetPhysicalTotalMemory(),
                 ServerName = EnvironmentCore.ServerName
             };
@@ -148,22 +164,5 @@ namespace Beyova
 
             return null;
         }
-
-        //public static List<string> GetOperatiingSystem()
-        //{
-        //    List<string> result = new List<string>();
-
-        //    try
-        //    {
-        //        var search = new ManagementObjectSearcher("Select * from Win32_OperatingSystem");
-        //        foreach (ManagementObject info in search.Get())
-        //        {
-        //            result.Add(info["LoadPercentage"].ToString().ToDouble(0));
-        //        }
-        //    }
-        //    catch { }
-
-        //    return result;
-        //}
     }
 }

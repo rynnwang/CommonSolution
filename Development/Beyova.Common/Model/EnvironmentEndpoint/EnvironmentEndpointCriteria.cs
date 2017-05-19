@@ -11,7 +11,7 @@ namespace Beyova
     /// <summary>
     /// Class EnvironmentEndpointCriteria.
     /// </summary>
-    public class EnvironmentEndpointCriteria : EnvironmentEndpointBase, ICriteria
+    public class EnvironmentEndpointCriteria : EnvironmentEndpoint, ICriteria
     {
         /// <summary>
         /// Gets or sets the count.

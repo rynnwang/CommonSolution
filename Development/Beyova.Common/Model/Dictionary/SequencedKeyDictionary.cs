@@ -63,6 +63,16 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Gets the index of.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>System.Int32.</returns>
+        public int GetIndexOf(TKey key)
+        {
+            return key == null ? -1 : keys.IndexOf(key);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SequencedKeyDictionary{TKey, TValue}" /> class.
         /// </summary>
         /// <param name="baseDictionary">The base dictionary.</param>
@@ -95,7 +105,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SerializableDictionary{TKey, TValue}"/> class.
+        /// Initializes a new instance of the <see cref="SequencedKeyDictionary{TKey, TValue}"/> class.
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>
         public SequencedKeyDictionary(IDictionary<TKey, TValue> dictionary)
@@ -104,7 +114,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SerializableDictionary{TKey, TValue}"/> class.
+        /// Initializes a new instance of the <see cref="SequencedKeyDictionary{TKey, TValue}"/> class.
         /// </summary>
         /// <param name="capacity">The initial number of elements that the <see cref="T:System.Collections.Generic.Dictionary`2" /> can contain.</param>
         public SequencedKeyDictionary(int capacity)
@@ -113,7 +123,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SerializableDictionary{TKey, TValue}" /> class.
+        /// Initializes a new instance of the <see cref="SequencedKeyDictionary{TKey, TValue}" /> class.
         /// </summary>
         /// <param name="comparer">The comparer.</param>
         public SequencedKeyDictionary(IEqualityComparer<TKey> comparer)
@@ -249,7 +259,7 @@ namespace Beyova
         /// <returns>An enumerator that can be used to iterate through the collection.</returns>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            return dictionary.GetEnumerator();
+            return InternalToKeyValueList().GetEnumerator();
         }
 
         /// <summary>
@@ -258,7 +268,21 @@ namespace Beyova
         /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return dictionary.GetEnumerator();
+            return InternalToKeyValueList().GetEnumerator();
+        }
+
+        /// <summary>
+        /// Internals to key value list.
+        /// </summary>
+        /// <returns>List&lt;KeyValuePair&lt;TKey, TValue&gt;&gt;.</returns>
+        protected List<KeyValuePair<TKey, TValue>> InternalToKeyValueList()
+        {
+            List<KeyValuePair<TKey, TValue>> tmp = new List<KeyValuePair<TKey, TValue>>();
+            foreach (var key in this.dictionary.Keys)
+            {
+                tmp.Add(new KeyValuePair<TKey, TValue>(key, this.dictionary[key]));
+            }
+            return tmp;
         }
     }
 }

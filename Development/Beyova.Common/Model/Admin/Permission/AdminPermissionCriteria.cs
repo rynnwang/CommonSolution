@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminPermissionCriteria.
     /// </summary>
-    public class AdminPermissionCriteria : AdminPermissionBase
+    public class AdminPermissionCriteria : AdminPermission
     {
         /// <summary>
         /// Gets or sets the role key.

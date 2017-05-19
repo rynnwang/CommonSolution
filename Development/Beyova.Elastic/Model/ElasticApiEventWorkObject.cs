@@ -31,8 +31,8 @@ namespace Beyova.Elastic
                         this.RawData.GeoInfo = new Beyova.GeoInfoBase()
                         {
                             IsoCode = geoInfo.countryCode,
-                            Latitude = geoInfo.latitude,
-                            Longitude = geoInfo.longitude,
+                            Latitude = (decimal)geoInfo.latitude,
+                            Longitude = (decimal)geoInfo.longitude,
                             CityName = geoInfo.city,
                             CountryName = geoInfo.countryName
                         };

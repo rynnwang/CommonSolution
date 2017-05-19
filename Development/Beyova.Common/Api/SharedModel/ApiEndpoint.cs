@@ -8,12 +8,6 @@ namespace Beyova.Api
     public class ApiEndpoint : UriEndpoint
     {
         /// <summary>
-        /// Gets or sets the version.
-        /// </summary>
-        /// <value>The version.</value>
-        public string Version { get; set; }
-
-        /// <summary>
         /// Gets or sets the account.
         /// </summary>
         /// <value>The account.</value>
@@ -37,7 +31,7 @@ namespace Beyova.Api
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return string.Format("{0}api/{1}/", base.ToString(), Version.SafeToString("v1"));
+            return string.Format("{0}api/", base.ToString());
         }
 
         /// <summary>

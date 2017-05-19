@@ -1,37 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Routing;
 using Beyova.Api;
+using Beyova.Cache;
 using Beyova.ExceptionSystem;
-using Beyova.License;
+using Beyova.ProgrammingIntelligence;
 
 namespace Beyova.RestApi
 {
     /// <summary>
     /// Class RestApiRouter, which deeply integrated with <see cref="ContextHelper"/> for common usage.
     /// </summary>
-    public class RestApiRouter : ApiHandlerBase, IRouteHandler
+    public sealed class RestApiRouter : ApiHandlerBase, IRouteHandler
     {
         #region Protected fields
 
         /// <summary>
         /// The route operation locker
         /// </summary>
-        protected static object routeOperationLocker = new object();
+        private static object routeOperationLocker = new object();
 
         /// <summary>
         /// The routes
         /// </summary>
-        protected static volatile Dictionary<string, RuntimeRoute> routes =
+        private static volatile Dictionary<string, RuntimeRoute> routes =
             new Dictionary<string, RuntimeRoute>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// The initialized types
         /// </summary>
-        protected static volatile HashSet<string> initializedTypes = new HashSet<string>();
+        private static volatile HashSet<string> initializedTypes = new HashSet<string>();
+
+        /// <summary>
+        /// The _first instance
+        /// </summary>
+        private static RestApiRouter _firstInstance;
+
+        /// <summary>
+        /// Gets the first instance.
+        /// </summary>
+        /// <value>The first instance.</value>
+        internal static RestApiRouter FirstInstance { get { return _firstInstance; } }
 
         #endregion
 
@@ -53,6 +66,10 @@ namespace Beyova.RestApi
         public RestApiRouter(RestApiSettings defaultApiSettings, bool allowOptions = false)
             : base(defaultApiSettings, allowOptions)
         {
+            if (_firstInstance == null)
+            {
+                _firstInstance = this;
+            }
         }
 
         #endregion
@@ -73,7 +90,7 @@ namespace Beyova.RestApi
         /// <param name="instance">The instance.</param>
         /// <param name="settings">The settings.</param>
         /// <exception cref="DataConflictException">Route</exception>
-        protected void InitializeRoute(object instance, RestApiSettings settings = null)
+        private void InitializeRoute(object instance, RestApiSettings settings = null)
         {
             lock (routeOperationLocker)
             {
@@ -109,7 +126,7 @@ namespace Beyova.RestApi
         /// <param name="settings">The settings.</param>
         /// <param name="parentApiContractAttribute">The parent API class attribute.</param>
         /// <param name="parentApiModuleAttribute">The parent API module attribute.</param>
-        protected void InitializeApiType(List<string> doneInterfaceTypes, Dictionary<string, RuntimeRoute> routes, Type interfaceType, object instance, RestApiSettings settings = null, ApiContractAttribute parentApiContractAttribute = null, ApiModuleAttribute parentApiModuleAttribute = null)
+        private void InitializeApiType(List<string> doneInterfaceTypes, Dictionary<string, RuntimeRoute> routes, Type interfaceType, object instance, RestApiSettings settings = null, ApiContractAttribute parentApiContractAttribute = null, ApiModuleAttribute parentApiModuleAttribute = null)
         {
             if (routes != null && interfaceType != null && doneInterfaceTypes != null)
             {
@@ -126,7 +143,7 @@ namespace Beyova.RestApi
                 {
                     if (apiContract.Version.SafeToLower().Equals(BuiltInFeatureVersionKeyword))
                     {
-                        throw ExceptionFactory.CreateInvalidObjectException("apiContract.Version", reason: "<builtin> cannot be used as version due to it is used internally.");
+                        throw ExceptionFactory.CreateInvalidObjectException(nameof(apiContract.Version), reason: "<builtin> cannot be used as version due to it is used internally.");
                     }
 
                     foreach (var method in interfaceType.GetMethods())
@@ -142,6 +159,8 @@ namespace Beyova.RestApi
 
                             var apiPermissionAttributes =
                                 method.GetCustomAttributes<ApiPermissionAttribute>(true);
+
+                            var apiCacheAttribute = method.GetCustomAttribute<ApiCacheAttribute>(true);
 
                             if (apiPermissionAttributes != null)
                             {
@@ -160,25 +179,43 @@ namespace Beyova.RestApi
                                 }
                             }
 
-                            var routeKey = GetRouteKey(apiContract.Version, apiOperationAttribute.ResourceName,
+                            var routeKey = RestApiExtension.GetRouteKey(apiContract.Realm, apiContract.Version, apiOperationAttribute.ResourceName,
                                 apiOperationAttribute.HttpMethod, apiOperationAttribute.Action);
 
                             var tokenRequired =
                                 method.GetCustomAttribute<TokenRequiredAttribute>(true) ??
                                 interfaceType.GetCustomAttribute<TokenRequiredAttribute>(true);
 
-                            var runtimeRoute = new RuntimeRoute(method, interfaceType, instance,
+                            // If method can not support API cache, consider as no api cache.
+                            if (apiCacheAttribute != null && (!apiOperationAttribute.HttpMethod.Equals(HttpConstants.HttpMethod.Get, StringComparison.OrdinalIgnoreCase) || !apiCacheAttribute.InitializeParameterNames(method)))
+                            {
+                                apiCacheAttribute = null;
+                            }
+
+                            var runtimeRoute = new RuntimeRoute(routeKey, method, interfaceType, instance,
                                    !string.IsNullOrWhiteSpace(apiOperationAttribute.Action),
-                                   tokenRequired != null && tokenRequired.TokenRequired, moduleName, settings, permissions, additionalHeaderKeys.ToList());
+                                   tokenRequired != null && tokenRequired.TokenRequired, moduleName, apiOperationAttribute.ContentType, apiOperationAttribute.IsDataSensitive, settings, apiCacheAttribute, permissions, additionalHeaderKeys.ToList());
+
+                            FeatureModuleSwitch.RegisterModule(moduleName);
 
                             if (routes.ContainsKey(routeKey))
                             {
-                                throw new DataConflictException("Route", objectIdentity: routeKey, data: new
+                                throw new DataConflictException(nameof(routeKey), objectIdentity: routeKey, data: new
                                 {
                                     existed = routes[routeKey].SafeToString(),
                                     newMethod = method.GetFullName(),
                                     newInterface = interfaceType.FullName
                                 });
+                            }
+
+                            // EntitySynchronizationModeAttribute
+                            var entitySynchronizationModeAttribute = method.GetCustomAttribute<EntitySynchronizationModeAttribute>(true);
+                            if (entitySynchronizationModeAttribute != null)
+                            {
+                                if (EntitySynchronizationModeAttribute.IsReturnTypeMatched(method.ReturnType))
+                                {
+                                    runtimeRoute.OperationParameters.EntitySynchronizationMode = entitySynchronizationModeAttribute;
+                                }
                             }
 
                             routes.Add(routeKey, runtimeRoute);
@@ -210,11 +247,25 @@ namespace Beyova.RestApi
         /// <returns>Exception.</returns>
         protected override RuntimeContext ProcessRoute(HttpRequest request)
         {
-            var result = new RuntimeContext();
-            var rawUrl = request.RawUrl;
-            var rawFullUrl = request.ToFullRawUrl();
+            return ProcessRequestToRuntimeContext(request.HttpMethod, request.Url, request.Headers, true);
+        }
 
-            if (!request.FillRouteInfo(result))
+        /// <summary>
+        /// Processes the request to runtime context.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method.</param>
+        /// <param name="uri">The URI.</param>
+        /// <param name="headers">The headers.</param>
+        /// <param name="doAuthentication">The do authentication.</param>
+        /// <returns>Beyova.RestApi.RuntimeContext.</returns>
+        internal RuntimeContext ProcessRequestToRuntimeContext(string httpMethod, Uri uri, NameValueCollection headers, bool doAuthentication = true)
+        {
+            uri.CheckNullObject(nameof(uri));
+
+            var result = new RuntimeContext();
+            var rawFullUrl = string.Format("{0}: {1}", httpMethod, uri.ToString());
+
+            if (!uri.FillRouteInfo(result))
             {
                 throw ExceptionFactory.CreateInvalidObjectException("URL");
             }
@@ -226,14 +277,14 @@ namespace Beyova.RestApi
 
             if (string.IsNullOrWhiteSpace(result.ResourceName))
             {
-                throw new ResourceNotFoundException(rawFullUrl, "resourceName");
+                throw new ResourceNotFoundException(rawFullUrl, nameof(result.ResourceName));
             }
 
             RuntimeRoute runtimeRoute;
 
-            if (!routes.TryGetValue(GetRouteKey(result.Version, result.ResourceName, request.HttpMethod, result.Parameter1), out runtimeRoute))
+            if (!routes.TryGetValue(RestApiExtension.GetRouteKey(result.Realm, result.Version, result.ResourceName, httpMethod, result.Parameter1), out runtimeRoute))
             {
-                routes.TryGetValue(GetRouteKey(result.Version, result.ResourceName, request.HttpMethod, null), out runtimeRoute);
+                routes.TryGetValue(RestApiExtension.GetRouteKey(result.Realm, result.Version, result.ResourceName, httpMethod, null), out runtimeRoute);
             }
             else
             {
@@ -249,8 +300,7 @@ namespace Beyova.RestApi
             }
 
             // Override out parameters
-            result.ModuleName = runtimeRoute.ModuleName;
-            result.CustomizedHeaderKeys = runtimeRoute.HeaderKeys;
+            result.OperationParameters = runtimeRoute.OperationParameters ?? new RuntimeApiOperationParameters();
 
             result.ApiMethod = runtimeRoute.MethodInfo;
             result.ApiInstance = runtimeRoute.Instance;
@@ -258,12 +308,39 @@ namespace Beyova.RestApi
             result.IsVoid = runtimeRoute.MethodInfo?.ReturnType?.IsVoid();
             result.Settings = runtimeRoute.Setting;
 
+            if (runtimeRoute.ApiCacheAttribute != null)
+            {
+                result.ApiCacheIdentity = runtimeRoute.ApiCacheAttribute.CacheParameter.CachedByParameterizedIdentity
+                    ? runtimeRoute.ApiCacheAttribute.GenerateParameterizedIdentity(uri.Query.ParseToNameValueCollection())
+                    : runtimeRoute.RouteKey;
+
+                result.ApiCacheContainer = runtimeRoute.ApiCacheContainer;
+
+                if (result.ApiCacheContainer != null)
+                {
+                    string cachedResponseBody;
+                    if (result.ApiCacheContainer.GetCacheResult(result.ApiCacheIdentity, out cachedResponseBody))
+                    {
+                        result.CachedResponseBody = cachedResponseBody;
+                        result.ApiCacheStatus = ApiCacheStatus.UseCache;
+                    }
+                    else
+                    {
+                        result.ApiCacheStatus = ApiCacheStatus.UpdateCache;
+                    }
+                }
+                else
+                {
+                    result.ApiCacheStatus = ApiCacheStatus.NoCache;
+                }
+            }
+
             var tokenHeaderKey = (result.Settings ?? DefaultSettings)?.TokenHeaderKey;
-            var token = (request != null && !string.IsNullOrWhiteSpace(tokenHeaderKey)) ? request.TryGetHeader(tokenHeaderKey) : string.Empty;
+            var token = (headers != null && !string.IsNullOrWhiteSpace(tokenHeaderKey)) ? headers.Get(tokenHeaderKey).SafeToString() : string.Empty;
 
             string userIdentifier = ContextHelper.ApiContext.Token = token;
 
-            var authenticationException = Authenticate(runtimeRoute, token, out userIdentifier);
+            var authenticationException = doAuthentication ? Authenticate(runtimeRoute, token, out userIdentifier) : null;
 
             if (authenticationException != null)
             {
@@ -289,6 +366,7 @@ namespace Beyova.RestApi
         {
             object result = null;
             contentType = HttpConstants.ContentType.Json;
+            const string localhostTip = "This API is available at localhost machine.";
 
             switch (runtimeContext?.ResourceName.SafeToLower())
             {
@@ -296,29 +374,15 @@ namespace Beyova.RestApi
                     result = routes.Select(x => new { Url = x.Key.TrimEnd('/') + "/", Method = x.Value.MethodInfo?.Name }).ToList();
                     break;
                 case "configuration":
-                    result = isLocalhost ? Framework.ConfigurationReader.GetValues() : "This API is available at localhost machine." as object;
+                    result = isLocalhost ? Framework.ConfigurationReader.GetValues() : localhostTip as object;
                     break;
-                case "license":
-                    if (isLocalhost)
-                    {
-                        var licenseDictionary = new Dictionary<string, object>();
-                        foreach (var one in BeyovaLicenseContainer.Licenses)
-                        {
-                            licenseDictionary.Add(one.Key, new
-                            {
-                                one.Value.LicensePath,
-                                one.Value.Entry
-                            });
-                        }
-                    }
-                    else
-                    {
-                        result = "This API is available at localhost machine.";
-                    }
+                case "featureswitch":
+                    result = FeatureModuleSwitch.GetModuleWorkStatus();
                     break;
                 case "doc":
+                case "doc.zip":
                     DocumentGenerator generator = new DocumentGenerator(DefaultSettings.TokenHeaderKey.SafeToString(HttpConstants.HttpHeader.TOKEN));
-                    result = generator.WriteHtmlDocumentToZip((from item in routes select item.Value.InstanceType).Distinct().ToArray());
+                    result = generator.WriteHtmlDocumentToZipByType((from item in routes select item.Value.InstanceType).Distinct().ToArray());
                     contentType = HttpConstants.ContentType.ZipFile;
                     break;
                 default: break;
@@ -334,7 +398,7 @@ namespace Beyova.RestApi
         /// <param name="token">The token.</param>
         /// <param name="userIdentifier">The user identifier.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        protected BaseException Authenticate(RuntimeRoute runtimeRoute, string token, out string userIdentifier)
+        private BaseException Authenticate(RuntimeRoute runtimeRoute, string token, out string userIdentifier)
         {
             userIdentifier = token;
             ICredential credential = null;
@@ -360,7 +424,7 @@ namespace Beyova.RestApi
 
             ContextHelper.ApiContext.CurrentCredential = credential;
 
-            if (!runtimeRoute.IsTokenRequired)
+            if (!runtimeRoute.OperationParameters.IsTokenRequired)
             {
                 return null;
             }
@@ -369,7 +433,7 @@ namespace Beyova.RestApi
             if (credential != null)
             {
                 var userPermissions = ContextHelper.ApiContext.CurrentPermissionIdentifiers?.Permissions ?? new List<string>();
-                return userPermissions.ValidateApiPermission(runtimeRoute.Permissions, token, runtimeRoute.MethodInfo.GetFullName());
+                return userPermissions.ValidateApiPermission(runtimeRoute.OperationParameters.Permissions, token, runtimeRoute.MethodInfo.GetFullName());
             }
 
             return new UnauthorizedTokenException(new { token });

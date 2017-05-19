@@ -170,6 +170,7 @@ namespace Beyova.Elastic
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="bucketJson">The bucket json.</param>
+        /// <param name="identifierName">Name of the identifier.</param>
         /// <returns>AggregationGroupObject&lt;T&gt;.</returns>
         internal static List<AggregationGroupObject<T>> ConvertToAggregationBucketObject<T>(this JObject bucketJson, string identifierName)
         {

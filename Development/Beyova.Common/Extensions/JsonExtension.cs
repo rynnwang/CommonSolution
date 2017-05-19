@@ -49,6 +49,17 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Safes to object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="json">The json.</param>
+        /// <returns></returns>
+        public static T SafeToObject<T>(this JToken json)
+        {
+            return json == null ? default(T) : json.ToObject<T>();
+        }
+
+        /// <summary>
         /// Tries the convert json to object.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -244,7 +255,7 @@ namespace Beyova
             try
             {
                 value.CheckEmptyString("value");
-                return JsonConvert.DeserializeObject<T>(value);
+                return JsonConvert.DeserializeObject<T>(value, IsoDateTimeConverter);
             }
             catch { }
 
@@ -271,13 +282,45 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Objects to j token.
+        /// Parses to j token.
+        /// </summary>
+        /// <param name="jsonString">The json string.</param>
+        /// <returns>JToken.</returns>
+        public static JToken ParseToJToken(this string jsonString)
+        {
+            return (!string.IsNullOrWhiteSpace(jsonString)) ? JToken.Parse(jsonString) : null;
+        }
+
+        /// <summary>
+        /// Parses to j object.
+        /// </summary>
+        /// <param name="jsonString">The json string.</param>
+        /// <returns></returns>
+        public static JObject ParseToJObject(this string jsonString)
+        {
+            return (!string.IsNullOrWhiteSpace(jsonString)) ? JObject.Parse(jsonString) : null;
+        }
+
+        /// <summary>
+        /// Objects to json token.
         /// </summary>
         /// <param name="obj">The object.</param>
-        /// <returns>JToken.</returns>
+        /// <returns>
+        /// JToken.
+        /// </returns>
         public static JToken ObjectToJToken(this object obj)
         {
-            return obj == null ? null : JToken.FromObject(obj);
+            return obj.SafeToString().ParseToJToken();
+        }
+
+        /// <summary>
+        /// Objects to json object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns></returns>
+        public static JObject ObjectToJObject(this object obj)
+        {
+            return obj.SafeToString().ParseToJObject();
         }
 
         /// <summary>
@@ -295,6 +338,29 @@ namespace Beyova
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Safes the get value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="jObject">The j object.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>T.</returns>
+        public static T SafeGetValue<T>(this JObject jObject, string propertyName, bool ignoreCase = false, T defaultValue = default(T))
+        {
+            if (jObject != null && !string.IsNullOrWhiteSpace(propertyName))
+            {
+                var property = jObject.GetProperty(propertyName, ignoreCase);
+                if (property != null)
+                {
+                    return property.Value<T>();
+                }
+            }
+
+            return default(T);
         }
     }
 }

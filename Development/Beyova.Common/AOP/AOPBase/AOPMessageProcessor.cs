@@ -11,19 +11,19 @@ namespace Beyova.AOP
     /// <summary>
     /// Class BaseAOPMessageProcessor.
     /// </summary>
-    public class AOPMessageProcessor : IContextProperty, IContributeObjectSink
+    internal class AOPMessageProcessor : IContextProperty, IContributeObjectSink
     {
         /// <summary>
         /// The handle exception delegate
         /// </summary>
-        protected MessageProcessDelegates messageDelegates;
+        protected MethodMessageInjectionDelegates messageDelegates;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AOPMessageProcessor" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="messageDelegates">The message delegates.</param>
-        public AOPMessageProcessor(string name, MessageProcessDelegates messageDelegates)
+        public AOPMessageProcessor(string name, MethodMessageInjectionDelegates messageDelegates)
         {
             this.Name = name;
             this.messageDelegates = messageDelegates;

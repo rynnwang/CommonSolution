@@ -48,6 +48,18 @@ namespace Beyova.Api
             return methodCallMessage != null ? new ApiTraceLogPiece(parent, methodCallMessage.MethodBase.GetFullName()) : null;
         }
 
+        /// <summary>
+        /// To the trace log.
+        /// </summary>
+        /// <param name="methodCallMessage">The method call message.</param>
+        /// <param name="parent">The parent.</param>
+        /// <param name="entryStamp">The entry stamp.</param>
+        /// <returns></returns>
+        internal static ApiTraceLogPiece ToTraceLog(this AOP.MethodCallInfo methodCallMessage, ApiTraceLogPiece parent, DateTime? entryStamp = null)
+        {
+            return methodCallMessage != null ? new ApiTraceLogPiece(parent, methodCallMessage.MethodFullName) : null;
+        }
+
         #region ToMethodParameters 
 
         ///// <summary>

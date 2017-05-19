@@ -1,5 +1,5 @@
-﻿using System.Data.SqlClient;
-using Beyova;
+﻿using System.Collections.Generic;
+using System.Data.SqlClient;
 
 namespace Beyova
 {
@@ -197,6 +197,11 @@ namespace Beyova
         protected const string column_Platform = "Platform";
 
         /// <summary>
+        /// The column platform type
+        /// </summary>
+        protected const string column_PlatformType = "PlatformType";
+
+        /// <summary>
         /// The column_ device type
         /// </summary>
         protected const string column_DeviceType = "DeviceType";
@@ -261,6 +266,51 @@ namespace Beyova
         /// </summary>
         protected const string column_Stamp = "Stamp";
 
+        /// <summary>
+        /// The column_ content
+        /// </summary>
+        protected const string column_Content = "Content";
+
+        /// <summary>
+        /// The column_ content type
+        /// </summary>
+        protected const string column_ContentType = "ContentType";
+
+        /// <summary>
+        /// The column_ tags
+        /// </summary>
+        protected const string column_Tags = "Tags";
+
+        /// <summary>
+        /// The column_ public key
+        /// </summary>
+        protected const string column_PublicKey = "PublicKey";
+
+        /// <summary>
+        /// The column_ private key
+        /// </summary>
+        protected const string column_PrivateKey = "PrivateKey";
+
+        /// <summary>
+        /// The column_ snapshot key
+        /// </summary>
+        protected const string column_SnapshotKey = "SnapshotKey";
+
+        /// <summary>
+        /// The column_ project key
+        /// </summary>
+        protected const string column_ProjectKey = "ProjectKey";
+
+        /// <summary>
+        /// The column platform key
+        /// </summary>
+        protected const string column_PlatformKey = "PlatformKey";
+
+        /// <summary>
+        /// The column URL
+        /// </summary>
+        protected const string column_Url= "Url";
+
         #endregion
 
         #region Constructor
@@ -269,16 +319,27 @@ namespace Beyova
         /// Initializes a new instance of the <see cref="BaseDataAccessController{T}"/> class.
         /// </summary>
         protected BaseDataAccessController()
-            : base(Framework.GetConfiguration(configurationKey_sqlConnection))
+            : this(Framework.GetConfiguration(configurationKey_sqlConnection))
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BaseDataAccessController{T}"/> class.
+        /// Initializes a new instance of the <see cref="BaseDataAccessController{T}" /> class.
         /// </summary>
-        /// <param name="sqlConnection">The SQL connection.</param>
-        protected BaseDataAccessController(string sqlConnection)
-            : base(sqlConnection)
+        /// <param name="primarySqlConnectionString">The primary SQL connection string.</param>
+        /// <param name="readOnlySqlConnectionString">The read only SQL connection string.</param>
+        protected BaseDataAccessController(string primarySqlConnectionString, string readOnlySqlConnectionString = null)
+            : base(primarySqlConnectionString, readOnlySqlConnectionString)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Beyova.SqlDataAccessController`1" /> class.
+        /// </summary>
+        /// <param name="primarySqlConnection">The SQL connection.</param>
+        /// <param name="readOnlySqlConnection">The read only SQL connection.</param>
+        protected BaseDataAccessController(SqlConnection primarySqlConnection, SqlConnection readOnlySqlConnection = null)
+            : base(primarySqlConnection, readOnlySqlConnection)
         {
         }
 
@@ -322,5 +383,40 @@ namespace Beyova
         }
 
         #endregion
+
+        /// <summary>
+        /// Executes the reader as base object.
+        /// </summary>
+        /// <param name="spName">Name of the sp.</param>
+        /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <param name="preferReadOnlyOperator">if set to <c>true</c> [prefer read only operator].</param>
+        /// <param name="ignoreOperator">if set to <c>true</c> [ignore operator].</param>
+        /// <returns>List&lt;BaseObject&lt;T&gt;&gt;.</returns>
+        protected List<BaseObject<T>> ExecuteReaderAsBaseObject(string spName, List<SqlParameter> sqlParameters = null, bool preferReadOnlyOperator = false, bool ignoreOperator = false)
+        {
+            return ExecuteReader<BaseObject<T>>(spName, sqlParameters, (reader) =>
+            {
+                var result = new BaseObject<T>(ConvertEntityObject(reader));
+                FillBaseObjectFields(result, reader, ignoreOperator);
+                return result;
+            }, preferReadOnlyOperator);
+        }
+
+        /// <summary>
+        /// Executes the reader as simple base object.
+        /// </summary>
+        /// <param name="spName">Name of the sp.</param>
+        /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <param name="preferReadOnlyOperator">if set to <c>true</c> [prefer read only operator].</param>
+        /// <returns>List&lt;SimpleBaseObject&lt;T&gt;&gt;.</returns>
+        protected List<SimpleBaseObject<T>> ExecuteReaderAsSimpleBaseObject(string spName, List<SqlParameter> sqlParameters = null, bool preferReadOnlyOperator = false)
+        {
+            return ExecuteReader<SimpleBaseObject<T>>(spName, sqlParameters, (reader) =>
+            {
+                var result = new SimpleBaseObject<T>(ConvertEntityObject(reader));
+                FillSimpleBaseObjectFields(result, reader);
+                return result;
+            }, preferReadOnlyOperator);
+        }
     }
 }

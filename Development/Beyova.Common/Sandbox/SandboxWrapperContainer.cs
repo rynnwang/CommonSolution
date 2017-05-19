@@ -27,7 +27,7 @@ namespace Beyova
         {
             if (wrapper != null)
             {
-                var container = wrappers.GetOrAdd(typeof(T), new Dictionary<Guid, SandboxWrapper>());
+                var container = wrappers.GetOrCreate(typeof(T), new Dictionary<Guid, SandboxWrapper>());
                 container.Merge(wrapper.Key, wrapper);
             }
         }
@@ -42,6 +42,7 @@ namespace Beyova
         {
             SandboxWrapper wrapper;
             Dictionary<Guid, SandboxWrapper> container;
+
             return
                 (key.HasValue && wrappers.TryGetValue(typeof(T), out container) && container.TryGetValue(key.Value, out wrapper)) ? (SandboxWrapper<T>)wrapper : null;
         }

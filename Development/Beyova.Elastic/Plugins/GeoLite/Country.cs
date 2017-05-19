@@ -1,4 +1,4 @@
-/**
+/*
  * Country.cs
  *
  * Copyright (C) 2008 MaxMind Inc.  All Rights Reserved.
@@ -21,9 +21,19 @@
 
 using System;
 using System.IO;
-public class Country {
+/// <summary>
+/// Class Country.
+/// </summary>
+public class Country
+{
 
+    /// <summary>
+    /// The code
+    /// </summary>
     private String code;
+    /// <summary>
+    /// The name
+    /// </summary>
     private String name;
 
     /**
@@ -32,16 +42,27 @@ public class Country {
      * @param code the country code.
      * @param name the country name.
      */
-    public Country(String code, String name) {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Country"/> class.
+    /// </summary>
+    /// <param name="code">The code.</param>
+    /// <param name="name">The name.</param>
+    public Country(String code, String name)
+    {
         this.code = code;
         this.name = name;
     }
-   /**
-     * Returns the ISO two-letter country code of this country.
-     *
-     * @return the country code.
-     */
-    public String getCode() {
+    /**
+      * Returns the ISO two-letter country code of this country.
+      *
+      * @return the country code.
+      */
+    /// <summary>
+    /// Gets the code.
+    /// </summary>
+    /// <returns>String.</returns>
+    public String getCode()
+    {
         return code;
     }
 
@@ -50,7 +71,12 @@ public class Country {
      *
      * @return the country name.
      */
-    public String getName() {
+    /// <summary>
+    /// Gets the name.
+    /// </summary>
+    /// <returns>String.</returns>
+    public String getName()
+    {
         return name;
     }
 }

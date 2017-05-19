@@ -29,18 +29,8 @@ namespace Beyova.Cache
     /// <summary>
     /// Interface ICacheContainer
     /// </summary>
-    public interface ICacheContainer
+    public interface ICacheContainer : ICacheParameter
     {
-        /// <summary>
-        /// The capacity
-        /// </summary>
-        int? Capacity { get; }
-
-        /// <summary>
-        /// The expiration in second
-        /// </summary>
-        long? ExpirationInSecond { get; }
-
         /// <summary>
         /// Gets the count.
         /// </summary>
@@ -57,5 +47,11 @@ namespace Beyova.Cache
         /// </summary>
         /// <value>The name.</value>
         string Name { get; }
+
+        /// <summary>
+        /// Gets the capacity.
+        /// </summary>
+        /// <value>The capacity.</value>
+        int? Capacity { get; }
     }
 }

@@ -8,7 +8,7 @@ namespace Beyova
     /// <summary>
     /// Class EnvironmentInfo.
     /// </summary>
-    public class EnvironmentInfo
+    public class EnvironmentInfo : MachineHealth, IMachineHealth
     {
         /// <summary>
         /// Gets or sets the assembly version.
@@ -29,44 +29,16 @@ namespace Beyova
         public Dictionary<string, string> ConfigurationBelongs { get; set; }
 
         /// <summary>
-        /// Gets or sets the memory usage. Unit: Byte
-        /// </summary>
-        /// <value>The memory usage.</value>
-        public long? MemoryUsage { get; set; }
-
-        /// <summary>
         /// Gets or sets the gc memory.
         /// </summary>
         /// <value>The gc memory.</value>
         public long? GCMemory { get; set; }
 
         /// <summary>
-        /// Gets or sets the cpu usage. Unit: %.
+        /// Gets or sets the assembly hash.
         /// </summary>
-        /// <value>The cpu usage.</value>
-        public double? CpuUsage { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the server.
-        /// </summary>
-        /// <value>The name of the server.</value>
-        public string ServerName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the local ip address.
-        /// </summary>
-        /// <value>
-        /// The local ip address.
-        /// </value>
-        public string LocalIpAddress { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the local host.
-        /// </summary>
-        /// <value>
-        /// The name of the local host.
-        /// </value>
-        public string LocalHostName { get; set; }
+        /// <value>The assembly hash.</value>
+        public string AssemblyHash { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnvironmentInfo"/> class.

@@ -30,7 +30,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="transactionRequest">The transaction request.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        [ApiOperation("Transaction", HttpConstants.HttpMethod.Put, "Create")]
+        [ApiOperation(CommonServiceConstants.ResourceName.Transaction, HttpConstants.HttpMethod.Put)]
         Guid? CreateTransaction(TTransactionRequest transactionRequest);
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="transactionKey">The transaction key.</param>
         /// <returns>TTransactionAudit.</returns>
-        [ApiOperation("Transaction", HttpConstants.HttpMethod.Post, "Commit")]
+        [ApiOperation(CommonServiceConstants.ResourceName.Transaction, HttpConstants.HttpMethod.Post, CommonServiceConstants.ActionName.Commit)]
         TTransactionAudit CommitTransaction(Guid? transactionKey);
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;TTransactionAudit&gt;.</returns>
-        [ApiOperation("Transaction", HttpConstants.HttpMethod.Post, "Query")]
+        [ApiOperation(CommonServiceConstants.ResourceName.Transaction, HttpConstants.HttpMethod.Post, CommonServiceConstants.ActionName.Query)]
         List<TTransactionAudit> QueryTransactionAudit(TTransactionCriteria criteria);
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="transactionKey">The transaction key.</param>
         /// <returns>TTransactionAudit.</returns>
-        [ApiOperation("Transaction", HttpConstants.HttpMethod.Delete)]
+        [ApiOperation(CommonServiceConstants.ResourceName.Transaction, HttpConstants.HttpMethod.Delete)]
         TTransactionAudit CancelTransaction(Guid? transactionKey);
     }
 }

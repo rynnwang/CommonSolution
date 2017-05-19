@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Text;
 using Beyova.RestApi;
-using Beyova;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,7 +10,7 @@ using System.Net;
 using Newtonsoft.Json;
 using Beyova.Api;
 
-namespace Beyova
+namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
     /// Class DocumentGenerator.
@@ -44,6 +43,16 @@ namespace Beyova
         /// The HTTP status format
         /// </summary>
         protected const string httpStatusFormat = "<li style=\"color:{3}\"><span>{0}</span> ({1}): {2}</li>";
+
+        /// <summary>
+        /// The custom header format
+        /// </summary>
+        protected const string customHeaderFormat = "<li>{0}</li>";
+
+        /// <summary>
+        /// The request header format
+        /// </summary>
+        protected const string requestHeaderFormat = "<httpHeader style=\"display:block;text-align:left;\"><label>{0}</label>: <value style=\"font-style:italic; font-weight:bold;\">{1}</value></httpHeader>";
 
         /// <summary>
         /// The panel
@@ -199,13 +208,37 @@ url{
         /// </summary>
         /// <param name="types">The types.</param>
         /// <returns>System.Byte[].</returns>
-        public byte[] WriteHtmlDocumentToZip(params Type[] types)
+        public byte[] WriteHtmlDocumentToZipByType(params Type[] types)
         {
             var container = new Dictionary<string, byte[]>();
             WriteHtmlDocument<Dictionary<string, byte[]>>((c, name, b) =>
             {
                 c.Add(name, b);
             }, container, types.HasItem() ? types : GetAssemblyType().ToArray());
+
+            return container.Any() ? container.ZipAsBytes() : null;
+        }
+
+        /// <summary>
+        /// Writes the HTML document to zip.
+        /// This method is mainly used by CodeSmith
+        /// </summary>
+        /// <param name="typeFullNames">The type full names.</param>
+        /// <returns>System.Byte[].</returns>
+        public byte[] WriteHtmlDocumentToZipByTypeFullNames(string[] typeFullNames)
+        {
+            var container = new Dictionary<string, byte[]>();
+            var types = GetAssemblyType();
+
+            if (typeFullNames.HasItem())
+            {
+                types = types.FindAll(x => typeFullNames.Contains(x.GetFullName()));
+            }
+
+            WriteHtmlDocument<Dictionary<string, byte[]>>((c, name, b) =>
+            {
+                c.Add(name, b);
+            }, container, types.ToArray());
 
             return container.Any() ? container.ZipAsBytes() : null;
         }
@@ -285,10 +318,7 @@ url{
                 builder = new StringBuilder();
                 builder.AppendLineWithFormat("<div style=\"display:block; background-color:#000000; color: #eeeeee\"><h1>{0} ({1})</h1></div>", one.Key.Name, one.Key.Namespace);
                 WriteApiHtmlDocument(builder, one.Key, one.Value, one.Key.GetCustomAttribute<TokenRequiredAttribute>(true), enumSets);
-                if (packageDocumentDelegate != null)
-                {
-                    packageDocumentDelegate(container, one.Key.FullName + ".html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API - " + one.Key.Name)));
-                }
+                packageDocumentDelegate?.Invoke(container, one.Key.FullName + ".html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API - " + one.Key.Name)));
             }
 
             if (packageDocumentDelegate != null)
@@ -406,17 +436,30 @@ url{
         {
             if (builder != null && apiServiceType != null && apiClass != null)
             {
-                foreach (var one in apiServiceType.GetMethodInfoWithinAttribute<ApiOperationAttribute>(true, BindingFlags.Instance | BindingFlags.Public))
+                foreach (MethodInfo one in apiServiceType.GetMethodInfoWithinAttribute<ApiOperationAttribute>(true, BindingFlags.Instance | BindingFlags.Public))
                 {
+                    // Considering in interface, can NOT tell is async or not, check return type is Task or Task<T>.
+                    bool isAsync = one.IsAsync() || one.ReturnType.IsTask();
+
                     var apiOperationAttribute = one.GetCustomAttribute<ApiOperationAttribute>(true);
                     if (apiOperationAttribute != null)
                     {
                         StringBuilder bodyBuilder = new StringBuilder();
 
+                        #region Entity Synchronization Status
+
+                        var entitySynchronizationAttribute = one.GetCustomAttribute<EntitySynchronizationModeAttribute>(true);
+                        if (entitySynchronizationAttribute != null && !EntitySynchronizationModeAttribute.IsReturnTypeMatched(one.ReturnType))
+                        {
+                            entitySynchronizationAttribute = null;
+                        }
+
+                        #endregion
+
                         //Original declaration
 
                         bodyBuilder.Append("<h3>.NET Declaration</h3>");
-                        bodyBuilder.AppendFormat("<div>{0}</div>", one.ToCodeLook(true).ToHtmlEncodedText());
+                        bodyBuilder.AppendFormat(isAsync ? "<div><span style=\"color:red;font-weight:bold;\" title=\"Async\">[A] </span> {0}</div>" : "<div>{0}</div>", one.ToDeclarationCodeLook().ToHtmlEncodedText());
                         bodyBuilder.Append("<hr />");
 
                         //Try append description
@@ -440,7 +483,7 @@ url{
                             bodyBuilder.Append("<ul>");
                             foreach (var item in apiCustomizedHeaderAttributes)
                             {
-                                bodyBuilder.AppendFormat(item.HeaderKey);
+                                bodyBuilder.AppendFormat(customHeaderFormat, item.HeaderKey);
                             }
 
                             bodyBuilder.Append("</ul>");
@@ -459,7 +502,14 @@ url{
                         bodyBuilder.Append("<h3>Request</h3><hr />");
                         bodyBuilder.Append("<url>");
 
-                        bodyBuilder.AppendFormat("{0} /api/{1}/{2}/", apiOperationAttribute.HttpMethod, apiClass.Version, apiOperationAttribute.ResourceName);
+                        if (string.IsNullOrWhiteSpace(apiClass.Realm))
+                        {
+                            bodyBuilder.AppendFormat("{0} /api/{1}/{2}/", apiOperationAttribute.HttpMethod, apiClass.Version, apiOperationAttribute.ResourceName);
+                        }
+                        else
+                        {
+                            bodyBuilder.AppendFormat("{0} /{1}/api/{2}/{3}/", apiClass.Realm, apiOperationAttribute.HttpMethod, apiClass.Version, apiOperationAttribute.ResourceName);
+                        }
 
                         if (!string.IsNullOrWhiteSpace(apiOperationAttribute.Action))
                         {
@@ -505,7 +555,12 @@ url{
                         var currentTokenRequiredAttribute = one.GetCustomAttribute<TokenRequiredAttribute>(true) ?? classTokenRequiredAttribute;
                         if (currentTokenRequiredAttribute != null && currentTokenRequiredAttribute.TokenRequired)
                         {
-                            bodyBuilder.AppendLineWithFormat("<httpHeader style=\"display:block;text-align:left;\"><label>{0}</label>: <value style=\"font-style:italic; font-weight:bold;\">{1}</value></httpHeader>", TokenKey, "[YourTokenValue]");
+                            bodyBuilder.AppendLineWithFormat(requestHeaderFormat, TokenKey, "[YourTokenValue]");
+                        }
+
+                        if (entitySynchronizationAttribute != null)
+                        {
+                            bodyBuilder.AppendLineWithFormat(requestHeaderFormat, entitySynchronizationAttribute.IfModifiedSinceKey, DateTime.UtcNow.AddDays(-2).ToFullDateTimeString());
                         }
 
                         bodyBuilder.Append("<pre class=\"CodeContainer\" style=\"font-family: monospace;font-size:14px;\">");
@@ -541,18 +596,36 @@ url{
                         #region Response
 
                         bodyBuilder.Append("<h3>Response</h3><hr />");
+
+                        bodyBuilder.AppendLineWithFormat(requestHeaderFormat, HttpConstants.HttpHeader.ContentType, apiOperationAttribute.ContentType.SafeToString(HttpConstants.ContentType.Json));
+
+                        if (entitySynchronizationAttribute != null)
+                        {
+                            bodyBuilder.AppendLineWithFormat(requestHeaderFormat, entitySynchronizationAttribute.LastModifiedKey, DateTime.UtcNow.ToFullDateTimeString());
+                        }
+
                         bodyBuilder.Append("<pre class=\"CodeContainer\" style=\"font-family: monospace;font-size:14px;\">");
 
-                        if (one.ReturnType.IsVoid() ?? true)
+                        var returnType = one.ReturnType;
+                        if (isAsync)
+                        {
+                            returnType = returnType.GetTaskUnderlyingType() ?? returnType;
+                        }
+
+                        if (returnType.IsVoid() ?? true)
                         {
                             bodyBuilder.Append("<span style=\"font-style:italic; font-weight: bold; color: #999999;\">void</span>");
                         }
                         else
                         {
-                            FillSampleValue(bodyBuilder, one.ReturnType, enumSets, 0);
+                            FillSampleValue(bodyBuilder, returnType, enumSets, 0);
                         }
 
                         bodyBuilder.Append("</pre>");
+
+                        #endregion
+
+                        #region Http Status
 
                         // Http Status
                         bodyBuilder.Append("<h3>Http Status &amp; Exceptions</h3><hr />");
@@ -565,6 +638,11 @@ url{
                         else
                         {
                             bodyBuilder.AppendFormat(httpStatusFormat, (int)HttpStatusCode.OK, HttpStatusCode.OK.ToString(), "If no error or exception.", "green");
+
+                            if (entitySynchronizationAttribute != null)
+                            {
+                                bodyBuilder.AppendFormat(httpStatusFormat, (int)HttpStatusCode.NotModified, HttpStatusCode.NotModified.ToString(), "If no modified since specific time stamp", "green");
+                            }
                         }
 
                         bodyBuilder.AppendFormat(httpStatusFormat, (int)HttpStatusCode.BadRequest, HttpStatusCode.BadRequest.ToString(), "If input value or/and format is invalid.", "red");
@@ -854,7 +932,7 @@ url{
         private static void FillProperty(StringBuilder builder, string propertyName, Type propertyType)
         {
             var nullable = propertyType.IsFieldNullable();
-            var title = string.Format("C# Type: {0}, {1}", propertyType.ToCodeLook(true), nullable ? "Nullable" : "Not Null");
+            var title = string.Format("C# Type: {0}, {1}", propertyType.ToCodeLook(), nullable ? "Nullable" : "Not Null");
             builder.AppendFormat(propertyNameFormat, propertyName, title, nullable ? "nullable" : string.Empty);
         }
 

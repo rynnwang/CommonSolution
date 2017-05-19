@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Beyova;
 using Beyova.Api;
@@ -109,7 +110,7 @@ namespace Beyova.Elastic
         {
             if (!string.IsNullOrWhiteSpace(geoDbPath) && File.Exists(geoDbPath))
             {
-                return new LookupService(geoDbPath, LookupService.GEOIP_STANDARD);
+                return new LookupService(geoDbPath, LookupService.GEOIP_MEMORY_CACHE);
             }
 
             return null;
@@ -130,8 +131,8 @@ namespace Beyova.Elastic
                         eventLog.GeoInfo = new Beyova.GeoInfoBase()
                         {
                             IsoCode = geoInfo.countryCode,
-                            Latitude = geoInfo.latitude,
-                            Longitude = geoInfo.longitude,
+                            Latitude = (decimal)geoInfo.latitude,
+                            Longitude = (decimal)geoInfo.longitude,
                             CityName = geoInfo.city,
                             CountryName = geoInfo.countryName
                         };
@@ -169,7 +170,8 @@ namespace Beyova.Elastic
             {
                 if (elasticClient != null)
                 {
-                    Task.Factory.StartNew(new Action<object>(WorkAction<T, F>), workObject);
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(WorkAction<T, F>), workObject);
+                    // Task.Factory.StartNew(new Action<object>(WorkAction<T, F>), workObject);
                 }
             }
             catch { }
@@ -184,7 +186,8 @@ namespace Beyova.Elastic
         {
             try
             {
-                Task.Factory.StartNew(new Action<object>(WorkAction<T, object>), workObject);
+                ThreadPool.QueueUserWorkItem(new WaitCallback(WorkAction<T, object>), workObject);
+                //Task.Factory.StartNew(new Action<object>(WorkAction<T, object>), workObject);
             }
             catch { }
         }
@@ -478,6 +481,11 @@ namespace Beyova.Elastic
             }
         }
 
+        /// <summary>
+        /// Queries the API message.
+        /// </summary>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.ApiMessage&gt;.</returns>
         public List<ApiMessage> QueryApiMessage(ApiMessageCriteria criteria)
         {
             try

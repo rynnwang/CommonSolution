@@ -219,7 +219,7 @@ namespace Beyova.Elastic
 
                 if (exceptionBase.OperatorCredential != null)
                 {
-                    booleanCriteria.Must.AddIfNotNull(CreateMatchPhraseCriteriaObject("OperatorCredential.Key", exceptionBase.OperatorCredential.Key.ToString()));
+                    booleanCriteria.Must.AddIfNotNull(CreateMatchPhraseCriteriaObject("OperatorCredential.Key", exceptionBase.OperatorCredential.Key?.ToString()));
                     booleanCriteria.Must.AddIfNotNull(CreateMatchPhraseCriteriaObject("OperatorCredential.Name", exceptionBase.OperatorCredential.Name));
                 }
                 booleanCriteria.Must.AddIfNotNull(CreateTermCriteriaObject("Message", exceptionBase.Message));
@@ -241,7 +241,6 @@ namespace Beyova.Elastic
         /// Creates the query criteria.
         /// </summary>
         /// <param name="logBase">The log base.</param>
-        /// <param name="validate">if set to <c>true</c> [validate].</param>
         /// <returns>QueryCriteria.</returns>
         public static BooleanCriteria CreateBooleanCriteria(ApiEventLogBase logBase)
         {
@@ -257,7 +256,7 @@ namespace Beyova.Elastic
 
                 if (logBase.OperatorCredential != null)
                 {
-                    booleanCriteria.Must.AddIfNotNull(CreateMatchPhraseCriteriaObject("OperatorCredential.Key", logBase.OperatorCredential.Key.ToString()));
+                    booleanCriteria.Must.AddIfNotNull(CreateMatchPhraseCriteriaObject("OperatorCredential.Key", logBase.OperatorCredential.Key?.ToString()));
                     booleanCriteria.Must.AddIfNotNull(CreateMatchPhraseCriteriaObject("OperatorCredential.Name", logBase.OperatorCredential.Name));
                 }
                 booleanCriteria.Must.AddIfNotNull(CreateTermCriteriaObject("ResourceName", logBase.ResourceName));

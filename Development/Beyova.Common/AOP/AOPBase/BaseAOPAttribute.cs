@@ -13,14 +13,28 @@ namespace Beyova.AOP
         /// <summary>
         /// The message delegates
         /// </summary>
-        protected MessageProcessDelegates messageDelegates;
+        protected MethodInjectionDelegates messageDelegates;
+
+        /// <summary>
+        /// Gets the method injection delegates.
+        /// </summary>
+        /// <value>The method injection delegates.</value>
+        internal MethodInjectionDelegates MethodInjectionDelegates { get { return messageDelegates; } }
+
+        /// <summary>
+        /// Gets the method message injection delegates.
+        /// </summary>
+        /// <value>
+        /// The method message injection delegates.
+        /// </value>
+        internal MethodMessageInjectionDelegates MethodMessageInjectionDelegates { get { return messageDelegates as MethodMessageInjectionDelegates; } }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseAOPAttribute"/> class.
         /// </summary>
         /// <param name="attributeName">Name of the attribute.</param>
         /// <param name="messageDelegates">The message delegates.</param>
-        public BaseAOPAttribute(string attributeName, MessageProcessDelegates messageDelegates)
+        public BaseAOPAttribute(string attributeName, MethodMessageInjectionDelegates messageDelegates)
             : base(attributeName)
         {
             this.messageDelegates = messageDelegates;
@@ -32,7 +46,7 @@ namespace Beyova.AOP
         /// <param name="constructionCallMessage">The construction call message.</param>
         public override void GetPropertiesForNewContext(IConstructionCallMessage constructionCallMessage)
         {
-            constructionCallMessage.ContextProperties.Add(new AOPMessageProcessor(this.Name, this.messageDelegates));
+            constructionCallMessage.ContextProperties.Add(new AOPMessageProcessor(this.Name, this.MethodMessageInjectionDelegates));
         }
     }
 }

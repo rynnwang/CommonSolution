@@ -117,7 +117,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { Encoding = encoding.EncodingName, OmitXmlDeclaration = omitXmlDeclaration, IndentedXml = indentedXml });
+                throw ex.Handle(new { Encoding = encoding.EncodingName, OmitXmlDeclaration = omitXmlDeclaration, IndentedXml = indentedXml });
             }
         }
 
@@ -132,7 +132,7 @@ namespace Beyova
         {
             try
             {
-                stream.CheckNullObject("stream");
+                stream.CheckNullObject(nameof(stream));
                 return formatter.Deserialize(stream);
             }
             catch (Exception ex)
@@ -157,14 +157,14 @@ namespace Beyova
         {
             try
             {
-                base64String.CheckEmptyString("base64String");
+                base64String.CheckEmptyString(nameof(base64String));
 
                 var byteArray = Convert.FromBase64String(base64String);
                 return byteArray.DeserializeToObject();
             }
             catch (Exception ex)
             {
-                throw ex.Handle( base64String);
+                throw ex.Handle(base64String);
             }
         }
 
@@ -264,7 +264,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle( xml);
+                    throw ex.Handle(xml);
                 }
             }
 
@@ -289,7 +289,7 @@ namespace Beyova
                 }
                 catch (Exception ex)
                 {
-                    throw ex.Handle( xml?.ToString());
+                    throw ex.Handle(xml?.ToString());
                 }
             }
 

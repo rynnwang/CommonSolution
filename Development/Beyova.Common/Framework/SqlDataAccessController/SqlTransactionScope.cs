@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Data.SqlClient;
 using Beyova.ExceptionSystem;
 
@@ -11,10 +10,10 @@ namespace Beyova
     public class SqlTransactionScope : IDisposable
     {
         /// <summary>
-        /// The SQL transction
+        /// The SQL transaction
         /// </summary>
         [ThreadStatic]
-        private static SqlTransaction _sqlTransction;
+        private static SqlTransaction _sqlTransaction;
 
         /// <summary>
         /// The _SQL command
@@ -23,10 +22,16 @@ namespace Beyova
         private static SqlCommand _sqlCommand;
 
         /// <summary>
+        /// The _current
+        /// </summary>
+        [ThreadStatic]
+        private static SqlTransactionScope _current;
+
+        /// <summary>
         /// Gets the SQL transaction.
         /// </summary>
         /// <value>The SQL transaction.</value>
-        internal static SqlTransaction SqlTransaction { get { return _sqlTransction; } }
+        internal static SqlTransaction SqlTransaction { get { return _sqlTransaction; } }
 
         /// <summary>
         /// Gets the SQL command.
@@ -35,13 +40,21 @@ namespace Beyova
         internal static SqlCommand SqlCommand { get { return _sqlCommand; } }
 
         /// <summary>
+        /// Gets the current.
+        /// </summary>
+        /// <value>The current.</value>
+        internal static SqlTransactionScope Current { get { return _current; } }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SqlTransactionScope" /> class.
         /// </summary>
-        /// <param name="sqlTransction">The SQL transction.</param>
+        /// <param name="sqlTransaction">The SQL transaction.</param>
         /// <param name="sqlCommand">The SQL command.</param>
-        internal SqlTransactionScope(SqlTransaction sqlTransction, SqlCommand sqlCommand)
+        internal SqlTransactionScope(SqlTransaction sqlTransaction, SqlCommand sqlCommand)
         {
-            _sqlTransction = sqlTransction;
+            InternalDispose();
+            _sqlTransaction = sqlTransaction;
+            _sqlCommand = sqlCommand;
         }
 
         /// <summary>
@@ -50,7 +63,7 @@ namespace Beyova
         /// <exception cref="OperationFailureException">Commit;null</exception>
         public void Commit()
         {
-            var sqlTransaction = _sqlTransction;
+            var sqlTransaction = _sqlTransaction;
 
             try
             {
@@ -66,8 +79,8 @@ namespace Beyova
             }
             finally
             {
-                _sqlTransction.Dispose();
-                _sqlTransction = null;
+                _sqlTransaction.Dispose();
+                _sqlTransaction = null;
             }
         }
 
@@ -77,7 +90,7 @@ namespace Beyova
         /// <exception cref="OperationFailureException">Rollback;null</exception>
         internal void Rollback()
         {
-            var sqlTransaction = _sqlTransction;
+            var sqlTransaction = _sqlTransaction;
 
             try
             {
@@ -94,8 +107,30 @@ namespace Beyova
             }
             finally
             {
-                _sqlTransction.Dispose();
-                _sqlTransction = null;
+                _sqlTransaction.Dispose();
+                _sqlTransaction = null;
+            }
+        }
+
+        /// <summary>
+        /// Internals the dispose.
+        /// </summary>
+        protected void InternalDispose()
+        {
+            if (_sqlTransaction != null)
+            {
+                _sqlTransaction.Dispose();
+                _sqlTransaction = null;
+            }
+
+            if (_sqlCommand != null)
+            {
+                _sqlCommand = null;
+            }
+
+            if (_current != null)
+            {
+                _current = null;
             }
         }
 
@@ -104,16 +139,7 @@ namespace Beyova
         /// </summary>
         public void Dispose()
         {
-            if (_sqlTransction != null)
-            {
-                _sqlTransction.Dispose();
-                _sqlTransction = null;
-            }
-
-            if (_sqlCommand != null)
-            {
-                _sqlCommand = null;
-            }
+            InternalDispose();
         }
     }
 }

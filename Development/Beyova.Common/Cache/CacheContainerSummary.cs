@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Beyova.Cache
 {
@@ -28,6 +27,12 @@ namespace Beyova.Cache
         public long? ExpirationInSecond { get; set; }
 
         /// <summary>
+        /// Gets the failure expiration in second. If entity is failed to get, use this expiration if specified, otherwise use <see cref="ICacheParameter.ExpirationInSecond" />.
+        /// </summary>
+        /// <value>The failure expiration in second.</value>
+        public long FailureExpirationInSecond { get; set; }
+
+        /// <summary>
         /// Gets or sets the name.
         /// </summary>
         /// <value>The name.</value>
@@ -36,7 +41,6 @@ namespace Beyova.Cache
         /// <summary>
         /// Clears this instance.
         /// </summary>
-        /// <exception cref="System.NotImplementedException"></exception>
         public void Clear()
         {
             //Do nothing.

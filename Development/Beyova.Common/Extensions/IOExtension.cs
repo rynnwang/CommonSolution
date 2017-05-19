@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -17,6 +16,44 @@ namespace Beyova
         /// The dot
         /// </summary>
         const string dot = ".";
+
+        /// <summary>
+        /// Gets the sub directory.
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        /// <param name="subDirectoryName">Name of the sub directory.</param>
+        /// <returns></returns>
+        public static DirectoryInfo GetSubDirectory(this DirectoryInfo directory, string subDirectoryName)
+        {
+            return string.IsNullOrWhiteSpace(subDirectoryName) ? directory : directory?.GetDirectories()?.FirstOrDefault(x => x.Name.Equals(subDirectoryName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Clears the files.
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        public static void ClearFiles(this DirectoryInfo directory)
+        {
+            if (directory != null && directory.Exists)
+            {
+                foreach (var one in directory.GetFiles())
+                {
+                    one.Delete();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks the directory exist.
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        public static void CheckDirectoryExist(this DirectoryInfo directory)
+        {
+            if (directory == null || !directory.Exists)
+            {
+                ExceptionFactory.CreateInvalidObjectException(nameof(directory), directory?.FullName);
+            }
+        }
 
         /// <summary>
         /// Combines the extension.
@@ -80,14 +117,18 @@ namespace Beyova
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="encoding">The encoding.</param>
-        /// <returns>System.String.</returns>
-        public static string ReadFileContents(this string path, Encoding encoding)
+        /// <returns>
+        /// System.String.
+        /// </returns>
+        public static string ReadFileContents(this string path, Encoding encoding = null)
         {
             try
             {
+                path.CheckEmptyString(nameof(path));
+
                 using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    using (var streamReader = new StreamReader(stream, encoding))
+                    using (var streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8))
                     {
                         return streamReader.ReadToEnd();
                     }
@@ -97,6 +138,17 @@ namespace Beyova
             {
                 throw ex.Handle(path);
             }
+        }
+
+        /// <summary>
+        /// Reads the file contents.
+        /// </summary>
+        /// <param name="fileInfo">The file information.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
+        public static string ReadFileContents(this FileInfo fileInfo, Encoding encoding = null)
+        {
+            return (fileInfo != null && fileInfo.Exists) ? ReadFileContents(fileInfo.FullName, encoding) : null;
         }
 
         /// <summary>
@@ -117,6 +169,16 @@ namespace Beyova
             {
                 throw ex.Handle(path);
             }
+        }
+
+        /// <summary>
+        /// Reads the file bytes.
+        /// </summary>
+        /// <param name="fileInfo">The file information.</param>
+        /// <returns></returns>
+        public static byte[] ReadFileBytes(this FileInfo fileInfo)
+        {
+            return (fileInfo != null && fileInfo.Exists) ? ReadFileBytes(fileInfo.FullName) : null;
         }
 
         /// <summary>
@@ -176,7 +238,7 @@ namespace Beyova
             if (currentDirectory != null && !string.IsNullOrWhiteSpace(targetAbsoluteUri))
             {
                 var currentFolder = currentDirectory.ToString();
-                var baseFolder = currentFolder.FindCommonStartString(targetAbsoluteUri, true);
+                var baseFolder = currentFolder.FindCommonStartSubString(targetAbsoluteUri, true);
 
                 if (!string.IsNullOrWhiteSpace(baseFolder))
                 {
@@ -239,7 +301,7 @@ namespace Beyova
 
             try
             {
-                stream.CheckNullObject("stream");
+                stream.CheckNullObject(nameof(stream));
 
                 if (stream.CanSeek)
                 {
@@ -276,6 +338,7 @@ namespace Beyova
                     buffer = new byte[totalBytesRead];
                     Buffer.BlockCopy(readBuffer, 0, buffer, 0, totalBytesRead);
                 }
+
                 return buffer;
             }
             finally
@@ -301,7 +364,6 @@ namespace Beyova
         /// </summary>
         /// <param name="stream">The stream.</param>
         /// <returns>The <see cref="Byte" />  array of stream.</returns>
-        /// <exception cref="OperationFailureException">StreamToBytes</exception>
         public static byte[] ToBytes(this Stream stream)
         {
             return ReadStreamToBytes(stream, true);
@@ -316,7 +378,7 @@ namespace Beyova
         {
             try
             {
-                bytes.CheckNullObject("bytes");
+                bytes.CheckNullObject(nameof(bytes));
 
                 return new MemoryStream(bytes);
             }

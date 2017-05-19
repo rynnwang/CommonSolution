@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Beyova
 {
     /// <summary>
-    /// 
+    /// Class LinqExtension.
     /// </summary>
     public static class LinqExtension
     {

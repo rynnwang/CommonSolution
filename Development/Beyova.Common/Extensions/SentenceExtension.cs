@@ -25,20 +25,21 @@ namespace Beyova
         /// <param name="specialCharactors">The special charactors.</param>
         /// <param name="specialCharactorReplace">The special charactor replace.</param>
         /// <returns>System.String.</returns>
-        public static string CombineSentence(this string sentence, char[] specialCharactors = null,
-            char specialCharactorReplace = '_')
+        public static string CombineSentence(this string sentence, char[] specialCharactors = null, char specialCharactorReplace = '_')
         {
-            var builder = new StringBuilder();
-
             if (!string.IsNullOrWhiteSpace(sentence))
             {
-                foreach (var one in sentence.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                var builder = new StringBuilder(sentence.Length);
+
+                foreach (var one in sentence.Split(new char[] { StringConstants.WhiteSpaceChar }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     builder.Append(one.Replace(specialCharactors, specialCharactorReplace));
                 }
+
+                return builder.ToString();
             }
 
-            return builder.ToString();
+            return sentence;
         }
     }
 }

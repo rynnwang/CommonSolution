@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Reflection;
 using Beyova.ExceptionSystem;
 
@@ -64,10 +63,7 @@ namespace Beyova
         /// <param name="databaseObject">The database object.</param>
         public virtual void SetPropertyValueObject(object objectInstance, PropertyInfo property, object databaseObject)
         {
-            if (_setPropertyValueDelegate != null)
-            {
-                _setPropertyValueDelegate(objectInstance, property, databaseObject);
-            }
+            _setPropertyValueDelegate?.Invoke(objectInstance, property, databaseObject);
         }
 
         #region Default
@@ -141,6 +137,24 @@ namespace Beyova
                     return o == null ? DBNull.Value : o.ToString() as object;
                 },
                 (i, p, d) => { p.SetValue(i, (Convert.IsDBNull(d) || d == null) ? null : d.ObjectToXml() as object); },
+                nullable
+                );
+        }
+
+        /// <summary>
+        /// Gets the j token data converter.
+        /// </summary>
+        /// <param name="nullable">The nullable.</param>
+        /// <returns>Beyova.SqlDataConverter.</returns>
+        internal static SqlDataConverter GetJTokenDataConverter(bool nullable)
+        {
+            return new SqlDataConverter(
+                (i, p) =>
+                {
+                    var o = p.GetValue(i);
+                    return o == null ? DBNull.Value : o.ToString() as object;
+                },
+                (i, p, d) => { p.SetValue(i, (Convert.IsDBNull(d) || d == null) ? null : d.ObjectToString().TryParseToJToken() as object); },
                 nullable
                 );
         }
@@ -269,6 +283,8 @@ namespace Beyova
                     return GetBooleanDataConverter(isNullable);
                 case "System.Xml.Linq.XElement":
                     return GetXElementDataConverter(isNullable);
+                case "Newtonsoft.Json.Linq.JToken":
+                    return GetJTokenDataConverter(isNullable);
                 default:
                     throw new UnimplementedException(string.Format("GetDefaultSqlDataConverterByType.{0}", fullName));
             }

@@ -31,7 +31,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="preference">The preference.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        [ApiOperation("Preference", HttpConstants.HttpMethod.Put, "Default")]
+        [ApiOperation(CommonServiceConstants.ResourceName.Preference, HttpConstants.HttpMethod.Put)]
         [TokenRequired(true)]
         [ApiPermission(CommonServiceConstants.Permission.PreferenceAdministrator)]
         Guid? CreateOrUpdateDefaultPreference(TUserPreference preference);
@@ -41,7 +41,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;TUserPreference&gt;.</returns>
-        [ApiOperation("Preference", HttpConstants.HttpMethod.Post, "Default")]
+        [ApiOperation(CommonServiceConstants.ResourceName.Preference, HttpConstants.HttpMethod.Post)]
         [TokenRequired(true)]
         [ApiPermission(CommonServiceConstants.Permission.PreferenceAdministrator)]
         List<TUserPreference> QueryDefaultPreference(TUserPreferenceCriteria criteria);
@@ -51,7 +51,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="preference">The preference.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
-        [ApiOperation("Preference", HttpConstants.HttpMethod.Put, "User")]
+        [ApiOperation(CommonServiceConstants.ResourceName.UserPreference, HttpConstants.HttpMethod.Put)]
         [TokenRequired(true)]
         Guid? CreateOrUpdateUserPreference(TUserPreference preference);
 
@@ -60,7 +60,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;TUserPreference&gt;.</returns>
-        [ApiOperation("Preference", HttpConstants.HttpMethod.Post, "User")]
+        [ApiOperation(CommonServiceConstants.ResourceName.UserPreference, HttpConstants.HttpMethod.Post)]
         [TokenRequired(true)]
         List<TUserPreference> QueryUserPreference(TUserPreferenceCriteria criteria);
     }

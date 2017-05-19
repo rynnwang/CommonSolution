@@ -274,10 +274,15 @@ namespace Beyova
         public static BaseException Handle(this Exception exception, ExceptionScene scene, object data = null, FriendlyHint hint = null)
         {
             TargetInvocationException targetInvocationException = exception as TargetInvocationException;
+            var xmlException = exception as System.Xml.XmlException;
 
             if (targetInvocationException != null)
             {
                 return targetInvocationException.InnerException.Handle(scene, data, hint);
+            }
+            else if (xmlException != null)
+            {
+                return new InvalidObjectException("Xml", exception, data: data, hint: hint ?? new FriendlyHint { Message = xmlException.Message });
             }
             else
             {
@@ -463,7 +468,7 @@ namespace Beyova
                         result = new ResourceNotFoundException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.ServiceUnavailable:
-                        result = new InitializationFailureException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
+                        result = new ServiceUnavailableException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
                     case ExceptionCode.MajorCode.UnauthorizedOperation:
                         result = new UnauthorizedOperationException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);

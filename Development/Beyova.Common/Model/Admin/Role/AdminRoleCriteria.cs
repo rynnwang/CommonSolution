@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminRoleCriteria.
     /// </summary>
-    public class AdminRoleCriteria
+    public class AdminRoleCriteria : IProjectBased
     {
         /// <summary>
         /// Gets or sets the key.
@@ -36,5 +36,11 @@ namespace Beyova
         /// </summary>
         /// <value>The permission key.</value>
         public Guid? PermissionKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project key.
+        /// </summary>
+        /// <value>The project key.</value>
+        public Guid? ProjectKey { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace Beyova
     /// <summary>
     /// Class TransactionAudit.
     /// </summary>
-    public class TransactionAudit : TransactionBase, ITransactionAudit
+    public class TransactionAudit : TransactionBase, ITransactionAudit, IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the balance.

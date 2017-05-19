@@ -18,7 +18,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="meteData">The mete data.</param>
         /// <returns>BinaryStorageActionCredential.</returns>
-        [ApiOperation("BinaryStorageCredential", HttpConstants.HttpMethod.Post, "Upload")]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorageCredential, HttpConstants.HttpMethod.Post, "Upload")]
         [TokenRequired(true)]
         BinaryStorageActionCredential RequestBinaryUploadCredential(TBinaryStorageObject meteData);
 
@@ -27,7 +27,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="identifier">The identifier.</param>
         /// <returns>BinaryStorageActionCredential.</returns>
-        [ApiOperation("BinaryStorageCredential", HttpConstants.HttpMethod.Post, "Download")]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorageCredential, HttpConstants.HttpMethod.Post, "Download")]
         BinaryStorageActionCredential RequestBinaryDownloadCredential(BinaryStorageIdentifier identifier);
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;TBinaryStorageObject&gt;.</returns>
-        [ApiOperation("BinaryStorage", HttpConstants.HttpMethod.Post, "User")]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorage, HttpConstants.HttpMethod.Post, "User")]
         [TokenRequired(true)]
         List<TBinaryStorageObject> QueryUserBinaryStorage(TBinaryStorageCriteria criteria);
 
@@ -44,7 +44,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;TBinaryStorageObject&gt;.</returns>
-        [ApiOperation("BinaryStorage", HttpConstants.HttpMethod.Post)]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorage, HttpConstants.HttpMethod.Post)]
         [TokenRequired(true)]
         [ApiPermission(CommonServiceConstants.Permission.BinaryStorageDataAdministrator, ApiPermission.Required)]
         List<TBinaryStorageObject> QueryBinaryStorage(TBinaryStorageCriteria criteria);
@@ -54,7 +54,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>TBinaryStorageObject.</returns>
-        [ApiOperation("BinaryStorage", HttpConstants.HttpMethod.Get)]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorage, HttpConstants.HttpMethod.Get)]
         TBinaryStorageObject GetBinaryStorageByKey(string key);
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="keys">The keys.</param>
         /// <returns>List&lt;TBinaryStorageObject&gt;.</returns>
-        [ApiOperation("BinaryStorage", HttpConstants.HttpMethod.Post, "GetByBatch")]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorage, HttpConstants.HttpMethod.Post, "GetByBatch")]
         List<TBinaryStorageObject> GetBinaryStorageByKeys(List<string> keys);
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>BinaryStorageIdentifier.</returns>
-        [ApiOperation("BinaryStorage", HttpConstants.HttpMethod.Put)]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorage, HttpConstants.HttpMethod.Put)]
         [TokenRequired(true)]
         TBinaryStorageObject CommitBinaryStorage(BinaryStorageCommitRequest request);
 
@@ -78,7 +78,7 @@ namespace Beyova.CommonServiceInterface
         /// Deletes the binary storage.
         /// </summary>
         /// <param name="identifier">The identifier.</param>
-        [ApiOperation("BinaryStorage", HttpConstants.HttpMethod.Delete)]
+        [ApiOperation(CommonServiceConstants.ResourceName.BinaryStorage, HttpConstants.HttpMethod.Delete)]
         [TokenRequired(true)]
         void DeleteBinaryStorage(string identifier);
     }

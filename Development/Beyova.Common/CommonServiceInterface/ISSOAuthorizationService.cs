@@ -23,10 +23,10 @@ namespace Beyova.CommonServiceInterface
     /// </summary>
     /// <typeparam name="TUserInfo">The type of the t user information.</typeparam>
     /// <typeparam name="TFunctionalRole">The type of the t functional role.</typeparam>
-    /// <typeparam name="TSSOAuthorizationPartner">The type of the tsso authorization partner.</typeparam>
-    /// <typeparam name="TSSOAuthorizationPartnerCriteria">The type of the tsso authorization partner criteria.</typeparam>
-    /// <typeparam name="TSSOAuthorization">The type of the tsso authorization.</typeparam>
-    /// <typeparam name="TSSOAuthorizationCriteria">The type of the tsso authorization criteria.</typeparam>
+    /// <typeparam name="TSSOAuthorizationPartner">The type of the SSO authorization partner.</typeparam>
+    /// <typeparam name="TSSOAuthorizationPartnerCriteria">The type of the SSO authorization partner criteria.</typeparam>
+    /// <typeparam name="TSSOAuthorization">The type of the SSO authorization.</typeparam>
+    /// <typeparam name="TSSOAuthorizationCriteria">The type of the SSO authorization criteria.</typeparam>
     /// <typeparam name="TAuthenticationResult">The type of the t authentication result.</typeparam>
     public interface ISSOAuthorizationService<TUserInfo, TFunctionalRole, TSSOAuthorizationPartner, TSSOAuthorizationPartnerCriteria, TSSOAuthorization, TSSOAuthorizationCriteria, TAuthenticationResult>
         where TUserInfo : IUserInfo<TFunctionalRole>
@@ -44,7 +44,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="partner">The partner.</param>
         /// <returns>System.Nullable&lt;System.Guid&gt;.</returns>
-        [ApiOperation("SSOAuthorizationPartner", HttpConstants.HttpMethod.Put)]
+        [ApiOperation(CommonServiceConstants.ResourceName.SSOAuthorizationPartner, HttpConstants.HttpMethod.Put)]
         [ApiPermission(CommonServiceConstants.Permission.AuthenticationAdministrator)]
         Guid? CreateOrUpdateSSOAuthorizationPartner(TSSOAuthorizationPartner partner);
 
@@ -53,7 +53,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>System.Collections.Generic.List&lt;TSSOAuthorizationPartner&gt;.</returns>
-        [ApiOperation("SSOAuthorizationPartner", HttpConstants.HttpMethod.Post)]
+        [ApiOperation(CommonServiceConstants.ResourceName.SSOAuthorizationPartner, HttpConstants.HttpMethod.Post)]
         List<TSSOAuthorizationPartner> QuerySSOAuthorizationPartner(TSSOAuthorizationPartnerCriteria criteria);
 
         #endregion
@@ -65,7 +65,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>TSSOAuthorization.</returns>
-        [ApiOperation("SSOTokenExchange", HttpConstants.HttpMethod.Put)]
+        [ApiOperation(CommonServiceConstants.ResourceName.SSOTokenExchange, HttpConstants.HttpMethod.Put)]
         TSSOAuthorization RequestTokenExchange(SSOAuthorizationRequest request);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="authorization">The authorization.</param>
         /// <returns>SessionInfo.</returns>
-        [ApiOperation("SSOTokenExchange", HttpConstants.HttpMethod.Post)]
+        [ApiOperation(CommonServiceConstants.ResourceName.SSOTokenExchange, HttpConstants.HttpMethod.Post)]
         SessionInfo ExchangeToken(SSOAuthorizationBase authorization);
 
         #endregion
@@ -85,7 +85,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns>TSSOAuthorization.</returns>
-        [ApiOperation("OAuth", HttpConstants.HttpMethod.Put)]
+        [ApiOperation(CommonServiceConstants.ResourceName.OAuth, HttpConstants.HttpMethod.Put)]
         TSSOAuthorization RequestOAuth(SSOAuthorizationRequest request);
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="authorization">The authorization.</param>
         /// <returns>TSSOAuthorization.</returns>
-        [ApiOperation("OAuth", HttpConstants.HttpMethod.Post, "Grant")]
+        [ApiOperation(CommonServiceConstants.ResourceName.OAuth, HttpConstants.HttpMethod.Post, "Grant")]
         TSSOAuthorization GrantOAuth(TSSOAuthorization authorization);
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="authorization">The authorization.</param>
         /// <returns>TSSOAuthorization.</returns>
-        [ApiOperation("OAuth", HttpConstants.HttpMethod.Post, "Verify")]
+        [ApiOperation(CommonServiceConstants.ResourceName.OAuth, HttpConstants.HttpMethod.Post, "Verify")]
         TUserInfo VerifyOAuth(TSSOAuthorization authorization);
 
         #endregion
@@ -111,7 +111,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="criteria">The criteria.</param>
         /// <returns>TSSOAuthorization.</returns>
-        [ApiOperation("SSOAuthorization", HttpConstants.HttpMethod.Post)]
+        [ApiOperation(CommonServiceConstants.ResourceName.SSOAuthorization, HttpConstants.HttpMethod.Post)]
         [ApiPermission(CommonServiceConstants.Permission.AuthenticationAdministrator)]
         List<TSSOAuthorization> QuerySSOAuthorization(TSSOAuthorizationCriteria criteria);
     }

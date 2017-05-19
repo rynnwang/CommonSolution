@@ -115,6 +115,18 @@ namespace Beyova.ApiTracking
         public BaseCredential OperatorCredential { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether [hit API cache].
+        /// </summary>
+        /// <value><c>true</c> if [hit API cache]; otherwise, <c>false</c>.</value>
+        public bool HitApiCache { get; set; }
+
+        /// <summary>
+        /// Gets or sets the referrer.
+        /// </summary>
+        /// <value>The referrer.</value>
+        public string Referrer { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiEventLogBase"/> class.
         /// </summary>
         public ApiEventLogBase()

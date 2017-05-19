@@ -5,19 +5,13 @@ namespace Beyova
     /// <summary>
     /// Class AdminSession.
     /// </summary>
-    public class AdminSession : AdminSessionBase, ISimpleBaseObject
+    public class AdminSession : AdminSessionBase
     {
         /// <summary>
         /// Gets or sets the created stamp.
         /// </summary>
         /// <value>The created stamp.</value>
         public DateTime? CreatedStamp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the key.
-        /// </summary>
-        /// <value>The key.</value>
-        public Guid? Key { get; set; }
 
         /// <summary>
         /// Gets or sets the last updated stamp.

@@ -44,11 +44,30 @@ namespace Beyova.AzureExtension
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureStorageOperator"/> class.
-        /// ApiEndpoint.Host=CustomizeHost;ApiEndpoint.Version=Region;ApiEndpoint.Account=AccountName,ApiEndpoint.Token=AccountKey;Prototol=https/http
+        /// </summary>
+        /// <param name="serviceEndpoint">The service endpoint.</param>
+        public AzureStorageOperator(RegionalServiceEndpoint serviceEndpoint)
+            : this(AzureStorageExtension.ToCloudStorageAccount(serviceEndpoint, serviceEndpoint?.Region.ParseToEnum<AzureServiceProviderRegion>(AzureServiceProviderRegion.China) ?? AzureServiceProviderRegion.China))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureStorageOperator"/> class.
         /// </summary>
         /// <param name="endpoint">The endpoint.</param>
-        public AzureStorageOperator(ApiEndpoint endpoint)
-            : this(endpoint.ConnectionStringToCredential())
+        /// <param name="region">The region.</param>
+        protected AzureStorageOperator(ApiEndpoint endpoint, AzureServiceProviderRegion region)
+            : this(AzureStorageExtension.ToCloudStorageAccount(endpoint, region))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureStorageOperator"/> class.
+        /// Host=CustomizeHost;Region=Region;Account=AccountName,Token=AccountKey;Protocol=https/http
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        public AzureStorageOperator(AzureBlobEndpoint endpoint)
+            : this(endpoint.ToCloudStorageAccount())
         {
 
         }
@@ -93,8 +112,8 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                containerName.CheckEmptyString("containerName");
-                blobIdentifier.CheckEmptyString("blobIdentifier");
+                containerName.CheckEmptyString(nameof(containerName));
+                blobIdentifier.CheckEmptyString(nameof(blobIdentifier));
 
                 var container = blobClient.GetContainerReference(containerName);
                 var blob = container.GetBlockBlobReference(blobIdentifier);
@@ -121,12 +140,12 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                containerName.CheckEmptyString("containerName");
+                containerName.CheckEmptyString(nameof(containerName));
 
                 var container = blobClient.GetContainerReference(containerName);
                 if (!container.Exists())
                 {
-                    throw new InvalidObjectException("Container", null, containerName);
+                    throw new InvalidObjectException(nameof(container), data: containerName);
                 }
 
                 return GenerateBlobUri(container, blobIdentifier, expireOffsetInMinute, permission);
@@ -153,12 +172,12 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                containerName.CheckEmptyString("containerName");
+                containerName.CheckEmptyString(nameof(containerName));
 
                 CloudBlobContainer container = blobClient.GetContainerReference(containerName);
                 if (!container.Exists())
                 {
-                    throw new InvalidObjectException("Container", null, containerName);
+                    throw new InvalidObjectException(nameof(container), data: containerName);
                 }
 
                 return GenerateContainerUri(container, expireOffsetInMinute, permission);
@@ -184,7 +203,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                blob.CheckNullObject("blob");
+                blob.CheckNullObject(nameof(blob));
 
                 if (fetchAttribute)
                 {
@@ -287,8 +306,8 @@ namespace Beyova.AzureExtension
         /// <param name="permissions">The permissions.</param>
         protected static void ApplyBlobPolicy(CloudBlobContainer container, string policyName, int expireOffsetInMinute = 10, SharedAccessBlobPermissions permissions = SharedAccessBlobPermissions.List)
         {
-            container.CheckNullObject("container");
-            policyName.CheckEmptyString("policyName");
+            container.CheckNullObject(nameof(container));
+            policyName.CheckEmptyString(nameof(policyName));
 
             //Get the container's existing permissions.
             var containerPermissions = new BlobContainerPermissions();
@@ -317,7 +336,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                serviceProperty.CheckNullObject("serviceProperty");
+                serviceProperty.CheckNullObject(nameof(serviceProperty));
                 this.blobClient.SetServiceProperties(serviceProperty);
             }
             catch (Exception ex)
@@ -397,7 +416,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                storageIdentifier.CheckNullObject("storageIdentifier");
+                storageIdentifier.CheckNullObject(nameof(storageIdentifier));
                 storageIdentifier.Container.CheckEmptyString("storageIdentifier.Container");
                 storageIdentifier.Identifier.CheckEmptyString("storageIdentifier.Identifier");
 
@@ -428,7 +447,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                containerName.CheckEmptyString("containerName");
+                containerName.CheckEmptyString(nameof(containerName));
 
                 var blobs = QueryBlob(this.blobClient.GetContainerReference(containerName), contentType, md5, length, limitCount);
                 return (from i in blobs
@@ -457,7 +476,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                identifier.CheckNullObject("identifier");
+                identifier.CheckNullObject(nameof(identifier));
                 identifier.Container.CheckEmptyString("identifier.Container");
                 identifier.Identifier.CheckEmptyString("identifier.Identifier");
 
@@ -502,7 +521,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                container.CheckNullObject("container");
+                container.CheckNullObject(nameof(container));
                 if (string.IsNullOrWhiteSpace(contentType) && string.IsNullOrWhiteSpace(md5) && length == null)
                 {
                     return container.ListBlobs().OfType<CloudBlockBlob>().Take(limitCount);
@@ -539,7 +558,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                identifier.CheckNullObject("identifier");
+                identifier.CheckNullObject(nameof(identifier));
 
                 if (!string.IsNullOrWhiteSpace(identifier.Container))
                 {
@@ -575,7 +594,7 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                containerName.CheckEmptyString("containerName");
+                containerName.CheckEmptyString(nameof(containerName));
 
                 return QueryBlob(this.blobClient.GetContainerReference(containerName), contentType, md5, length, limitCount);
             }
@@ -597,8 +616,8 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                blobUri.CheckEmptyString("blobUri");
-                stream.CheckNullObject("stream");
+                blobUri.CheckEmptyString(nameof(blobUri));
+                stream.CheckNullObject(nameof(stream));
 
                 var metaData = new BinaryStorageMetaData { Mime = contentType.SafeToString(HttpConstants.ContentType.BinaryDefault), Name = fileName };
                 var blob = new CloudBlockBlob(new Uri(blobUri));
@@ -627,8 +646,8 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                blobUri.CheckEmptyString("blobUri");
-                dataBytes.CheckNullObject("dataBytes");
+                blobUri.CheckEmptyString(nameof(blobUri));
+                dataBytes.CheckNullObject(nameof(dataBytes));
 
                 using (var stream = dataBytes.ToStream())
                 {
@@ -670,12 +689,11 @@ namespace Beyova.AzureExtension
         {
             try
             {
-                blobUri.CheckEmptyString("blobUri");
-
+                blobUri.CheckEmptyString(nameof(blobUri));
                 var blob = new CloudBlockBlob(new Uri(blobUri));
                 //blobProperties = blob.Properties;
 
-                blob.CheckNullObject("blob");
+                blob.CheckNullObject(nameof(blob));
 
                 var stream = new MemoryStream { Position = 0 };
 

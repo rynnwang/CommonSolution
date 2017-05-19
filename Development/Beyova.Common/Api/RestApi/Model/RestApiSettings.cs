@@ -45,5 +45,17 @@ namespace Beyova.RestApi
         /// </summary>
         /// <value>The original user agent header key.</value>
         public string OriginalUserAgentHeaderKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cache header key. If specific value is later than returned object's stamp, return 304. It is effected when return type is <see cref="ISimpleBaseObject"/>
+        /// </summary>
+        /// <value>The cache header key.</value>
+        public string CacheHeaderKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the version match key. If specific value is equals snapshot key,return 304. It is effected when return type is <see cref="ISnapshotable"/>
+        /// </summary>
+        /// <value>The version match key.</value>
+        public string VersionMatchKey { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace Beyova
     public static class ExceptionFactory
     {
         /// <summary>
-        /// Checks the empty string.
+        /// Checks empty string.
         /// </summary>
         /// <param name="anyString">Any string.</param>
         /// <param name="objectIdentity">The object identity.</param>
@@ -37,7 +37,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Checks the null object.
+        /// Checks null object.
         /// </summary>
         /// <param name="anyObject">Any object.</param>
         /// <param name="objectIdentity">The object identity.</param>
@@ -53,6 +53,33 @@ namespace Beyova
             if (anyObject == null)
             {
                 throw new NullObjectException(objectIdentity, new ExceptionScene
+                {
+                    FilePath = sourceFilePath,
+                    LineNumber = sourceLineNumber,
+                    MethodName = memberName
+                });
+            }
+        }
+
+        /// <summary>
+        /// Checks the null resource.
+        /// </summary>
+        /// <param name="anyObject">Any object.</param>
+        /// <param name="resourceName">Name of the resource.</param>
+        /// <param name="resourceIdentity">The resource identity.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="sourceFilePath">The source file path.</param>
+        /// <param name="sourceLineNumber">The source line number.</param>
+        /// <exception cref="Beyova.ExceptionSystem.ResourceNotFoundException"></exception>
+        /// <exception cref="ExceptionScene"></exception>
+        public static void CheckNullResource(this object anyObject, string resourceName, string resourceIdentity,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string sourceFilePath = null,
+            [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            if (anyObject == null)
+            {
+                throw new ResourceNotFoundException(resourceName, resourceIdentity, new ExceptionScene
                 {
                     FilePath = sourceFilePath,
                     LineNumber = sourceLineNumber,
@@ -130,6 +157,32 @@ namespace Beyova
             [CallerLineNumber] int sourceLineNumber = 0)
         {
             return new InvalidObjectException(objectIdentifier, data: data, reason: reason, hint: hint, scene: new ExceptionScene
+            {
+                FilePath = sourceFilePath,
+                LineNumber = sourceLineNumber,
+                MethodName = memberName
+            });
+        }
+
+        /// <summary>
+        /// Creates the operation forbidden exception.
+        /// </summary>
+        /// <param name="reason">The reason.</param>
+        /// <param name="innerException">The inner exception.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="hint">The hint.</param>
+        /// <param name="actionName">Name of the action.</param>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="sourceFilePath">The source file path.</param>
+        /// <param name="sourceLineNumber">The source line number.</param>
+        /// <returns>OperationForbiddenException.</returns>
+        public static OperationForbiddenException CreateOperationForbiddenException(string reason, Exception innerException = null, object data = null, FriendlyHint hint = null,
+            [CallerMemberName] string actionName = null,
+            [CallerMemberName] string memberName = null,
+            [CallerFilePath] string sourceFilePath = null,
+            [CallerLineNumber] int sourceLineNumber = 0)
+        {
+            return new OperationForbiddenException(actionName, reason, innerException, data, hint, new ExceptionScene
             {
                 FilePath = sourceFilePath,
                 LineNumber = sourceLineNumber,

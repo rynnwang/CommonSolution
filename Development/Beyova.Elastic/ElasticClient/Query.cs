@@ -163,9 +163,9 @@ namespace Beyova.Elastic
         /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name=nameof(criteria)>The criteria.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="wildCardSuffix">The wild card suffix.</param>
-        /// <returns>QueryResult&lt;T&gt;.</returns>
+        /// <returns>Beyova.Elastic.QueryResult&lt;T&gt;.</returns>
         public QueryResult<T> Search<T>(string indexName, string type, SearchCriteria criteria, string wildCardSuffix = null)
         {
             try
@@ -208,9 +208,9 @@ namespace Beyova.Elastic
         /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name=nameof(criteria)>The criteria.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="wildCardSuffix">The wild card suffix.</param>
-        /// <returns>AggregationsQueryResult&lt;T&gt;.</returns>
+        /// <returns>Beyova.Elastic.AggregationsQueryResult&lt;T&gt;.</returns>
         public AggregationsQueryResult<T> AggregationSearch<T>(string indexName, string type, SearchCriteria criteria, string wildCardSuffix = null)
         {
             try
@@ -226,13 +226,13 @@ namespace Beyova.Elastic
         }
 
         /// <summary>
-        /// Searches the specified index name.
+        /// Internals the search.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name=nameof(criteria)>The criteria.</param>
-        /// <returns>QueryResult&lt;T&gt;.</returns>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>Beyova.Elastic.QueryResult&lt;T&gt;.</returns>
         protected QueryResult<T> InternalSearch<T>(string indexName, string type, SearchCriteria criteria)
         {
             try
@@ -248,10 +248,11 @@ namespace Beyova.Elastic
         /// <summary>
         /// Internals the aggregation search.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name=nameof(criteria)>The criteria.</param>
-        /// <returns>AggregationsQueryResult&lt;T&gt;.</returns>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>Beyova.Elastic.AggregationsQueryResult&lt;T&gt;.</returns>
         protected AggregationsQueryResult<T> InternalAggregationSearch<T>(string indexName, string type, SearchCriteria criteria)
         {
             try
@@ -271,7 +272,7 @@ namespace Beyova.Elastic
         /// <typeparam name="T"></typeparam>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name=nameof(criteria)>The criteria.</param>
+        /// <param name="criteria">The criteria.</param>
         /// <param name="convertDelegate">The convert delegate.</param>
         /// <returns>TResult.</returns>
         protected TResult InternalSearch<TResult, T>(string indexName, string type, SearchCriteria criteria, SearchResultConvertDelegate<TResult, T> convertDelegate)
@@ -303,8 +304,8 @@ namespace Beyova.Elastic
         /// </summary>
         /// <param name="indexName">Name of the index.</param>
         /// <param name="type">The type.</param>
-        /// <param name=nameof(criteria)>The criteria.</param>
-        /// <returns></returns>
+        /// <param name="criteria">The criteria.</param>
+        /// <returns>System.String.</returns>
         protected string InternalGetSearchHttpRequestRaw(string indexName, string type, SearchCriteria criteria)
         {
             try

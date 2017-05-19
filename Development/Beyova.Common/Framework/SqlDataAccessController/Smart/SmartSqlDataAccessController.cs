@@ -9,10 +9,12 @@ namespace Beyova
     /// <summary>
     /// Class SmartSqlDataAccessController.
     /// </summary>
+    /// <typeparam name="TEntityBase">The type of the t entity base.</typeparam>
     /// <typeparam name="TEntity">The type of the t entity.</typeparam>
     /// <typeparam name="TCriteria">The type of the t criteria.</typeparam>
-    public abstract class SmartSqlDataAccessController<TEntity, TCriteria> : SmartSqlDataAccessController<TEntity>
-        where TEntity : class, new()
+    public abstract class SmartSqlDataAccessController<TEntityBase, TEntity, TCriteria> : SmartSqlDataAccessController<TEntityBase, TEntity>
+        where TEntity : TEntityBase, new()
+        where TEntityBase : class, new()
         where TCriteria : class
     {
         /// <summary>
@@ -23,23 +25,25 @@ namespace Beyova
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{TEntity, TCriteria}" /> class.
+        /// Initializes a new instance of the <see cref="T:Beyova.SmartSqlDataAccessController`2" /> class.
         /// </summary>
-        /// <param name="sqlConnectionString">The SQL connection string.</param>
+        /// <param name="primarySqlConnectionString">The primary SQL connection string.</param>
+        /// <param name="readonlySqlConnectionString">The readonly SQL connection string.</param>
         /// <param name="fieldConverters">The field converters.</param>
-        protected SmartSqlDataAccessController(string sqlConnectionString, params SqlFieldConverter[] fieldConverters)
-                : base(sqlConnectionString, fieldConverters)
+        protected SmartSqlDataAccessController(string primarySqlConnectionString, string readonlySqlConnectionString, params SqlFieldConverter[] fieldConverters)
+                : base(primarySqlConnectionString, readonlySqlConnectionString, fieldConverters)
         {
             _criteriaEntityConverter = TryInitialize(typeof(TCriteria), fieldConverters);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{TEntity, TCriteria}" /> class.
+        /// Initializes a new instance of the <see cref="T:Beyova.SmartSqlDataAccessController`2" /> class.
         /// </summary>
-        /// <param name="sqlConnection">The SQL connection.</param>
+        /// <param name="primarySqlConnection">The primary SQL connection.</param>
+        /// <param name="readonlySqlConnection">The readonly SQL connection.</param>
         /// <param name="fieldConverters">The field converters.</param>
-        protected SmartSqlDataAccessController(SqlConnection sqlConnection, params SqlFieldConverter[] fieldConverters)
-             : base(sqlConnection, fieldConverters)
+        protected SmartSqlDataAccessController(SqlConnection primarySqlConnection, SqlConnection readonlySqlConnection, params SqlFieldConverter[] fieldConverters)
+             : base(primarySqlConnection, readonlySqlConnection, fieldConverters)
         {
             _criteriaEntityConverter = TryInitialize(typeof(TCriteria), fieldConverters);
         }
@@ -56,13 +60,13 @@ namespace Beyova
         {
             try
             {
-                criteria.CheckNullObject("criteria");
+                criteria.CheckNullObject(nameof(criteria));
 
                 return GenerateSqlParameters<TCriteria>(criteria, ignoredProperty);
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { entity = typeof(TCriteria).GetFullName(), ignoredProperty });
+                throw ex.Handle(new { entity = typeof(TCriteria).GetFullName(), ignoredProperty });
             }
         }
 
@@ -77,15 +81,15 @@ namespace Beyova
         {
             try
             {
-                criteria.CheckNullObject("criteria");
+                criteria.CheckNullObject(nameof(criteria));
 
                 var parameters = GenerateCriteriaSqlParameters(criteria, ignoredProperty);
 
-                return this.ExecuteReader(spName.SafeToString(string.Format("sp_Query{0}", typeof(TEntity).Name)), parameters);
+                return this.ExecuteReader(spName.SafeToString(string.Format("sp_Query{0}", typeof(TEntity).Name)), parameters, true);
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { criteria, spName });
+                throw ex.Handle(new { criteria, spName });
             }
         }
     }
@@ -93,9 +97,11 @@ namespace Beyova
     /// <summary>
     /// Class SmartSqlDataAccessController.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class SmartSqlDataAccessController<T> : SqlDataAccessController
-        where T : class, new()
+    /// <typeparam name="TEntityBase">The type of the t entity base.</typeparam>
+    /// <typeparam name="TEntity">The type of the t entity.</typeparam>
+    public abstract class SmartSqlDataAccessController<TEntityBase, TEntity> : SqlDataAccessController
+        where TEntity : TEntityBase, new()
+        where TEntityBase : class, new()
     {
         /// <summary>
         /// The column_ operator key
@@ -154,43 +160,33 @@ namespace Beyova
         #endregion
 
         /// <summary>
-        /// The ignored property_ simple base object
-        /// </summary>
-        protected static readonly string[] ignoredProperty_SimpleBaseObject =
-                            (from item in typeof(ISimpleBaseObject).GetProperties() where item.Name != "Key" select item.Name).ToArray();
-
-        /// <summary>
-        /// The ignored property_ base object
-        /// </summary>
-        protected static string[] ignoredProperty_BaseObject =
-                            (from item in typeof(IBaseObject).GetProperties() where item.Name != "Key" select item.Name).ToArray();
-
-        /// <summary>
         /// </summary>
         protected SqlEntityConverter _entityConverter;
 
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{T}" /> class.
+        /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{TEntityBase, TEntity}" /> class.
         /// </summary>
-        /// <param name="sqlConnectionString">The SQL connection string.</param>
+        /// <param name="primarySqlConnectionString">The primary SQL connection string.</param>
+        /// <param name="readonlySqlConnectionString">The readonly SQL connection string.</param>
         /// <param name="fieldConverters">The field converters.</param>
-        protected SmartSqlDataAccessController(string sqlConnectionString, params SqlFieldConverter[] fieldConverters)
-                : base(sqlConnectionString)
+        protected SmartSqlDataAccessController(string primarySqlConnectionString, string readonlySqlConnectionString, params SqlFieldConverter[] fieldConverters)
+                        : base(primarySqlConnectionString, readonlySqlConnectionString)
         {
-            _entityConverter = TryInitialize(typeof(T), fieldConverters);
+            _entityConverter = TryInitialize(typeof(TEntityBase), fieldConverters);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{T}" /> class.
+        /// Initializes a new instance of the <see cref="SmartSqlDataAccessController{TEntityBase, TEntity}" /> class.
         /// </summary>
-        /// <param name="sqlConnection">The SQL connection.</param>
+        /// <param name="primarySqlConnection">The primary SQL connection.</param>
+        /// <param name="readonlySqlConnection">The readonly SQL connection.</param>
         /// <param name="fieldConverters">The field converters.</param>
-        protected SmartSqlDataAccessController(SqlConnection sqlConnection, params SqlFieldConverter[] fieldConverters)
-                : base(sqlConnection)
+        protected SmartSqlDataAccessController(SqlConnection primarySqlConnection, SqlConnection readonlySqlConnection, params SqlFieldConverter[] fieldConverters)
+                        : base(primarySqlConnection, readonlySqlConnection)
         {
-            _entityConverter = TryInitialize(typeof(T), fieldConverters);
+            _entityConverter = TryInitialize(typeof(TEntityBase), fieldConverters);
         }
 
         #endregion
@@ -206,7 +202,7 @@ namespace Beyova
         {
             try
             {
-                entity.CheckNullObject("entity");
+                entity.CheckNullObject(nameof(entity));
 
                 List<SqlParameter> result = new List<SqlParameter>();
 
@@ -222,7 +218,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { entity = typeof(TObject).GetFullName(), ignoredProperty });
+                throw ex.Handle(new { entity = typeof(TObject).GetFullName(), ignoredProperty });
             }
         }
 
@@ -232,17 +228,16 @@ namespace Beyova
         /// <param name="entity">The entity.</param>
         /// <param name="ignoredProperty">The ignored property.</param>
         /// <returns>System.Collections.Generic.List&lt;System.Data.SqlClient.SqlParameter&gt;.</returns>
-        protected List<SqlParameter> GenerateEntitySqlParameters(T entity, params string[] ignoredProperty)
+        protected List<SqlParameter> GenerateEntitySqlParameters(TEntityBase entity, params string[] ignoredProperty)
         {
             try
             {
-                entity.CheckNullObject("entity");
-
-                return GenerateSqlParameters<T>(entity, ignoredProperty);
+                entity.CheckNullObject(nameof(entity));
+                return GenerateSqlParameters<TEntityBase>(entity, ignoredProperty);
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { entity = typeof(T).GetFullName(), ignoredProperty });
+                throw ex.Handle(new { entity = typeof(TEntityBase).GetFullName(), ignoredProperty });
             }
         }
 
@@ -251,13 +246,13 @@ namespace Beyova
         /// </summary>
         /// <param name="sqlDataReader">The SQL data reader.</param>
         /// <returns>List{`0}.</returns>
-        protected List<T> ConvertObject(SqlDataReader sqlDataReader)
+        protected List<TEntity> ConvertObject(SqlDataReader sqlDataReader)
         {
             try
             {
-                sqlDataReader.CheckNullObject("sqlDataReader");
+                sqlDataReader.CheckNullObject(nameof(sqlDataReader));
 
-                var result = new List<T>();
+                var result = new List<TEntity>();
                 // When enter this method, Read() has been called for detect exception already.
                 result.Add(ConvertEntityObject(sqlDataReader, _entityConverter.FieldConverters));
 
@@ -270,7 +265,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle(new { type = typeof(T).GetFullName() });
+                throw ex.Handle(new { type = typeof(TEntity).GetFullName() });
             }
             finally
             {
@@ -279,9 +274,9 @@ namespace Beyova
                     sqlDataReader.Close();
                 }
 
-                if (databaseOperator != null)
+                if (_primaryDatabaseOperator != null)
                 {
-                    databaseOperator.Close();
+                    _primaryDatabaseOperator.Close();
                 }
             }
         }
@@ -292,9 +287,9 @@ namespace Beyova
         /// <param name="sqlDataReader">The SQL data reader.</param>
         /// <param name="fieldConverter">The field converter.</param>
         /// <returns>Object instance in type {`0}.</returns>
-        protected T ConvertEntityObject(SqlDataReader sqlDataReader, List<SqlFieldConverter> fieldConverter)
+        protected TEntity ConvertEntityObject(SqlDataReader sqlDataReader, List<SqlFieldConverter> fieldConverter)
         {
-            var result = new T();
+            var result = new TEntity();
 
             try
             {
@@ -307,7 +302,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { Converters = fieldConverter.Select((x) => new { x.ColumnName, x.PropertyName }) });
+                throw ex.Handle(new { Converters = fieldConverter.Select((x) => new { x.ColumnName, x.PropertyName }) });
             }
         }
 
@@ -316,19 +311,21 @@ namespace Beyova
         /// </summary>
         /// <param name="spName">Name of the sp.</param>
         /// <param name="sqlParameters">The SQL parameters.</param>
+        /// <param name="preferReadOnlyOperator">The prefer read only operator.</param>
         /// <returns>List{`0}.</returns>
-        protected List<T> ExecuteReader(string spName, List<SqlParameter> sqlParameters)
+        protected List<TEntity> ExecuteReader(string spName, List<SqlParameter> sqlParameters, bool preferReadOnlyOperator)
         {
             SqlDataReader reader = null;
+            DatabaseOperator databaseOperator = null;
 
             try
             {
-                reader = this.Execute(spName, sqlParameters);
-                return reader == null ? new List<T>() : ConvertObject(reader);
+                reader = this.Execute(spName, sqlParameters, preferReadOnlyOperator, out databaseOperator);
+                return reader == null ? new List<TEntity>() : ConvertObject(reader);
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
+                throw ex.Handle(new { SpName = spName, Parameters = SqlParameterToList(sqlParameters) });
             }
             finally
             {
@@ -338,7 +335,7 @@ namespace Beyova
                 }
 
                 // use Close instead of Dispose so that operator can be reuse without re-initialize.
-                databaseOperator.Close();
+                databaseOperator?.Close();
             }
         }
 
@@ -351,11 +348,11 @@ namespace Beyova
         /// <param name="includeOperatorKey">The include operator key.</param>
         /// <param name="ignoredProperty">The ignored property.</param>
         /// <returns>System.Nullable&lt;System.Guid&gt;.</returns>
-        protected Guid? CreateOrUpdate(T entity, Guid? operatorKey, string spName = null, bool includeOperatorKey = true, params string[] ignoredProperty)
+        protected Guid? CreateOrUpdate(TEntityBase entity, Guid? operatorKey, string spName = null, bool includeOperatorKey = true, params string[] ignoredProperty)
         {
             try
             {
-                entity.CheckNullObject("entity");
+                entity.CheckNullObject(nameof(entity));
 
                 var parameters = GenerateEntitySqlParameters(entity, ignoredProperty);
                 if (includeOperatorKey)
@@ -363,11 +360,11 @@ namespace Beyova
                     parameters.Add(this.GenerateSqlSpParameter(column_OperatorKey, operatorKey));
                 };
 
-                return this.ExecuteScalar(spName.SafeToString(string.Format("sp_CreateOrUpdate{0}", typeof(T).Name)), parameters).ObjectToGuid();
+                return this.ExecuteScalar(spName.SafeToString(string.Format("sp_CreateOrUpdate{0}", typeof(TEntityBase).Name)), parameters).ObjectToGuid();
             }
             catch (Exception ex)
             {
-                throw ex.Handle( new { entity, operatorKey, spName });
+                throw ex.Handle(new { entity, operatorKey, spName });
             }
         }
     }

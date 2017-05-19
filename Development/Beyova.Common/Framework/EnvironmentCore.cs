@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
-using System.Reflection;
-using System.Web;
 using System.Linq;
-using Beyova;
-using Beyova.ProgrammingIntelligence;
-using System.Text;
-using System.Security.Cryptography;
-using System.Runtime.CompilerServices;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
+using System.Web;
+using Beyova;
+using Beyova.Gravity;
+using Beyova.ProgrammingIntelligence;
 
 namespace Beyova
 {
@@ -216,15 +215,17 @@ namespace Beyova
 
                 foreach (var one in DescendingAssemblyDependencyChain)
                 {
-                    builder.Append(md5Provider.ComputeHash(File.ReadAllBytes(one.Location)).ToBase64());
+                    builder.Append(md5Provider.ComputeHash(File.ReadAllBytes(one.Location)).EncodeBase64());
                 }
 
-                return md5Provider.ComputeHash(Encoding.UTF8.GetBytes(builder.ToString())).ToBase64();
+                return md5Provider.ComputeHash(Encoding.UTF8.GetBytes(builder.ToString())).EncodeBase64();
             }
             catch
             {
                 return string.Empty;
             }
         }
+
+  
     }
 }

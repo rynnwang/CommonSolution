@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading;
-using System.Xml.Linq;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -26,27 +16,46 @@ namespace Beyova
         /// <param name="outputDelegate">The output delegate.</param>
         public static void RunCommand(string commandFilePath, Action<string> outputDelegate)
         {
-            if (!string.IsNullOrWhiteSpace(commandFilePath) && File.Exists(commandFilePath))
+            RunCommand(new WindowsProcessCommandParameter { CommandPath = commandFilePath, OutputDelegate = outputDelegate });
+        }
+
+        /// <summary>
+        /// Runs the command. (*.cmd, *.bat, *.exe, etc.)
+        /// </summary>
+        /// <param name="parameter">The parameter.</param>
+        public static void RunCommand(WindowsProcessCommandParameter parameter)
+        {
+            if (parameter != null && !string.IsNullOrWhiteSpace(parameter.CommandPath) && File.Exists(parameter.CommandPath))
             {
-                Process batProcess = new Process();
-                // Redirect the output stream of the child process.
-                batProcess.StartInfo.UseShellExecute = false;
-                batProcess.StartInfo.RedirectStandardOutput = true;
-                batProcess.StartInfo.RedirectStandardError = true;
-
-                batProcess.StartInfo.FileName = commandFilePath;
-
-                if (outputDelegate != null)
+                try
                 {
-                    batProcess.OutputDataReceived += (sender, args) => outputDelegate(args.Data);
-                    batProcess.ErrorDataReceived += (sender, args) => outputDelegate(args.Data);
+                    using (Process processToRun = new Process())
+                    {
+                        // Redirect the output stream of the child process.
+                        processToRun.StartInfo.UseShellExecute = false;
+                        processToRun.StartInfo.RedirectStandardOutput = true;
+                        processToRun.StartInfo.RedirectStandardError = true;
+
+                        parameter.FillProcessStartInfo(processToRun.StartInfo);
+
+                        if (parameter.OutputDelegate != null)
+                        {
+                            processToRun.OutputDataReceived += (sender, args) => parameter.OutputDelegate(args.Data);
+                            processToRun.ErrorDataReceived += (sender, args) => parameter.OutputDelegate(args.Data);
+                        }
+
+                        processToRun.Start();
+
+                        processToRun.BeginOutputReadLine();
+
+                        processToRun.WaitForExit();
+                        processToRun.Close();
+                    }
                 }
-                batProcess.Start();
-
-                batProcess.BeginOutputReadLine();
-
-                batProcess.WaitForExit();
-                batProcess.Close();
+                catch (Exception ex)
+                {
+                    throw ex.Handle(parameter);
+                }
             }
         }
     }

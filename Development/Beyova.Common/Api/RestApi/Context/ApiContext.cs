@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Beyova;
 
 namespace Beyova.RestApi
@@ -8,6 +9,12 @@ namespace Beyova.RestApi
     /// </summary>
     public class ApiContext
     {
+        /// <summary>
+        /// Gets or sets the last synchronized stamp.
+        /// </summary>
+        /// <value>The last synchronized stamp.</value>
+        public DateTime? LastSynchronizedStamp { get; set; }
+
         /// <summary>
         /// Gets or sets the user agent.
         /// </summary>
@@ -19,6 +26,12 @@ namespace Beyova.RestApi
         /// </summary>
         /// <value>The ip address.</value>
         public string IpAddress { get; internal set; }
+
+        /// <summary>
+        /// Gets the current URI.
+        /// </summary>
+        /// <value>The current URI.</value>
+        public Uri CurrentUri { get; internal set; }
 
         /// <summary>
         /// Gets or sets the token.

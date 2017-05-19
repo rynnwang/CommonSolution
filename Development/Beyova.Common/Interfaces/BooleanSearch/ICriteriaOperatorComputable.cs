@@ -8,13 +8,12 @@ namespace Beyova.BooleanSearch
     /// <summary>
     /// Interface ICriteriaOperatorComputable
     /// </summary>
-    /// <seealso cref="Beyova.BooleanSearch.IExpression{System.String, System.String, Beyova.BooleanSearch.ComputeOperator}" />
     public interface ICriteriaOperatorComputable : IExpression<string, string, ComputeOperator>, IBooleanComputable
     {
         /// <summary>
         /// Validates this instance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if validation passed, <c>false</c> otherwise.</returns>
         bool Validate();
     }
 }

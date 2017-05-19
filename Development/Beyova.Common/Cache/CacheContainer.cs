@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Beyova.ExceptionSystem;
+using System;
 using System.Collections.Generic;
 
 namespace Beyova.Cache
@@ -74,61 +75,66 @@ namespace Beyova.Cache
         protected Func<TKey, TEntity> retrieveEntity;
 
         /// <summary>
+        /// The handle exception. Return  bool value indicating whether needs to throw it.
+        /// </summary>
+        protected Func<BaseException, bool> handleException;
+
+        /// <summary>
         /// Gets or sets the name.
         /// </summary>
         /// <value>The name.</value>
         public string Name { get; protected set; }
 
-        #region Constructor
+        /// <summary>
+        /// Gets the failure expiration in second. If entity is failed to get, use this expiration if specified, otherwise use <see cref="ICacheParameter.ExpirationInSecond" />.
+        /// </summary>
+        /// <value>The failure expiration in second.</value>
+        public long FailureExpirationInSecond { get; protected set; }
+
+        #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CacheContainer{TKey, TEntity}" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
+        /// <param name="retrieveEntity">The retrieve entity.</param>
         /// <param name="capacity">The capacity.</param>
         /// <param name="expirationInSecond">The expiration in second.</param>
-        /// <param name="retrieveEntity">The retrieve entity.</param>
+        /// <param name="failureExpirationInSecond">The failure expiration in second.</param>
         /// <param name="equalityComparer">The equality comparer.</param>
-        public CacheContainer(string name, int? capacity, long? expirationInSecond, Func<TKey, TEntity> retrieveEntity, IEqualityComparer<TKey> equalityComparer = null)
+        /// <param name="handleException">The handle exception. Bool value indicating whether needs to throw it.</param>
+        public CacheContainer(string name, Func<TKey, TEntity> retrieveEntity, int? capacity = null, long? expirationInSecond = null, long? failureExpirationInSecond = null, IEqualityComparer<TKey> equalityComparer = null, Func<BaseException, bool> handleException = null)
         {
             this.Name = name;
             this.Capacity = (capacity.HasValue && capacity.Value > 1) ? capacity : null;
             this.ExpirationInSecond = (expirationInSecond.HasValue && expirationInSecond.Value > 0) ? expirationInSecond : null;
+            this.FailureExpirationInSecond = ((failureExpirationInSecond.HasValue && failureExpirationInSecond.Value > 0) ? failureExpirationInSecond : null) ?? this.ExpirationInSecond ?? 30;
 
             equalityComparer = equalityComparer ?? EqualityComparer<TKey>.Default;
             this.container = capacity == null ? new SequencedKeyDictionary<TKey, CacheItem<TEntity>>(equalityComparer) : new SequencedKeyDictionary<TKey, CacheItem<TEntity>>(capacity.Value, equalityComparer);
             this.retrieveEntity = retrieveEntity;
+            this.handleException = handleException;
 
             CacheRealm.RegisterCacheContainer(this);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CacheContainer{TKey, TEntity}" /> class.
+        /// Initializes a new instance of the <see cref="CacheContainer{TKey, TEntity}"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="expirationInSecond">The expiration in second.</param>
         /// <param name="retrieveEntity">The retrieve entity.</param>
-        /// <param name="equalityComparer">The equality comparer.</param>
-        public CacheContainer(string name, long? expirationInSecond, Func<TKey, TEntity> retrieveEntity, IEqualityComparer<TKey> equalityComparer = null)
-            : this(name, null, expirationInSecond, retrieveEntity, equalityComparer = null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CacheContainer{TKey, TEntity}" /> class.
-        /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="cacheParameter">The cache parameter.</param>
         /// <param name="capacity">The capacity.</param>
-        /// <param name="retrieveEntity">The retrieve entity.</param>
         /// <param name="equalityComparer">The equality comparer.</param>
-        public CacheContainer(string name, int? capacity, Func<TKey, TEntity> retrieveEntity, IEqualityComparer<TKey> equalityComparer = null)
-            : this(name, capacity, null, retrieveEntity, equalityComparer)
+        /// <param name="handleException">The handle exception.</param>
+        public CacheContainer(string name, Func<TKey, TEntity> retrieveEntity, ICacheParameter cacheParameter, int? capacity = null, IEqualityComparer<TKey> equalityComparer = null, Func<BaseException, bool> handleException = null)
+            : this(name, retrieveEntity, capacity, cacheParameter.ExpirationInSecond, cacheParameter.FailureExpirationInSecond, equalityComparer, handleException)
         {
         }
 
         #endregion
 
-        #region internal methods
+        #region protected methods
 
         /// <summary>
         /// Internals the maintain capacity.
@@ -141,28 +147,60 @@ namespace Beyova.Cache
             }
         }
 
-        #endregion
-
         /// <summary>
         /// Internals the update.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="entity">The entity.</param>
+        /// <param name="ifNotExistsThenInsert">if set to <c>true</c> [if not exists then insert].</param>
         /// <returns>System.Nullable&lt;DateTime&gt;.</returns>
-        protected DateTime? InternalUpdate(TKey key, TEntity entity)
+        protected DateTime? InternalUpdate(TKey key, TEntity entity, bool ifNotExistsThenInsert)
         {
-            try
-            {
-                var expiredStamp = this.ExpirationInSecond.HasValue ? DateTime.UtcNow.AddSeconds(this.ExpirationInSecond.Value) as DateTime? : null;
-                container.Add(key, new CacheItem<TEntity> { Value = entity, ExpiredStamp = expiredStamp });
-                InternalMaintainCapacity();
+            DateTime? result = null;
 
-                return expiredStamp;
-            }
-            catch (Exception ex)
+            if (key != null)
             {
-                throw ex.Handle(key);
+                try
+                {
+                    lock (itemChangeLocker)
+                    {
+                        if (container.ContainsKey(key))
+                        {
+                            container.Remove(key);
+                        }
+                        else
+                        {
+                            if (!ifNotExistsThenInsert)
+                            {
+                                return result;
+                            }
+                        }
+
+                        result = this.ExpirationInSecond.HasValue ? DateTime.UtcNow.AddSeconds(this.ExpirationInSecond.Value) as DateTime? : null;
+                        container.Add(key, new CacheItem<TEntity> { Value = entity, ExpiredStamp = result });
+                        InternalMaintainCapacity();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(key);
+                }
             }
+
+            return result;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Updates the specified key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="entity">The entity.</param>
+        /// <returns>System.Nullable&lt;DateTime&gt;.</returns>
+        public DateTime? Update(TKey key, TEntity entity)
+        {
+            return InternalUpdate(key, entity, false);
         }
 
         /// <summary>
@@ -190,7 +228,19 @@ namespace Beyova.Cache
                             }
                             catch (Exception ex)
                             {
-                                throw ex.Handle(key);
+                                if (handleException != null)
+                                {
+                                    BaseException exception = ex.Handle(key);
+                                    if (handleException(exception))
+                                    {
+                                        throw exception;
+                                    }
+                                }
+                                else
+                                {
+                                    container.Merge(key, new CacheItem<TEntity> { Value = default(TEntity), ExpiredStamp = DateTime.UtcNow.AddSeconds(this.FailureExpirationInSecond) as DateTime? });
+                                    InternalMaintainCapacity();
+                                }
                             }
                         }
                         else

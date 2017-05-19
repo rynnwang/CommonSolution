@@ -18,7 +18,7 @@ namespace Beyova
         #region Html encode
 
         /// <summary>
-        /// To the URL path encoded text. It is used for URL Query String or when passing a URL as parameter of antoher URL. (Space to '%20', but not encode special charactor like '/', '=', '?' and '&amp;'. Any charactor after first '?' would not be encoded)
+        /// To the URL path encoded text. It is used for URL Query String or when passing a URL as parameter of anther URL. (Space to '%20', but not encode special character like '/', '=', '?' and '&amp;'. Any character after first '?' would not be encoded)
         /// </summary>
         /// <param name="originalText">The original text.</param>
         /// <returns>System.String.</returns>
@@ -33,7 +33,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the URL encoded text. It is used for URL Path. (Space to '+', and encode any special charactor, including '/', '=', '?' and '&amp;')
+        /// To the URL encoded text. It is used for URL Path. (Space to '+', and encode any special character, including '/', '=', '?' and '&amp;')
         /// </summary>
         /// <param name="originalText">The original text.</param>
         /// <returns>System.String.</returns>
@@ -121,21 +121,16 @@ namespace Beyova
         #region Base64
 
         /// <summary>
-        /// Encodes the base64 from string.
+        /// Encodes to base64.
         /// </summary>
         /// <param name="stringObject">The source.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        public static string ToBase64(this string stringObject, Encoding encoding = null)
+        public static string EncodeBase64(this string stringObject, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
             try
             {
-                byte[] bytes = encoding.GetBytes(stringObject);
+                byte[] bytes = (encoding ?? Encoding.UTF8).GetBytes(stringObject);
                 return Convert.ToBase64String(bytes);
             }
             catch
@@ -145,11 +140,11 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Encodes the base64 from bytes.
+        /// Encodes the base64.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <returns>System.String.</returns>
-        public static string ToBase64(this byte[] bytes)
+        public static string EncodeBase64(this byte[] bytes)
         {
             try
             {
@@ -162,22 +157,17 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Decodes the base64 to string.
+        /// Decodes the base64.
         /// </summary>
         /// <param name="stringObject">The string object.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        public static string DecodeBase64ToString(this string stringObject, Encoding encoding = null)
+        public static string DecodeBase64(this string stringObject, Encoding encoding = null)
         {
-            if (encoding == null)
-            {
-                encoding = Encoding.UTF8;
-            }
-
             try
             {
                 byte[] bytes = Convert.FromBase64String(stringObject);
-                return encoding.GetString(bytes);
+                return (encoding ?? Encoding.UTF8).GetString(bytes);
             }
             catch
             {
@@ -185,22 +175,103 @@ namespace Beyova
             }
         }
 
+        #endregion
+
+        #region Base62
+
+        private static string Base62CodingSpace = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
         /// <summary>
-        /// Decodes the base64 to bytes.
+        /// Convert a byte array
         /// </summary>
-        /// <param name="result">The result.</param>
-        /// <returns>System.Byte[][].</returns>
-        public static byte[] DecodeBase64ToBytes(string result)
+        /// <param name="original">Byte array</param>
+        /// <returns>Base62 string</returns>
+        public static string ToBase62(this byte[] original)
         {
-            try
+            StringBuilder sb = new StringBuilder();
+
+            BitStream stream = new BitStream(original);         // Set up the BitStream
+            byte[] read = new byte[1];                          // Only read 6-bit at a time
+            while (true)
             {
-                byte[] bytes = Convert.FromBase64String(result);
-                return bytes;
+                read[0] = 0;
+                int length = stream.Read(read, 0, 6);           // Try to read 6 bits
+                if (length == 6)                                // Not reaching the end
+                {
+                    if ((int)(read[0] >> 3) == 0x1f)            // First 5-bit is 11111
+                    {
+                        sb.Append(Base62CodingSpace[61]);
+                        stream.Seek(-1, SeekOrigin.Current);    // Leave the 6th bit to next group
+                    }
+                    else if ((int)(read[0] >> 3) == 0x1e)       // First 5-bit is 11110
+                    {
+                        sb.Append(Base62CodingSpace[60]);
+                        stream.Seek(-1, SeekOrigin.Current);
+                    }
+                    else                                        // Encode 6-bit
+                    {
+                        sb.Append(Base62CodingSpace[(int)(read[0] >> 2)]);
+                    }
+                }
+                else
+                {
+                    // Padding 0s to make the last bits to 6 bit
+                    sb.Append(Base62CodingSpace[(int)(read[0] >> (int)(8 - length))]);
+                    break;
+                }
             }
-            catch
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Convert a Base62 string to byte array
+        /// </summary>
+        /// <param name="base62">Base62 string</param>
+        /// <returns>Byte array</returns>
+        public static byte[] FromBase62(this string base62)
+        {
+            // Character count
+            int count = 0;
+
+            // Set up the BitStream
+            BitStream stream = new BitStream(base62.Length * 6 / 8);
+
+            foreach (char c in base62)
             {
-                return null;
+                // Look up coding table
+                int index = Base62CodingSpace.IndexOf(c);
+
+                // If end is reached
+                if (count == base62.Length - 1)
+                {
+                    // Check if the ending is good
+                    int mod = (int)(stream.Position % 8);
+                    stream.Write(new byte[] { (byte)(index << (mod)) }, 0, 8 - mod);
+                }
+                else
+                {
+                    // If 60 or 61 then only write 5 bits to the stream, otherwise 6 bits.
+                    if (index == 60)
+                    {
+                        stream.Write(new byte[] { 0xf0 }, 0, 5);
+                    }
+                    else if (index == 61)
+                    {
+                        stream.Write(new byte[] { 0xf8 }, 0, 5);
+                    }
+                    else
+                    {
+                        stream.Write(new byte[] { (byte)index }, 2, 6);
+                    }
+                }
+                count++;
             }
+
+            // Dump out the bytes
+            byte[] result = new byte[stream.Position / 8];
+            stream.Seek(0, SeekOrigin.Begin);
+            stream.Read(result, 0, result.Length * 8);
+            return result;
         }
 
         #endregion
@@ -285,7 +356,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ToBase64Md5(this byte[] bytes)
         {
-            return ToMD5Bytes(bytes)?.ToBase64();
+            return ToMD5Bytes(bytes)?.EncodeBase64();
         }
 
         /// <summary>
@@ -296,7 +367,7 @@ namespace Beyova
         /// <returns>System.String.</returns>
         public static string ToBase64Md5(this Stream stream, long? resetPosition = null)
         {
-            return ToMD5Bytes(stream, resetPosition)?.ToBase64();
+            return ToMD5Bytes(stream, resetPosition)?.EncodeBase64();
         }
 
         /// <summary>
@@ -385,24 +456,36 @@ namespace Beyova
         #region 3DES
 
         /// <summary>
-        /// Generates the random3 DES key.
+        /// Generates the triple DES key.
         /// </summary>
-        /// <param name="anyObject">Any object.</param>
         /// <returns>System.Byte[].</returns>
-        public static byte[] GenerateRandom3DESKey(this object anyObject)
+        public static byte[] GenerateTripleDESKey()
         {
-            return anyObject.CreateRandomHex(tripleDesKeyLength);
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] tripleDesKey = new byte[tripleDesKeyLength];
+                rng.GetBytes(tripleDesKey);
+
+                for (var i = 0; i < tripleDesKey.Length; ++i)
+                {
+                    int keyByte = tripleDesKey[i] & 0xFE;
+                    var parity = 0;
+                    for (int b = keyByte; b != 0; b >>= 1)
+                        parity ^= b & 1;
+                    tripleDesKey[i] = (byte)(keyByte | (parity == 0 ? 1 : 0));
+                }
+
+                return tripleDesKey;
+            }
         }
 
         /// <summary>
-        /// Encrypt3s the DES.
+        /// Generates the triple DES key as string.
         /// </summary>
-        /// <param name="content">The content.</param>
-        /// <param name="encryptKey">The encrypt key.</param>
         /// <returns>System.String.</returns>
-        public static string Encrypt3DES(this string content, string encryptKey)
+        public static string GenerateTripleDESKeyAsString()
         {
-            return Encrypt3DES(content, encryptKey, CipherMode.ECB, Encoding.ASCII);
+            return GenerateTripleDESKey().EncodeBase64();
         }
 
         /// <summary>
@@ -413,35 +496,50 @@ namespace Beyova
         /// <param name="cipherMode">The cipher mode.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        public static string Encrypt3DES(this string content, string encryptKey, CipherMode cipherMode, Encoding encoding)
+        public static string EncryptTripleDES(this string content, string encryptKey, CipherMode cipherMode = CipherMode.ECB, Encoding encoding = null)
         {
-            string result = null;
+            if (!string.IsNullOrWhiteSpace(content) && !string.IsNullOrWhiteSpace(encryptKey))
+            {
+                return Convert.ToBase64String(EncryptTripleDES((encoding ?? Encoding.UTF8).GetBytes(content), encryptKey, cipherMode));
+            }
 
-            if (!string.IsNullOrWhiteSpace(content) && !string.IsNullOrWhiteSpace(encryptKey) && encoding != null)
+            return null;
+        }
+
+        /// <summary>
+        /// Encrypts the triple DES.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="encryptKey">The encrypt key.</param>
+        /// <param name="cipherMode">The cipher mode.</param>
+        /// <returns>System.Byte[].</returns>
+        public static byte[] EncryptTripleDES(this byte[] content, byte[] encryptKey, CipherMode cipherMode = CipherMode.ECB)
+        {
+            if (content != null && encryptKey.HasItem())
             {
                 TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
 
-                DES.Key = ASCIIEncoding.ASCII.GetBytes(encryptKey);
+                DES.Key = encryptKey;
                 DES.Mode = cipherMode;
 
                 ICryptoTransform DESEncrypt = DES.CreateEncryptor();
 
-                byte[] Buffer = encoding.GetBytes(content);
-                result = Convert.ToBase64String(DESEncrypt.TransformFinalBlock(Buffer, 0, Buffer.Length));
+                return DESEncrypt.TransformFinalBlock(content, 0, content.Length);
             }
 
-            return result;
+            return null;
         }
 
         /// <summary>
-        /// Decrypt3s the DES.
+        /// Encrypts the triple DES.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <param name="encryptKey">The encrypt key.</param>
-        /// <returns>System.String.</returns>
-        public static string Decrypt3DES(string content, string encryptKey)
+        /// <param name="cipherMode">The cipher mode.</param>
+        /// <returns>System.Byte[].</returns>
+        public static byte[] EncryptTripleDES(this byte[] content, string encryptKey, CipherMode cipherMode = CipherMode.ECB)
         {
-            return Decrypt3DES(content, encryptKey, CipherMode.ECB, Encoding.ASCII);
+            return EncryptTripleDES(content, ASCIIEncoding.ASCII.GetBytes(encryptKey), cipherMode);
         }
 
         /// <summary>
@@ -452,29 +550,55 @@ namespace Beyova
         /// <param name="cipherMode">The cipher mode.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        public static string Decrypt3DES(string content, string encryptKey, CipherMode cipherMode, Encoding encoding)
+        public static string DecryptTripleDES(this string content, string encryptKey, CipherMode cipherMode = CipherMode.ECB, Encoding encoding = null)
         {
-            string result = null;
-
-            if (!string.IsNullOrWhiteSpace(content) && !string.IsNullOrWhiteSpace(encryptKey) && encoding != null)
+            if (!string.IsNullOrWhiteSpace(content) && !string.IsNullOrWhiteSpace(encryptKey))
             {
-                TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
-
-                DES.Key = ASCIIEncoding.ASCII.GetBytes(encryptKey);
-                DES.Mode = cipherMode;
-                DES.Padding = PaddingMode.PKCS7;
-
-                ICryptoTransform DESDecrypt = DES.CreateDecryptor();
-
                 try
                 {
-                    byte[] Buffer = Convert.FromBase64String(content);
-                    result = encoding.GetString(DESDecrypt.TransformFinalBlock(Buffer, 0, Buffer.Length));
+                    byte[] buffer = Convert.FromBase64String(content);
+                    return (encoding ?? Encoding.UTF8).GetString(DecryptTripleDES(buffer, ASCIIEncoding.ASCII.GetBytes(encryptKey), cipherMode));
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(new { content, encryptKey, cipherMode });
+                }
             }
 
-            return result;
+            return null;
+        }
+
+        /// <summary>
+        /// Decrypt3s the DES.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="encryptKey">The encrypt key.</param>
+        /// <param name="cipherMode">The cipher mode.</param>
+        /// <returns>System.Byte[].</returns>
+        public static byte[] DecryptTripleDES(this byte[] content, byte[] encryptKey, CipherMode cipherMode = CipherMode.ECB)
+        {
+            if (content.HasItem() && encryptKey.HasItem())
+            {
+                try
+                {
+                    using (TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider())
+                    {
+                        DES.Key = encryptKey;
+                        DES.Mode = cipherMode;
+                        DES.Padding = PaddingMode.PKCS7;
+
+                        ICryptoTransform DESDecrypt = DES.CreateDecryptor();
+
+                        return DESDecrypt.TransformFinalBlock(content, 0, content.Length);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(new { cipherMode = cipherMode.EnumToString() });
+                }
+            }
+
+            return null;
         }
 
         #endregion
@@ -482,7 +606,7 @@ namespace Beyova
         #region RSA
 
         /// <summary>
-        /// Encrypts within RSA.
+        /// Encrypts within RSA. Note: Under 1024 bit key, 117 bytes can be encrypted at most. Under 2048 bit key, 245 bytes can be encrypted at most. 
         /// </summary>
         /// <param name="dataToEncrypt">The data to encrypt.</param>
         /// <param name="publicKey">The public key.</param>
@@ -492,11 +616,13 @@ namespace Beyova
         {
             try
             {
-                var rsa = new RSACryptoServiceProvider(dwKeySize);
-                rsa.ImportCspBlob(Convert.FromBase64String(publicKey));
+                using (var rsa = new RSACryptoServiceProvider(dwKeySize))
+                {
+                    rsa.ImportCspBlob(Convert.FromBase64String(publicKey));
 
-                //OAEP padding is only available on Microsoft Windows XP or later.  
-                return rsa.Encrypt(dataToEncrypt, true);
+                    //OAEP padding is only available on Microsoft Windows XP or later.  
+                    return rsa.Encrypt(dataToEncrypt, true);
+                }
             }
             catch (Exception ex)
             {
@@ -535,10 +661,12 @@ namespace Beyova
         {
             try
             {
-                var rsa = new RSACryptoServiceProvider(dwKeySize);
-                rsa.ImportCspBlob(Convert.FromBase64String(privateKey));
+                using (var rsa = new RSACryptoServiceProvider(dwKeySize))
+                {
+                    rsa.ImportCspBlob(Convert.FromBase64String(privateKey));
 
-                return rsa.Decrypt(dataToDecrypt, true);
+                    return rsa.Decrypt(dataToDecrypt, true);
+                }
             }
             catch (Exception ex)
             {
@@ -557,10 +685,35 @@ namespace Beyova
         {
             try
             {
-                var rsa = new RSACryptoServiceProvider(dwKeySize);
+                using (var rsa = new RSACryptoServiceProvider(dwKeySize))
+                {
+                    privateKey = rsa.ExportCspBlob(true).EncodeBase64();
+                    publicKey = rsa.ExportCspBlob(false).EncodeBase64();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex.Handle();
+            }
+        }
 
-                privateKey = rsa.ExportCspBlob(true).ToBase64();
-                publicKey = rsa.ExportCspBlob(false).ToBase64();
+        /// <summary>
+        /// Creates the RSA keys.
+        /// </summary>
+        /// <param name="dwKeySize">Size of the dw key.</param>
+        /// <returns>Beyova.RsaKeys.</returns>
+        public static RsaKeys CreateRsaKeys(int dwKeySize = 2048)
+        {
+            try
+            {
+                using (var rsa = new RSACryptoServiceProvider(dwKeySize))
+                {
+                    return new RsaKeys
+                    {
+                        PrivateKey = rsa.ExportCspBlob(true).EncodeBase64(),
+                        PublicKey = rsa.ExportCspBlob(false).EncodeBase64()
+                    };
+                }
             }
             catch (Exception ex)
             {
@@ -678,21 +831,17 @@ namespace Beyova
         const int tripleDesKeyLength = 24;
 
         /// <summary>
-        /// Encrypt within 3DES.
+        /// Encrypts the r3 DES.
         /// </summary>
         /// <param name="content">The content.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns>System.String.</returns>
-        /// <exception cref="OperationFailureException">R3DEncrypt3DES</exception>
-        internal static string R3DEncrypt3DES(this string content, Encoding encoding = null)
+        /// <returns>System.Byte[].</returns>
+        internal static byte[] EncryptR3DES(this byte[] content)
         {
-            string result = content;
-
-            if (!string.IsNullOrWhiteSpace(content))
+            if (content.HasItem())
             {
                 try
                 {
-                    byte[] keyBytes = content.GenerateRandom3DESKey();
+                    byte[] keyBytes = GenerateTripleDESKey();
                     TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
 
                     DES.Key = keyBytes;
@@ -701,11 +850,35 @@ namespace Beyova
 
                     ICryptoTransform DESEncrypt = DES.CreateEncryptor();
 
-                    byte[] buffer = (encoding ?? Encoding.UTF8).GetBytes(content);
-                    buffer = DESEncrypt.TransformFinalBlock(buffer, 0, buffer.Length);
+                    var buffer = DESEncrypt.TransformFinalBlock(content, 0, content.Length);
                     List<byte> data = new List<byte>(keyBytes);
                     data.AddRange(buffer);
-                    result = Convert.ToBase64String(data.ToArray());
+                    return data.ToArray();
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle();
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Encrypts the r3 DES.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>System.String.</returns>
+        internal static string EncryptR3DES(this string content, Encoding encoding = null)
+        {
+            string result = content;
+
+            if (!string.IsNullOrWhiteSpace(content))
+            {
+                try
+                {
+                    return Convert.ToBase64String(EncryptR3DES((encoding ?? Encoding.UTF8).GetBytes(content)));
                 }
                 catch (Exception ex)
                 {
@@ -717,12 +890,44 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Decrypts the r3 DES.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns>System.Byte[].</returns>
+        internal static byte[] DecryptR3DES(this byte[] content)
+        {
+            if (content.HasItem())
+            {
+                try
+                {
+                    List<byte> bytes = new List<byte>(content);
+                    TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
+
+                    DES.Key = bytes.GetRange(0, tripleDesKeyLength).ToArray();
+                    var buffer = bytes.GetRange(tripleDesKeyLength, bytes.Count - tripleDesKeyLength).ToArray();
+                    DES.Mode = CipherMode.ECB;
+                    DES.Padding = PaddingMode.PKCS7;
+
+                    ICryptoTransform DESDecrypt = DES.CreateDecryptor();
+                    buffer = DESDecrypt.TransformFinalBlock(buffer, 0, buffer.Length);
+                    return buffer;
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(content);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Decrypt within 3DES.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        internal static string R3DDecrypt3DES(this string content, Encoding encoding = null)
+        internal static string DecryptR3DES(this string content, Encoding encoding = null)
         {
             string result = content;
 
@@ -782,141 +987,6 @@ namespace Beyova
             {
                 return Convert.ToBase64String(
                    hmac.ComputeHash(Encoding.UTF8.GetBytes(message)));
-            }
-        }
-
-        #endregion
-
-        #region Secure Communication
-
-        /// <summary>
-        /// Secures the synchronize.
-        /// </summary>
-        /// <param name="uri">The URI.</param>
-        /// <param name="data">The data.</param>
-        /// <param name="rsaPublicKey">The RSA public key.</param>
-        /// <returns>System.String.</returns>
-        internal static string SecureHttpInvoke<T>(this Uri uri, T data, string rsaPublicKey)
-        {
-            if (uri != null && data != null && !string.IsNullOrWhiteSpace(rsaPublicKey))
-            {
-                try
-                {
-                    var httpRequest = uri.CreateHttpWebRequest(HttpConstants.HttpMethod.Post);
-                    httpRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.SECUREKEY, rsaPublicKey);
-
-                    var rsaProvider = new RSACryptoServiceProvider(2048);
-                    var responsePublicKey = rsaProvider.ExportCspBlob(false).ToBase64();
-
-                    var package = new SecureMessageObject<T>
-                    {
-                        PublicKey = responsePublicKey,
-                        Data = data
-                    };
-
-                    var postBodyBytes = RsaEncrypt(Encoding.UTF8.GetBytes(package.ToJson()), rsaPublicKey);
-                    httpRequest.FillData(HttpConstants.HttpMethod.Post, postBodyBytes);
-
-                    var responseBytes = httpRequest.ReadResponseAsBytes();
-                    return Encoding.UTF8.GetString(rsaProvider.Decrypt(responseBytes, true));
-                }
-                catch (Exception ex)
-                {
-                    throw ex.Handle(new { uri, rsaPublicKey });
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Processes the secure HTTP invoke.
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input.</typeparam>
-        /// <typeparam name="TOuput">The type of the ouput.</typeparam>
-        /// <param name="httpContext">The HTTP context.</param>
-        /// <param name="processFunc">The process function.</param>
-        /// <param name="getPrivateKeyByPublicKey">The get private key by public key.</param>
-        /// <returns>Beyova.ExceptionSystem.BaseException.</returns>
-        internal static BaseException ProcessSecureHttpInvoke<TInput, TOuput>(this HttpContext httpContext, Func<TInput, TOuput> processFunc, Func<string, string> getPrivateKeyByPublicKey)
-        {
-            if (httpContext != null)
-            {
-                try
-                {
-                    var rsaPublicKey = httpContext.Request.TryGetHeader(HttpConstants.HttpHeader.SECUREKEY);
-                    string rsaPrivateKey = null;
-                    if (!string.IsNullOrWhiteSpace(rsaPublicKey) && getPrivateKeyByPublicKey != null)
-                    {
-                        rsaPrivateKey = getPrivateKeyByPublicKey(rsaPublicKey);
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(rsaPrivateKey))
-                    {
-                        var inputPackage = httpContext.Request.GetSecureCommunicationPackage<TInput>(rsaPrivateKey);
-                        inputPackage.CheckNullObject("inputPackage");
-                        inputPackage.PublicKey.CheckNullObject("inputPackage.PublicKey");
-                        inputPackage.Data.CheckNullObject("inputPackage.Data");
-
-                        var ouput = processFunc(inputPackage.Data);
-                        httpContext.Response.ResponseSecureCommunicationPackage<TOuput>(ouput, inputPackage.PublicKey);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return ex.Handle();
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the secure communication package.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="httpRequest">The HTTP request.</param>
-        /// <param name="rsaPrivateKey">The RSA private key.</param>
-        /// <returns>SecureSynchronizePackage.</returns>
-        internal static SecureMessageObject<T> GetSecureCommunicationPackage<T>(this HttpRequest httpRequest, string rsaPrivateKey)
-        {
-            if (httpRequest != null)
-            {
-                try
-                {
-                    var requestData = httpRequest.GetPostData();
-                    var jsonString = Encoding.UTF8.GetString(RsaDecrypt(requestData, rsaPrivateKey));
-                    return JsonConvert.DeserializeObject<SecureMessageObject<T>>(jsonString);
-                }
-                catch (Exception ex)
-                {
-                    throw ex.Handle(data: new { rsaPrivateKey });
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Responses the secure communication package.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="response">The response.</param>
-        /// <param name="responseObject">The response object.</param>
-        /// <param name="rsaPublicKey">The RSA public key.</param>
-        internal static void ResponseSecureCommunicationPackage<T>(this HttpResponse response, T responseObject, string rsaPublicKey)
-        {
-            if (response != null && responseObject != null)
-            {
-                try
-                {
-                    var responseBodyBytes = RsaEncrypt(Encoding.UTF8.GetBytes(responseObject.ToJson()), rsaPublicKey);
-                    response.OutputStream.Write(responseBodyBytes, 0, responseBodyBytes.Length);
-                }
-                catch (Exception ex)
-                {
-                    throw ex.Handle(data: new { responseObject, rsaPublicKey });
-                }
             }
         }
 

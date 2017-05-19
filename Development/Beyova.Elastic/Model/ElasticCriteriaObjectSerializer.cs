@@ -10,6 +10,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Beyova.Elastic
 {
+    /// <summary>
+    /// Class ElasticCriteriaObjectSerializer.
+    /// </summary>
     public class ElasticCriteriaObjectSerializer : JsonConverter
     {
         /// <summary>

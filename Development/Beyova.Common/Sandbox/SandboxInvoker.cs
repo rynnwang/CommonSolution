@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 
@@ -12,6 +11,28 @@ namespace Beyova
     [Serializable]
     public class SandboxInvoker : SandboxMarshalObject
     {
+        /// <summary>
+        /// Loads the name of the assembly by.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>System.String.</returns>
+        public string LoadAssemblyByName(string name)
+        {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                try
+                {
+                    AppDomain.CurrentDomain.Load(name);
+                }
+                catch (Exception ex)
+                {
+                    return ex.ToExceptionInfo().ToJson();
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Creates the instance and invoke method.
         /// </summary>
@@ -92,10 +113,10 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the API contracts.
+        /// Gets the API contract interfaces.
         /// </summary>
         /// <returns>RemoteInvokeResult.</returns>
-        public SandboxMarshalInvokeResult GetApiContracts()
+        public SandboxMarshalInvokeResult GetApiContractInterfaces()
         {
             SandboxMarshalInvokeResult result = new SandboxMarshalInvokeResult();
 
@@ -107,7 +128,7 @@ namespace Beyova
                 {
                     foreach (var item in one.GetTypes())
                     {
-                        if (item.IsInterface && item.HasAttribute<ApiContractAttribute>() && !item.IsGenericTypeDefinition)
+                        if (item.IsInterface && item.HasAttribute<ApiContractAttribute>(false) && !item.IsGenericTypeDefinition)
                         {
                             interfaces.Merge(item.GetFullName(), item.Name, false);
                         }

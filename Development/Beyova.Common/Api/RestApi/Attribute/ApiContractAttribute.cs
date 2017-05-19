@@ -22,14 +22,31 @@ namespace Beyova.RestApi
         public string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the realm.
+        /// </summary>
+        /// <value>The realm.</value>
+        public string Realm { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiContractAttribute" /> class.
         /// </summary>
         /// <param name="version">The version.</param>
         /// <param name="name">The name.</param>
-        public ApiContractAttribute(string version, string name = null)
+        public ApiContractAttribute(string version, string name = null) : this(version, name, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApiContractAttribute" /> class.
+        /// </summary>
+        /// <param name="version">The version.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="realm">The realm.</param>
+        public ApiContractAttribute(string version, string name, string realm)
         {
             this.Version = version;
             this.Name = name;
+            this.Realm = realm;
         }
     }
 }

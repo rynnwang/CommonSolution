@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class TransactionRequest.
     /// </summary>
-    public class TransactionRequest : TransactionBase, ITransactionRequest
+    public class TransactionRequest : TransactionBase, ITransactionRequest, IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the owner key.

@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class SSOAuthorizationPartner.
     /// </summary>
-    public class SSOAuthorizationPartner : BaseObject
+    public class SSOAuthorizationPartner : BaseObject, IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the owner key.

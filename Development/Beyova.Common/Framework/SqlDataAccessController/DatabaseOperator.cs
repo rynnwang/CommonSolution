@@ -75,14 +75,15 @@ namespace Beyova
         {
             //Default value follows Microsoft: http://referencesource.microsoft.com/#System.Data/System/Data/SqlClient/SqlConnection.cs
 
-            if (SqlTransactionScope.SqlTransaction != null)
+            if (SqlTransactionScope.SqlTransaction == null)
             {
-                throw new DataConflictException("sqlTransaction", hint: new FriendlyHint { Message = "A transaction has already been initialized and using." });
+                var sqlTransaction = this.sqlConnection.BeginTransaction(iso, transactionName);
+                return new SqlTransactionScope(sqlTransaction, this.sqlCommand);
             }
-
-            var sqlTransaction = this.sqlConnection.BeginTransaction(iso, transactionName);
-
-            return new SqlTransactionScope(sqlTransaction, this.sqlCommand);
+            else
+            {
+                return SqlTransactionScope.Current;
+            }
         }
 
         /// <summary>

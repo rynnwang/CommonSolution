@@ -6,7 +6,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminUserInfoBase.
     /// </summary>
-    public class AdminUserInfoBase : BaseCredential, IUserInfo, IIdentifier, ICredential
+    public class AdminUserInfoBase : BaseCredential, IUserInfo, IIdentifier, ICredential, IProjectBased
     {
         /// <summary>
         /// Gets or sets the name of the login.
@@ -55,6 +55,12 @@ namespace Beyova
         /// </summary>
         /// <value>The time zone.</value>
         public int? TimeZone { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project key.
+        /// </summary>
+        /// <value>The project key.</value>
+        public Guid? ProjectKey { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminUserInfoBase"/> class.

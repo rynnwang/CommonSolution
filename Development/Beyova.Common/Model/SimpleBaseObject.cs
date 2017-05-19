@@ -51,4 +51,33 @@ namespace Beyova
 
         #endregion
     }
+
+    /// <summary>
+    /// Class SimpleBaseObject.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class SimpleBaseObject<T> : SimpleBaseObject
+    {
+        /// <summary>
+        /// Gets or sets the object.
+        /// </summary>
+        /// <value>The object.</value>
+        public T Object { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleBaseObject{T}"/> class.
+        /// </summary>
+        public SimpleBaseObject() : base()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleBaseObject{T}"/> class.
+        /// </summary>
+        /// <param name="genricObject">The genric object.</param>
+        public SimpleBaseObject(T genricObject) : this()
+        {
+            Object = genricObject;
+        }
+    }
 }

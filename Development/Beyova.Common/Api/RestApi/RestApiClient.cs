@@ -13,19 +13,19 @@ namespace Beyova.RestApi
     /// <summary>
     /// Class RestApiClient.
     /// </summary>
-    public class RestApiClient
+    public abstract class RestApiClient
     {
-        /// <summary>
-        /// Gets or sets the base URL.
-        /// </summary>
-        /// <value>The base URL.</value>
-        public string BaseUrl { get; protected set; }
-
         /// <summary>
         /// Gets or sets the token.
         /// </summary>
         /// <value>The token.</value>
-        public string Token { get; protected set; }
+        public string Token
+        {
+            get
+            {
+                return this.Endpoint?.Token;
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether [accept GZIP].
@@ -33,56 +33,61 @@ namespace Beyova.RestApi
         /// <value><c>true</c> if [accept g zip]; otherwise, <c>false</c>.</value>
         public bool AcceptGZip { get; protected set; }
 
-        #region Constructor
+        /// <summary>
+        /// Gets or sets the host.
+        /// </summary>
+        /// <value>The host.</value>
+        public ApiEndpoint Endpoint { get; protected set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RestApiClient" /> class.
+        /// Gets or sets the timeout.
         /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="version">The version.</param>
-        /// <param name="isHttps">if set to <c>true</c> [is HTTPS].</param>
-        /// <param name="token">The token.</param>
-        /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
-        public RestApiClient(string host, string version, bool isHttps = false, string token = null, bool acceptGZip = false)
-            : this(new ApiEndpoint { Host = host, Version = version, Protocol = isHttps ? "https" : "http", Token = token }, acceptGZip)
-        {
-        }
+        /// <value>
+        /// The timeout.
+        /// </value>
+        public int? Timeout { get; protected set; }
+
+        /// <summary>
+        /// The base client version
+        /// </summary>
+        internal const int BaseClientVersion = 4;
+
+        /// <summary>
+        /// The client generated version
+        /// </summary>
+        protected abstract int ClientGeneratedVersion { get; }
+
+        #region Constructor
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RestApiClient" /> class.
         /// </summary>
         /// <param name="endpoint">The endpoint.</param>
         /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
-        public RestApiClient(ApiEndpoint endpoint, bool acceptGZip = false)
-               : this(endpoint?.ToString(), endpoint.Token, acceptGZip)
+        /// <param name="timeout">The timeout.</param>
+        /// <exception cref="System.NotSupportedException"></exception>
+        public RestApiClient(ApiEndpoint endpoint, bool acceptGZip = false, int? timeout = null)
         {
-        }
+            //Try detecting base client version and generated version.
+            if (ClientGeneratedVersion != BaseClientVersion)
+            {
+                throw new NotSupportedException(string.Format("ClientGeneratedVersion [{0}] doesnot match BaseClientVersion [{1}].", ClientGeneratedVersion, BaseClientVersion));
+            }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RestApiClient" /> class.
-        /// </summary>
-        /// <param name="baseUrl">The base URL.
-        /// <example>http://xxx.xx/api/</example></param>
-        /// <param name="version">The version.</param>
-        /// <param name="token">The token.</param>
-        /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
-        public RestApiClient(string baseUrl, string version, string token, bool acceptGZip = false)
-            : this(string.Format("{0}/{1}", baseUrl.TrimEnd('/'), version), token, acceptGZip)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RestApiClient" /> class.
-        /// </summary>
-        /// <param name="baseUrl">The base URL.
-        /// <example>http://xxx.xxx.com/api/v1/</example></param>
-        /// <param name="token">The token.</param>
-        /// <param name="acceptGZip">if set to <c>true</c> [accept g zip].</param>
-        public RestApiClient(string baseUrl, string token, bool acceptGZip = false)
-        {
-            this.BaseUrl = string.IsNullOrWhiteSpace(baseUrl) ? string.Empty : (baseUrl.TrimEnd('/') + "/");
-            this.Token = token;
+            this.Endpoint = endpoint ?? new ApiEndpoint();
             this.AcceptGZip = acceptGZip;
+            this.Timeout = timeout;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RestApiClient" /> class.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="token">The token.</param>
+        /// <param name="acceptGZip">The accept g zip.</param>
+        [Obsolete("Not supported anymore.", true)]
+        protected RestApiClient(ApiEndpoint endpoint, string token, bool acceptGZip = false)
+        {
         }
 
         #endregion
@@ -92,6 +97,8 @@ namespace Beyova.RestApi
         /// <summary>
         /// Invokes as void.
         /// </summary>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
@@ -99,14 +106,16 @@ namespace Beyova.RestApi
         /// <param name="queryString">The query string.</param>
         /// <param name="bodyJson">The body json.</param>
         /// <param name="methodNameForTrace">The method name for trace.</param>
-        public void InvokeAsVoid(string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null, [CallerMemberName] string methodNameForTrace = null)
+        public void InvokeAsVoid(string realm, string version, string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null, [CallerMemberName] string methodNameForTrace = null)
         {
-            InvokeAsJToken(httpMethod, resourceName, resourceAction, key, queryString, bodyJson, methodNameForTrace);
+            InvokeAsJToken(realm, version, httpMethod, resourceName, resourceAction, key, queryString, bodyJson, this.Timeout, methodNameForTrace);
         }
 
         /// <summary>
         /// Invokes the specified HTTP method.
         /// </summary>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
@@ -115,9 +124,9 @@ namespace Beyova.RestApi
         /// <param name="bodyJson">The body json.</param>
         /// <param name="methodNameForTrace">The method name for trace.</param>
         /// <returns>JToken.</returns>
-        public JToken Invoke(string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null, [CallerMemberName] string methodNameForTrace = null)
+        public JToken Invoke(string realm, string version, string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null, [CallerMemberName] string methodNameForTrace = null)
         {
-            return InvokeAsJToken(httpMethod, resourceName, resourceAction, key, queryString, bodyJson, methodNameForTrace);
+            return InvokeAsJToken(realm, version, httpMethod, resourceName, resourceAction, key, queryString, bodyJson, this.Timeout, methodNameForTrace);
         }
 
         #endregion
@@ -127,57 +136,68 @@ namespace Beyova.RestApi
         /// <summary>
         /// Invokes the using query string.
         /// </summary>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="methodNameForTrace">The method name for trace.</param>
         /// <returns>JToken.</returns>
-        protected JToken InvokeUsingQueryString(string httpMethod, string resourceName, string resourceAction, string parameter = null, [CallerMemberName] string methodNameForTrace = null)
+        protected JToken InvokeUsingQueryString(string realm, string version, string httpMethod, string resourceName, string resourceAction, string parameter = null, [CallerMemberName] string methodNameForTrace = null)
         {
-            return InvokeAsJToken(httpMethod, resourceName, resourceAction, key: parameter, methodNameForTrace: methodNameForTrace);
+            return InvokeAsJToken(realm, version, httpMethod, resourceName, resourceAction, key: parameter, timeout: this.Timeout, methodNameForTrace: methodNameForTrace);
         }
 
         /// <summary>
         /// Invokes the using combined query string.
         /// </summary>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
         /// <param name="parameters">The parameters.</param>
         /// <param name="methodNameForTrace">The method name for trace.</param>
         /// <returns>JToken.</returns>
-        protected JToken InvokeUsingCombinedQueryString(string httpMethod, string resourceName, string resourceAction, Dictionary<string, string> parameters, [CallerMemberName] string methodNameForTrace = null)
+        protected JToken InvokeUsingCombinedQueryString(string realm, string version, string httpMethod, string resourceName, string resourceAction, Dictionary<string, string> parameters, [CallerMemberName] string methodNameForTrace = null)
         {
-            return InvokeAsJToken(httpMethod, resourceName, resourceAction, queryString: parameters, methodNameForTrace: methodNameForTrace);
+            return InvokeAsJToken(realm, version, httpMethod, resourceName, resourceAction, queryString: parameters, timeout: this.Timeout, methodNameForTrace: methodNameForTrace);
         }
 
         /// <summary>
         /// Invokes the using body.
         /// </summary>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
         /// <param name="parameter">The parameter.</param>
         /// <param name="methodNameForTrace">The method name for trace.</param>
         /// <returns>JToken.</returns>
-        protected JToken InvokeUsingBody(string httpMethod, string resourceName, string resourceAction, object parameter, [CallerMemberName] string methodNameForTrace = null)
+        protected JToken InvokeUsingBody(string realm, string version, string httpMethod, string resourceName, string resourceAction, object parameter, [CallerMemberName] string methodNameForTrace = null)
         {
-            return InvokeAsJToken(httpMethod, resourceName, resourceAction, bodyJson: parameter.ToJson(), methodNameForTrace: methodNameForTrace);
+            return InvokeAsJToken(realm, version, httpMethod, resourceName, resourceAction, bodyJson: parameter.ToJson(), timeout: this.Timeout, methodNameForTrace: methodNameForTrace);
         }
 
         /// <summary>
         /// Invokes as j token.
         /// </summary>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
         /// <param name="key">The key.</param>
         /// <param name="queryString">The query string.</param>
         /// <param name="bodyJson">The body json.</param>
+        /// <param name="timeout">The timeout.</param>
         /// <param name="methodNameForTrace">The method name for trace.</param>
-        /// <returns>JToken.</returns>
-        protected JToken InvokeAsJToken(string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null, [CallerMemberName] string methodNameForTrace = null)
+        /// <returns>
+        /// JToken.
+        /// </returns>
+        protected JToken InvokeAsJToken(string realm, string version, string httpMethod, string resourceName, string resourceAction, string key = null, Dictionary<string, string> queryString = null, string bodyJson = null, int? timeout = null, [CallerMemberName] string methodNameForTrace = null)
         {
             BaseException exception = null;
 
@@ -185,7 +205,11 @@ namespace Beyova.RestApi
             {
                 ApiTraceContext.Enter("RestApiClient", methodNameForTrace);
 
-                var httpRequest = CreateHttpRequest(httpMethod, resourceName, resourceAction, key, queryString);
+                var httpRequest = CreateHttpRequest(realm, version, httpMethod, resourceName, resourceAction, key, queryString);
+                if (timeout.HasValue)
+                {
+                    httpRequest.Timeout = timeout.Value;
+                }
 
                 if (httpMethod.IsInString(new string[] { HttpConstants.HttpMethod.Post, HttpConstants.HttpMethod.Put }, true))
                 {
@@ -202,7 +226,7 @@ namespace Beyova.RestApi
                     return null;
                 }
 
-                return JToken.Parse(response);
+                return response != null ? JToken.Parse(response) : null;
             }
             catch (HttpOperationException httpEx)
             {
@@ -229,17 +253,31 @@ namespace Beyova.RestApi
         #region Util
 
         /// <summary>
+        /// Gets the request endpoint.
+        /// </summary>
+        /// <param name="apiEndpoint">The API endpoint.</param>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
+        /// <returns>System.String.</returns>
+        protected internal virtual string GetRequestEndpoint(ApiEndpoint apiEndpoint, string realm, string version)
+        {
+            return string.Format("{0}{1}/", this.Endpoint == null ? "http://localhost/api/" : ((UriEndpoint)Endpoint).ToString(), version);
+        }
+
+        /// <summary>
         /// Creates the HTTP request.
         /// </summary>
+        /// <param name="realm">The realm.</param>
+        /// <param name="version">The version.</param>
         /// <param name="httpMethod">The HTTP method.</param>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceAction">The resource action.</param>
         /// <param name="key">The key.</param>
         /// <param name="queryString">The query string.</param>
         /// <returns>System.Net.HttpWebRequest.</returns>
-        protected HttpWebRequest CreateHttpRequest(string httpMethod, string resourceName, string resourceAction, string key, Dictionary<string, string> queryString = null)
+        protected HttpWebRequest CreateHttpRequest(string realm, string version, string httpMethod, string resourceName, string resourceAction, string key, Dictionary<string, string> queryString = null)
         {
-            var url = string.Format("{0}{1}/{2}", this.BaseUrl.SafeToString("htp://localhost/api/"), resourceName, resourceAction).TrimEnd('/') + "/";
+            var url = string.Format("{0}{1}/{2}", GetRequestEndpoint(this.Endpoint, realm, version), resourceName, resourceAction).TrimEnd('/') + "/";
             if (!string.IsNullOrWhiteSpace(key))
             {
                 url += (key.ToUrlEncodedText() + "/");
@@ -252,6 +290,7 @@ namespace Beyova.RestApi
             var httpRequest = url.CreateHttpWebRequest(httpMethod, acceptGZip: this.AcceptGZip, omitServerCertificateValidation: true);
             FillAdditionalData(httpRequest);
 
+            httpRequest.Referer = ContextHelper.ApiContext?.CurrentUri?.ToString();
             return httpRequest;
         }
 

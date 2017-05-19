@@ -12,18 +12,6 @@ namespace Beyova.ProgrammingIntelligence
     public class BeyovaConfigurationAttribute : Attribute
     {
         /// <summary>
-        /// Gets or sets the remote configuration URI.
-        /// </summary>
-        /// <value>The remote configuration URI.</value>
-        public Uri RemoteConfigurationUri { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets the remote configuration RSA key.
-        /// </summary>
-        /// <value>The remote configuration RSA key.</value>
-        public string RemoteConfigurationRsaKey { get; protected set; }
-
-        /// <summary>
         /// Gets or sets the name of the configuration. Name supports wildcard, like "beyova.*.json"
         /// </summary>
         /// <value>The name of the configuration.</value>
@@ -37,7 +25,7 @@ namespace Beyova.ProgrammingIntelligence
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BeyovaConfigurationAttribute" /> class.
-        /// If configurationDirectory is not specified, then use BaseDirectory/Configurations/{configurationName}
+        /// If configurationDirectory is not specified, then use <c>{BaseDirectory}/Configurations/{configurationName}</c>
         /// </summary>
         /// <param name="configurationName">Name of the configuration.</param>
         /// <param name="configurationDirectory">The configuration directory.</param>
@@ -48,23 +36,12 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BeyovaConfigurationAttribute" /> class.
-        /// </summary>
-        /// <param name="remoteConfigurationUri">The remote configuration URI.</param>
-        /// <param name="publicRsaKey">The public RSA key.</param>
-        public BeyovaConfigurationAttribute(Uri remoteConfigurationUri, string publicRsaKey)
-        {
-            this.RemoteConfigurationRsaKey = publicRsaKey;
-            this.RemoteConfigurationUri = remoteConfigurationUri;
-        }
-
-        /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return RemoteConfigurationUri != null ? RemoteConfigurationUri.ToString() : GetConfigurationFullPath();
+            return GetConfigurationFullPath();
         }
 
         /// <summary>
@@ -77,7 +54,7 @@ namespace Beyova.ProgrammingIntelligence
             {
                 if (!string.IsNullOrWhiteSpace(ConfigurationName))
                 {
-                    var isWildcard = ConfigurationName.Contains('*');
+                    var isWildcard = ConfigurationName.Contains(StringConstants.AsteriskChar);
 
                     var directory = EnvironmentCore.GetDirectory(ConfigurationDirectory, "Configurations");
                     if (directory.Exists && isWildcard)
@@ -86,7 +63,7 @@ namespace Beyova.ProgrammingIntelligence
                     }
                     else
                     {
-                        return Path.Combine(directory.FullName.TrimEnd('\\'), ConfigurationName);
+                        return Path.Combine(directory.FullName.TrimEnd(StringConstants.BackSlash), ConfigurationName);
                     }
                 }
 

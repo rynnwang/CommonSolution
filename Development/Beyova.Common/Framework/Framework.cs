@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using Beyova.Configuration;
 using System.Reflection;
 using Beyova.ProgrammingIntelligence;
-using System.IO;
-using System.Text;
-using Newtonsoft.Json;
-using Beyova.License;
-using System.Diagnostics;
 using System.Globalization;
+using Beyova.Gravity;
 
 namespace Beyova
 {
@@ -20,7 +16,7 @@ namespace Beyova
         /// <summary>
         /// The configuration reader
         /// </summary>
-        internal readonly static IConfigurationReader ConfigurationReader = JsonConfigurationReader.Default;
+        internal readonly static IConfigurationReader ConfigurationReader = (GravityHost.Host?.ConfigurationReader) ?? JsonConfigurationReader.Default as IConfigurationReader;
 
         /// <summary>
         /// The global culture resource collection
@@ -63,8 +59,9 @@ namespace Beyova
                 result.GCMemory = SystemManagementExtension.GetGCMemory();
                 result.CpuUsage = SystemManagementExtension.GetCpuUsage();
                 result.ServerName = EnvironmentCore.ServerName;
-                result.LocalIpAddress = EnvironmentCore.LocalMachineIpAddress;
-                result.LocalHostName = EnvironmentCore.LocalMachineHostName;
+                result.IpAddress = EnvironmentCore.LocalMachineIpAddress;
+                result.HostName = EnvironmentCore.LocalMachineHostName;
+                result.AssemblyHash = EnvironmentCore.GetAssemblyHash();
 
                 return result;
             }

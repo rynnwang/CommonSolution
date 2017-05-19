@@ -165,7 +165,7 @@ namespace Beyova
                     settingName,
                     httpRequest.UserHostAddress,
                     httpRequest.UserAgent,
-                    httpRequest.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(httpRequest.Cookies.Get(HttpConstants.QueryString.Language)?.Value).SafeToString(httpRequest.UserLanguages.SafeFirstOrDefault())
+                    httpRequest.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(httpRequest.Cookies.Get(HttpConstants.QueryString.Language)?.Value).SafeToString(httpRequest.UserLanguages.SafeFirstOrDefault()).EnsureCultureCode()
                     );
             }
         }
@@ -183,7 +183,7 @@ namespace Beyova
                     settingName,
                     httpRequest.UserHostAddress,
                     httpRequest.UserAgent,
-                    httpRequest.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(httpRequest.Cookies.Get(HttpConstants.QueryString.Language)?.Value).SafeToString(httpRequest.UserLanguages.SafeFirstOrDefault())
+                    httpRequest.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(httpRequest.Cookies.Get(HttpConstants.QueryString.Language)?.Value).SafeToString(httpRequest.UserLanguages.SafeFirstOrDefault()).EnsureCultureCode()
                     );
             }
         }
@@ -201,7 +201,7 @@ namespace Beyova
                     settingName,
                     httpRequest.UserHostAddress,
                     httpRequest.UserAgent,
-                    httpRequest.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(httpRequest.UserLanguages.SafeFirstOrDefault())
+                    httpRequest.QueryString.Get(HttpConstants.QueryString.Language).SafeToString(httpRequest.UserLanguages.SafeFirstOrDefault()).EnsureCultureCode()
                     );
             }
         }
@@ -216,7 +216,7 @@ namespace Beyova
         /// <param name="cultureCode">The culture code.</param>
         private static void ConsistContext(string token, string settingName, string ipAddress, string userAgent, string cultureCode)
         {
-            RestApiSettings setting = ApiHandlerBase.GetRestApiSettingByName(settingName, false);
+            RestApiSettings setting = ApiHandlerBase.GetRestApiSettingByName(settingName, true);
             RestApiEventHandlers restApiEventHandlers = setting?.EventHandlers;
 
             var apiContext = ContextHelper.ApiContext;

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Resources;
 using Beyova.ProgrammingIntelligence;
 using System.Runtime.CompilerServices;
+using Beyova;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -10,14 +11,14 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("Beyova.Common")]
 [assembly: AssemblyConfiguration("")]
 
-[assembly: AssemblyDescription("All Rights reserved.")]
-[assembly: AssemblyCompany("Beyova Co.,Ltd.")]
-[assembly: AssemblyProduct("Beyova.Common")]
-[assembly: AssemblyCopyright("Copyright © 2013 - 2016")]
-[assembly: AssemblyTrademark("Beyova")]
+[assembly: AssemblyDescription(BeyovaPropertyConstants.AssemblyDescription)]
+[assembly: AssemblyCompany(BeyovaPropertyConstants.Company)]
+[assembly: AssemblyCopyright(BeyovaPropertyConstants.Copyright)]
+[assembly: AssemblyTrademark(BeyovaPropertyConstants.AssemblyTrademark)]
 
+[assembly: AssemblyProduct("Beyova.Common")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.Common", "3.7.14")]
+[assembly: BeyovaComponent("Beyova.Common", "3.13.5")]
 
 [assembly: InternalsVisibleTo("Beyova.WebExtension, PublicKey=002400000480000094000000060200000024000052534131000400000100010043cc5930e5bede"
 + "45da5820d2c00fe5afd1018228c56bf2a5363be550010faa493fe913e64c9ec1ee68e069ae3a0d"
@@ -31,17 +32,23 @@ using System.Runtime.CompilerServices;
 + "5946aee724910bf5eab2177e653d10fc7381dc81f2e0b34292d852aa843c1032385df7f6c70539"
 + "6971cdc4")]
 
-//[assembly: InternalsVisibleTo("Beyova.Gravity, PublicKey=0024000004800000940000000602000000240000525341310004000001000100b5a7b57833610e"
-//+ "eab205d44273760e6ca067f3e4526cf11ec5b568dd47df2a4ba82cb0fc4d8a8b9fc0c931a28d93"
-//+ "6a840be60562353d653aaca3d4482afb9fdc0070830a4ccec1e32af364ba1b3db3b14d66984b03"
-//+ "daaefd551229b93bc87abcd6552e63f714109c6f71be906d27b0796510f6ac63b43fef03b6e67e"
-//+ "0318e988")]
+[assembly: InternalsVisibleTo("Beyova.Gravity, PublicKey=0024000004800000940000000602000000240000525341310004000001000100b5a7b57833610e"
++ "eab205d44273760e6ca067f3e4526cf11ec5b568dd47df2a4ba82cb0fc4d8a8b9fc0c931a28d93"
++ "6a840be60562353d653aaca3d4482afb9fdc0070830a4ccec1e32af364ba1b3db3b14d66984b03"
++ "daaefd551229b93bc87abcd6552e63f714109c6f71be906d27b0796510f6ac63b43fef03b6e67e"
++ "0318e988")]
 
-//[assembly: InternalsVisibleTo("Beyova.iOSContractGenerator, PublicKey=00240000048000009400000006020000002400005253413100040000010001004707ab68e4d760"
-//+ "0b3e5d5deaf147f75f6da33f40a4326cb5bc89460df4cc242fdfa935e4d845f8ae82577509404e"
-//+ "957770cae6139162eb422a37d92d1b10638f6c8668ab0b208ba3cf1b6af39deed26d04435935d0"
-//+ "47a57f6a86c636117f5d8c23fa4b58a47fb4227a1881f580e86bf3a88250bc63378826dd3c72b3"
-//+ "7ea211a6")]
+[assembly: InternalsVisibleTo("Beyova.CentralAuthentication.SDK, PublicKey=00240000048000009400000006020000002400005253413100040000010001008be4b94ca8e465"
++ "1d750b4763f58c8819bcc46eef3a919aee556be56976a3fddec89073e07280b7ca9370423fcf4d"
++ "59005e8dfb6992be69f845018bf94b1912e943b2f725a12fb7c2b65aa75407668b66e22338ba18"
++ "ceba260cb40d2a25acaa068b82e86bc542b435268a2526fb312897d29c6183b0e5497cfed66472"
++ "1e567adf")]
+
+[assembly: InternalsVisibleTo("Beyova.InternalUtil, PublicKey=00240000048000009400000006020000002400005253413100040000010001001fc9082da98e97"
++ "dfee21c3688a6c84afdd3397b1325dafd860f4ba7c6cab28d12e5ace21698ef4ad6614ae228734"
++ "5e4b0e454aca2edf72412ac0c6b5cfb297f228e2e4ccde74ba12887f115d98c678047190051692"
++ "3e01eaf6b185f85647cb722af049c3e969ef276b07efef3e12ac973808c4b763f5a77e57f62780"
++ "bdbddfe8")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

@@ -8,6 +8,7 @@ using System.Web;
 using System.Xml.Linq;
 using Beyova.ExceptionSystem;
 using Beyova;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova
 {
@@ -191,6 +192,171 @@ namespace Beyova
         #endregion
 
         #region IEnumerable, ICollection, IList, IDictionary, HashSet
+
+        /// <summary>
+        /// To the j array.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="eachObjectGenerateFunc">The each object generate function.</param>
+        /// <returns>JArray.</returns>
+        public static JArray ToJArray<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, Func<TKey, TValue, JToken> eachObjectGenerateFunc)
+        {
+            JArray result = new JArray();
+            if (dictionary.HasItem() && eachObjectGenerateFunc != null)
+            {
+                foreach (var one in dictionary)
+                {
+                    result.AddIfNotNull(eachObjectGenerateFunc(one.Key, one.Value));
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// To the j array.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="keyPropertyName">Name of the key property.</param>
+        /// <param name="valuePropertyName">Name of the value property.</param>
+        /// <returns>JArray.</returns>
+        public static JArray ToJArray<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, string keyPropertyName, string valuePropertyName)
+        {
+            if (dictionary.HasItem() && !string.IsNullOrWhiteSpace(keyPropertyName) && !string.IsNullOrWhiteSpace(valuePropertyName))
+            {
+                if (keyPropertyName == valuePropertyName)
+                {
+                    throw ExceptionFactory.CreateInvalidObjectException("keyPropertyName/valuePropertyName", new { keyPropertyName, valuePropertyName });
+                }
+
+                return ToJArray(dictionary, (k, v) =>
+                {
+                    var o = new JObject();
+                    o.Add(keyPropertyName, JToken.FromObject(k));
+                    o.Add(valuePropertyName, JToken.FromObject(v));
+
+                    return o;
+                });
+            }
+
+            return new JArray();
+        }
+
+        /// <summary>
+        /// Merges to.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="destination">The destination.</param>
+        /// <param name="overrideIfExists">if set to <c>true</c> [override if exists].</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        public static void MergeTo<T>(this IEnumerable<T> source, IList<T> destination, bool overrideIfExists = false, IEqualityComparer<T> equalityComparer = null)
+        {
+            if (source.HasItem() && destination.HasItem())
+            {
+                if (equalityComparer == null)
+                {
+                    equalityComparer = EqualityComparer<T>.Default;
+                }
+
+                foreach (var one in source)
+                {
+                    for (var i = 0; i < destination.Count; i++)
+                    {
+                        if (equalityComparer.Equals(destination[i], one))
+                        {
+                            if (overrideIfExists)
+                            {
+                                destination[i] = one;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            destination.Add(one);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Matches any.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="hitSubjects">The hit subjects.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        /// <returns><c>true</c> if exists any match between <c>source</c> and <c>hitSubjects</c>, <c>false</c> otherwise.</returns>
+        public static bool MatchAny<T>(this IEnumerable<T> source, IEnumerable<T> hitSubjects, IEqualityComparer<T> equalityComparer = null)
+        {
+            if (source.HasItem() && hitSubjects.HasItem())
+            {
+                if (equalityComparer == null)
+                {
+                    equalityComparer = EqualityComparer<T>.Default;
+                }
+
+                foreach (var one in source)
+                {
+                    foreach (var item in hitSubjects)
+                    {
+                        if (equalityComparer.Equals(one, item))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Matches all.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="hitSubjects">The hit subjects.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        /// <returns><c>true</c> if match all from <c>source</c> and <c>hitSubjects</c> (including <c>hitSubjects</c> has no item), <c>false</c> otherwise.</returns>
+        public static bool MatchAll<T>(this IEnumerable<T> source, IEnumerable<T> hitSubjects, IEqualityComparer<T> equalityComparer = null)
+        {
+            if (source.HasItem())
+            {
+                if (!hitSubjects.HasItem())
+                {
+                    return true;
+                }
+
+                if (equalityComparer == null)
+                {
+                    equalityComparer = EqualityComparer<T>.Default;
+                }
+
+                foreach (var one in source)
+                {
+                    foreach (var item in hitSubjects)
+                    {
+                        if (!equalityComparer.Equals(one, item))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Subs the collection.
@@ -652,6 +818,87 @@ namespace Beyova
         }
 
         /// <summary>
+        /// SQLs the json to list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sqlJson">The SQL json.</param>
+        /// <returns>System.Collections.Generic.List&lt;T&gt;.</returns>
+        public static List<T> SqlJsonToList<T>(this object sqlJson)
+        {
+            return sqlJson?.ObjectToJToken()?.ToObject<List<T>>();
+        }
+
+        /// <summary>
+        /// Converts SQL the json to simple list.        
+        /// Example: Input [{item:x},{item:y}] + "item", then get [x,y]
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sqlJson">The SQL json.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <returns>System.Collections.Generic.List&lt;T&gt;.</returns>
+        public static List<T> SqlJsonToSimpleList<T>(this object sqlJson, string propertyName)
+        {
+            List<T> result = new List<T>();
+
+            if (!string.IsNullOrWhiteSpace(propertyName) && sqlJson != null)
+            {
+                var items = sqlJson?.ObjectToJToken();
+                if (items.HasItem())
+                {
+                    foreach (JObject one in items)
+                    {
+                        if (one != null)
+                        {
+                            result.AddIfNotNull(one.SafeGetValue<T>(propertyName));
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// SQLs the json to dictionary.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="sqlJson">The SQL json.</param>
+        /// <param name="keyPropertyName">Name of the key property.</param>
+        /// <param name="valuePropertyName">Name of the value property.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        /// <param name="useMerge">if set to <c>true</c> [use merge].</param>
+        /// <returns>Dictionary&lt;TKey, TValue&gt;.</returns>
+        public static Dictionary<TKey, TValue> SqlJsonToDictionary<TKey, TValue>(this object sqlJson, string keyPropertyName, string valuePropertyName, IEqualityComparer<TKey> equalityComparer = null, bool useMerge = false)
+        {
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>(equalityComparer ?? EqualityComparer<TKey>.Default);
+
+            if (!string.IsNullOrWhiteSpace(keyPropertyName) && !string.IsNullOrWhiteSpace(valuePropertyName) && sqlJson != null)
+            {
+                var items = sqlJson.ObjectToJToken();
+                if (items.HasItem())
+                {
+                    foreach (JObject one in items)
+                    {
+                        if (one != null)
+                        {
+                            if (useMerge)
+                            {
+                                result.Merge(one.SafeGetValue<TKey>(keyPropertyName), one.SafeGetValue<TValue>(valuePropertyName));
+                            }
+                            else
+                            {
+                                result.Add(one.SafeGetValue<TKey>(keyPropertyName), one.SafeGetValue<TValue>(valuePropertyName));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Joins the within format.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -687,6 +934,18 @@ namespace Beyova
         public static bool HasItem<T>(this IEnumerable<T> instance)
         {
             return instance != null && instance.Any();
+        }
+
+        /// <summary>
+        /// Determines whether the specified instance has item.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="objToMatch">The object to match.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool HasItem<T>(this IList<T> instance, T objToMatch)
+        {
+            return instance != null && instance.IndexOf(objToMatch) > -1;
         }
 
         /// <summary>
@@ -758,11 +1017,23 @@ namespace Beyova
                 return;
             }
 
-            var webDictionary = keyValueString.ParseToKeyValuePairCollection();
+            var webDictionary = keyValueString.ParseToNameValueCollection();
             foreach (string key in dictionary.Keys)
             {
                 dictionary.Add(key, webDictionary[key]);
             }
+        }
+
+        /// <summary>
+        /// Determines whether [contains] [the specified any string].
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="ignoreCase">The ignore case.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool Contains(this string anyString, char value, bool ignoreCase = false)
+        {
+            return Contains<char>(anyString.ToCharArray(), value, ignoreCase ? CharComparer.OrdinalIgnoreCase : CharComparer.Ordinal);
         }
 
         /// <summary>
@@ -773,11 +1044,35 @@ namespace Beyova
         /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
         /// <returns>
         ///   <c>true</c> if [contains] [the specified string array]; otherwise, <c>false</c>.</returns>
-        public static bool Contains(this string[] stringArray, string value, bool ignoreCase = false)
+        public static bool Contains(this string[] stringArray, string value, bool ignoreCase)
         {
-            if (stringArray != null)
+            return Contains(stringArray, value, ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+        }
+
+        /// <summary>
+        /// Determines whether [contains] [the specified array].
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="array">The array.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool Contains<T>(this T[] array, T value, IEqualityComparer<T> equalityComparer = null)
+        {
+            if (array != null && value != null)
             {
-                return (stringArray as IEnumerable<string>).Contains(value, ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+                if (equalityComparer == null)
+                {
+                    equalityComparer = EqualityComparer<T>.Default;
+                }
+
+                for (var i = 0; i < array.Length; i++)
+                {
+                    if (equalityComparer.Equals(array[i], value))
+                    {
+                        return true;
+                    }
+                }
             }
 
             return false;
@@ -795,7 +1090,7 @@ namespace Beyova
         /// <returns>System.Boolean.</returns>
         public static bool Contains<TEntity, TFactor>(this IEnumerable<TEntity> collection, TFactor factor, Func<TEntity, TFactor> selector, IEqualityComparer<TFactor> equalityComparer = null)
         {
-            return (collection != null && collection.Any() && selector != null)
+            return (collection.HasItem() && selector != null)
                 && collection.Any(x =>
              {
                  return (equalityComparer ?? EqualityComparer<TFactor>.Default).Equals(selector(x), factor);
@@ -816,7 +1111,7 @@ namespace Beyova
         /// </returns>
         public static bool Contains<TEntity, TFactor>(this IEnumerable<TEntity> collection, TFactor factor, Func<TEntity, TFactor> selector, Func<TFactor, TFactor, bool> equalityComparer)
         {
-            return (collection != null && collection.Any() && selector != null)
+            return (collection.HasItem() && selector != null)
                 && collection.Any(x =>
                 {
                     return (equalityComparer ?? EqualityComparer<TFactor>.Default.Equals)(factor, selector(x));
@@ -836,7 +1131,7 @@ namespace Beyova
         /// <returns>System.Boolean.</returns>
         public static bool Contains<TKey, TValue, TFactor>(this IDictionary<TKey, TValue> dictionary, TFactor factor, Func<TValue, TFactor> selector, IEqualityComparer<TFactor> equalityComparer = null)
         {
-            return (dictionary != null && dictionary.Any() && selector != null)
+            return (dictionary.HasItem() && selector != null)
                 && dictionary.Any(x =>
                 {
                     return (equalityComparer ?? EqualityComparer<TFactor>.Default).Equals(selector(x.Value), factor);
@@ -940,7 +1235,7 @@ namespace Beyova
         /// <returns>List&lt;T&gt;.</returns>
         public static List<T> AsList<T>(this T anyObject)
         {
-            return anyObject != null ? new List<T> { anyObject } : new List<T>();
+            return anyObject != null ? new List<T>() { anyObject } : new List<T>();
         }
 
         /// <summary>
@@ -987,6 +1282,36 @@ namespace Beyova
         public static Dictionary<TKey, TValue> AsDictionary<TKey, TValue>(this TValue anyObject, TKey key)
         {
             return anyObject == null ? new Dictionary<TKey, TValue>() : new Dictionary<TKey, TValue>() { { key, anyObject } };
+        }
+
+        /// <summary>
+        /// Ases the dictionary.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the t key.</typeparam>
+        /// <typeparam name="TValue">The type of the t value.</typeparam>
+        /// <param name="anyObject">Any object.</param>
+        /// <param name="keyGetter">The key getter.</param>
+        /// <param name="keyEqualityComparer">The key equality comparer.</param>
+        /// <param name="overrideIfExists">The override if exists.</param>
+        /// <returns>System.Collections.Generic.Dictionary&lt;TKey, TValue&gt;.</returns>
+        public static Dictionary<TKey, TValue> AsDictionary<TKey, TValue>(this IEnumerable<TValue> anyObject, Func<TValue, TKey> keyGetter, IEqualityComparer<TKey> keyEqualityComparer = null, bool overrideIfExists = false)
+        {
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>(keyEqualityComparer ?? EqualityComparer<TKey>.Default);
+
+            if (anyObject.HasItem() && keyGetter != null)
+            {
+                foreach (var one in anyObject)
+                {
+                    var key = keyGetter(one);
+
+                    if (key != null)
+                    {
+                        result.Merge(keyGetter(one), one, overrideIfExists);
+                    }
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -1085,11 +1410,11 @@ namespace Beyova
         /// <typeparam name="T"></typeparam>
         /// <param name="item1">The item1.</param>
         /// <param name="item2">The item2.</param>
-        /// <param name="keepDuplicated">if set to <c>true</c> [keep duplicated].</param>
+        /// <param name="allowDuplicated">if set to <c>true</c> [allow duplicated].</param>
         /// <returns></returns>
-        public static ICollection<T> Union<T>(this IEnumerable<T> item1, IEnumerable<T> item2, bool keepDuplicated = false)
+        public static ICollection<T> Union<T>(this IEnumerable<T> item1, IEnumerable<T> item2, bool allowDuplicated = false)
         {
-            var container = keepDuplicated ? new List<T>() : new HashSet<T>() as ICollection<T>;
+            var container = allowDuplicated ? new List<T>() : new HashSet<T>() as ICollection<T>;
 
             if (item1 != null)
             {
@@ -1154,7 +1479,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the or add.
+        /// Gets the or create.
         /// </summary>
         /// <typeparam name="TKey">The type of the t key.</typeparam>
         /// <typeparam name="TValue">The type of the t value.</typeparam>
@@ -1162,7 +1487,7 @@ namespace Beyova
         /// <param name="key">The key.</param>
         /// <param name="valueForCreate">The value for create.</param>
         /// <returns>TValue.</returns>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue valueForCreate = default(TValue))
+        public static TValue GetOrCreate<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue valueForCreate = default(TValue))
         {
             if (instance != null && key != null)
             {
@@ -1223,22 +1548,6 @@ namespace Beyova
                 instance.Clear();
                 instance.Merge(keyValueCollection);
             }
-        }
-
-        /// <summary>
-        /// To the key value collection.
-        /// </summary>
-        /// <typeparam name="TKey">T of the key.</typeparam>
-        /// <typeparam name="TValue">T of the value.</typeparam>
-        /// <param name="instance">The instance.</param>
-        /// <returns>
-        /// List{KeyValuePair{``0``1}}.
-        /// </returns>
-        public static List<KeyValuePair<TKey, TValue>> ToKeyValueCollection<TKey, TValue>(this Dictionary<TKey, TValue> instance)
-        {
-            return instance != null
-                                ? instance.Keys.Select(key => new KeyValuePair<TKey, TValue>(key, instance[key])).ToList()
-                                : null;
         }
 
         /// <summary>
@@ -1363,33 +1672,6 @@ namespace Beyova
             }
 
             return total;
-        }
-
-        /// <summary>
-        /// Fills the by XML.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="instance">The instance.</param>
-        /// <param name="xml">The XML.</param>
-        /// <param name="clearExisting">if set to <c>true</c> [clear existing].</param>
-        public static void FillByXml<TKey, TValue>(this Dictionary<TKey, TValue> instance, XElement xml, bool clearExisting = false)
-        {
-            if (instance != null && xml != null)
-            {
-                var tmp = new SerializableDictionary<TKey, TValue>();
-                tmp.FillByXml(xml);
-
-                if (clearExisting)
-                {
-                    instance.Clear();
-                }
-
-                foreach (var key in tmp.Keys)
-                {
-                    instance.Merge(key, tmp[key]);
-                }
-            }
         }
 
         /// <summary>

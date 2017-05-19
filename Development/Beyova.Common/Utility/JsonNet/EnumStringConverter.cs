@@ -9,7 +9,7 @@ namespace Beyova
     public class EnumStringConverter : JsonConverter
     {
         /// <summary>
-        /// 
+        /// Enum EnumStringNamingRule
         /// </summary>
         public enum EnumStringNamingRule
         {

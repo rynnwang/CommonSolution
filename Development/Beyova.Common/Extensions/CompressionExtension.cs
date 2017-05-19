@@ -25,21 +25,23 @@ namespace Beyova
             {
                 try
                 {
-                    var memoryStream = new MemoryStream();
-                    using (var gZipStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
+                    using (var memoryStream = new MemoryStream())
                     {
-                        gZipStream.Write(bytesObject, 0, bytesObject.Length);
+                        using (var gZipStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
+                        {
+                            gZipStream.Write(bytesObject, 0, bytesObject.Length);
+                        }
+
+                        memoryStream.Position = 0;
+
+                        var compressedData = new byte[memoryStream.Length];
+                        memoryStream.Read(compressedData, 0, compressedData.Length);
+
+                        var gZipBuffer = new byte[compressedData.Length + 4];
+                        Buffer.BlockCopy(compressedData, 0, gZipBuffer, 4, compressedData.Length);
+                        Buffer.BlockCopy(BitConverter.GetBytes(bytesObject.Length), 0, gZipBuffer, 0, 4);
+                        return Convert.ToBase64String(gZipBuffer);
                     }
-
-                    memoryStream.Position = 0;
-
-                    var compressedData = new byte[memoryStream.Length];
-                    memoryStream.Read(compressedData, 0, compressedData.Length);
-
-                    var gZipBuffer = new byte[compressedData.Length + 4];
-                    Buffer.BlockCopy(compressedData, 0, gZipBuffer, 4, compressedData.Length);
-                    Buffer.BlockCopy(BitConverter.GetBytes(bytesObject.Length), 0, gZipBuffer, 0, 4);
-                    return Convert.ToBase64String(gZipBuffer);
                 }
                 catch (Exception ex)
                 {
@@ -214,8 +216,8 @@ namespace Beyova
         {
             try
             {
-                archive.CheckNullObject("archive");
-                entryPathToExtract.CheckEmptyString("entryPathToExtract");
+                archive.CheckNullObject(nameof(archive));
+                entryPathToExtract.CheckEmptyString(nameof(entryPathToExtract));
 
                 return archive.GetEntry(entryPathToExtract);
             }
@@ -236,8 +238,8 @@ namespace Beyova
         {
             try
             {
-                zipFileStreamToOpen.CheckNullObject("zipFileStreamToOpen");
-                entryPathToExtract.CheckEmptyString("entryPathToExtract");
+                zipFileStreamToOpen.CheckNullObject(nameof(zipFileStreamToOpen));
+                entryPathToExtract.CheckEmptyString(nameof(entryPathToExtract));
 
                 using (var archive = new ZipArchive(zipFileStreamToOpen, ZipArchiveMode.Read))
                 {
@@ -260,8 +262,8 @@ namespace Beyova
         {
             try
             {
-                zipFileStreamToOpen.CheckNullObject("zipFileStreamToOpen");
-                entryPathToExtract.CheckEmptyString("entryPathToExtract");
+                zipFileStreamToOpen.CheckNullObject(nameof(zipFileStreamToOpen));
+                entryPathToExtract.CheckEmptyString(nameof(entryPathToExtract));
 
                 using (var archive = new ZipArchive(zipFileStreamToOpen, ZipArchiveMode.Read))
                 {
@@ -299,7 +301,7 @@ namespace Beyova
         {
             try
             {
-                items.CheckNullObject("items");
+                items.CheckNullObject(nameof(items));
 
                 using (var memoryStream = new MemoryStream())
                 {
@@ -337,8 +339,8 @@ namespace Beyova
         {
             try
             {
-                bytes.CheckNullObject("bytes");
-                fileName.CheckEmptyString("fileName");
+                bytes.CheckNullObject(nameof(bytes));
+                fileName.CheckEmptyString(nameof(fileName));
 
                 var fileToZip = new Dictionary<string, byte[]> { { fileName, bytes } };
                 return ZipAsBytes(fileToZip, compressionLevel);
@@ -359,7 +361,7 @@ namespace Beyova
         {
             try
             {
-                destinationPath.CheckNullObject("destinationPath");
+                destinationPath.CheckNullObject(nameof(destinationPath));
                 File.WriteAllBytes(destinationPath, items.ZipAsBytes(compressionLevel));
             }
             catch (Exception ex)
@@ -379,8 +381,8 @@ namespace Beyova
         {
             try
             {
-                destinationPath.CheckNullObject("destinationPath");
-                fileName.CheckEmptyString("fileName");
+                destinationPath.CheckNullObject(nameof(destinationPath));
+                fileName.CheckEmptyString(nameof(fileName));
 
                 File.WriteAllBytes(destinationPath, bytes.ZipAsBytes(fileName, compressionLevel));
             }

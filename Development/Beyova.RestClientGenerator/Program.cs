@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Beyova.CommonService.DataAccessController;
 using Beyova.CommonServiceInterface;
+using Beyova.ProgrammingIntelligence;
 using Beyova.RestApi;
 
 namespace Beyova.RestClientGenerator

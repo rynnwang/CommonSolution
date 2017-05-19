@@ -3,7 +3,8 @@
     /// <summary>
     /// Class AuthenticationRequest.
     /// </summary>
-    public class AuthenticationRequest : AccessCredential
+    /// <typeparam name="T"></typeparam>
+    public class AuthenticationRequest<T> : AccessCredential
     {
         /// <summary>
         /// Gets or sets the platform.
@@ -22,5 +23,24 @@
         /// </summary>
         /// <value>The device identifier.</value>
         public string DeviceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the device.
+        /// </summary>
+        /// <value>The name of the device.</value>
+        public string DeviceName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the realm.
+        /// </summary>
+        /// <value>The realm.</value>
+        public T Realm { get; set; }
+    }
+
+    /// <summary>
+    /// Class AuthenticationRequest.
+    /// </summary>
+    public class AuthenticationRequest : AuthenticationRequest<string>
+    {
     }
 }

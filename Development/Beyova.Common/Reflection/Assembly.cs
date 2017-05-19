@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Beyova.ProgrammingIntelligence;
 
 namespace Beyova
 {
@@ -23,12 +25,12 @@ namespace Beyova
         /// <summary>
         /// The generic regex
         /// </summary>
-        private static Regex genericClassRegex = new Regex(@"(?<TypeName>([\w\.]+`([0-9]+)))\[(?<GenericTypeName>(([\w\.\[\],`]+)))\]", RegexOptions.Compiled);
+        private static Regex genericClassRegex = new Regex(@"(?<TypeName>([\w\.]+`([0-9]+)))\[(?<GenericTypeName>(([\w\s,\.\[\],`]+)))\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// The generic code look class regex
         /// </summary>
-        private static Regex genericCodeLookClassRegex = new Regex(@"(?<TypeName>([\w\.]+))\<(?<GenericTypeName>(([\w\.\[\],`]+)))\>", RegexOptions.Compiled);
+        private static Regex genericCodeLookClassRegex = new Regex(@"(?<TypeName>([\w\.]+))\<(?<GenericTypeName>(([\w\s,\.\[\],`]+)))\>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Gets the application domain assemblies.
@@ -38,6 +40,58 @@ namespace Beyova
         public static ICollection<Assembly> GetAppDomainAssemblies(AppDomain appDomain = null)
         {
             return (appDomain ?? AppDomain.CurrentDomain).GetAssemblies();
+        }
+
+        /// <summary>
+        /// Gets the type.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        /// <param name="typeName">Name of the type.</param>
+        /// <param name="ignoreCase">The ignore case.</param>
+        /// <param name="throwException">The throw exception.</param>
+        /// <returns>System.Type.</returns>
+        public static Type GetType(this Assembly assembly, string typeName, bool ignoreCase, bool throwException = true)
+        {
+            Type type = null;
+
+            if (assembly != null && !string.IsNullOrWhiteSpace(typeName))
+            {
+                try
+                {
+                    foreach (var one in assembly.GetTypes())
+                    {
+                        if (one.Name.Equals(typeName, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)
+                            || one.FullName.Equals(typeName, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                        {
+                            type = one;
+                            break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (throwException)
+                    {
+                        throw ex.Handle(new { Assembly = assembly?.FullName, TypeName = typeName, IgnoreCase = ignoreCase });
+                    }
+                }
+            }
+
+            return type;
+        }
+
+        /// <summary>
+        /// Tries the type of the get.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        /// <param name="typeName">Name of the type.</param>
+        /// <param name="ignoreCase">The ignore case.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>System.Boolean.</returns>
+        public static bool TryGetType(this Assembly assembly, string typeName, bool ignoreCase, out Type type)
+        {
+            type = GetType(assembly, typeName, ignoreCase, false);
+            return type != null;
         }
 
         /// <summary>
@@ -66,7 +120,7 @@ namespace Beyova
         /// </summary>
         /// <param name="assemblyName">Name of the assembly.</param>
         /// <returns>System.Boolean.</returns>
-        public static bool IsSystemAssembly(this AssemblyName assemblyName)
+        internal static bool IsSystemAssembly(this AssemblyName assemblyName)
         {
             return assemblyName != null
                 && (assemblyName.Name.StartsWith("Microsoft.")
@@ -76,6 +130,65 @@ namespace Beyova
         }
 
         #region Property Info
+
+        /// <summary>
+        /// Gets the properties.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="bindingFlags">The binding flags.</param>
+        /// <param name="inherit">if set to <c>true</c> [inherit].</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns></returns>
+        public static List<PropertyInfo> GetProperties(this Type type, BindingFlags bindingFlags, bool inherit, Func<PropertyInfo, bool> filter = null)
+        {
+            if (type != null)
+            {
+                if (inherit)
+                {
+                    var properties = new HashSet<PropertyInfo>();
+                    InternalFillProperties(properties, type, bindingFlags, filter);
+                    return properties.ToList();
+                }
+                else
+                {
+                    var tmpResult = type.GetProperties(bindingFlags);
+                    return (filter == null ? tmpResult : tmpResult.Where(filter)).ToList();
+                }
+            }
+
+            return new List<PropertyInfo>();
+        }
+
+        /// <summary>
+        /// Internals the fill properties.
+        /// </summary>
+        /// <param name="properties">The properties.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="bindingFlags">The binding flags.</param>
+        /// <param name="filter">The filter.</param>
+        private static void InternalFillProperties(HashSet<PropertyInfo> properties, Type type, BindingFlags bindingFlags, Func<PropertyInfo, bool> filter = null)
+        {
+            if (properties != null && type != null)
+            {
+                if (type.BaseType != null && type.BaseType != typeof(object))
+                {
+                    InternalFillProperties(properties, type.BaseType, bindingFlags, filter);
+                }
+
+                foreach (var interfaceItem in type.GetInterfaces())
+                {
+                    InternalFillProperties(properties, interfaceItem, bindingFlags, filter);
+                }
+
+                foreach (var item in type.GetProperties(bindingFlags))
+                {
+                    if (filter == null || filter(item))
+                    {
+                        properties.Add(item);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Determines whether the specified property information is override.
@@ -287,6 +400,7 @@ namespace Beyova
             try
             {
                 typeName.CheckEmptyString(nameof(typeName));
+                typeName = typeName.Trim();
 
                 string baseTypeName;
                 string[] genericTypeNames;
@@ -317,7 +431,13 @@ namespace Beyova
 
                         if (assemblies != null)
                         {
-                            return assemblies.SelectMany(one => one.GetTypes()).FirstOrDefault(type => type.Name.Equals(typeName) || type.FullName.Equals(typeName));
+                            foreach (var one in assemblies)
+                            {
+                                if (!one.IsSystemAssembly() && one.TryGetType(typeName, false, out typeResult))
+                                {
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -456,6 +576,30 @@ namespace Beyova
         #endregion
 
         #region Extensions
+
+        /// <summary>
+        /// Determines whether [is base object].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is base object] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsBaseObject(this Type type)
+        {
+            return type != null && typeof(IBaseObject).IsAssignableFrom(type);
+        }
+
+        /// <summary>
+        /// Determines whether [is simple base object].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is simple base object] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsSimpleBaseObject(this Type type)
+        {
+            return type != null && typeof(ISimpleBaseObject).IsAssignableFrom(type);
+        }
 
         /// <summary>
         /// Determines whether the specified type is nullable.
@@ -642,108 +786,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Methods the input parameters to code look.
-        /// </summary>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="includeType">Type of the include.</param>
-        /// <returns>System.String.</returns>
-        internal static string MethodInputParametersToCodeLook(this MethodInfo methodInfo, bool includeType = true)
-        {
-            StringBuilder builder = new StringBuilder();
-
-            if (methodInfo != null)
-            {
-                foreach (var param in methodInfo.GetParameters())
-                {
-                    if (includeType)
-                    {
-                        builder.AppendFormat("{0} {1},", param.ParameterType.ToCodeLook(true), param.Name);
-                    }
-                    else
-                    {
-                        builder.AppendFormat("{0},", param.Name);
-                    }
-                }
-            }
-
-            if (builder.Length > 0)
-            {
-                builder.RemoveLast();
-            }
-
-            return builder.ToString();
-        }
-
-        #region ToCodeLook
-
-        /// <summary>
-        /// To the code look.
-        /// </summary>
-        /// <param name="methodInfo">The method information.</param>
-        /// <param name="includeType">Type of the include.</param>
-        /// <returns>System.String.</returns>
-        internal static string ToCodeLook(this MethodInfo methodInfo, bool includeType = true)
-        {
-            return (methodInfo != null) ? string.Format("{0} {1}({2})", methodInfo.ReturnType.ToCodeLook(true), methodInfo.Name, methodInfo.MethodInputParametersToCodeLook(includeType)) : string.Empty;
-        }
-
-        /// <summary>
-        /// To the code look. This method is to convert <see cref="Type" /> to code based., such as List&lt;String&gt;, System.Nullable&lt;System.Guid&gt;, etc.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="includingNamespace">The including namespace.</param>
-        /// <param name="separator">The separator.</param>
-        /// <returns>System.String.</returns>
-        public static string ToCodeLook(this Type type, bool includingNamespace = false, string separator = ".")
-        {
-            string result = string.Empty;
-
-            if (type != null)
-            {
-                try
-                {
-                    if (type == typeof(void))
-                    {
-                        return "void";
-                    }
-                    else if (type.IsGenericParameter)
-                    {
-                        return type.Name;
-                    }
-
-                    if (type.IsGenericType)
-                    {
-                        var builder = new StringBuilder();
-                        foreach (var t in type.GetGenericArguments())
-                        {
-                            builder.Append(t.ToCodeLook(includingNamespace) + ",");
-                        }
-                        if (builder.Length > 0)
-                        {
-                            builder.RemoveLast();
-                        }
-                        result = includingNamespace ?
-                                string.Format("{0}{1}{2}<{3}>", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : separator, type.Name.SubStringBeforeFirstMatch('`'), builder) :
-                                string.Format("{0}<{1}>", type.Name.SubStringBeforeFirstMatch('`'), builder);
-                    }
-                    else
-                    {
-                        // NOTE: if type is come from generic method, like: T1 Method(T2 t), FullName would be null.
-                        result = includingNamespace ? string.Format("{0}{1}{2}", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : separator, type.Name) : type.Name;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw ex.Handle(new { type = type?.Name, includingNamespace, separator });
-                }
-            }
-
-            return result;
-        }
-
-        #endregion
-
-        /// <summary>
         /// Gets the parameter type from method info.
         /// </summary>
         /// <param name="methodInfo">The method info.</param>
@@ -847,6 +889,66 @@ namespace Beyova
         {
             return type == null ? null : (type == typeof(void)) as bool?;
         }
+
+        /// <summary>
+        /// Determines whether the specified default value is void.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="defaultValue">if set to <c>true</c> [default value].</param>
+        /// <returns>
+        ///   <c>true</c> if the specified default value is void; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsVoid(this Type type, bool defaultValue)
+        {
+            return type == null ? defaultValue : (type == typeof(void));
+        }
+
+        /// <summary>
+        /// Determines whether this instance is asynchronous.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified method is asynchronous; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsAsync(this MethodInfo method)
+        {
+            return method?.GetCustomAttribute<AsyncStateMachineAttribute>(true) != null;
+        }
+
+        /// <summary>
+        /// Determines whether this instance is task.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified type is task; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsTask(this Type type)
+        {
+            return type != null && typeof(Task).IsAssignableFrom(type);
+        }
+
+        /// <summary>
+        /// Gets the type of the task underlying. If given Task%lt;x%gt;, return x; given Task, return Void, otherwise return null.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public static Type GetTaskUnderlyingType(this Type type)
+        {
+            if (type == null || !typeof(Task).IsAssignableFrom(type))
+            {
+                return null;
+            }
+
+            if (type.IsGenericType)
+            {
+                return type.GetGenericArguments().FirstOrDefault();
+            }
+            else
+            {
+                return typeof(void);
+            }
+        }
+
 
         /// <summary>
         /// Gets the generic parameter names.
@@ -1061,7 +1163,7 @@ namespace Beyova
         {
             if (type != null && (requiredAttribute == null || type.GetCustomAttribute(requiredAttribute) != null))
             {
-                return type.ToCodeLook(true, ".");
+                return type.ToCodeLook();
             }
             else
             {
@@ -1085,6 +1187,4 @@ namespace Beyova
 
         #endregion
     }
-
-
 }

@@ -117,20 +117,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Creates the instance and invoke method.
-        /// </summary>
-        /// <param name="assemblyName">Name of the assembly.</param>
-        /// <param name="typeName">Name of the type.</param>
-        /// <param name="method">The method.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns>RemoteInvokeResult.</returns>
-        [Obsolete("Use InvokeRuntimeAssembly instead.", true)]
-        public SandboxInvokeResult CreateInstanceAndInvokeMethod(string assemblyName, string typeName, string method, params object[] parameters)
-        {
-            return CreateInstanceAndInvokeMethod(string.Format("{0}.{1}", assemblyName, typeName), method, parameters);
-        }
-
-        /// <summary>
         /// Invokes the runtime assembly.
         /// </summary>
         /// <param name="assemblyName">Name of the assembly.</param>

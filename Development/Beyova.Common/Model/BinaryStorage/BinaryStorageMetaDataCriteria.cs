@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageMetaDataCriteria.
     /// </summary>
-    public class BinaryStorageMetaDataCriteria : BinaryStorageIdentifier
+    public class BinaryStorageMetaDataCriteria : BinaryStorageIdentifier, IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the name.

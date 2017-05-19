@@ -18,7 +18,7 @@ namespace Beyova
         /// The HTTP request ignore properties
         /// </summary>
         protected static string[] httpRequestIgnoreProperties = new string[] {
-        "HttpContext","ServerVariables","Browser","HtmlTextWriter","ClrVersion","TagWriter","EcmaScriptVersion","MSDomVersion","W3CDomVersion","Unvalidated","Params"
+        "HttpContextBase","HttpContext","ServerVariables","Browser","HtmlTextWriter","ClrVersion","TagWriter","EcmaScriptVersion","MSDomVersion","W3CDomVersion","Unvalidated","Params"
         };
 
         /// <summary>

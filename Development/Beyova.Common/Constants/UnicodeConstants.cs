@@ -6,6 +6,16 @@
     public static class UnicodeConstants
     {
         /// <summary>
+        /// The smile face: ♥
+        /// </summary>
+        public const char Love = '♥';
+
+        /// <summary>
+        /// The love2
+        /// </summary>
+        public const char Love2 = '❤';
+
+        /// <summary>
         /// The smile face: ☺
         /// </summary>
         public const char SmileFace = '☺';

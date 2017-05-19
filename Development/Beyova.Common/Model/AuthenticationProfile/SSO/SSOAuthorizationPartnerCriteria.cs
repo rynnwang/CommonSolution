@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class SSOAuthorizationPartnerCriteria.
     /// </summary>
-    public class SSOAuthorizationPartnerCriteria
+    public class SSOAuthorizationPartnerCriteria : IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the key.

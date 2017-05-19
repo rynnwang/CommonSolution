@@ -1,4 +1,4 @@
-/**
+/*
  * Location.cs
  *
  * Copyright (C) 2008 MaxMind Inc.  All Rights Reserved.
@@ -21,26 +21,77 @@
 
 using System;
 using System.IO;
-//using System.Math;
 
-public class Location {
+/// <summary>
+/// Class Location.
+/// </summary>
+public class Location
+{
+    /// <summary>
+    /// The country code
+    /// </summary>
     public String countryCode;
+    /// <summary>
+    /// The country name
+    /// </summary>
     public String countryName;
+    /// <summary>
+    /// The region
+    /// </summary>
     public String region;
+    /// <summary>
+    /// The city
+    /// </summary>
     public String city;
+    /// <summary>
+    /// The postal code
+    /// </summary>
     public String postalCode;
+    /// <summary>
+    /// The latitude
+    /// </summary>
     public double latitude;
+    /// <summary>
+    /// The longitude
+    /// </summary>
     public double longitude;
+    /// <summary>
+    /// The dma_code
+    /// </summary>
     public int dma_code;
+    /// <summary>
+    /// The area_code
+    /// </summary>
     public int area_code;
+    /// <summary>
+    /// The region name
+    /// </summary>
     public String regionName;
+    /// <summary>
+    /// The metro_code
+    /// </summary>
     public int metro_code;
 
+    /// <summary>
+    /// The eart h_ diameter
+    /// </summary>
     private static double EARTH_DIAMETER = 2 * 6378.2;
+    /// <summary>
+    /// The pi
+    /// </summary>
     private static double PI = 3.14159265;
+    /// <summary>
+    /// The ra d_ convert
+    /// </summary>
     private static double RAD_CONVERT = PI / 180;
 
-    public double distance (Location loc) {
+    /// <summary>
+    /// Distances the specified loc.
+    /// </summary>
+    /// <param name="loc">The loc.</param>
+    /// <returns>System.Double.</returns>
+    public double distance(Location loc)
+    {
         double delta_lat, delta_lon;
         double temp;
 
@@ -58,8 +109,8 @@ public class Location {
         delta_lon = (lon2 - lon1) * RAD_CONVERT;
 
         // Find the great circle distance
-        temp = Math.Pow(Math.Sin(delta_lat/2),2) + Math.Cos(lat1) * Math.Cos(lat2) * Math.Pow(Math.Sin(delta_lon/2),2);
-        return EARTH_DIAMETER * Math.Atan2(Math.Sqrt(temp),Math.Sqrt(1-temp));
+        temp = Math.Pow(Math.Sin(delta_lat / 2), 2) + Math.Cos(lat1) * Math.Cos(lat2) * Math.Pow(Math.Sin(delta_lon / 2), 2);
+        return EARTH_DIAMETER * Math.Atan2(Math.Sqrt(temp), Math.Sqrt(1 - temp));
     }
 }
 

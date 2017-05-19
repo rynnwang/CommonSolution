@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Beyova.Cache;
 
 namespace Beyova.RestApi
 {
@@ -34,6 +35,12 @@ namespace Beyova.RestApi
         public string ResourceName { get; set; }
 
         /// <summary>
+        /// Gets or sets the realm.
+        /// </summary>
+        /// <value>The realm.</value>
+        public string Realm { get; set; }
+
+        /// <summary>
         /// Gets or sets the version.
         /// </summary>
         /// <value>The version.</value>
@@ -56,12 +63,6 @@ namespace Beyova.RestApi
         /// </summary>
         /// <value><c>true</c> if this instance is action used; otherwise, <c>false</c>.</value>
         public bool IsActionUsed { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the module.
-        /// </summary>
-        /// <value>The name of the module.</value>
-        public string ModuleName { get; set; }
 
         /// <summary>
         /// Gets or sets the settings.
@@ -110,5 +111,47 @@ namespace Beyova.RestApi
         /// </summary>
         /// <value>The customized header keys.</value>
         public List<string> CustomizedHeaderKeys { get; set; }
+
+        /// <summary>
+        /// Gets the operation parameters.
+        /// </summary>
+        /// <value>The operation parameters.</value>
+        internal RuntimeApiOperationParameters OperationParameters { get; set; }
+
+        #region Cache
+
+        /// <summary>
+        /// Gets or sets the API cache status.
+        /// </summary>
+        /// <value>
+        /// The API cache status.
+        /// </value>
+        internal ApiCacheStatus ApiCacheStatus { get; set; }
+
+        /// <summary>
+        /// Gets or sets the API cache identity.
+        /// </summary>
+        /// <value>
+        /// The API cache identity.
+        /// </value>
+        internal string ApiCacheIdentity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the API cache container.
+        /// </summary>
+        /// <value>
+        /// The API cache container.
+        /// </value>
+        internal ApiCacheContainer ApiCacheContainer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cached response body.
+        /// </summary>
+        /// <value>
+        /// The cached response body.
+        /// </value>
+        internal string CachedResponseBody { get; set; }
+
+        #endregion
     }
 }

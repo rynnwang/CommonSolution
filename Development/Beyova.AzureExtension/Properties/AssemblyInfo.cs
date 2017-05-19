@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Beyova;
 using Beyova.ProgrammingIntelligence;
 
 // General Information about an assembly is controlled through the following 
@@ -8,13 +9,14 @@ using Beyova.ProgrammingIntelligence;
 // associated with an assembly.
 [assembly: AssemblyTitle("Beyova.AzureExtension")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyDescription("All Rights reserved.")]
-[assembly: AssemblyCompany("Beyova Co.,Ltd.")]
 [assembly: AssemblyProduct("Beyova.AzureExtension")]
-[assembly: AssemblyCopyright("Copyright © 2014 - 2016")]
-[assembly: AssemblyTrademark("Beyova")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.AzureExtension", "2.2.8")]
+[assembly: BeyovaComponent("Beyova.AzureExtension", "2.4.0")]
+
+[assembly: AssemblyDescription(BeyovaPropertyConstants.AssemblyDescription)]
+[assembly: AssemblyCompany(BeyovaPropertyConstants.Company)]
+[assembly: AssemblyCopyright(BeyovaPropertyConstants.Copyright)]
+[assembly: AssemblyTrademark(BeyovaPropertyConstants.AssemblyTrademark)]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

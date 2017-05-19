@@ -11,12 +11,12 @@ namespace Beyova
         /// Gets or sets the latitude.
         /// </summary>
         /// <value>The latitude.</value>
-        double? Latitude { get; set; }
+        decimal? Latitude { get; set; }
 
         /// <summary>
         /// Gets or sets the longitude.
         /// </summary>
         /// <value>The longitude.</value>
-        double? Longitude { get; set; }
+        decimal? Longitude { get; set; }
     }
 }

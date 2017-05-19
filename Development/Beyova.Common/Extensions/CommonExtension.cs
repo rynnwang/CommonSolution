@@ -40,14 +40,81 @@ namespace Beyova
         public const string dateFormat = "yyyy-MM-dd";
 
         /// <summary>
-        /// The date time format for commonly use. Format can be used in ToString method of <c>DateTime</c>, whose result should be like 2012/12/01.
-        /// </summary>
-        public const string westenDateFormat = "yyyy/MM/dd";
-
-        /// <summary>
         /// The full date time tz format
         /// </summary>
         public const string fullDateTimeTZFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+
+        #endregion
+
+        #region Or + And
+
+        /// <summary>
+        /// Ors the specified match object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="matchObject">The match object.</param>
+        /// <param name="collection">The collection.</param>
+        /// <param name="comparer">The comparer.</param>
+        /// <returns><c>true</c> if match object is NOT null and equals any of given collection, <c>false</c> otherwise.</returns>
+        public static bool Or<T>(this T matchObject, IEnumerable<T> collection, IEqualityComparer<T> comparer = null)
+        {
+            if (matchObject != null)
+            {
+                if (collection.HasItem())
+                {
+                    if (comparer == null)
+                    {
+                        comparer = EqualityComparer<T>.Default;
+                    }
+
+                    foreach (var one in collection)
+                    {
+                        if (comparer.Equals(one, matchObject))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Ands the specified collection.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="matchObject">The match object.</param>
+        /// <param name="collection">The collection.</param>
+        /// <param name="comparer">The comparer.</param>
+        /// <returns>
+        ///   <c>true</c> if match object is NOT null and equals all of given collection, <c>false</c> otherwise.
+        /// </returns>
+        public static bool And<T>(this T matchObject, IEnumerable<T> collection, IEqualityComparer<T> comparer = null)
+        {
+            if (matchObject != null)
+            {
+                if (collection.HasItem())
+                {
+                    if (comparer == null)
+                    {
+                        comparer = EqualityComparer<T>.Default;
+                    }
+
+                    foreach (var one in collection)
+                    {
+                        if (!comparer.Equals(one, matchObject))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        }
 
         #endregion
 
@@ -337,6 +404,43 @@ namespace Beyova
         #region Object To XXX
 
         /// <summary>
+        /// Objects to nullable enum.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of the enum.</typeparam>
+        /// <param name="data">The data.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns></returns>
+        public static TEnum? ObjectToNullableEnum<TEnum>(this object data, TEnum? defaultValue = null)
+            where TEnum : struct, IConvertible
+        {
+            int result;
+            TEnum? returnObject;
+            if (data == null || data == DBNull.Value || !int.TryParse(data.ToString(), out result))
+            {
+                returnObject = defaultValue;
+            }
+            else
+            {
+                returnObject = (TEnum)Enum.ToObject(typeof(TEnum), result);
+            }
+
+            return returnObject;
+        }
+
+        /// <summary>
+        /// Objects to enum.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of the enum.</typeparam>
+        /// <param name="data">The data.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns></returns>
+        public static TEnum ObjectToEnum<TEnum>(this object data, TEnum defaultValue = default(TEnum))
+            where TEnum : struct, IConvertible
+        {
+            return ObjectToNullableEnum<TEnum>(data, defaultValue).Value;
+        }
+
+        /// <summary>
         /// To double.
         /// </summary>
         /// <param name="data">The data.</param>
@@ -502,6 +606,32 @@ namespace Beyova
         public static DateTime ObjectToDateTime(this object data, DateTime defaultValue)
         {
             return ObjectToDateTime(data) ?? defaultValue;
+        }
+
+        /// <summary>
+        /// To the date time.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="style">The style.</param>
+        /// <returns>System.Nullable&lt;System.DateTime&gt;.</returns>
+        public static DateTime? ToDateTime(this string data, string format = null, DateTimeStyles style = DateTimeStyles.AssumeUniversal)
+        {
+            DateTime dateTime;
+            return DateTime.TryParseExact(data, format.SafeToString(fullDateTimeTZFormat), CultureInfo.InvariantCulture, style, out dateTime) ? dateTime : null as DateTime?;
+        }
+
+        /// <summary>
+        /// To the date time.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="style">The style.</param>
+        /// <returns>System.DateTime.</returns>
+        public static DateTime ToDateTime(this string data, DateTime defaultValue, string format = null, DateTimeStyles style = DateTimeStyles.AssumeUniversal)
+        {
+            return ToDateTime(data, format, style) ?? defaultValue;
         }
 
         /// <summary>
@@ -707,24 +837,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the culture info.
-        /// </summary>
-        /// <param name="stringObject">The string object.</param>
-        /// <param name="defaultCultureInfo">The default culture information.</param>
-        /// <returns>CultureInfo.</returns>
-        public static CultureInfo ToCultureInfo(this string stringObject, CultureInfo defaultCultureInfo = null)
-        {
-            try
-            {
-                return new CultureInfo(stringObject);
-            }
-            catch
-            {
-                return defaultCultureInfo;
-            }
-        }
-
-        /// <summary>
         /// To the int32.
         /// </summary>
         /// <param name="stringObject">The string object.</param>
@@ -813,20 +925,6 @@ namespace Beyova
             Decimal result = defaultValue;
             Decimal.TryParse(stringObject, out result);
             return result;
-        }
-
-        /// <summary>
-        /// To the double.
-        /// </summary>
-        /// <param name="stringObject">The string object.</param>
-        /// <param name="defaultDateTime">The default date time.</param>
-        /// <returns>System.Nullable{DateTime}.</returns>
-        public static DateTime? ToDouble(this string stringObject, DateTime? defaultDateTime = null)
-        {
-            DateTime output;
-            return DateTime.TryParseExact(stringObject, dateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out output) ?
-                output
-                : defaultDateTime;
         }
 
         /// <summary>
@@ -942,45 +1040,45 @@ namespace Beyova
         }
 
         /// <summary>
-        /// To the JavaScript date time (milli-seconds).
+        /// To the unix milliseconds date time.
+        /// </summary>
+        /// <param name="dateTimeObject">The date time object.</param>
+        /// <returns>System.Nullable&lt;System.Int64&gt;.</returns>
+        public static long? ToUnixMillisecondsDateTime(this DateTime? dateTimeObject)
+        {
+            return dateTimeObject.HasValue ? (long?)ToUnixMillisecondsDateTime(dateTimeObject.Value) : null;
+        }
+
+        /// <summary>
+        /// To the unix milliseconds date time.
         /// </summary>
         /// <param name="dateTimeObject">The date time object.</param>
         /// <returns>System.Int64.</returns>
-        public static long ToJavaScriptMillisecondsDateTime(this DateTime dateTimeObject)
+        public static long ToUnixMillisecondsDateTime(this DateTime dateTimeObject)
         {
             return (long)((dateTimeObject - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds);
         }
 
         /// <summary>
-        /// To the JavaScript date time (seconds).
+        /// Converts Unix milliseconds to date time.
         /// </summary>
-        /// <param name="dateTimeObject">The date time object.</param>
-        /// <returns>System.Int64.</returns>
-        public static long ToJavaScriptSecondsDateTime(this DateTime dateTimeObject)
+        /// <param name="unixMilliseconds">The unix milliseconds.</param>
+        /// <param name="dateTimeKind">Kind of the date time.</param>
+        /// <returns>System.DateTime.</returns>
+        public static DateTime UnixMillisecondsToDateTime(this long unixMilliseconds, DateTimeKind dateTimeKind = DateTimeKind.Utc)
         {
-            return (long)((dateTimeObject - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
+            return new DateTime(1970, 1, 1, 0, 0, 0, dateTimeKind).AddMilliseconds(unixMilliseconds);
         }
 
         /// <summary>
-        /// Javas the script long milliseconds to date time.
+        /// Converts Unix milliseconds to date time.
         /// </summary>
-        /// <param name="javaScriptDateTimeTicks">The java script date time ticks (milli-seconds).</param>
+        /// <param name="unixMilliseconds">The unix milliseconds.</param>
         /// <param name="dateTimeKind">Kind of the date time.</param>
-        /// <returns>DateTime.</returns>
-        public static DateTime JavaScriptLongMillisecondsToDateTime(this long javaScriptDateTimeTicks, DateTimeKind dateTimeKind = DateTimeKind.Utc)
+        /// <returns>System.Nullable&lt;System.DateTime&gt;.</returns>
+        public static DateTime? UnixMillisecondsToDateTime(this long? unixMilliseconds, DateTimeKind dateTimeKind = DateTimeKind.Utc)
         {
-            return new DateTime(1970, 1, 1, 0, 0, 0, dateTimeKind).AddMilliseconds(javaScriptDateTimeTicks);
-        }
-
-        /// <summary>
-        /// Javas the script long seconds to date time.
-        /// </summary>
-        /// <param name="javaScriptDateTimeSeconds">The java script date time seconds.</param>
-        /// <param name="dateTimeKind">Kind of the date time.</param>
-        /// <returns>DateTime.</returns>
-        public static DateTime JavaScriptLongSecondsToDateTime(this long javaScriptDateTimeSeconds, DateTimeKind dateTimeKind = DateTimeKind.Utc)
-        {
-            return new DateTime(1970, 1, 1, 0, 0, 0, dateTimeKind).AddSeconds(javaScriptDateTimeSeconds);
+            return unixMilliseconds.HasValue ? (DateTime?)UnixMillisecondsToDateTime(unixMilliseconds.Value, dateTimeKind) : null;
         }
 
         /// <summary>
@@ -1685,6 +1783,19 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Parses to enum.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumValue">The enum value.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>T.</returns>
+        public static T ParseToEnum<T>(this int enumValue, T defaultValue = default(T)) where T : struct, IConvertible
+        {
+            var enumType = typeof(T);
+            return (Enum.IsDefined(enumType, enumValue)) ? (T)Enum.ToObject(typeof(T), enumValue) : defaultValue;
+        }
+
+        /// <summary>
         /// Adds the enum flag.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1752,5 +1863,100 @@ namespace Beyova
         }
 
         #endregion
+
+        #region Ensure & Testify
+
+        /// <summary>
+        /// Ensures the specified object. If <c>ensureCondition</c> output is false, use <c>defaultValue</c> instead.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">The object.</param>
+        /// <param name="ensureCondition">The ensure condition.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>T.</returns>
+        public static T Ensure<T>(this T obj, Func<T, bool> ensureCondition, T defaultValue = default(T))
+        {
+            return (ensureCondition != null && !ensureCondition(obj)) ? defaultValue : obj;
+        }
+
+        /// <summary>
+        /// Testifies the specified object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">The object.</param>
+        /// <param name="objectName">Name of the object.</param>
+        /// <param name="ensureCondition">The ensure condition.</param>
+        public static void Testify<T>(this T obj, string objectName, Func<T, bool> ensureCondition)
+        {
+            if (ensureCondition != null && !ensureCondition(obj))
+            {
+                throw ExceptionFactory.CreateInvalidObjectException(objectName, obj);
+            }
+        }
+
+        /// <summary>
+        /// The is int32 natural
+        /// </summary>
+        static Func<int, bool> isInt32Natural = x => x >= 0;
+
+        /// <summary>
+        /// The is int64 natural
+        /// </summary>
+        static Func<long, bool> isInt64Natural = x => x >= 0;
+
+        /// <summary>
+        /// Ensures the natural number.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>System.Int32.</returns>
+        public static int EnsureNaturalNumber(this int value, int defaultValue = 0)
+        {
+            return Ensure(value, isInt32Natural, defaultValue);
+        }
+
+        /// <summary>
+        /// Testifies the natural number.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="objectName">Name of the object.</param>
+        public static void TestifyNaturalNumber(this int value, string objectName)
+        {
+            Testify(value, objectName, isInt32Natural);
+        }
+
+        /// <summary>
+        /// Ensures the natural number.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>System.Int64.</returns>
+        public static long EnsureNaturalNumber(this long value, int defaultValue = 0)
+        {
+            return Ensure(value, isInt64Natural, defaultValue);
+        }
+
+        /// <summary>
+        /// Testifies the natural number.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="objectName">Name of the object.</param>
+        public static void TestifyNaturalNumber(this long value, string objectName)
+        {
+            Testify(value, objectName, isInt64Natural);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <param name="dateTime">The date time.</param>
+        /// <param name="format">The format.</param>
+        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
+        public static string ToString(this DateTime? dateTime, string format)
+        {
+            return dateTime.HasValue ? dateTime.ToString(format.SafeToString(fullDateTimeTZFormat)) : string.Empty;
+        }
     }
 }

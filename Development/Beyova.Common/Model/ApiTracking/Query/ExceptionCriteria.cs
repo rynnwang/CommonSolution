@@ -50,7 +50,7 @@ namespace Beyova.ApiTracking
         /// Gets or sets the scene.
         /// </summary>
         /// <value>The scene.</value>
-        public string Scene { get; set; }
+        public string Scene { get; set; } 
 
         #endregion
 

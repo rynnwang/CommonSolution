@@ -6,7 +6,7 @@ namespace Beyova
     /// <summary>
     /// Class UserPreferenceCriteria.
     /// </summary>
-    public class UserPreferenceCriteria
+    public class UserPreferenceCriteria : IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the realm. Realm can be used based on App, Application, Product, etc.

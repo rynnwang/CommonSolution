@@ -10,7 +10,6 @@ using System.Web;
 using Beyova.ExceptionSystem;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Beyova;
 using Beyova.RestApi;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
@@ -44,15 +43,17 @@ namespace Beyova
         static Regex uriCredentialRegex = new Regex(@"^((?<AccessIdentifier>([0-9a-zA-Z\._-]+))(:(?<Token>(.+)))?@(?<Domain>([0-9a-zA-Z_\.-]+)))$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
-        /// Gets the pure URI.
+        /// Gets the primary URI. Get primary part like: http://google.com/, ignore the rest.
         /// </summary>
         /// <param name="uri">The URI.</param>
-        /// <param name="userInfo">The user information.</param>
         /// <returns>System.String.</returns>
-        public static string GetPureUri(this Uri uri, out string userInfo)
+        public static string GetPrimaryUri(this Uri uri)
         {
-            userInfo = uri.UserInfo;
-            return string.Format("{0}://{1}{2}", uri.Scheme, uri.Host, uri.PathAndQuery);
+            if (uri == null)
+            {
+                return null;
+            }
+            return uri.IsDefaultPort ? string.Format("{0}://{1}/", uri.Scheme, uri.Host) : string.Format("{0}://{1}:{2}/", uri.Scheme, uri.Host, uri.Port);
         }
 
         /// <summary>
@@ -264,9 +265,9 @@ namespace Beyova
         {
             try
             {
-                httpWebRequest.CheckNullObject("httpWebRequest");
+                httpWebRequest.CheckNullObject(nameof(httpWebRequest));
 
-                if (timeout != null)
+                if (timeout.HasValue)
                 {
                     httpWebRequest.Timeout = timeout.Value;
                 }
@@ -292,7 +293,7 @@ namespace Beyova
         {
             if (httpWebRequest != null)
             {
-                if (timeout != null)
+                if (timeout.HasValue)
                 {
                     httpWebRequest.Timeout = timeout.Value;
                 }
@@ -403,8 +404,6 @@ namespace Beyova
         /// <exception cref="OperationFailureException">ReadAsGZipText</exception>
         private static string InternalReadAsGZipText(this WebResponse webResponse, Encoding encoding, bool closeResponse)
         {
-            var stringBuilder = new StringBuilder();
-
             if (webResponse != null)
             {
                 try
@@ -413,13 +412,7 @@ namespace Beyova
                     {
                         using (var gZipStream = new GZipStream(responseStream, CompressionMode.Decompress))
                         {
-                            var buffer = new byte[2048];
-                            var length = gZipStream.Read(buffer, 0, 2048);
-                            while (length > 0)
-                            {
-                                stringBuilder.Append((encoding ?? Encoding.UTF8).GetString(buffer, 0, length));
-                                length = gZipStream.Read(buffer, 0, 2048);
-                            }
+                            return (encoding ?? Encoding.UTF8).GetString(gZipStream.ToBytes());
                         }
                     }
                 }
@@ -436,7 +429,7 @@ namespace Beyova
                 }
             }
 
-            return stringBuilder.ToString();
+            return string.Empty;
         }
 
         /// <summary>
@@ -595,25 +588,10 @@ namespace Beyova
         {
             if (httpWebRequest != null)
             {
-                var stringBuilder = new StringBuilder();
-                if (dataMappings != null)
-                {
-                    foreach (var key in dataMappings.Keys)
-                    {
-                        var value = dataMappings[key] ?? string.Empty;
-                        stringBuilder.Append(key + "=" + value.Trim() + "&");
-                    }
-
-                }
-                if (stringBuilder.Length > 0)
-                {
-                    stringBuilder.Remove(stringBuilder.Length - 1, 1);
-                }
-
-                var data = (encoding ?? Encoding.ASCII).GetBytes(stringBuilder.ToString());
+                var data = FormDataToBytes(dataMappings, encoding);
 
                 httpWebRequest.Method = method;
-                httpWebRequest.ContentType = "application/x-www-form-urlencoded";
+                httpWebRequest.ContentType = HttpConstants.ContentType.FormSubmit;
                 httpWebRequest.ContentLength = data.Length;
                 using (var stream = httpWebRequest.GetRequestStream())
                 {
@@ -685,7 +663,7 @@ namespace Beyova
         /// <param name="data">The data.</param>
         /// <param name="encodingToByte">The encoding to byte.</param>
         /// <param name="contentType">Type of the content.</param>
-        private static void InternalFillData(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType = "application/json")
+        private static void InternalFillData(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType = HttpConstants.ContentType.Json)
         {
             byte[] byteArray = null;
 
@@ -705,7 +683,7 @@ namespace Beyova
         /// <param name="method">The method.</param>
         /// <param name="data">The data.</param>
         /// <param name="contentType">Type of the content.</param>
-        public static void FillData(this HttpWebRequest httpWebRequest, string method, byte[] data, string contentType = "application/json")
+        public static void FillData(this HttpWebRequest httpWebRequest, string method, byte[] data, string contentType = HttpConstants.ContentType.Json)
         {
             InternalFillData(httpWebRequest, method, data, contentType);
         }
@@ -716,7 +694,7 @@ namespace Beyova
         /// <param name="httpWebRequest">The HTTP web request.</param>
         /// <param name="data">The data.</param>
         /// <param name="contentType">Type of the content.</param>
-        public static void FillData(this HttpWebRequest httpWebRequest, byte[] data, string contentType = "application/json")
+        public static void FillData(this HttpWebRequest httpWebRequest, byte[] data, string contentType = HttpConstants.ContentType.Json)
         {
             InternalFillData(httpWebRequest, null, data, contentType);
         }
@@ -728,7 +706,7 @@ namespace Beyova
         /// <param name="stream">The stream.</param>
         /// <param name="contentType">Type of the content.</param>
         /// <param name="method">The method.</param>
-        public static void FillData(this HttpWebRequest httpWebRequest, Stream stream, string contentType = "application/json", string method = null)
+        public static void FillData(this HttpWebRequest httpWebRequest, Stream stream, string contentType = HttpConstants.ContentType.Json, string method = null)
         {
             InternalFillData(httpWebRequest, method, stream, contentType);
         }
@@ -740,7 +718,7 @@ namespace Beyova
         /// <param name="method">The method.</param>
         /// <param name="data">The data.</param>
         /// <param name="contentType">Type of the content.</param>
-        public static void FillData(this HttpWebRequest httpWebRequest, string method, string data, string contentType = "application/json")
+        public static void FillData(this HttpWebRequest httpWebRequest, string method, string data, string contentType = HttpConstants.ContentType.Json)
         {
             InternalFillData(httpWebRequest, method, data, null, contentType);
         }
@@ -754,7 +732,8 @@ namespace Beyova
         /// <param name="contentType">Type of the content.</param>
         public static void FillData(this HttpWebRequest httpWebRequest, string data, Encoding encoding = null, string contentType = null)
         {
-            if (!string.IsNullOrWhiteSpace(data))
+            //data can be empty string or spaces, so only check null here.
+            if (data != null)
             {
                 InternalFillData(httpWebRequest, null, (encoding ?? Encoding.UTF8).GetBytes(data), contentType);
             }
@@ -768,7 +747,7 @@ namespace Beyova
         /// <param name="data">The data.</param>
         /// <param name="encodingToByte">The encoding to byte.</param>
         /// <param name="contentType">Type of the content.</param>
-        public static void FillData(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType = "application/json")
+        public static void FillData(this HttpWebRequest httpWebRequest, string method, string data, Encoding encodingToByte, string contentType = HttpConstants.ContentType.Json)
         {
             byte[] byteArray = null;
 
@@ -1282,9 +1261,9 @@ namespace Beyova
         #region CreateHttpWebRequestByRaw
 
         /// <summary>
-        /// The raw request seperator regex
+        /// The raw request separator regex
         /// </summary>
-        private static Regex rawRequestSeperatorRegex = new Regex(@"((\s|\t)*((\r|\n)+)(\s|\t)*)+", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static Regex rawRequestSeparatorRegex = new Regex(@"((\s|\t)*((\r|\n)+)(\s|\t)*)+", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// The header regex
@@ -1327,7 +1306,7 @@ namespace Beyova
                 StringBuilder bodyBuilder = new StringBuilder();
                 var headerDictionary = new Dictionary<string, string>();
 
-                string[] rawPieces = rawRequestSeperatorRegex.Split(raw.Trim());
+                string[] rawPieces = rawRequestSeparatorRegex.Split(raw.Trim());
 
                 if (raw.Length < 1)
                 {
@@ -1460,7 +1439,7 @@ namespace Beyova
         {
             try
             {
-                destinationUrl.CheckEmptyString("destinationUrl");
+                destinationUrl.CheckEmptyString(nameof(destinationUrl));
 
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(destinationUrl);
                 httpWebRequest.KeepAlive = false;
@@ -1478,7 +1457,7 @@ namespace Beyova
 
                 if (acceptGZip)
                 {
-                    httpWebRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.AcceptEncoding, "gzip, deflate");
+                    httpWebRequest.SafeSetHttpHeader(HttpConstants.HttpHeader.AcceptEncoding, HttpConstants.HttpValues.GZip);
                 }
 
                 if (!string.IsNullOrWhiteSpace(userAgent))
@@ -1532,7 +1511,7 @@ namespace Beyova
         {
             if (request != null)
             {
-                request.Headers[HttpRequestHeader.Authorization] = "Basic " + string.Format("{0}:{1}", userName, password).ToBase64();
+                request.Headers[HttpRequestHeader.Authorization] = "Basic " + string.Format("{0}:{1}", userName, password).EncodeBase64();
             }
         }
 
@@ -1574,10 +1553,10 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Expireses all.
+        /// Expires all cookie.
         /// </summary>
         /// <param name="cookies">The cookies.</param>
-        public static void ExpiresAll(this CookieCollection cookies)
+        public static void ExpireAll(this CookieCollection cookies)
         {
             if (cookies != null)
             {
@@ -1613,7 +1592,7 @@ namespace Beyova
         /// To the key value string.
         /// </summary>
         /// <param name="parameters">The parameters.</param>
-        /// <param name="needUrlEncode">if set to <c>true</c> [need URL encode].</param>
+        /// <param name="needUrlEncode">if set to <c>true</c> [need URL encode]. Using <c>HttpUtility.UrlEncode</c> inside for encoding.</param>
         /// <returns>System.String.</returns>
         public static string ToKeyValueStringWithUrlEncode(this IDictionary<string, string> parameters, bool needUrlEncode = true)
         {
@@ -1623,7 +1602,7 @@ namespace Beyova
             {
                 foreach (var one in parameters)
                 {
-                    builder.AppendFormat("{0}={1}&", one.Key, needUrlEncode ? one.Value.ToUrlEncodedText() : one.Value);
+                    builder.AppendFormat("{0}={1}&", needUrlEncode ? one.Key.ToUrlEncodedText() : one.Key, needUrlEncode ? one.Value.ToUrlEncodedText() : one.Value);
                 }
             }
 
@@ -1647,8 +1626,8 @@ namespace Beyova
                 {
                     byte[] bytes = new byte[(int)fs.Length];
                     fs.Read(bytes, 0, bytes.Length);
-                    response.ContentType = "application/octet-stream";
-                    response.AddHeader("Content-Disposition", "attachment; filename=" + HttpUtility.UrlEncode(originalFullFileName.SafeToString("download"), Encoding.UTF8));
+                    response.ContentType = HttpConstants.ContentType.BinaryDefault;
+                    response.AddHeader(HttpConstants.HttpHeader.ContentDisposition, "attachment; filename=" + originalFullFileName.SafeToString("download").ToUrlEncodedText());
                     response.BinaryWrite(bytes);
                     response.Flush();
                 }
@@ -1680,21 +1659,6 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the posted file.
-        /// </summary>
-        /// <param name="httpFileBase">The HTTP file base.</param>
-        /// <returns>System.Byte[].</returns>
-        public static byte[] GetPostedFile(this HttpPostedFileBase httpFileBase)
-        {
-            if (httpFileBase != null && httpFileBase.ContentLength > 0)
-            {
-                return httpFileBase.InputStream.ToBytes();
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Parses to key value pair collection.
         /// <remarks>
         /// Define separator = '&amp;',
@@ -1705,7 +1669,7 @@ namespace Beyova
         /// <param name="keyValuePairString">The key value pair string.</param>
         /// <param name="separator">The separator. Default is '&amp;'.</param>
         /// <returns>System.Collections.Specialized.NameValueCollection.</returns>
-        public static NameValueCollection ParseToKeyValuePairCollection(this string keyValuePairString, char separator = '&')
+        public static NameValueCollection ParseToNameValueCollection(this string keyValuePairString, char separator = '&')
         {
             var result = new NameValueCollection();
 
@@ -1728,6 +1692,49 @@ namespace Beyova
                                 if (!string.IsNullOrWhiteSpace(key))
                                 {
                                     result.Set(key, value.SafeToString());
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(new { keyValuePairString, separator = separator.ToString() });
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Parses to key value pair collection.
+        /// </summary>
+        /// <param name="keyValuePairString">The key value pair string.</param>
+        /// <param name="separator">The separator.</param>
+        /// <returns>System.Collections.Generic.List&lt;System.Collections.Generic.KeyValuePair&lt;System.String, System.String&gt;&gt;.</returns>
+        public static List<KeyValuePair<string, string>> ParseToKeyValuePairCollection(this string keyValuePairString, char separator = '&')
+        {
+            var result = new List<KeyValuePair<string, string>>();
+
+            if (!string.IsNullOrWhiteSpace(keyValuePairString))
+            {
+                try
+                {
+                    var pairs = keyValuePairString.Split(separator);
+                    foreach (var one in pairs)
+                    {
+                        if (!string.IsNullOrWhiteSpace(one))
+                        {
+                            var keyValuePair = one.Split(new char[] { '=' }, 2);
+
+                            if (keyValuePair.Length == 2)
+                            {
+                                var key = keyValuePair[0];
+                                var value = keyValuePair[1];
+
+                                if (!string.IsNullOrWhiteSpace(key))
+                                {
+                                    result.Add(new KeyValuePair<string, string>(key, value.SafeToString()));
                                 }
                             }
                         }
@@ -2166,8 +2173,8 @@ namespace Beyova
         {
             ExceptionCode result = new ExceptionCode { Minor = webExceptionStatus == WebExceptionStatus.Success ? string.Empty : webExceptionStatus.ToString() };
 
-            var statudCodeString = ((int)httpStatusCode).ToString();
-            if (!(statudCodeString.StartsWith("4") || statudCodeString.StartsWith("5")))
+            var statusCodeString = ((int)httpStatusCode).ToString();
+            if (!(statusCodeString.StartsWith("4") || statusCodeString.StartsWith("5")))
             {
                 return null;
             }
@@ -2220,7 +2227,7 @@ namespace Beyova
         public static bool IsGZip(this WebResponse webResponse)
         {
             var contentEncoding = webResponse?.Headers?.Get(HttpConstants.HttpHeader.ContentEncoding);
-            return contentEncoding != null && contentEncoding.Equals(HttpConstants.HttpValues.GZip, StringComparison.OrdinalIgnoreCase);
+            return contentEncoding != null && contentEncoding.Trim().Equals(HttpConstants.HttpValues.GZip, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -2237,6 +2244,32 @@ namespace Beyova
                       || userAgent.IndexOf("android", StringComparison.InvariantCultureIgnoreCase) > -1
                       || userAgent.IndexOf("phone", StringComparison.InvariantCultureIgnoreCase) > -1
                   );
+        }
+
+        /// <summary>
+        /// Forms the data to bytes.
+        /// </summary>
+        /// <param name="dataMappings">The data mappings.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns>System.Byte[].</returns>
+        internal static byte[] FormDataToBytes(Dictionary<string, string> dataMappings, Encoding encoding = null)
+        {
+            var stringBuilder = new StringBuilder();
+            if (dataMappings != null)
+            {
+                foreach (var key in dataMappings.Keys)
+                {
+                    var value = dataMappings[key] ?? string.Empty;
+                    stringBuilder.Append(key + "=" + value.Trim() + "&");
+                }
+
+            }
+            if (stringBuilder.Length > 0)
+            {
+                stringBuilder.Remove(stringBuilder.Length - 1, 1);
+            }
+
+            return (encoding ?? Encoding.ASCII).GetBytes(stringBuilder.ToString());
         }
     }
 }

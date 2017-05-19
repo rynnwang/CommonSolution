@@ -1,55 +1,41 @@
 ﻿using System;
+using Beyova.Api;
 
 namespace Beyova
 {
     /// <summary>
     /// Class EnvironmentEndpoint.
     /// </summary>
-    public class EnvironmentEndpoint : EnvironmentEndpointBase, IBaseObject
+    public class EnvironmentEndpoint : ApiEndpoint, IIdentifier, IProjectBased
     {
         /// <summary>
-        /// Gets or sets the created by.
+        /// Gets or sets the name.
         /// </summary>
-        /// <value>The created by.</value>
-        public string CreatedBy
-        {
-            get; set;
-        }
+        /// <value>The name.</value>
+        public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the created stamp.
+        /// Gets or sets the environment.
         /// </summary>
-        /// <value>The created stamp.</value>
-        public DateTime? CreatedStamp
-        {
-            get; set;
-        }
+        /// <value>The environment.</value>
+        public string Environment { get; set; }
 
         /// <summary>
-        /// Gets or sets the last updated by.
+        /// Gets or sets the code.
         /// </summary>
-        /// <value>The last updated by.</value>
-        public string LastUpdatedBy
-        {
-            get; set;
-        }
+        /// <value>The code.</value>
+        public string Code { get; set; }
 
         /// <summary>
-        /// Gets or sets the last updated stamp.
+        /// Gets or sets the key.
         /// </summary>
-        /// <value>The last updated stamp.</value>
-        public DateTime? LastUpdatedStamp
-        {
-            get; set;
-        }
+        /// <value>The key.</value>
+        public Guid? Key { get; set; }
 
         /// <summary>
-        /// Gets or sets the state.
+        /// Gets or sets the project key.
         /// </summary>
-        /// <value>The state.</value>
-        public ObjectState State
-        {
-            get; set;
-        }
+        /// <value>The project key.</value>
+        public Guid? ProjectKey { get; set; }
     }
 }

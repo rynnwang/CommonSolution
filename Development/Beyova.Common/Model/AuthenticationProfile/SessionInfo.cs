@@ -6,7 +6,15 @@ namespace Beyova
     /// <summary>
     /// Class SessionInfo.
     /// </summary>
-    public class SessionInfo
+    public class SessionInfo: SessionInfo<string>
+    {
+
+    }
+
+    /// <summary>
+    /// Class SessionInfo.
+    /// </summary>
+    public class SessionInfo<T>
     {
         /// <summary>
         /// Gets or sets the user key.
@@ -55,5 +63,23 @@ namespace Beyova
         /// </summary>
         /// <value>The type of the device.</value>
         public DeviceType DeviceType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the device identifier.
+        /// </summary>
+        /// <value>The device identifier.</value>
+        public string DeviceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the device.
+        /// </summary>
+        /// <value>The name of the device.</value>
+        public string DeviceName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the realm.
+        /// </summary>
+        /// <value>The realm.</value>
+        public T Realm { get; set; }
     }
 }

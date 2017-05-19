@@ -6,7 +6,7 @@ namespace Beyova
     /// <summary>
     /// Class UserPreference.
     /// </summary>
-    public class UserPreference : SimpleBaseObject
+    public class UserPreference : SimpleBaseObject, IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the realm. Realm can be used based on App, Application, Product, etc.

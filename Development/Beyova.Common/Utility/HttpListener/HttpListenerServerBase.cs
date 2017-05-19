@@ -41,7 +41,7 @@ namespace Beyova
             // for example "http://beyova.org:8080/index/".
             if (prefixes == null || prefixes.Length == 0)
             {
-                throw ExceptionFactory.CreateInvalidObjectException("prefixes");
+                throw ExceptionFactory.CreateInvalidObjectException(nameof(prefixes));
             }
 
             // Add the prefixes.

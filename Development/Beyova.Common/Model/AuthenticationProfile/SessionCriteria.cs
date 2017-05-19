@@ -6,7 +6,15 @@ namespace Beyova
     /// <summary>
     /// Class SessionCriteria.
     /// </summary>
-    public class SessionCriteria : BasePageIndexedCriteria
+    public class SessionCriteria: SessionCriteria<string>
+    {
+
+    }
+
+    /// <summary>
+    /// Class SessionCriteria.
+    /// </summary>
+    public class SessionCriteria<T> : BasePageIndexedCriteria
     {
         /// <summary>
         /// Gets or sets the user key.
@@ -49,5 +57,11 @@ namespace Beyova
         /// </summary>
         /// <value>The type of the device.</value>
         public DeviceType? DeviceType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the realm.
+        /// </summary>
+        /// <value>The realm.</value>
+        public T Realm { get; set; }
     }
 }

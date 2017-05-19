@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{79C9610B-1DFE-4632-AF62-050073BA3E85}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,8 +13,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.RestApiPortal", "Beyova.RestApiPortal\Beyova.RestApiPortal.csproj", "{17024F7C-6B02-4498-8798-614B54FD37D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Utility", "Beyova.Utility\Beyova.Utility.csproj", "{68C75D3E-195C-4CD7-9F0C-A7AB3830FC4B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.WebSocket", "Beyova.WebSocket\Beyova.WebSocket.csproj", "{84E5442E-A1B7-4934-8AF1-17458274EE2B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Common", "Beyova.Common\Beyova.Common.csproj", "{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}"
 EndProject
@@ -50,10 +48,6 @@ Global
 		{68C75D3E-195C-4CD7-9F0C-A7AB3830FC4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68C75D3E-195C-4CD7-9F0C-A7AB3830FC4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68C75D3E-195C-4CD7-9F0C-A7AB3830FC4B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84E5442E-A1B7-4934-8AF1-17458274EE2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84E5442E-A1B7-4934-8AF1-17458274EE2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84E5442E-A1B7-4934-8AF1-17458274EE2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84E5442E-A1B7-4934-8AF1-17458274EE2B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C5A58FF-8F44-451F-9698-2FE2E3F2E7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU

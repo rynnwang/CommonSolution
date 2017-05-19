@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Runtime.Serialization;
-using Beyova;
 
 namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageMetaData.
     /// </summary>
-    public class BinaryStorageMetaData : BinaryStorageMetaBase
+    public class BinaryStorageMetaData : BinaryStorageMetaBase, IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the hash.

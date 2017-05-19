@@ -27,6 +27,14 @@ namespace Beyova.Cache
             }
         }
 
+        internal static void RegisterCollectionCacheContainer<TEntity>(CollectionCacheContainer<TEntity> cacheContainer)
+        {
+            if (cacheContainer != null)
+            {
+                containers.Add(typeof(TEntity), cacheContainer);
+            }
+        }
+
         /// <summary>
         /// Gets the containers.
         /// </summary>
@@ -155,6 +163,7 @@ namespace Beyova.Cache
                 Capacity = container.Capacity,
                 Count = container.Count,
                 ExpirationInSecond = container.ExpirationInSecond,
+                FailureExpirationInSecond = container.FailureExpirationInSecond,
                 Name = container.Name
             };
         }

@@ -98,7 +98,7 @@ namespace Beyova.ProgrammingIntelligence
                             var resources = TryReadResourceFile(file.FullName);
                             if (resources != null)
                             {
-                                var destinationContainer = container.GetOrAdd(cultureInfo, new Dictionary<string, GlobalCultureResource>(StringComparer.OrdinalIgnoreCase));
+                                var destinationContainer = container.GetOrCreate(cultureInfo, new Dictionary<string, GlobalCultureResource>(StringComparer.OrdinalIgnoreCase));
                                 foreach (var item in resources)
                                 {
                                     foreach (var one in item.Value)

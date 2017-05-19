@@ -77,14 +77,34 @@
             public const string TOKEN = "X-BA-TOKEN";
 
             /// <summary>
+            /// If modified since
+            /// </summary>
+            public const string IfModifiedSince = "If-Modified-Since";
+
+            /// <summary>
+            /// The x if modified since
+            /// </summary>
+            public const string XIfModifiedSince = "X-BA-IF-MODIFIED-SINCE";
+
+            /// <summary>
+            /// The last modified
+            /// </summary>
+            public const string LastModified = "Last-Modified";
+
+            /// <summary>
+            /// The x last modified
+            /// </summary>
+            public const string XLastModified = "X-BA-LAST-MODIFIED";
+
+            /// <summary>
+            /// The cache version match
+            /// </summary>
+            public const string CACHEVERSIONMATCH = "IF-MATCH";
+
+            /// <summary>
             /// The admin token
             /// </summary>
             public const string ADMINTOKEN = "X-BA-ADMIN-TOKEN";
-
-            /// <summary>
-            /// The secure key
-            /// </summary>
-            public const string SECUREKEY = "X-BA-SECURED-KEY";
 
             /// <summary>
             /// The client identifier
@@ -131,6 +151,11 @@
             public const string AcceptEncoding = "Accept-Encoding";
 
             /// <summary>
+            /// The content disposition
+            /// </summary>
+            public const string ContentDisposition = "Content-Disposition";
+
+            /// <summary>
             /// The transfer encoding
             /// </summary>
             public const string TransferEncoding = "Transfer-Encoding";
@@ -154,6 +179,11 @@
             /// The access control allow methods
             /// </summary>
             public const string AccessControlAllowMethods = "Access-Control-Allow-Methods";
+
+            /// <summary>
+            /// The content type
+            /// </summary>
+            public const string ContentType = "Content-Type";
         }
 
         /// <summary>
@@ -191,6 +221,11 @@
             /// The GZIP
             /// </summary>
             public const string GZip = "gzip";
+
+            /// <summary>
+            /// The deflate
+            /// </summary>
+            public const string Deflate = "deflate";
 
             /// <summary>
             /// The localhost
@@ -255,9 +290,59 @@
             public const string JpegImage = "image/jpeg";
 
             /// <summary>
+            /// The GIF image
+            /// </summary>
+            public const string GifImage = "image/gif";
+
+            /// <summary>
             /// The MP3 audio
             /// </summary>
             public const string Mp3Audio = "audio/mpeg";
+
+            /// <summary>
+            /// The text
+            /// </summary>
+            public const string Text = "text/plain";
+
+            /// <summary>
+            /// The XML
+            /// </summary>
+            public const string Xml = "text/xml";
+
+            /// <summary>
+            /// The form submit
+            /// </summary>
+            public const string FormSubmit = "application/x-www-form-urlencoded";
+
+            /// <summary>
+            /// The apk
+            /// </summary>
+            public const string Apk = "application/vnd.android.package-archive";
+
+            /// <summary>
+            /// The ipa
+            /// </summary>
+            public const string Ipa = "application/vnd.iphone";
+
+            /// <summary>
+            /// The excel
+            /// </summary>
+            public const string Excel = "application/x-xls";
+
+            /// <summary>
+            /// The PDF
+            /// </summary>
+            public const string Pdf = "application/pdf";
+
+            /// <summary>
+            /// The CSS
+            /// </summary>
+            public const string Css = "text/css";
+
+            /// <summary>
+            /// The java script
+            /// </summary>
+            public const string JavaScript = "application/x-javascript";
         }
     }
 }

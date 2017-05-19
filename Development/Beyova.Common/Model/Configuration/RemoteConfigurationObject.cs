@@ -7,7 +7,7 @@ namespace Beyova
     /// <summary>
     /// Class RemoteConfigurationObject.
     /// </summary>
-    public class RemoteConfigurationObject : IIdentifier
+    public class RemoteConfigurationObject : ISnapshotable, IOwnerIdentifiable
     {
         /// <summary>
         /// Gets or sets the key.

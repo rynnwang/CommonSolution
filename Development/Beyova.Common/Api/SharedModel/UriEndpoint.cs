@@ -39,12 +39,21 @@ namespace Beyova
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            var pathPrefix = Path.SafeToString().Trim('/');
-            pathPrefix = string.IsNullOrWhiteSpace(pathPrefix) ? string.Empty : ("/" + pathPrefix);
+            var pathPrefix = (string.IsNullOrEmpty(Path) ? string.Empty : Path.Trim()).Trim('/');
+            pathPrefix = string.IsNullOrEmpty(pathPrefix) ? string.Empty : ("/" + pathPrefix);
 
+            return string.Format("{0}{1}/", GetBaseUri(), pathPrefix);
+        }
+
+        /// <summary>
+        /// Gets the base URI.
+        /// </summary>
+        /// <returns>System.String.</returns>
+        public string GetBaseUri()
+        {
             return this.Port.HasValue ?
-                string.Format("{0}://{1}:{2}{3}/", Protocol.SafeToString(HttpConstants.HttpProtocols.Http), Host.SafeToString(HttpConstants.HttpValues.Localhost), Port.Value, pathPrefix) :
-                string.Format("{0}://{1}{2}/", Protocol.SafeToString(HttpConstants.HttpProtocols.Http), Host.SafeToString(HttpConstants.HttpValues.Localhost), pathPrefix);
+                string.Format("{0}://{1}:{2}", Protocol.SafeToString(HttpConstants.HttpProtocols.Http), Host.SafeToString(HttpConstants.HttpValues.Localhost), Port.Value) :
+                string.Format("{0}://{1}", Protocol.SafeToString(HttpConstants.HttpProtocols.Http), Host.SafeToString(HttpConstants.HttpValues.Localhost));
         }
 
         /// <summary>

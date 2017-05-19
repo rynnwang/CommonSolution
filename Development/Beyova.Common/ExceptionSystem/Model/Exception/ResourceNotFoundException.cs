@@ -15,8 +15,9 @@ namespace Beyova.ExceptionSystem
         /// </summary>
         /// <param name="resourceName">Name of the resource.</param>
         /// <param name="resourceIdentifier">The resource identifier.</param>
-        public ResourceNotFoundException(string resourceName, string resourceIdentifier)
-            : base(string.Format("Resource [{0}] of [{1}] is not found.", resourceIdentifier, resourceName), new ExceptionCode { Major = ExceptionCode.MajorCode.ResourceNotFound, Minor = resourceName })
+        /// <param name="scene">The scene.</param>
+        public ResourceNotFoundException(string resourceName, string resourceIdentifier, ExceptionScene scene = null)
+            : base(string.Format("Resource [{0}] of [{1}] is not found.", resourceIdentifier, resourceName), new ExceptionCode { Major = ExceptionCode.MajorCode.ResourceNotFound, Minor = resourceName }, scene: scene)
         {
         }
 

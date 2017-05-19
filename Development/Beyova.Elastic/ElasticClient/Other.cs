@@ -1,12 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Beyova;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.Elastic
@@ -87,6 +80,11 @@ namespace Beyova.Elastic
             return new List<ElasticIndicesStatus>();
         }
 
+        /// <summary>
+        /// Reads the elastic indices status.
+        /// </summary>
+        /// <param name="json">The json.</param>
+        /// <returns>List&lt;ElasticIndicesStatus&gt;.</returns>
         protected List<ElasticIndicesStatus> ReadElasticIndicesStatus(JToken json)
         {
             return new List<ElasticIndicesStatus>();

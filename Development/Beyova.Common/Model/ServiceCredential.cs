@@ -23,6 +23,9 @@ namespace Beyova
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceCredential"/> class.
         /// </summary>
-        public ServiceCredential() { this.Permissions = new List<string>(); }
+        public ServiceCredential()
+        {
+            this.Permissions = new List<string>();
+        }
     }
 }

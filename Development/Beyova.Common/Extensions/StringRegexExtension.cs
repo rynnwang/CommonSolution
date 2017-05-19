@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -178,6 +179,156 @@ namespace Beyova
 
         #endregion
 
+        #region Trim
+
+        /// <summary>
+        /// Internals the trim.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="factor">The factor.</param>
+        /// <param name="trimStart">if set to <c>true</c> [trim start].</param>
+        /// <param name="trimEnd">if set to <c>true</c> [trim end].</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <returns>System.String.</returns>
+        private static string InternalTrim(string source, string factor, bool trimStart, bool trimEnd, bool ignoreCase)
+        {
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(factor))
+            {
+                return source;
+            }
+
+            int end = source.Length - 1;
+            int start = 0;
+            string tmp = source;
+            CharComparer comparer = ignoreCase ? CharComparer.OrdinalIgnoreCase : CharComparer.Ordinal;
+
+            if (trimStart)
+            {
+                bool isBreak = false;
+                for (start = 0; start < tmp.Length; start += factor.Length)
+                {
+                    for (var i = 0; i < factor.Length; i++)
+                    {
+                        if (!comparer.Equals(factor[i], source[start + i]))
+                        {
+                            isBreak = true;
+                            break;
+                        }
+                    }
+
+                    if (isBreak)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (trimEnd)
+            {
+                bool isBreak = false;
+                for (end = tmp.Length - 1; end >= start; end -= factor.Length)
+                {
+                    for (var i = 0; i < factor.Length; i++)
+                    {
+                        if (!comparer.Equals(factor[factor.Length - 1 - i], source[start + i]))
+                            if (factor[factor.Length - 1 - i] != source[end - i])
+                            {
+                                isBreak = true;
+                                break;
+                            }
+                    }
+
+                    if (isBreak)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return source.Substring(start, end - start + 1);
+        }
+
+        /// <summary>
+        /// Trims the end.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <param name="factor">The factor.</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <returns>System.String.</returns>
+        public static string TrimEnd(this string anyString, string factor, bool ignoreCase = false)
+        {
+            return InternalTrim(anyString, factor, false, true, ignoreCase);
+        }
+
+        /// <summary>
+        /// Trims the start.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <param name="factor">The factor.</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <returns>System.String.</returns>
+        public static string TrimStart(this string anyString, string factor, bool ignoreCase = false)
+        {
+            return InternalTrim(anyString, factor, true, false, ignoreCase);
+        }
+
+        /// <summary>
+        /// Trims the specified any string.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <param name="factor">The factor.</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <returns>System.String.</returns>
+        public static string Trim(this string anyString, string factor, bool ignoreCase = false)
+        {
+            return InternalTrim(anyString, factor, true, true, ignoreCase);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// As secure string.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <returns>SecureString.</returns>
+        public static SecureString AsSecureString(this string anyString)
+        {
+            if (string.IsNullOrEmpty(anyString))
+            {
+                return null;
+            }
+
+            var result = new SecureString();
+            foreach (var one in anyString)
+            {
+                result.AppendChar(one);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Ensures the start with.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <param name="factor">The factor.</param>
+        /// <returns>System.String.</returns>
+        public static string EnsureStartWith(this string anyString, string factor)
+        {
+            return (string.IsNullOrEmpty(anyString) || string.IsNullOrEmpty(factor)) ? anyString : (factor + anyString.TrimStart(factor));
+        }
+
+        /// <summary>
+        /// Ensures the end with.
+        /// </summary>
+        /// <param name="anyString">Any string.</param>
+        /// <param name="factor">The factor.</param>
+        /// <returns>System.String.</returns>
+        public static string EnsureEndWith(this string anyString, string factor)
+        {
+            return (string.IsNullOrEmpty(anyString) || string.IsNullOrEmpty(factor)) ? anyString : (anyString.TrimEnd(factor) + factor);
+        }
+
         /// <summary>
         /// Determines whether [contains any of] [the specified items].
         /// </summary>
@@ -195,7 +346,7 @@ namespace Beyova
             {
                 foreach (var one in items)
                 {
-                    if (sourceString.IndexOf(one, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)>-1)
+                    if (sourceString.IndexOf(one, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) > -1)
                     {
                         result = true;
                         break;
@@ -398,7 +549,7 @@ namespace Beyova
         /// <param name="anyString">Any string.</param>
         /// <param name="oldValues">The old values.</param>
         /// <param name="newValue">The new value.</param>
-        /// <returns></returns>
+        /// <returns>System.String.</returns>
         public static string Replace(this string anyString, char[] oldValues, char newValue)
         {
             if (!string.IsNullOrEmpty(anyString))
@@ -414,7 +565,7 @@ namespace Beyova
         /// </summary>
         /// <param name="anyString">Any string.</param>
         /// <param name="replacements">The replacements.</param>
-        /// <returns></returns>
+        /// <returns>System.String.</returns>
         public static string Replace(this string anyString, Dictionary<string, string> replacements)
         {
             if (!string.IsNullOrEmpty(anyString) && replacements != null)
@@ -571,12 +722,13 @@ namespace Beyova
         /// </summary>
         /// <param name="original">The original.</param>
         /// <param name="firstMatch">The first match.</param>
+        /// <param name="comparison">The comparison.</param>
         /// <returns>System.String.</returns>
-        public static string SubStringBeforeFirstMatch(this string original, string firstMatch)
+        public static string SubStringBeforeFirstMatch(this string original, string firstMatch, StringComparison comparison = StringComparison.Ordinal)
         {
             if (!string.IsNullOrWhiteSpace(original) && !string.IsNullOrWhiteSpace(firstMatch))
             {
-                var index = original.IndexOf(firstMatch, StringComparison.Ordinal);
+                var index = original.IndexOf(firstMatch, comparison);
                 if (index == 0)
                 {
                     return string.Empty;
@@ -595,12 +747,13 @@ namespace Beyova
         /// </summary>
         /// <param name="original">The original.</param>
         /// <param name="lastMatch">The last match.</param>
+        /// <param name="comparison">The comparison.</param>
         /// <returns>System.String.</returns>
-        public static string SubStringBeforeLastMatch(this string original, string lastMatch)
+        public static string SubStringBeforeLastMatch(this string original, string lastMatch, StringComparison comparison = StringComparison.Ordinal)
         {
             if (!string.IsNullOrWhiteSpace(original) && !string.IsNullOrWhiteSpace(lastMatch))
             {
-                var index = original.LastIndexOf(lastMatch, StringComparison.Ordinal);
+                var index = original.LastIndexOf(lastMatch, comparison);
                 if (index == 0)
                 {
                     return string.Empty;
@@ -619,13 +772,14 @@ namespace Beyova
         /// </summary>
         /// <param name="original">The original.</param>
         /// <param name="firstMatch">The first match.</param>
+        /// <param name="comparison">The comparison.</param>
         /// <returns>System.String.</returns>
-        public static string SubStringAfterFirstMatch(this string original, string firstMatch)
+        public static string SubStringAfterFirstMatch(this string original, string firstMatch, StringComparison comparison = StringComparison.Ordinal)
         {
             if (!string.IsNullOrWhiteSpace(original) && !string.IsNullOrWhiteSpace(firstMatch))
             {
-                var index = original.IndexOf(firstMatch, StringComparison.Ordinal);
-                if (index == original.Length)
+                var index = original.IndexOf(firstMatch, comparison);
+                if (index == (original.Length - 1))
                 {
                     return string.Empty;
                 }
@@ -643,13 +797,14 @@ namespace Beyova
         /// </summary>
         /// <param name="original">The original.</param>
         /// <param name="lastMatch">The last match.</param>
+        /// <param name="comparison">The comparison.</param>
         /// <returns>System.String.</returns>
-        public static string SubStringAfterLastMatch(this string original, string lastMatch)
+        public static string SubStringAfterLastMatch(this string original, string lastMatch, StringComparison comparison = StringComparison.Ordinal)
         {
             if (!string.IsNullOrWhiteSpace(original) && !string.IsNullOrWhiteSpace(lastMatch))
             {
-                var index = original.LastIndexOf(lastMatch, StringComparison.Ordinal);
-                if (index == original.Length)
+                var index = original.LastIndexOf(lastMatch, comparison);
+                if (index == (original.Length - 1))
                 {
                     return string.Empty;
                 }
@@ -687,29 +842,49 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Subs the string after first match.
+        /// </summary>
+        /// <param name="original">The original.</param>
+        /// <param name="afterMatch">The after match.</param>
+        /// <returns>System.String.</returns>
+        public static string SubStringAfterFirstMatch(this string original, char afterMatch)
+        {
+            if (!string.IsNullOrWhiteSpace(original))
+            {
+                var index = original.IndexOf(afterMatch);
+                if (index == (original.Length - 1))
+                {
+                    return string.Empty;
+                }
+                else if (index >= 0)
+                {
+                    return original.Substring(index + 1);
+                }
+            }
+
+            return original;
+        }
+
+        /// <summary>
         /// Finds the common start string.
         /// </summary>
         /// <param name="string1">The string1.</param>
         /// <param name="string2">The string2.</param>
         /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
         /// <returns>System.String.</returns>
-        public static string FindCommonStartString(this string string1, string string2, bool ignoreCase = false)
+        public static string FindCommonStartSubString(this string string1, string string2, bool ignoreCase = false)
         {
             string result = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(string1) && !string.IsNullOrWhiteSpace(string2))
             {
-                if (ignoreCase)
-                {
-                    string1 = string1.ToLowerInvariant();
-                    string2 = string2.ToLowerInvariant();
-                }
+                CharComparer charComparer = ignoreCase ? CharComparer.OrdinalIgnoreCase : CharComparer.Ordinal;
 
                 var length = string1.Length < string2.Length ? string1.Length : string2.Length;
 
                 for (var i = 0; i < length; i++)
                 {
-                    if (string1[i] != string2[i])
+                    if (charComparer.Equals(string1[i], string2[i]))
                     {
                         if (i > 0)
                         {
@@ -871,21 +1046,22 @@ namespace Beyova
         /// <param name="anyString">Any string.</param>
         /// <param name="start">The start.</param>
         /// <param name="end">The end.</param>
+        /// <param name="comparison">The comparison.</param>
         /// <returns>System.String.</returns>
-        public static string InnerString(this string anyString, string start, string end)
+        public static string InnerString(this string anyString, string start, string end, StringComparison comparison = StringComparison.Ordinal)
         {
             var result = anyString.SafeToString();
 
             start = start.SafeToString();
             end = end.SafeToString();
 
-            int startIndex = start.Length == 0 ? 0 : result.IndexOf(start, StringComparison.Ordinal);
+            int startIndex = start.Length == 0 ? 0 : result.IndexOf(start, comparison);
             if (startIndex < 0)
             {
                 startIndex = 0;
             }
 
-            var endIndex = end.Length == 0 ? result.Length : result.IndexOf(end, startIndex, StringComparison.Ordinal);
+            var endIndex = end.Length == 0 ? result.Length : result.IndexOf(end, startIndex, comparison);
             if (endIndex < 0)
             {
                 endIndex = result.Length;
@@ -968,6 +1144,17 @@ namespace Beyova
         public static MatchCollection SafeMatches(this Regex regex, string input)
         {
             return regex == null ? null : regex.Matches(input);
+        }
+
+        /// <summary>
+        /// Safes the format.
+        /// </summary>
+        /// <param name="formatString">The format string.</param>
+        /// <param name="args">The arguments.</param>
+        /// <returns>System.String.</returns>
+        public static string SafeFormat(this string formatString, params object[] args)
+        {
+            return string.IsNullOrWhiteSpace(formatString) ? formatString : string.Format(formatString, args);
         }
 
         #region Regex convert

@@ -26,7 +26,7 @@ namespace Beyova
         {
             try
             {
-                nodes.CheckNullObject("nodes");
+                nodes.CheckNullObject(nameof(nodes));
 
                 var topNode = nodes.FindAndRemove(root, (item, key) =>
                 {

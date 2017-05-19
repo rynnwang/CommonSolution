@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminRole.
     /// </summary>
-    public class AdminRole : BaseObject
+    public class AdminRole : IIdentifier, IProjectBased
     {
         /// <summary>
         /// Gets or sets the name.
@@ -24,5 +24,17 @@ namespace Beyova
         /// </summary>
         /// <value>The description.</value>
         public string Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the project key.
+        /// </summary>
+        /// <value>The project key.</value>
+        public Guid? ProjectKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the key.
+        /// </summary>
+        /// <value>The key.</value>
+        public Guid? Key { get; set; }
     }
 }

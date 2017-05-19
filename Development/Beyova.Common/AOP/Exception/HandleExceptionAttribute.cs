@@ -21,40 +21,34 @@ namespace Beyova.AOP
         /// </summary>
         /// <param name="throwException">if set to <c>true</c> [throw exception].</param>
         public HandleExceptionAttribute(bool throwException = true)
-            : base("HandleException", new MessageProcessDelegates
+            : base("HandleException", new MethodMessageInjectionDelegates
             {
-                MethodArgumentDelegate = GetMethodArguments
             })
         {
-            this.messageDelegates.ExceptionDelegate = HandleException;
+            this.MethodMessageInjectionDelegates.ExceptionDelegate = HandleException;
             this.ThrowException = throwException;
         }
 
         /// <summary>
         /// Handles the exception.
         /// </summary>
-        /// <param name="returnedMessage">The returned message.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="data">The data.</param>
-        /// <param name="removeException">if set to <c>true</c> [remove exception].</param>
-        /// <returns>Exception.</returns>
-        protected Exception HandleException(IMethodReturnMessage returnedMessage, Exception exception, object data, out bool removeException)
+        /// <param name="methodCallInfo">The method call information.</param>
+        /// <returns>
+        /// Exception.
+        /// </returns>
+        protected Exception HandleException(MethodCallInfo methodCallInfo)
         {
-            removeException = false;
-
-            if (returnedMessage == null || exception == null)
+            if (methodCallInfo?.Exception == null)
             {
                 return null;
             }
 
-            var operationName = returnedMessage.MethodName;
+            var newException = methodCallInfo.Exception.Handle(methodCallInfo.GetExceptionReferenceObject(), operationName: methodCallInfo.MethodFullName);
 
-            var newException = exception.Handle(data, operationName: operationName);
-
-            if (!ThrowException)
+            if (!this.ThrowException)
             {
-                removeException = true;
                 Framework.ApiTracking?.LogException(newException.ToExceptionInfo());
+                return null;
             }
 
             return newException;
@@ -65,26 +59,13 @@ namespace Beyova.AOP
         /// <summary>
         /// Gets the method arguments.
         /// </summary>
-        /// <param name="callMessage">The call message.</param>
-        /// <returns>System.Object.</returns>
-        protected static object GetMethodArguments(IMethodCallMessage callMessage)
+        /// <param name="methodCallInfo">The method call information.</param>
+        /// <returns>
+        /// System.Object.
+        /// </returns>
+        protected static object GetMethodArguments(MethodCallInfo methodCallInfo)
         {
-            if (callMessage == null || callMessage.Args == null) return null;
-
-            var result = new List<object>();
-            var parameters = callMessage.MethodBase.GetParameters();
-
-            for (var i = 0; i < callMessage.Args.Length; i++)
-            {
-                result.Add(new
-                {
-                    Name = parameters[i].Name,
-                    Type = callMessage.Args[i].GetType().FullName,
-                    Value = callMessage.Args[i]
-                });
-            }
-
-            return result;
+            return methodCallInfo?.InArgs;
         }
 
         #endregion

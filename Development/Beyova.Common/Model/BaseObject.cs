@@ -26,4 +26,33 @@ namespace Beyova
 
         #endregion
     }
+
+    /// <summary>
+    /// Class BaseObject.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class BaseObject<T> : BaseObject
+    {
+        /// <summary>
+        /// Gets or sets the object.
+        /// </summary>
+        /// <value>The object.</value>
+        public T Object { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BaseObject{T}"/> class.
+        /// </summary>
+        public BaseObject() : base()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BaseObject{T}"/> class.
+        /// </summary>
+        /// <param name="genricObject">The genric object.</param>
+        public BaseObject(T genricObject) : this()
+        {
+            Object = genricObject;
+        }
+    }
 }
