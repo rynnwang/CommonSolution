@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace Beyova.Cache
+﻿namespace Beyova.Cache
 {
     /// <summary>
     /// Enum ApiCacheStatus
@@ -13,10 +9,12 @@ namespace Beyova.Cache
         /// The no cache
         /// </summary>
         NoCache = 0,
+
         /// <summary>
         /// The use cache
         /// </summary>
         UseCache = 1,
+
         /// <summary>
         /// The update cache
         /// </summary>

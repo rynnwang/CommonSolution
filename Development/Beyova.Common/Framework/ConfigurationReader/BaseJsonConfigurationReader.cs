@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Beyova.ProgrammingIntelligence;
 using Newtonsoft.Json.Linq;
-using System.Linq;
 
 namespace Beyova.Configuration
 {
     /// <summary>
     /// Class BaseJsonConfigurationReader.
     /// </summary>
+    /// <seealso cref="Beyova.IConfigurationReader" />
     public abstract class BaseJsonConfigurationReader : IConfigurationReader
     {
         /// <summary>
         /// Class ConfigurationItem.
         /// </summary>
-        internal protected class ConfigurationItem
+        protected internal class ConfigurationItem
         {
             /// <summary>
             /// Gets or sets the value.
@@ -69,11 +70,11 @@ namespace Beyova.Configuration
         #region Constants
 
         /// <summary>
-        /// The configuration key_ SQL connection
+        /// The configuration key primary SQL connection
         /// </summary>
-        private const string ConfigurationKey_SqlConnection = "SqlConnection";
+        private const string ConfigurationKey_PrimarySqlConnection = "PrimarySqlConnection";
 
-        #endregion
+        #endregion Constants
 
         /// <summary>
         /// The settings
@@ -117,7 +118,18 @@ namespace Beyova.Configuration
         /// <value>The SQL connection.</value>
         public string SqlConnection
         {
-            get { return GetConfiguration(ConfigurationKey_SqlConnection); }
+            get { return GetConfiguration(ConfigurationKey_PrimarySqlConnection); }
+        }
+
+        /// <summary>
+        /// Gets the primary SQL connection.
+        /// </summary>
+        /// <value>
+        /// The primary SQL connection.
+        /// </value>
+        public string PrimarySqlConnection
+        {
+            get { return GetConfiguration(ConfigurationKey_PrimarySqlConnection); }
         }
 
         /// <summary>
@@ -192,7 +204,7 @@ namespace Beyova.Configuration
             return GetConfigurationAsObject(key, defaultValue).SafeToString();
         }
 
-        #endregion
+        #endregion Public method
 
         #region Initialization
 
@@ -348,8 +360,7 @@ namespace Beyova.Configuration
             return true;
         }
 
-
-        #endregion
+        #endregion Initialization
 
         /// <summary>
         /// Refreshes the settings.

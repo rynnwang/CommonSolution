@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Beyova.ExceptionSystem;
 
 namespace Beyova.BooleanSearch
@@ -10,21 +8,21 @@ namespace Beyova.BooleanSearch
     /// </summary>
     public class BooleanSearchExpressionReader
     {
-        const char leftParentheses = '(';
+        private const char leftParentheses = '(';
 
-        const char rightParentheses = ')';
+        private const char rightParentheses = ')';
 
-        const char space = ' ';
+        private const char space = ' ';
 
-        static char[] keyInterruptChars = new char[] { '!', '=', '<', '>', '$', '^', space };
+        private static char[] keyInterruptChars = new char[] { '!', '=', '<', '>', '$', '^', space };
 
-        static char[] computeOperatorInterruptChars = new char[] { space, StringConstants.SingleQuoteChar, StringConstants.DoubleQuoteChar };
+        private static char[] computeOperatorInterruptChars = new char[] { space, StringConstants.SingleQuoteChar, StringConstants.DoubleQuoteChar };
 
-        static char[] valuerInterruptChars = new char[] { space, rightParentheses };
+        private static char[] valuerInterruptChars = new char[] { space, rightParentheses };
 
-        static char[] relationshipOperatorInterruptChars = new char[] { space, leftParentheses, rightParentheses };
+        private static char[] relationshipOperatorInterruptChars = new char[] { space, leftParentheses, rightParentheses };
 
-        static char[] computeOperatorSymbolChars = new char[] { '!', '=', '<', '>', '$', '^' };
+        private static char[] computeOperatorSymbolChars = new char[] { '!', '=', '<', '>', '$', '^' };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BooleanSearchExpressionReader"/> class.
@@ -56,7 +54,6 @@ namespace Beyova.BooleanSearch
 
             return result;
         }
-
 
         /// <summary>
         /// Expects the expression.
@@ -107,6 +104,7 @@ namespace Beyova.BooleanSearch
                             }
                         }
                         break;
+
                     case rightParentheses:
                         if (parenthesesDepth > 0)
                         {
@@ -123,10 +121,11 @@ namespace Beyova.BooleanSearch
                         {
                             throw new InvalidExpressiontException(nameof(leftParentheses), data: input, position: position);
                         }
-                        //break;
+                    //break;
                     case space:
                         position++;
                         break;
+
                     default:
                         if (pendingExpression == null)
                         {
@@ -230,6 +229,7 @@ namespace Beyova.BooleanSearch
             {
                 case "and":
                     return RelationshipOperator.And;
+
                 case "or":
                     return RelationshipOperator.Or;
             }
@@ -315,6 +315,7 @@ namespace Beyova.BooleanSearch
                 case "and":
                     relationshipOperator = RelationshipOperator.And;
                     return true;
+
                 case "or":
                     relationshipOperator = RelationshipOperator.Or;
                     return true;

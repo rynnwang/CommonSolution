@@ -1,6 +1,4 @@
-﻿using System;
-using Beyova.Api;
-using Newtonsoft.Json;
+﻿using Beyova.Api;
 
 namespace Beyova
 {

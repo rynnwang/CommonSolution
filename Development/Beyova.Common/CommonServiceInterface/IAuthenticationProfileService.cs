@@ -68,7 +68,7 @@ namespace Beyova.CommonServiceInterface
         [TokenRequired(true)]
         List<SessionInfo> QuerySessionInfo(SessionCriteria criteria);
 
-        #endregion
+        #endregion Authentication
 
         /// <summary>
         /// Queries the user information.

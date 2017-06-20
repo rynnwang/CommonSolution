@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
 using Beyova.ApiTracking;
@@ -26,6 +25,12 @@ namespace Beyova.Api
         /// </summary>
         [ThreadStatic]
         private static ApiTraceLog _root;
+
+        /// <summary>
+        /// The debug enabled
+        /// </summary>
+        [ThreadStatic]
+        internal static bool DebugEnabled;
 
         /// <summary>
         /// Gets the root.
@@ -74,6 +79,7 @@ namespace Beyova.Api
         {
             _current = null;
             _root = null;
+            DebugEnabled = false;
         }
 
         /// <summary>
@@ -173,7 +179,7 @@ namespace Beyova.Api
             }
         }
 
-        #endregion
+        #endregion Enter
 
         /// <summary>
         /// Sets the name of the major method.
@@ -205,6 +211,46 @@ namespace Beyova.Api
         public static void Exit(Guid? exceptionKey, DateTime? exitStamp = null)
         {
             Exit(_current, exceptionKey, exitStamp);
+        }
+
+        /// <summary>
+        /// Writes the line.
+        /// </summary>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public static void WriteLine(string format, params string[] args)
+        {
+            _current?.DebugInfo?.WriteLine(format, args);
+        }
+
+        /// <summary>
+        /// Writes the HTTP request raw.
+        /// </summary>
+        /// <param name="httpRequest">The HTTP request.</param>
+        public static void WriteHttpRequestRaw(HttpWebRequest httpRequest)
+        {
+            if (DebugEnabled)
+            {
+                var debugInfo = _current?.DebugInfo;
+
+                if (debugInfo != null)
+                {
+                    debugInfo.HttpRequestRaw = httpRequest?.ToRaw();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes the HTTP response raw.
+        /// </summary>
+        /// <param name="headers">The headers.</param>
+        /// <param name="body">The body.</param>
+        public static void WriteHttpResponseRaw(WebHeaderCollection headers, string body)
+        {
+            if (DebugEnabled)
+            {
+                _current?.DebugInfo?.WriteHttpResponseRaw(headers, body);
+            }
         }
 
         /// <summary>

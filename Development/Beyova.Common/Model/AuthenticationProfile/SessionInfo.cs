@@ -1,20 +1,18 @@
 ﻿using System;
-using Beyova;
 
 namespace Beyova
 {
     /// <summary>
     /// Class SessionInfo.
     /// </summary>
-    public class SessionInfo: SessionInfo<string>
+    public class SessionInfo : SessionInfo<string>
     {
-
     }
 
     /// <summary>
     /// Class SessionInfo.
     /// </summary>
-    public class SessionInfo<T>
+    public class SessionInfo<T> : IExpirable
     {
         /// <summary>
         /// Gets or sets the user key.

@@ -12,10 +12,10 @@
         /// It could be with <c>Count</c> to do paging.
         /// </summary>
         /// <value>The start index.</value>
-        
+
         public int StartIndex { get; set; }
 
-        #endregion
+        #endregion Properties
 
         #region Constructor
 
@@ -27,6 +27,6 @@
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

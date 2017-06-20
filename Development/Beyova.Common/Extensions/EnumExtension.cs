@@ -1,10 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Reflection;
-using Beyova.ExceptionSystem;
-using System.Linq;
-using System.Collections;
-using System.Globalization;
 
 namespace Beyova
 {
@@ -78,21 +72,6 @@ namespace Beyova
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Determines whether the specified flag value has flag.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="enumValue">The enum value.</param>
-        /// <param name="flagValue">The flag value.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified flag value has flag; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool EnumHasFlag<T>(this T enumValue, T flagValue)
-            where T : struct, IConvertible
-        {
-            return (((IConvertible)enumValue).ToInt64(CultureInfo.InvariantCulture) & ((IConvertible)flagValue).ToInt64(CultureInfo.InvariantCulture)) > 0;
         }
     }
 }

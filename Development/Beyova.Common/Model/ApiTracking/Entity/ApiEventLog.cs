@@ -1,5 +1,4 @@
 ﻿using System;
-using Beyova;
 
 namespace Beyova.ApiTracking
 {

@@ -1,7 +1,5 @@
-﻿using System;
-using System.CodeDom.Compiler;
+﻿using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
 {
@@ -31,7 +29,7 @@ namespace Beyova.ExceptionSystem
         {
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Errors the collection to string array.

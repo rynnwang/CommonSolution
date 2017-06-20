@@ -227,6 +227,7 @@ namespace Beyova.AOP
                 this.BeginCodeScope(builder, ref currentIndent);
 
                 //Invoke body
+
                 #region method body
 
                 GenerateMethodCallInfoDeclarition(builder, methodInfo, currentIndent, methodCallInfoVariableName);
@@ -251,10 +252,11 @@ namespace Beyova.AOP
 
                 this.EndCodeScope(builder, ref currentIndent);
 
-                #endregion
+                #endregion try
 
                 builder.AppendIndent(CodeIndent, currentIndent);
                 builder.AppendLine("catch (Exception ex)");
+
                 #region catch
 
                 this.BeginCodeScope(builder, ref currentIndent);
@@ -262,25 +264,28 @@ namespace Beyova.AOP
                 builder.AppendIndent(CodeIndent, currentIndent);
                 builder.AppendLineWithFormat("{0}.Exception = ex;", methodCallInfoVariableName);
 
-                // Injection of exception handle                
+                // Injection of exception handle
                 GenerateMethodInjectionInvoke(builder, "ExceptionDelegate", methodCallInfoVariableName, currentIndent, string.Format("throw ex.Handle((from item in {0}.InArgs where {0}.SerializableArgNames.Contains(item.Key) select item).ToDictionary());", methodCallInfoVariableName), callAfterInjection: methodInfo.ReturnType.IsVoid(false) ? string.Empty : string.Format("return default({0});", methodInfo.ReturnType.ToCodeLook()));
 
                 this.EndCodeScope(builder, ref currentIndent);
 
-                #endregion
+                #endregion catch
 
                 builder.AppendIndent(CodeIndent, currentIndent);
                 builder.AppendLine("finally");
 
                 #region finally
+
                 this.BeginCodeScope(builder, ref currentIndent);
                 //Injection of after event
                 GenerateMethodInjectionInvoke(builder, "MethodInvokedEvent", methodCallInfoVariableName, currentIndent);
                 this.EndCodeScope(builder, ref currentIndent);
-                #endregion
+
+                #endregion finally
 
                 //Body end
-                #endregion
+
+                #endregion method body
 
                 this.EndCodeScope(builder, ref currentIndent);
 

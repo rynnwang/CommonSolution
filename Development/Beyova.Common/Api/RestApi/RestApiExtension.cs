@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web;
 using Beyova.Api;
 using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
@@ -15,20 +14,6 @@ namespace Beyova.RestApi
     /// </summary>
     public static class RestApiExtension
     {
-        /// <summary>
-        /// Gets the route key.
-        /// </summary>
-        /// <param name="realm">The realm.</param>
-        /// <param name="version">The version.</param>
-        /// <param name="resource">The resource.</param>
-        /// <param name="httpMethod">The HTTP method.</param>
-        /// <param name="action">The action.</param>
-        /// <returns></returns>
-        internal static string GetRouteKey(string realm, string version, string resource, string httpMethod, string action)
-        {
-            return string.Format("{0}:{1}/{2}/{3}/{4}/", httpMethod, realm, version, resource, action);
-        }
-
         /// <summary>
         /// APIs the event log to string.
         /// </summary>
@@ -133,7 +118,7 @@ namespace Beyova.RestApi
             }
         }
 
-        #endregion
+        #endregion Route Url
 
         /// <summary>
         /// To the dictionary.

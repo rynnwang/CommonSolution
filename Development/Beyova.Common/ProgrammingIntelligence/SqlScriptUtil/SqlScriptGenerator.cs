@@ -8,11 +8,11 @@ using System.Text;
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class SqlScriptGenerator
     {
-        const string defaultDbSchema = "dbo";
+        private const string defaultDbSchema = "dbo";
 
         /// <summary>
         /// Gets or sets the destination directory.
@@ -145,14 +145,12 @@ GO
                 // Considering Generic constraint of IIdentifier, generate Key column here directly.
                 builder.AppendLine("[Key] UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(), ");
 
-
-
                 // Columns ends here
-                builder.AppendLineWithFormat(@"CONSTRAINT [PK_{0}_Key] PRIMARY KEY NONCLUSTERED 
+                builder.AppendLineWithFormat(@"CONSTRAINT [PK_{0}_Key] PRIMARY KEY NONCLUSTERED
 (
     [Key] ASC
 ),
-CONSTRAINT [CIX_{0}] UNIQUE CLUSTERED 
+CONSTRAINT [CIX_{0}] UNIQUE CLUSTERED
 (
     [RowId] ASC
 )
@@ -290,7 +288,7 @@ GO
             return propertyInfo != null && !identifierObjectProperties.Contains(propertyInfo.Name);
         }
 
-        #endregion
+        #endregion GetCoreProperties
 
         #region Default SQL contents
 
@@ -313,7 +311,7 @@ CREATE PROCEDURE [dbo].[sp_ThrowException](
 )
 AS
 BEGIN
-    SELECT 
+    SELECT
         @Name AS [SqlStoredProcedureName],
         ISNULL(@Code, 500) AS [SqlErrorCode],
         @Reason AS [SqlErrorReason],
@@ -438,7 +436,6 @@ BEGIN
 END
 GO
 
-
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[{0}].[fn_ContainsValue]'))
 DROP FUNCTION [{0}].[fn_ContainsValue]
 GO
@@ -479,13 +476,13 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[{0}].[fn_Ge
 DROP FUNCTION [{0}].[fn_GenerateSqlExpression]
 GO
 /*
-Sample: 
+Sample:
 	{0}.fn_GenerateSqlExpression('Name','Like','%W', 1)
 	RETURNS: [Name] Like '%W'
-Sample: 
+Sample:
 	{0}.fn_GenerateSqlExpression('CreatedStamp','>','2010-01-02', 1)
 	RETURNS: [CreatedStamp] > '2010-01-02'
-Sample: 
+Sample:
 	{0}.fn_GenerateSqlExpression('FileSize','<=','3600', 0)
 	RETURNS: [FileSize] <= 3600
 */
@@ -586,6 +583,6 @@ GO
 ", dbSchema.SafeToString(defaultDbSchema));
         }
 
-        #endregion
+        #endregion Default SQL contents
     }
 }

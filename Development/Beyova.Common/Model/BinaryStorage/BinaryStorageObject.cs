@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace Beyova
 {
@@ -18,7 +17,7 @@ namespace Beyova
 
         /// <summary>
         /// Gets or sets the data in bytes.
-        /// This property is mapped to property 
+        /// This property is mapped to property
         /// <c>Data</c> and this property would not be passed in WCF communication.
         /// </summary>
         /// <value>The data in bytes.</value>

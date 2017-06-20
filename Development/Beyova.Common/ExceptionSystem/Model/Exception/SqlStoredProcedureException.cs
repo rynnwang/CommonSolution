@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-
-namespace Beyova.ExceptionSystem
+﻿namespace Beyova.ExceptionSystem
 {
     /// <summary>
     /// Class SqlStoredProcedureException.
@@ -33,6 +30,6 @@ namespace Beyova.ExceptionSystem
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

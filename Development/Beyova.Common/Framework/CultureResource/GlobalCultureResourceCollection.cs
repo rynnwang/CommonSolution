@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using System.Resources;
-using System.Text;
 using Beyova.ProgrammingIntelligence;
 
 namespace Beyova
@@ -27,7 +23,7 @@ namespace Beyova
         /// <value>The instance.</value>
         public static GlobalCultureResourceCollection Instance { get { return singleton; } }
 
-        #endregion
+        #endregion Singleton
 
         /// <summary>
         /// The culture based resources
@@ -156,7 +152,6 @@ namespace Beyova
         /// <param name="cultureInfo">The culture information.</param>
         public static void CreateCultureResourceFile(string targetDirectory, string baseName, CultureInfo cultureInfo)
         {
-
         }
     }
 }

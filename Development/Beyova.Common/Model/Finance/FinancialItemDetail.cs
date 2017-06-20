@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Class FinanceItemDetail.

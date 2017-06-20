@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Beyova.ProgrammingIntelligence;
-using Beyova;
-using System.Collections.ObjectModel;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 
@@ -87,7 +85,7 @@ namespace Beyova.ProgrammingIntelligence
             }
         }
 
-        #endregion
+        #endregion Public methods
 
         /// <summary>
         /// Generates the code by type. Type here can be both Interface and Class. Method would recursively find all interfaces.
@@ -137,7 +135,6 @@ namespace Beyova.ProgrammingIntelligence
 
                 // write class declaration
                 builder.AppendIndent(CodeIndent, 1);
-
 
                 builder.Append(GenerateClassDeclarationPart(ClassName, handledInterfaces));
 
@@ -280,7 +277,7 @@ namespace Beyova.ProgrammingIntelligence
                                 builder.AppendLine();
                             }
 
-                            #endregion
+                            #endregion Parameter Count > 1
                         }
                         else
                         {
@@ -347,7 +344,7 @@ namespace Beyova.ProgrammingIntelligence
                                 builder.AppendLine();
                             }
 
-                            #endregion
+                            #endregion Parameter Count = 1
                         }
                     }
                     else

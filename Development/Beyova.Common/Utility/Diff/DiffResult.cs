@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Enum DiffResult
@@ -11,14 +9,17 @@ namespace Beyova
         /// Value indicating it is no change
         /// </summary>
         NoChange = 0,
+
         /// <summary>
         /// Value indicating it is replace
         /// </summary>
         Replace,
+
         /// <summary>
         /// Value indicating it is source deleted
         /// </summary>
         SourceDeleted,
+
         /// <summary>
         /// Value indicating it is destination added
         /// </summary>

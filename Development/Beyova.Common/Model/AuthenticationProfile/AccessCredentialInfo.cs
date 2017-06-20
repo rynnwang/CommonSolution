@@ -49,7 +49,7 @@ namespace Beyova
         /// <value>The state.</value>
         public ObjectState State { get; set; }
 
-        #endregion
+        #endregion ISimpleBaseObject
 
         /// <summary>
         /// Gets or sets the user key.

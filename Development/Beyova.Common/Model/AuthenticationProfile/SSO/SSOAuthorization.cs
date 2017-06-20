@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class SSOAuthorization.
     /// </summary>
-    public class SSOAuthorization : SSOAuthorizationBase, ISimpleBaseObject
+    public class SSOAuthorization : SSOAuthorizationBase, ISimpleBaseObject, IExpirable
     {
         /// <summary>
         /// Gets or sets the partner key.

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Xml.Linq;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Beyova
 {
@@ -18,7 +18,16 @@ namespace Beyova
         /// Gets the SQL connection.
         /// </summary>
         /// <value>The SQL connection.</value>
+        [Obsolete]
         string SqlConnection { get; }
+
+        /// <summary>
+        /// Gets the primary SQL connection.
+        /// </summary>
+        /// <value>
+        /// The primary SQL connection.
+        /// </value>
+        string PrimarySqlConnection { get; }
 
         /// <summary>
         /// Gets the configuration belongs.

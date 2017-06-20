@@ -1,8 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-using Beyova;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageCommitRequest.

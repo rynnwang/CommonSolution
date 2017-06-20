@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="TItem1">The type of the item.</typeparam>
     /// <typeparam name="TItem2">The type of the item2.</typeparam>

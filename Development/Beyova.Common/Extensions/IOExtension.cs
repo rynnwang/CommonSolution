@@ -15,7 +15,7 @@ namespace Beyova
         /// <summary>
         /// The dot
         /// </summary>
-        const string dot = ".";
+        private const string dot = ".";
 
         /// <summary>
         /// Gets the sub directory.
@@ -275,7 +275,7 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion IO
 
         #region Bytes
 
@@ -388,7 +388,7 @@ namespace Beyova
             }
         }
 
-        #endregion        
+        #endregion Bytes
 
         /// <summary>
         /// Determines whether [is relative path] [the specified path].

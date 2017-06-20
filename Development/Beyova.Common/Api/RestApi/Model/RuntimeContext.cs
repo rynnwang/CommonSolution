@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Beyova.Api;
 using Beyova.Cache;
 
 namespace Beyova.RestApi
@@ -134,7 +135,7 @@ namespace Beyova.RestApi
         /// <value>
         /// The API cache identity.
         /// </value>
-        internal string ApiCacheIdentity { get; set; }
+        internal ApiRouteIdentifier ApiCacheIdentity { get; set; }
 
         /// <summary>
         /// Gets or sets the API cache container.
@@ -152,6 +153,6 @@ namespace Beyova.RestApi
         /// </value>
         internal string CachedResponseBody { get; set; }
 
-        #endregion
+        #endregion Cache
     }
 }

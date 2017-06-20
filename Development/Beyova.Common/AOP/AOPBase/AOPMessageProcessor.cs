@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Remoting.Activation;
 using System.Runtime.Remoting.Contexts;
 using System.Runtime.Remoting.Messaging;
-using System.Runtime.Remoting.Proxies;
-using System.Text;
 
 namespace Beyova.AOP
 {
     /// <summary>
     /// Class BaseAOPMessageProcessor.
     /// </summary>
+    [Obsolete("MarshalObject Based AOP is retired. Please use Proxy based AOP")]
     internal class AOPMessageProcessor : IContextProperty, IContributeObjectSink
     {
         /// <summary>
@@ -40,7 +37,6 @@ namespace Beyova.AOP
         ///   </PermissionSet>
         public virtual void Freeze(Context newContext)
         {
-
         }
 
         /// <summary>
@@ -67,7 +63,7 @@ namespace Beyova.AOP
             protected set;
         }
 
-        #endregion
+        #endregion IContextProperty Member
 
         #region IContributeObjectSink Member
 
@@ -82,6 +78,6 @@ namespace Beyova.AOP
             return new AOPSinkProcessor(obj, nextSink, this.messageDelegates);
         }
 
-        #endregion
+        #endregion IContributeObjectSink Member
     }
 }

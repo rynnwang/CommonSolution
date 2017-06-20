@@ -3,7 +3,7 @@
 namespace Beyova
 {
     /// <summary>
-    /// Class SSOAuthorizationRequest. 
+    /// Class SSOAuthorizationRequest.
     /// For Token Exchange, use <c>ClientRequestId</c>, <c>PartnerKey</c> and <c>UserKey</c>.
     /// For SSO, use <c>ClientRequestId</c>, <c>PartnerKey</c> and <c>CallbackUrl</c>.
     /// </summary>

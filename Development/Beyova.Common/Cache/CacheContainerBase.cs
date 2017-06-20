@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Beyova.ExceptionSystem;
 
 namespace Beyova.Cache
@@ -7,7 +6,7 @@ namespace Beyova.Cache
     /// <summary>
     /// Class CacheContainerBase.
     /// </summary>
-    public abstract class CacheContainerBase<T> : ICacheContainer
+    public abstract class CacheContainerBase<T> : ICacheContainer, IExpirable
     {
         /// <summary>
         /// The container
@@ -90,7 +89,7 @@ namespace Beyova.Cache
             this.Name = name;
         }
 
-        #endregion
+        #endregion Constructors
 
         /// <summary>
         /// Gets this instance.

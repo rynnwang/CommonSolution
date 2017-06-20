@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Beyova.AOP
 {
@@ -14,30 +13,30 @@ namespace Beyova.AOP
         /// <summary>
         /// The aop factory output namespace
         /// </summary>
-        const string AopFactoryOutputNamespace = "Beyova.Aop.Tmp";
+        private const string AopFactoryOutputNamespace = "Beyova.Aop.Tmp";
 
         /// <summary>
         /// The proxy namespace format
         /// </summary>
-        const string ProxyNamespaceFormat = "Beyova.Aop.Tmp._{0}";
+        private const string ProxyNamespaceFormat = "Beyova.Aop.Tmp._{0}";
 
         /// <summary>
         /// The proxy options
         /// </summary>
-        static Dictionary<Type, AopProxyOptions> proxyOptionsCollection = new Dictionary<Type, AopProxyOptions>();
+        private static Dictionary<Type, AopProxyOptions> proxyOptionsCollection = new Dictionary<Type, AopProxyOptions>();
 
         /// <summary>
         /// The proxy instances
         /// </summary>
-        static Dictionary<Type, object> proxyInstances = new Dictionary<Type, object>();
+        private static Dictionary<Type, object> proxyInstances = new Dictionary<Type, object>();
 
         /// <summary>
         /// The locker
         /// </summary>
-        static object locker = new object();
+        private static object locker = new object();
 
         /// <summary>
-        /// Creates the aop interface proxy. 
+        /// Creates the aop interface proxy.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="injectionDelegates">The injection delegates.</param>
@@ -116,7 +115,7 @@ namespace Beyova.AOP
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="proxyOptions">The proxy options.</param>
-        static void PrepareProxy<T>(AopProxyOptions proxyOptions)
+        private static void PrepareProxy<T>(AopProxyOptions proxyOptions)
             where T : class
         {
             if (proxyOptions != null)
@@ -153,12 +152,12 @@ namespace Beyova.AOP
         /// <param name="proxyOptions">The proxy options.</param>
         /// <param name="instance">The instance.</param>
         /// <returns>System.Object.</returns>
-        static object CreateInstance<T>(AopProxyOptions proxyOptions, T instance)
+        private static object CreateInstance<T>(AopProxyOptions proxyOptions, T instance)
             where T : class
         {
             return (proxyOptions != null && instance != null) ? Activator.CreateInstance(proxyOptions.ProxiedType, instance, proxyOptions.MethodInjectionDelegates) : null;
         }
 
-        #endregion
+        #endregion Make Proxy
     }
 }

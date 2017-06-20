@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Beyova.SaasPlatform
 {
     /// <summary>
     /// Class ProjectBase.
     /// </summary>
-    public abstract class ProjectBase : SimpleBaseObject, IRsaKeys
+    public abstract class ProjectBase : SimpleBaseObject, IRsaKeys, IExpirable
     {
         /// <summary>
         /// Gets or sets the name.

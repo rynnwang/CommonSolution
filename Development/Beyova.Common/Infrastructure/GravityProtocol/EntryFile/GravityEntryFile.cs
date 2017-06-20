@@ -9,7 +9,7 @@ namespace Beyova
     /// <summary>
     /// Class GravityEntryFile.
     /// </summary>
-    class GravityEntryFile : GravityEntryObject
+    internal class GravityEntryFile : GravityEntryObject
     {
         /// <summary>
         /// Gets or sets the issued stamp.

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Beyova;
-using Beyova.RestApi;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Class EnvironmentEndpointCriteria.

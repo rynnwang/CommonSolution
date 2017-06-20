@@ -33,7 +33,7 @@ namespace Beyova
             knownColors = colorList.ToArray();
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Gets the known color set.

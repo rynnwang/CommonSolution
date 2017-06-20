@@ -4,9 +4,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
-using Beyova.ExceptionSystem;
-using Beyova.Gravity;
-using Newtonsoft.Json;
 
 namespace Beyova
 {
@@ -92,7 +89,7 @@ namespace Beyova
             return originalText;
         }
 
-        #endregion
+        #endregion Html encode
 
         #region Unicode
 
@@ -116,7 +113,7 @@ namespace Beyova
             return HttpUtility.UrlDecode(sourceText);
         }
 
-        #endregion
+        #endregion Unicode
 
         #region Base64
 
@@ -175,7 +172,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Base64
 
         #region Base62
 
@@ -274,7 +271,7 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion Base62
 
         #region MD5
 
@@ -405,7 +402,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion MD5
 
         #region SHA1
 
@@ -450,8 +447,7 @@ namespace Beyova
             }
         }
 
-
-        #endregion
+        #endregion SHA1
 
         #region 3DES
 
@@ -601,12 +597,12 @@ namespace Beyova
             return null;
         }
 
-        #endregion
+        #endregion 3DES
 
         #region RSA
 
         /// <summary>
-        /// Encrypts within RSA. Note: Under 1024 bit key, 117 bytes can be encrypted at most. Under 2048 bit key, 245 bytes can be encrypted at most. 
+        /// Encrypts within RSA. Note: Under 1024 bit key, 117 bytes can be encrypted at most. Under 2048 bit key, 245 bytes can be encrypted at most.
         /// </summary>
         /// <param name="dataToEncrypt">The data to encrypt.</param>
         /// <param name="publicKey">The public key.</param>
@@ -620,7 +616,7 @@ namespace Beyova
                 {
                     rsa.ImportCspBlob(Convert.FromBase64String(publicKey));
 
-                    //OAEP padding is only available on Microsoft Windows XP or later.  
+                    //OAEP padding is only available on Microsoft Windows XP or later.
                     return rsa.Encrypt(dataToEncrypt, true);
                 }
             }
@@ -816,19 +812,19 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion DES
 
         #region My encryption
 
         /// <summary>
         /// The description key length
         /// </summary>
-        const int desKeyLength = 48;
+        private const int desKeyLength = 48;
 
         /// <summary>
         /// The triple description key length
         /// </summary>
-        const int tripleDesKeyLength = 24;
+        private const int tripleDesKeyLength = 24;
 
         /// <summary>
         /// Encrypts the r3 DES.
@@ -957,7 +953,7 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion My encryption
 
         #region ToHMACSHA1
 
@@ -990,6 +986,6 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion ToHMACSHA1
     }
 }

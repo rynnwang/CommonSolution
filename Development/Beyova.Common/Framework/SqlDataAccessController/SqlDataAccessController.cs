@@ -37,7 +37,7 @@ namespace Beyova
         {
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Converts the object.
@@ -200,7 +200,7 @@ namespace Beyova
             this._readOnlyDatabaseOperator = readOnlySqlConnection == null ? null : new DatabaseOperator(readOnlySqlConnection);
         }
 
-        #endregion
+        #endregion Constructor
 
         #region Transanction
 
@@ -215,7 +215,7 @@ namespace Beyova
             return this._primaryDatabaseOperator.BeginTransaction(iso, transactionName);
         }
 
-        #endregion
+        #endregion Transanction
 
         /// <summary>
         /// Gets the database operator.
@@ -420,7 +420,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion InitializeCustomizedSqlErrorStoredProcedure
 
         #region GenerateSqlSpParameter
 
@@ -468,7 +468,7 @@ namespace Beyova
             return new SqlParameter("@" + columnName.Trim(), parameterObject ?? Convert.DBNull) { Direction = direction };
         }
 
-        #endregion
+        #endregion GenerateSqlSpParameter
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

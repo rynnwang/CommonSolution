@@ -1,5 +1,4 @@
 ﻿using Beyova.ApiTracking;
-using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
 {
@@ -52,7 +51,7 @@ namespace Beyova.ExceptionSystem
         /// <value>The operator credential.</value>
         public BaseCredential OperatorCredential { get; set; }
 
-        #endregion
+        #endregion Property
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionBase" /> class.

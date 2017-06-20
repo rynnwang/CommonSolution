@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Beyova.ExceptionSystem;
+﻿using Beyova.ExceptionSystem;
 
 namespace Beyova.ApiTracking
 {

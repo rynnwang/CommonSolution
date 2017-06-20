@@ -42,6 +42,6 @@ namespace Beyova.ExceptionSystem
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

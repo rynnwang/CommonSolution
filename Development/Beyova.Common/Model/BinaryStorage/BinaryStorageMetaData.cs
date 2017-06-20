@@ -16,7 +16,7 @@ namespace Beyova
         /// <summary>
         /// Gets or sets the created stamp.
         /// </summary>
-        /// <value>The created stamp.</value>        
+        /// <value>The created stamp.</value>
         public DateTime? CreatedStamp { get; set; }
 
         /// <summary>

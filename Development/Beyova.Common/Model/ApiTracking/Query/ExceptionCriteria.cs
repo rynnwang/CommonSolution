@@ -50,9 +50,9 @@ namespace Beyova.ApiTracking
         /// Gets or sets the scene.
         /// </summary>
         /// <value>The scene.</value>
-        public string Scene { get; set; } 
+        public string Scene { get; set; }
 
-        #endregion
+        #endregion Property
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionCriteria" /> class.

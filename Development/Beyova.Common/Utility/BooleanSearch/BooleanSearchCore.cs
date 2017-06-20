@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Beyova;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.BooleanSearch
@@ -14,12 +12,12 @@ namespace Beyova.BooleanSearch
         /// <summary>
         /// The criteria key regex
         /// </summary>
-        static readonly Regex criteriaKeyRegex = new Regex(@"^[a-zA-Z0-9\/_-]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex criteriaKeyRegex = new Regex(@"^[a-zA-Z0-9\/_-]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// The compute operator strings.
         /// </summary>
-        static readonly string[] computeOperatorStrings = new string[] { "=", "<>", ">=", "<=", ">", "<", "^", "$", "Contains", "NotContains", "Exists" };
+        private static readonly string[] computeOperatorStrings = new string[] { "=", "<>", ">=", "<=", ">", "<", "^", "$", "Contains", "NotContains", "Exists" };
 
         /// <summary>
         /// The expression format
@@ -58,28 +56,36 @@ namespace Beyova.BooleanSearch
                         case JTokenType.Array:
                             result = ComputeAsArray((JArray)jToken, criteriaOperatorComputable.Item2, criteriaOperatorComputable.Operator);
                             break;
+
                         case JTokenType.Date:
                             result = Compute(jToken.ToObject<DateTime>(), Convert.ToDateTime(criteriaOperatorComputable.Item2), criteriaOperatorComputable.Operator);
                             break;
+
                         case JTokenType.Uri:
                         case JTokenType.String:
                             result = ComputeAsString(jToken.ToObject<string>(), criteriaOperatorComputable.Item2, criteriaOperatorComputable.Operator);
                             break;
+
                         case JTokenType.Integer:
                             result = Compute(jToken.ToObject<long>(), criteriaOperatorComputable.Item2.ToInt64(), criteriaOperatorComputable.Operator);
                             break;
+
                         case JTokenType.Guid:
                             result = Compute(jToken.ToObject<Guid>(), criteriaOperatorComputable.Item2.ToGuid().Value, criteriaOperatorComputable.Operator);
                             break;
+
                         case JTokenType.Float:
                             result = Compute(jToken.ToObject<double>(), criteriaOperatorComputable.Item2.ToDouble(), criteriaOperatorComputable.Operator);
                             break;
+
                         case JTokenType.Boolean:
                             result = ComputeAsBoolean(jToken.ToObject<bool>(), criteriaOperatorComputable.Item2.ToBoolean(), criteriaOperatorComputable.Operator);
                             break;
+
                         case JTokenType.Object:
                             result = ComputeAsObject((JObject)jToken, criteriaOperatorComputable.Item2, criteriaOperatorComputable.Operator);
                             break;
+
                         default:
                             break;
                     }
@@ -104,16 +110,22 @@ namespace Beyova.BooleanSearch
             {
                 case ComputeOperator.EndWith:
                     return !string.IsNullOrEmpty(item1) && !string.IsNullOrEmpty(item2) && item1.EndsWith(item2);
+
                 case ComputeOperator.StartWith:
                     return !string.IsNullOrEmpty(item1) && !string.IsNullOrEmpty(item2) && item1.StartsWith(item2);
+
                 case ComputeOperator.Equals:
                     return !string.IsNullOrEmpty(item1) && !string.IsNullOrEmpty(item2) && item1.Equals(item2);
+
                 case ComputeOperator.NotEquals:
                     return !string.IsNullOrEmpty(item1) && !string.IsNullOrEmpty(item2) && !item1.Equals(item2);
+
                 case ComputeOperator.Contains:
                     return !string.IsNullOrEmpty(item1) && !string.IsNullOrEmpty(item2) && item1.Contains(item2);
+
                 case ComputeOperator.NotContains:
                     return !string.IsNullOrEmpty(item1) && !string.IsNullOrEmpty(item2) && !item1.Contains(item2);
+
                 default:
                     throw ExceptionFactory.CreateInvalidObjectException(nameof(computeOperator), new
                     {
@@ -135,8 +147,10 @@ namespace Beyova.BooleanSearch
             {
                 case ComputeOperator.Equals:
                     return item1 == item2;
+
                 case ComputeOperator.NotEquals:
                     return item1 != item2;
+
                 default:
                     throw ExceptionFactory.CreateInvalidObjectException(nameof(computeOperator), new
                     {
@@ -158,8 +172,10 @@ namespace Beyova.BooleanSearch
             {
                 case ComputeOperator.Contains:
                     return item1.Contains<JToken, string>(item2, x => x.ToObject<string>(), (x, y) => x.Equals(y, StringComparison.OrdinalIgnoreCase));
+
                 case ComputeOperator.NotContains:
                     return !item1.Contains<JToken, string>(item2, x => x.ToObject<string>(), (x, y) => x.Equals(y, StringComparison.OrdinalIgnoreCase));
+
                 default:
                     throw ExceptionFactory.CreateInvalidObjectException(nameof(computeOperator), new
                     {
@@ -181,6 +197,7 @@ namespace Beyova.BooleanSearch
             {
                 case ComputeOperator.Exists:
                     return item1 != null && !string.IsNullOrWhiteSpace(item2) && item1.GetProperty(item2) != null;
+
                 default:
                     throw ExceptionFactory.CreateInvalidObjectException(nameof(computeOperator), new
                     {
@@ -203,16 +220,22 @@ namespace Beyova.BooleanSearch
             {
                 case ComputeOperator.GreatThan:
                     return item1.CompareTo(item2) > 0;
+
                 case ComputeOperator.GreatThanOrEquals:
                     return item1.CompareTo(item2) >= 0;
+
                 case ComputeOperator.LessThan:
                     return item1.CompareTo(item2) < 0;
+
                 case ComputeOperator.LessThanOrEquals:
                     return item1.CompareTo(item2) <= 0;
+
                 case ComputeOperator.NotEquals:
                     return !item1.Equals(item2);
+
                 case ComputeOperator.Equals:
                     return item1.Equals(item2);
+
                 default:
                     throw ExceptionFactory.CreateInvalidObjectException(nameof(computeOperator), new
                     {
@@ -222,7 +245,7 @@ namespace Beyova.BooleanSearch
             }
         }
 
-        #endregion
+        #endregion Process compute
 
         /// <summary>
         /// Booleans the compute.
@@ -241,9 +264,11 @@ namespace Beyova.BooleanSearch
                     case RelationshipOperator.And:
                         result = operatorComputable.Item1.Compute(json) && operatorComputable.Item2.Compute(json);
                         break;
+
                     case RelationshipOperator.Or:
                         result = operatorComputable.Item1.Compute(json) || operatorComputable.Item2.Compute(json);
                         break;
+
                     default:
                         result = false;
                         break;
@@ -307,7 +332,5 @@ namespace Beyova.BooleanSearch
                 return stringField;
             }
         }
-
-
     }
 }

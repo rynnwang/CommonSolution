@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Beyova;
 using Beyova.Api;
 using Beyova.RestApi;
 
 namespace Beyova.CommonServiceInterface
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="TAppPlatform">The type of the application platform.</typeparam>
     [TokenRequired]
@@ -20,7 +19,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="appPlatform">The application platform.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppPlatform, HttpConstants.HttpMethod.Put)]
-        [ApiPermission(CommonServiceConstants.Permission.AppPlatformAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppPlatformAdministration)]
         Guid? CreateAppPlatform(TAppPlatform appPlatform);
 
         /// <summary>
@@ -29,7 +28,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="bundleId">The bundle identifier.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppPlatform, HttpConstants.HttpMethod.Get)]
-        [ApiPermission(CommonServiceConstants.Permission.AppPlatformAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppPlatformAdministration)]
         List<BaseObject<TAppPlatform>> GetAppPlatforms(string bundleId = null);
     }
 }

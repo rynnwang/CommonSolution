@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace Beyova
 {
@@ -34,6 +33,6 @@ namespace Beyova
         /// <value><c>true</c> if [time forwarding]; otherwise, <c>false</c>.</value>
         public bool TimeForwarding { get; set; }
 
-        #endregion
+        #endregion Properties
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Beyova.Gravity
+﻿namespace Beyova.Gravity
 {
     /// <summary>
     /// Class ProjectInfo.

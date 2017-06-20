@@ -9,7 +9,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Beyova;
-using Beyova.Gravity;
 using Beyova.ProgrammingIntelligence;
 
 namespace Beyova
@@ -56,7 +55,7 @@ namespace Beyova
         public static string ProjectName { get; private set; }
 
         /// <summary>
-        /// The descending assembly dependency chain. Descending here means order by referenced amount. 
+        /// The descending assembly dependency chain. Descending here means order by referenced amount.
         /// So result would be like: web -> core -> contract - > common -> json.net, etc.
         /// </summary>
         internal static List<Assembly> DescendingAssemblyDependencyChain;
@@ -225,7 +224,5 @@ namespace Beyova
                 return string.Empty;
             }
         }
-
-  
     }
 }

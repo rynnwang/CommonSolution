@@ -1,8 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-using Beyova;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Enum BinaryStorageCommitOption
@@ -13,10 +9,12 @@ namespace Beyova
         /// Value indicating that it is default
         /// </summary>
         Default = 0,
+
         /// <summary>
         /// Value indicating that it is allow duplicated instance
         /// </summary>
         AllowDuplicatedInstance = 1,
+
         /// <summary>
         /// Value indicating that it is share duplicated instance
         /// </summary>

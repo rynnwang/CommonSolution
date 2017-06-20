@@ -74,6 +74,6 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Ping
     }
 }

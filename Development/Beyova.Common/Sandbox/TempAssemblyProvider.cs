@@ -1,7 +1,6 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -18,7 +17,7 @@ namespace Beyova
     public class TempAssemblyProvider
     {
         /// <summary>
-        /// Creates the temporary assembly. 
+        /// Creates the temporary assembly.
         /// </summary>
         /// <param name="sourceCodes">The source codes.</param>
         /// <param name="codeReferencedAssembly">The referenced assembly. If not specified, use <see cref="TempAssemblyProvider.GetDefaultAdditionalAssembly"/> instead as default.</param>
@@ -78,7 +77,6 @@ namespace Beyova
             {
                 using (CodeDomProvider provider = new CSharpCodeProvider())
                 {
-
                     @namespace = @namespace.SafeToString("Beyova.RuntimeCompile");
 
                     if (codeReferencedAssembly == null)

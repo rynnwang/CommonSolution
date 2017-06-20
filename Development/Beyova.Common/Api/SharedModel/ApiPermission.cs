@@ -9,10 +9,12 @@
         /// Value indicating it is undefined
         /// </summary>
         Undefined = 0,
+
         /// <summary>
         /// Value indicating it is required
         /// </summary>
         Required = 1,
+
         /// <summary>
         /// Value indicating it is denied
         /// </summary>

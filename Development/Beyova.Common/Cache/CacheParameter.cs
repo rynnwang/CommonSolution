@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Beyova.Cache
+﻿namespace Beyova.Cache
 {
     /// <summary>
     /// Class CacheParameter.

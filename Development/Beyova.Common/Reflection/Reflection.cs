@@ -79,7 +79,7 @@ namespace Beyova
             return null;
         }
 
-        #endregion
+        #endregion Convert Object
 
         #region Invoke methods
 
@@ -155,7 +155,7 @@ namespace Beyova
             return InvokeMethod(objectType, null, methodName, invokeParameters, genericTypes, throwException);
         }
 
-        #endregion
+        #endregion Invoke methods
 
         #region CreateSampleObject
 
@@ -210,22 +210,28 @@ namespace Beyova
                         case "System.Int64":
                             result = GetRandomNumber(1000, 1);
                             break;
+
                         case "System.Single":
                         case "System.Double":
                             result = Single.Parse(GetRandomNumber(10, 0) + "." + GetRandomNumber(100, 0));
                             break;
+
                         case "System.String":
                             result = "String Value";
                             break;
+
                         case "System.Guid":
                             result = Guid.NewGuid();
                             break;
+
                         case "System.DateTime":
                             result = DateTime.Now;
                             break;
+
                         case "System.TimeSpan":
                             result = new TimeSpan(GetRandomNumber(23, 0), GetRandomNumber(60, 0), GetRandomNumber(60, 0));
                             break;
+
                         default:
                             break;
                     }
@@ -264,22 +270,28 @@ namespace Beyova
                         case "System.Int64":
                             result = GetRandomNumber(1000, 1);
                             break;
+
                         case "System.Single":
                         case "System.Double":
                             result = Single.Parse(GetRandomNumber(10, 0) + "." + GetRandomNumber(100, 0));
                             break;
+
                         case "System.String":
                             result = "String Value";
                             break;
+
                         case "System.Guid":
                             result = Guid.NewGuid();
                             break;
+
                         case "System.DateTime":
                             result = DateTime.Now;
                             break;
+
                         case "System.TimeSpan":
                             result = new TimeSpan(GetRandomNumber(23, 0), GetRandomNumber(60, 0), GetRandomNumber(60, 0));
                             break;
+
                         default:
                             result = Activator.CreateInstance(type);
                             var publicProperties = type.GetProperties(BindingFlags.Public | BindingFlags.SetProperty);
@@ -308,6 +320,6 @@ namespace Beyova
             return random.Next(min, max);
         }
 
-        #endregion
+        #endregion CreateSampleObject
     }
 }

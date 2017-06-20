@@ -65,7 +65,7 @@ namespace Beyova
             return (!string.IsNullOrWhiteSpace(key)) ? ThreadData.SafeGetValue(key) : null;
         }
 
-        #endregion
+        #endregion Thread
 
         /// <summary>
         /// Runs as new background thread.

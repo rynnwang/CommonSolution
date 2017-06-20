@@ -1,6 +1,4 @@
-﻿using Beyova;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageIdentifier.

@@ -7,7 +7,7 @@ using System.Text;
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class SqlScriptMerger
     {

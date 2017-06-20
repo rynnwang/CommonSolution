@@ -1,5 +1,4 @@
-﻿
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Class AdminSessionCriteria.

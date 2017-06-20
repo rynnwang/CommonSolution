@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -133,7 +132,7 @@ namespace Beyova
             return TryConvertJsonToObject(jsonString, out exception);
         }
 
-        #endregion
+        #endregion Json
 
         /// <summary>
         /// Gets the JSON object by specific x-path.

@@ -36,7 +36,6 @@ namespace Beyova
         /// </summary>
         public SSOAuthorizationCriteria() : base()
         {
-
         }
     }
 }

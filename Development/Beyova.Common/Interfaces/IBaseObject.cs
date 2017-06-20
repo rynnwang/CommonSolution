@@ -1,7 +1,4 @@
-﻿using System;
-using Beyova;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Interface IBaseObject
@@ -26,6 +23,6 @@ namespace Beyova
         /// </value>
         string LastUpdatedBy { get; set; }
 
-        #endregion
+        #endregion Properties
     }
 }

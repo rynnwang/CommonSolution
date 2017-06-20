@@ -41,7 +41,7 @@ namespace Beyova
         /// Gets or sets from stamp.
         /// </summary>
         /// <value>From stamp.</value>
-        DateTime?  FromStamp { get; set; }
+        DateTime? FromStamp { get; set; }
 
         /// <summary>
         /// Gets or sets to stamp.

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace Beyova.ExceptionSystem
+﻿namespace Beyova.ExceptionSystem
 {
     /// <summary>
     /// Class FriendlyHint.

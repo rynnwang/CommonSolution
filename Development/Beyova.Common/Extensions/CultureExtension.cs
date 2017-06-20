@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Net.Mail;
-using System.Net.Mime;
-using System.Text;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Beyova
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class CultureExtension
     {

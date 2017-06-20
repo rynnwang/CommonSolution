@@ -27,8 +27,22 @@ namespace Beyova.RestApi
         /// <summary>
         /// The routes
         /// </summary>
-        private static volatile Dictionary<string, RuntimeRoute> routes =
-            new Dictionary<string, RuntimeRoute>(StringComparer.OrdinalIgnoreCase);
+        private static volatile Dictionary<ApiRouteIdentifier, RuntimeRoute> routes =
+            new Dictionary<ApiRouteIdentifier, RuntimeRoute>(EqualityComparer<ApiRouteIdentifier>.Default);
+
+        /// <summary>
+        /// Gets the runtime routes.
+        /// </summary>
+        /// <value>
+        /// The runtime routes.
+        /// </value>
+        internal static List<RuntimeRoute> RuntimeRoutes
+        {
+            get
+            {
+                return routes.Values.ToList();
+            }
+        }
 
         /// <summary>
         /// The initialized types
@@ -46,7 +60,7 @@ namespace Beyova.RestApi
         /// <value>The first instance.</value>
         internal static RestApiRouter FirstInstance { get { return _firstInstance; } }
 
-        #endregion
+        #endregion Protected fields
 
         #region Constructor
 
@@ -54,7 +68,7 @@ namespace Beyova.RestApi
         /// Initializes a new instance of the <see cref="RestApiRouter"/> class.
         /// </summary>
         public RestApiRouter()
-            : this(null)
+                    : this(null)
         {
         }
 
@@ -64,7 +78,7 @@ namespace Beyova.RestApi
         /// <param name="defaultApiSettings">The default API settings.</param>
         /// <param name="allowOptions">if set to <c>true</c> [allow options].</param>
         public RestApiRouter(RestApiSettings defaultApiSettings, bool allowOptions = false)
-            : base(defaultApiSettings, allowOptions)
+                    : base(defaultApiSettings, allowOptions)
         {
             if (_firstInstance == null)
             {
@@ -72,7 +86,7 @@ namespace Beyova.RestApi
             }
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Adds the handler (instance and settings) into route.
@@ -108,7 +122,7 @@ namespace Beyova.RestApi
                             InitializeApiType(doneInterfaceTypes, routes, interfaceType, instance, settings);
                         }
 
-                        #endregion
+                        #endregion Initialize routes
 
                         initializedTypes.Add(typeName);
                     }
@@ -126,7 +140,7 @@ namespace Beyova.RestApi
         /// <param name="settings">The settings.</param>
         /// <param name="parentApiContractAttribute">The parent API class attribute.</param>
         /// <param name="parentApiModuleAttribute">The parent API module attribute.</param>
-        private void InitializeApiType(List<string> doneInterfaceTypes, Dictionary<string, RuntimeRoute> routes, Type interfaceType, object instance, RestApiSettings settings = null, ApiContractAttribute parentApiContractAttribute = null, ApiModuleAttribute parentApiModuleAttribute = null)
+        private void InitializeApiType(List<string> doneInterfaceTypes, Dictionary<ApiRouteIdentifier, RuntimeRoute> routes, Type interfaceType, object instance, RestApiSettings settings = null, ApiContractAttribute parentApiContractAttribute = null, ApiModuleAttribute parentApiModuleAttribute = null)
         {
             if (routes != null && interfaceType != null && doneInterfaceTypes != null)
             {
@@ -179,8 +193,7 @@ namespace Beyova.RestApi
                                 }
                             }
 
-                            var routeKey = RestApiExtension.GetRouteKey(apiContract.Realm, apiContract.Version, apiOperationAttribute.ResourceName,
-                                apiOperationAttribute.HttpMethod, apiOperationAttribute.Action);
+                            var routeKey = ApiRouteIdentifier.FromApiObjects(apiContract, apiOperationAttribute);
 
                             var tokenRequired =
                                 method.GetCustomAttribute<TokenRequiredAttribute>(true) ??
@@ -200,7 +213,7 @@ namespace Beyova.RestApi
 
                             if (routes.ContainsKey(routeKey))
                             {
-                                throw new DataConflictException(nameof(routeKey), objectIdentity: routeKey, data: new
+                                throw new DataConflictException(nameof(routeKey), objectIdentity: routeKey?.ToString(), data: new
                                 {
                                     existed = routes[routeKey].SafeToString(),
                                     newMethod = method.GetFullName(),
@@ -221,7 +234,7 @@ namespace Beyova.RestApi
                             routes.Add(routeKey, runtimeRoute);
                         }
 
-                        #endregion
+                        #endregion Initialize based on ApiOperation
                     }
 
                     foreach (var one in interfaceType.GetInterfaces())
@@ -234,7 +247,6 @@ namespace Beyova.RestApi
                     // Reason: in complicated cases, when [A:Interface1] without ApiContract, but [Interface2: Interface] with defining ApiContract, and [B: A, Interface2], then correct contract definition might be missed.
                     doneInterfaceTypes.Add(interfaceType.FullName);
                 }
-
             }
         }
 
@@ -282,9 +294,9 @@ namespace Beyova.RestApi
 
             RuntimeRoute runtimeRoute;
 
-            if (!routes.TryGetValue(RestApiExtension.GetRouteKey(result.Realm, result.Version, result.ResourceName, httpMethod, result.Parameter1), out runtimeRoute))
+            if (!routes.TryGetValue(new ApiRouteIdentifier(result.Realm, result.Version, result.ResourceName, httpMethod, result.Parameter1), out runtimeRoute))
             {
-                routes.TryGetValue(RestApiExtension.GetRouteKey(result.Realm, result.Version, result.ResourceName, httpMethod, null), out runtimeRoute);
+                routes.TryGetValue(new ApiRouteIdentifier(result.Realm, result.Version, result.ResourceName, httpMethod, null), out runtimeRoute);
             }
             else
             {
@@ -310,9 +322,11 @@ namespace Beyova.RestApi
 
             if (runtimeRoute.ApiCacheAttribute != null)
             {
-                result.ApiCacheIdentity = runtimeRoute.ApiCacheAttribute.CacheParameter.CachedByParameterizedIdentity
-                    ? runtimeRoute.ApiCacheAttribute.GenerateParameterizedIdentity(uri.Query.ParseToNameValueCollection())
-                    : runtimeRoute.RouteKey;
+                result.ApiCacheIdentity = runtimeRoute.ApiRouteIdentifier.Clone() as ApiRouteIdentifier;
+                if (runtimeRoute.ApiCacheAttribute.CacheParameter.CachedByParameterizedIdentity)
+                {
+                    result.ApiCacheIdentity.SetParameterizedIdentifier(uri.Query.ParseToNameValueCollection());
+                }
 
                 result.ApiCacheContainer = runtimeRoute.ApiCacheContainer;
 
@@ -350,7 +364,7 @@ namespace Beyova.RestApi
             return result;
         }
 
-        #endregion
+        #endregion Protected Methods
 
         /// <summary>
         /// Processes the build in feature.
@@ -371,20 +385,24 @@ namespace Beyova.RestApi
             switch (runtimeContext?.ResourceName.SafeToLower())
             {
                 case "apilist":
-                    result = routes.Select(x => new { Url = x.Key.TrimEnd('/') + "/", Method = x.Value.MethodInfo?.Name }).ToList();
+                    result = routes.Select(x => new { Url = x.Key.ToString().TrimEnd('/') + "/", Method = x.Value.MethodInfo?.Name }).ToList();
                     break;
+
                 case "configuration":
                     result = isLocalhost ? Framework.ConfigurationReader.GetValues() : localhostTip as object;
                     break;
+
                 case "featureswitch":
                     result = FeatureModuleSwitch.GetModuleWorkStatus();
                     break;
+
                 case "doc":
                 case "doc.zip":
                     DocumentGenerator generator = new DocumentGenerator(DefaultSettings.TokenHeaderKey.SafeToString(HttpConstants.HttpHeader.TOKEN));
-                    result = generator.WriteHtmlDocumentToZipByType((from item in routes select item.Value.InstanceType).Distinct().ToArray());
+                    result = generator.WriteHtmlDocumentToZipByRoutes((from item in routes select item.Value).Distinct().ToArray());
                     contentType = HttpConstants.ContentType.ZipFile;
                     break;
+
                 default: break;
             }
 
@@ -462,6 +480,6 @@ namespace Beyova.RestApi
             return this;
         }
 
-        #endregion
+        #endregion IRouteHandler
     }
 }

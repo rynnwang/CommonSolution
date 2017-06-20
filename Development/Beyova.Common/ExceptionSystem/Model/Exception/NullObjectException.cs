@@ -1,5 +1,4 @@
-﻿
-namespace Beyova.ExceptionSystem
+﻿namespace Beyova.ExceptionSystem
 {
     /// <summary>
     /// Class NullObjectException.
@@ -18,6 +17,6 @@ namespace Beyova.ExceptionSystem
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

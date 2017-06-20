@@ -48,12 +48,12 @@ namespace Beyova.RestApi
         internal RuntimeApiOperationParameters OperationParameters { get; private set; }
 
         /// <summary>
-        /// Gets the route key.
+        /// Gets the API route identifier.
         /// </summary>
         /// <value>
-        /// The route key.
+        /// The API route identifier.
         /// </value>
-        internal string RouteKey { get; private set; }
+        internal ApiRouteIdentifier ApiRouteIdentifier { get; private set; }
 
         #region Cache
 
@@ -73,12 +73,12 @@ namespace Beyova.RestApi
         /// </value>
         internal ApiCacheContainer ApiCacheContainer { get; private set; }
 
-        #endregion
+        #endregion Cache
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RuntimeRoute" /> class.
         /// </summary>
-        /// <param name="routeKey">The route key.</param>
+        /// <param name="routeIdentifier">The route key.</param>
         /// <param name="methodInfo">The method information.</param>
         /// <param name="instanceType">Type of the instance.</param>
         /// <param name="instance">The instance.</param>
@@ -91,7 +91,7 @@ namespace Beyova.RestApi
         /// <param name="apiCacheAttribute">The API cache attribute.</param>
         /// <param name="permissions">The permissions.</param>
         /// <param name="headerKeys">The header keys.</param>
-        public RuntimeRoute(string routeKey, MethodInfo methodInfo, Type instanceType, object instance, bool isActionUsed, bool isTokenRequired, string moduleName, string contentType, bool isDataSensitive, RestApiSettings setting, ApiCacheAttribute apiCacheAttribute, IDictionary<string, ApiPermission> permissions = null, List<string> headerKeys = null)
+        public RuntimeRoute(ApiRouteIdentifier routeIdentifier, MethodInfo methodInfo, Type instanceType, object instance, bool isActionUsed, bool isTokenRequired, string moduleName, string contentType, bool isDataSensitive, RestApiSettings setting, ApiCacheAttribute apiCacheAttribute, IDictionary<string, ApiPermission> permissions = null, List<string> headerKeys = null)
         {
             this.MethodInfo = methodInfo;
             this.Instance = instance;
@@ -109,12 +109,12 @@ namespace Beyova.RestApi
                 ModuleName = moduleName
             };
 
-            this.RouteKey = routeKey;
+            this.ApiRouteIdentifier = routeIdentifier;
 
             if (apiCacheAttribute != null)
             {
                 this.ApiCacheAttribute = apiCacheAttribute;
-                this.ApiCacheContainer = new ApiCacheContainer(routeKey, apiCacheAttribute.CacheParameter);
+                this.ApiCacheContainer = new ApiCacheContainer(routeIdentifier.ToString(), apiCacheAttribute.CacheParameter);
             }
         }
 

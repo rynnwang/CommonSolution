@@ -1,17 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Web;
-using Beyova;
 using Beyova.ExceptionSystem;
-using Beyova.Gravity;
-using Beyova.ProgrammingIntelligence;
 
 namespace Beyova
 {

@@ -73,7 +73,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -110,15 +110,17 @@
     <Compile Include="Api\RestApi\Attribute\EntitySynchronizationModeAttribute.cs" />
     <Compile Include="Api\RestApi\ApiCache\ApiCacheParameter.cs" />
     <Compile Include="Api\RestApi\Model\RuntimeApiOperationParameters.cs" />
+    <Compile Include="Api\SharedInterface\IApiContractOptions.cs" />
+    <Compile Include="Api\SharedModel\ApiRouteIdentifier.cs" />
     <Compile Include="Api\SharedModel\UriEndpoint.cs" />
     <Compile Include="Api\WebSocket\Attribute\WebSocketApiContractAttribute.cs" />
     <Compile Include="Api\WebSocket\Attribute\WebSocketApiOperationAttribute.cs" />
     <Compile Include="Api\WebSocket\BaseWebSocketHandler.cs" />
-    <Compile Include="Api\WebSocket\Model\WebSocketSettings.cs" />
     <Compile Include="Api\WebSocket\Model\WebSocketConnection.cs" />
     <Compile Include="Api\WebSocket\Model\WebSocketMessageMeta.cs" />
-    <Compile Include="Api\WebSocket\WebSocketMessageMetaJsonConverter.cs" />
+    <Compile Include="Api\WebSocket\Model\WebSocketSettings.cs" />
     <Compile Include="Api\WebSocket\WebSocketHub.cs" />
+    <Compile Include="Api\WebSocket\WebSocketMessageMetaJsonConverter.cs" />
     <Compile Include="Cache\CacheContainerBase.cs" />
     <Compile Include="Cache\CacheParameter.cs" />
     <Compile Include="Cache\ICacheParameter.cs" />
@@ -134,6 +136,7 @@
     <Compile Include="Extensions\CultureExtension.cs" />
     <Compile Include="Framework\FeatureSwitch\FeatureModuleSwitchObject.cs" />
     <Compile Include="Framework\FeatureSwitch\FeatureModuleSwitch.cs" />
+    <Compile Include="Framework\SqlDataAccessController\ExtensibleDataAccessController.cs" />
     <Compile Include="Infrastructure\Binary\CloudBinaryStorageOperator.cs" />
     <Compile Include="Infrastructure\Binary\ICloudBinaryStorageOperator.cs" />
     <Compile Include="Constants\BeyovaPropertyConstants.cs" />
@@ -170,7 +173,7 @@
     <Compile Include="Infrastructure\CentralAuthentication\CentralManagementContext.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Attribute\GravityEventHookAttribute.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Attribute\GravityCommandActionAttribute.cs" />
-    <Compile Include="Infrastructure\GravityProtocol\Client\GravityBaseClient.cs" />
+    <Compile Include="Infrastructure\GravityProtocol\Client\GravityAgent.cs" />
     <Compile Include="Infrastructure\GravityProtocol\CommandInvoker\FeatureModuleSwitch\FeatureModuleSwitchCommandInvoker.cs" />
     <Compile Include="Infrastructure\GravityProtocol\CommandInvoker\ProcessCommand\ProcessCommandParameter.cs" />
     <Compile Include="Infrastructure\GravityProtocol\GravityContext.cs" />
@@ -182,12 +185,20 @@
     <Compile Include="Infrastructure\GravityProtocol\Model\Configuration\RemoteConfigurationReceipt.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\GravityEventHook.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\Heartbeat\HeartbeatEcho.cs" />
+    <Compile Include="Infrastructure\GravityProtocol\Model\ProjectCriteria.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\ProjectInfo.cs" />
     <Compile Include="Infrastructure\SaasPlatform\Model\ProjectCriteria.cs" />
+    <Compile Include="Interfaces\IExpirable.cs" />
     <Compile Include="Interfaces\IAppPlatform.cs" />
     <Compile Include="Interfaces\IProjectBased.cs" />
+    <Compile Include="Interfaces\IThirdPartyIdentifier.cs" />
     <Compile Include="Interfaces\Web\IRoutable.cs" />
+    <Compile Include="Model\ApiTracking\Entity\DebugInfo.cs" />
     <Compile Include="Model\AuthenticationProfile\AccountSecurityUpdateToken.cs" />
+    <Compile Include="Model\EnterpriseBusiness\EnterpriseCustomerContract.cs" />
+    <Compile Include="Model\EnterpriseBusiness\EnterpriseCustomerContractIdentity.cs" />
+    <Compile Include="Model\EnterpriseBusiness\EnterpriseCustomerIdentity.cs" />
+    <Compile Include="Model\EnterpriseBusiness\BusinessUnit.cs" />
     <Compile Include="Model\EntityConnection.cs" />
     <Compile Include="Model\FractionObject.cs" />
     <Compile Include="Model\Geography\GeoCoordinate.cs" />
@@ -208,7 +219,7 @@
     <Compile Include="Model\WindowsProcessCommandParameter.cs" />
     <Compile Include="Infrastructure\GravityProtocol\CommandInvoker\ProcessCommand\ProcessCommandInvoker.cs" />
     <Compile Include="Infrastructure\GravityProtocol\CommandInvoker\UpdateConfigurationCommandInvoker.cs" />
-    <Compile Include="Infrastructure\GravityProtocol\Client\GravityHost.cs" />
+    <Compile Include="Infrastructure\GravityProtocol\Client\GravityShell.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Constants\GravityConstants.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\Command\GravityCommandRequestBase.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\Command\GravityCommandRequestCriteria.cs" />
@@ -266,7 +277,7 @@
     <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartnerCriteria.cs" />
     <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartner.cs" />
     <Compile Include="Model\Configuration\RemoteConfigurationInfo.cs" />
-    <Compile Include="Model\DualHttpWebRequest.cs" />
+    <Compile Include="Utility\DualHttpWebRequest.cs" />
     <Compile Include="Model\BitStream.cs" />
     <Compile Include="Model\EntitySynchronization\EntitySynchronizationResponse.cs" />
     <Compile Include="Model\EntitySynchronization\EntitySynchronizationRequest.cs" />
@@ -286,7 +297,7 @@
     <Compile Include="Model\Configuration\RemoteConfigurationCriteria.cs" />
     <Compile Include="Model\Configuration\RemoteConfigurationObject.cs" />
     <Compile Include="Model\Dictionary\SequencedKeyDictionary.cs" />
-    <Compile Include="Model\Admin\User\AdminUserInfoBase.cs" />
+    <Compile Include="Model\Admin\User\AdminUserInfo.cs" />
     <Compile Include="Model\ApiTracking\Entity\ApiTraceLogPiece.cs" />
     <Compile Include="Model\AuthenticationProfile\AuthenticationRequest.cs" />
     <Compile Include="Model\BinaryStorage\BinaryStorageCommitOption.cs" />
@@ -425,9 +436,9 @@
     <Compile Include="Sandbox\SandboxSetting.cs" />
     <Compile Include="Sandbox\TempAssemblyProvider.cs" />
     <Compile Include="Sandbox\TempAssembly.cs" />
-    <Compile Include="Utility\PlaceHolder\IPlaceHolderMember.cs" />
-    <Compile Include="Utility\PlaceHolder\StringHolderReplacement.cs" />
-    <Compile Include="Utility\PlaceHolder\StringPlaceHolder.cs" />
+    <Compile Include="Utility\StringEnhancements\PlaceHolder\IPlaceHolderMember.cs" />
+    <Compile Include="Utility\StringEnhancements\PlaceHolder\StringHolderReplacement.cs" />
+    <Compile Include="Utility\StringEnhancements\PlaceHolder\StringPlaceHolder.cs" />
     <Compile Include="Utility\SerializableJsonObject\JsonXmlizer.cs" />
     <Compile Include="Utility\SerializableJsonObject\StrickJsonSerializer.cs" />
     <Compile Include="Utility\SerializableJsonObject\JsonXmlSerializer.cs" />
@@ -496,10 +507,10 @@
     <Compile Include="Utility\JsonNet\SafeContractResolver.cs" />
     <Compile Include="Extensions\EncodingOrSecurityExtension.cs" />
     <Compile Include="Utility\MailSender.cs" />
-    <Compile Include="Utility\StringShifter\RegexPatternBuilder.cs" />
-    <Compile Include="Utility\StringShifter\StringShifterExtension.cs" />
-    <Compile Include="Utility\StringShifter\StringShiftShard.cs" />
-    <Compile Include="Utility\StringShifter\StringShifter.cs" />
+    <Compile Include="Utility\StringEnhancements\RegexPatternBuilder.cs" />
+    <Compile Include="Utility\StringEnhancements\StringShifterExtension.cs" />
+    <Compile Include="Utility\StringEnhancements\StringShift\StringShiftShard.cs" />
+    <Compile Include="Utility\StringEnhancements\StringShifter.cs" />
     <Compile Include="Utility\SystemOperation\DiagnosticUtil.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -507,9 +518,7 @@
     <None Include="License.md" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Api\WebSocket\Interface\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="SqlScripts\Function\fn_GenerateSqlExpression.sql" />
     <Content Include="SqlScripts\Function\fn_GenerateWherePattern.sql" />

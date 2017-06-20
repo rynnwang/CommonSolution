@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
@@ -79,7 +78,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Logs the message with time stamp.

@@ -68,6 +68,6 @@ namespace Beyova.RestApi
         {
         }
 
-        #endregion
+        #endregion Hidden feature. Keep for future.
     }
 }

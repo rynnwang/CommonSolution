@@ -86,7 +86,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Max
 
         #region Min
 
@@ -167,9 +167,9 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Min
 
-        #region 
+        #region
 
         /// <summary>
         /// To the double.
@@ -178,7 +178,7 @@ namespace Beyova
         /// <returns>System.Nullable&lt;System.Double&gt;.</returns>
         public static double? ToDouble(this FractionObject? fractionObject)
         {
-            return fractionObject.HasValue ? fractionObject.Value.ToDouble() as double? : null ;
+            return fractionObject.HasValue ? fractionObject.Value.ToDouble() as double? : null;
         }
 
         #endregion

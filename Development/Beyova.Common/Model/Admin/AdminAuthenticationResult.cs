@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Beyova
 {
     /// <summary>
     /// Class AdminUserInfo.
     /// </summary>
-    public class AdminAuthenticationResult : IAuthenticationResult<AdminUserInfoBase>
+    public class AdminAuthenticationResult : IAuthenticationResult<AdminUserInfo>
     {
         /// <summary>
         /// Gets or sets the token.
@@ -24,6 +23,6 @@ namespace Beyova
         /// Gets or sets the user information.
         /// </summary>
         /// <value>The user information.</value>
-        public AdminUserInfoBase UserInfo { get; set; }
+        public AdminUserInfo UserInfo { get; set; }
     }
 }

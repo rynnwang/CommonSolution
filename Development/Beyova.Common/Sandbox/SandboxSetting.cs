@@ -1,11 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Reflection;
-using Beyova.ExceptionSystem;
-using System.Linq;
-using System.IO;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Beyova
 {
@@ -30,6 +23,6 @@ namespace Beyova
         /// Gets or sets the external assembly to load.
         /// </summary>
         /// <value>The external assembly to load.</value>
-        public Dictionary<string,byte[]> ExternalAssemblyToLoad { get; set; }
+        public Dictionary<string, byte[]> ExternalAssemblyToLoad { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.Gravity
@@ -24,7 +23,7 @@ namespace Beyova.Gravity
         {
             try
             {
-                var configurationReader = GravityHost.Host.ConfigurationReader;
+                var configurationReader = GravityShell.Host.ConfigurationReader;
                 configurationReader.CheckNullObject(nameof(configurationReader));
 
                 configurationReader.RefreshSettings();

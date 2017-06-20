@@ -1,5 +1,4 @@
 ﻿using System;
-using Beyova.RestApi;
 
 namespace Beyova.Api
 {

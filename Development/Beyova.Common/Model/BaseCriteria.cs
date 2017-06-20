@@ -36,7 +36,7 @@ namespace Beyova
         /// <value><c>true</c> if [order descending]; otherwise, <c>false</c>.</value>
         public bool OrderDescending { get; set; }
 
-        #endregion
+        #endregion Properties
 
         #region Constructor
 
@@ -47,6 +47,6 @@ namespace Beyova
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

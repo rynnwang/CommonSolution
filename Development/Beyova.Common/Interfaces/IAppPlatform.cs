@@ -1,7 +1,4 @@
-﻿using System;
-using Beyova;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Interface IAppPlatform

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
 using Beyova.Api;
-using Beyova.ExceptionSystem;
-using Beyova.RestApi;
 
 namespace Beyova.AOP
 {
     /// <summary>
     /// Class AOPSinkProcessor.
     /// </summary>
+    [Obsolete("MarshalObject Based AOP is retired. Please use Proxy based AOP")]
     internal class AOPSinkProcessor : IMessageSink
     {
         /// <summary>
@@ -127,6 +126,6 @@ namespace Beyova.AOP
             return returnMessage;
         }
 
-        #endregion
+        #endregion IMessageSink Member
     }
 }

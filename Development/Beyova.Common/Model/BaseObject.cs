@@ -1,5 +1,4 @@
-﻿
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Abstract class for base object, with key, created stamp and last updated stamp.
@@ -24,7 +23,7 @@ namespace Beyova
         /// </value>
         public string LastUpdatedBy { get; set; }
 
-        #endregion
+        #endregion Properties
     }
 
     /// <summary>

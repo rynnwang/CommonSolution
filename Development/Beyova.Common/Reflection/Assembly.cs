@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Beyova.ProgrammingIntelligence;
@@ -20,7 +19,7 @@ namespace Beyova
         /// </summary>
         public const string Path_BinFolder = "bin";
 
-        #endregion
+        #endregion Constant
 
         /// <summary>
         /// The generic regex
@@ -230,7 +229,7 @@ namespace Beyova
             return false;
         }
 
-        #endregion
+        #endregion Property Info
 
         /// <summary>
         /// Gets the actual affected properties. This method helps to get properties without duplication.
@@ -333,7 +332,7 @@ namespace Beyova
             return null;
         }
 
-        #endregion
+        #endregion Create instance
 
         #region Static utility methods
 
@@ -471,7 +470,6 @@ namespace Beyova
             return (attributeType == null || methodInfo.GetCustomAttribute(attributeType, attributeInherit) != null);
         }
 
-
         /// <summary>
         /// Gets the interface method. This method would try to find methods in inheritance.
         /// </summary>
@@ -573,7 +571,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Static utility methods
 
         #region Extensions
 
@@ -670,7 +668,7 @@ namespace Beyova
             return type != null && type.HasInterface(typeof(ICollection<>));
         }
 
-        #region Nullable 
+        #region Nullable
 
         /// <summary>
         /// Gets the type of the nullable.
@@ -698,7 +696,7 @@ namespace Beyova
             return Nullable.GetUnderlyingType(type);
         }
 
-        #endregion
+        #endregion Nullable
 
         /// <summary>
         /// Inheritses from.
@@ -830,7 +828,7 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion Extensions
 
         #region StackTrace
 
@@ -846,7 +844,7 @@ namespace Beyova
             return sf.GetMethod();
         }
 
-        #endregion
+        #endregion StackTrace
 
         /// <summary>
         /// Gets the method information within attribute. As MSDN said, you have to assign either <see cref="BindingFlags.Instance"/> or <see cref="BindingFlags.Static"/> for bindingFlags, so that you can get right result.
@@ -949,7 +947,6 @@ namespace Beyova
             }
         }
 
-
         /// <summary>
         /// Gets the generic parameter names.
         /// </summary>
@@ -983,7 +980,7 @@ namespace Beyova
         /// <summary>
         /// Class AssemblyDependency.
         /// </summary>
-        class AssemblyDependency
+        private class AssemblyDependency
         {
             /// <summary>
             /// Gets or sets the last.
@@ -1136,7 +1133,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Assembly Dependency Chain
 
         #region GetFullName
 
@@ -1154,7 +1151,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the full name. Actually, it returns as code look. 
+        /// Gets the full name. Actually, it returns as code look.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="requiredAttribute">The required attribute.</param>
@@ -1171,7 +1168,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion GetFullName
 
         #region Get Current Method info
 
@@ -1185,6 +1182,6 @@ namespace Beyova
             return new StackFrame(0).GetMethod();
         }
 
-        #endregion
+        #endregion Get Current Method info
     }
 }

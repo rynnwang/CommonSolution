@@ -28,7 +28,7 @@
         /// <summary>
         /// The attribute_ key
         /// </summary>
-        public const string attribute_Key= "Key";
+        public const string attribute_Key = "Key";
 
         /// <summary>
         /// The attribute_ value

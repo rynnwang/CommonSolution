@@ -8,6 +8,7 @@ namespace Beyova.AOP
     /// Class BaseAOPAttribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
+    [Obsolete("MarshalObject Based AOP is retired. Please use Proxy based AOP")]
     public abstract class BaseAOPAttribute : ContextAttribute
     {
         /// <summary>

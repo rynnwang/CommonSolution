@@ -1,7 +1,4 @@
-﻿using System;
-using Beyova;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Interface IWorkflowBasedObject
@@ -16,6 +13,6 @@ namespace Beyova
         /// <value>The state of the workflow.</value>
         WorkflowState WorkflowState { get; set; }
 
-        #endregion
+        #endregion Properties
     }
 }

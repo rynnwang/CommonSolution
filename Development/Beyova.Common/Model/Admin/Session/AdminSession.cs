@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminSession.
     /// </summary>
-    public class AdminSession : AdminSessionBase
+    public class AdminSession : AdminSessionBase, IExpirable
     {
         /// <summary>
         /// Gets or sets the created stamp.

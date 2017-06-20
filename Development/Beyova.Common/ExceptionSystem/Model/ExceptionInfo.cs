@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
@@ -19,18 +18,22 @@ namespace Beyova.ExceptionSystem
             /// Commonly, it is used by forgotten to set, or errors might make system crash.
             /// </summary>
             Fetal = 0,
+
             /// <summary>
             /// The error
             /// </summary>
             Error = 1,
+
             /// <summary>
             /// The warning
             /// </summary>
             Warning = 2,
+
             /// <summary>
             /// The information
             /// </summary>
             Information = 3,
+
             /// <summary>
             /// The debug
             /// </summary>

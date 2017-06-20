@@ -5,7 +5,7 @@ namespace Beyova.Gravity
     /// <summary>
     /// Class GravityClient.
     /// </summary>
-    internal class GravityClient : GravityBaseClient, IGravityServiceProtocol
+    internal class GravityClient : GravityAgent, IGravityServiceProtocol
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GravityClient" /> class.

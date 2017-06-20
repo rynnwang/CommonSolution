@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -120,7 +119,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Transanction
 
         /// <summary>
         /// Gets the output parameter.
@@ -410,7 +409,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Execute procedures
 
         /// <summary>
         /// Abouts the SQL server.

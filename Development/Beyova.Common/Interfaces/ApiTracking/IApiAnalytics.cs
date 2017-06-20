@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 
@@ -40,7 +39,7 @@ namespace Beyova
         /// <returns>List&lt;ApiMessage&gt;.</returns>
         List<ApiMessage> QueryApiMessage(ApiMessageCriteria criteria);
 
-        #endregion
+        #endregion Query Entity
 
         #region Time frame based query
 
@@ -72,6 +71,6 @@ namespace Beyova
         /// <returns>System.Collections.Generic.List&lt;Beyova.ApiTracking.ExceptionGroupStatistic&gt;.</returns>
         List<ExceptionGroupStatistic> GetApiExceptionGroupingStatistic(ExceptionGroupingCriteria criteria);
 
-        #endregion
+        #endregion Time frame based query
     }
 }

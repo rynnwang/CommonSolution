@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Beyova.AOP
 {
     /// <summary>
     /// Class AOPInterceptorObject.
     /// </summary>
+    [Obsolete("MarshalObject Based AOP is retired. Please use Proxy based AOP", true)]
     public class AOPInterceptorObject : ContextBoundObject
     {
         /// <summary>

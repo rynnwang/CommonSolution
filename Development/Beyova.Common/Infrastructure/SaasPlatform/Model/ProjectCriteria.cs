@@ -1,13 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Beyova.SaasPlatform
 {
     /// <summary>
     /// Class ProjectCriteria.
     /// </summary>
-    public class ProjectCriteria
+    public class ProjectCriteria : IIdentifier
     {
+        /// <summary>
+        /// Gets or sets the key.
+        /// </summary>
+        /// <value>
+        /// The key.
+        /// </value>
+        public Guid? Key { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>

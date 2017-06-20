@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Interface IMachineHealth

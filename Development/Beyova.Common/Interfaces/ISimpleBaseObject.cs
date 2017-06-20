@@ -1,5 +1,4 @@
 ﻿using System;
-using Beyova;
 
 namespace Beyova
 {
@@ -40,6 +39,6 @@ namespace Beyova
             set;
         }
 
-        #endregion
+        #endregion Properties
     }
 }

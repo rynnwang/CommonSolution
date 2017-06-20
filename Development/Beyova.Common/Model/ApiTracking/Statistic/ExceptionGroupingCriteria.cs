@@ -1,7 +1,4 @@
-﻿using System;
-using Beyova.RestApi;
-
-namespace Beyova.ApiTracking
+﻿namespace Beyova.ApiTracking
 {
     /// <summary>
     /// Class ExceptionGroupingCriteria.
@@ -41,7 +38,6 @@ namespace Beyova.ApiTracking
         public ExceptionGroupingCriteria(ExceptionStatisticCriteria criteria)
             : base(criteria)
         {
-
         }
     }
 }

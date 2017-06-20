@@ -50,7 +50,7 @@ namespace Beyova.Cache
             this.container = new List<TEntity>();
         }
 
-        #endregion
+        #endregion Constructors
 
         /// <summary>
         /// Gets this instance.

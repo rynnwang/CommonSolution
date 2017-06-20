@@ -136,6 +136,11 @@
             public const string TRACEID = "X-BA-TRACE-ID";
 
             /// <summary>
+            /// The debug ID
+            /// </summary>
+            public const string DEBUG = "X-BA-DEBUG-ID";
+
+            /// <summary>
             /// The trace sequence
             /// </summary>
             public const string TRACESEQUENCE = "X-BA-TRACE-SEQ";

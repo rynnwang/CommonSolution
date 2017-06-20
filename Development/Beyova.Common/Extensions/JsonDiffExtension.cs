@@ -49,24 +49,33 @@ namespace Beyova
                 {
                     case JTokenType.Array:
                         return Diff(path, identifier, (JArray)content1, (JArray)content2);
+
                     case JTokenType.Object:
                         return Diff(identifier, (JObject)content1, (JObject)content2);
+
                     case JTokenType.Guid:
                         return SimpleValueDiff(path, identifier, content1.Value<Guid>(), content2.Value<Guid>()).AsList();
+
                     case JTokenType.Integer:
                         return SimpleValueDiff(path, identifier, content1.Value<int>(), content2.Value<int>()).AsList();
+
                     case JTokenType.Float:
                         return SimpleValueDiff(path, identifier, content1.Value<double>(), content2.Value<double>()).AsList();
+
                     case JTokenType.Bytes:
                         return SimpleValueDiff(path, identifier, content1.Value<byte[]>(), content2.Value<byte[]>()).AsList();
+
                     case JTokenType.Boolean:
                         return SimpleValueDiff(path, identifier, content1.Value<bool>(), content2.Value<bool>()).AsList();
+
                     case JTokenType.Date:
                         return SimpleValueDiff(path, identifier, content1.Value<DateTime>(), content2.Value<DateTime>()).AsList();
+
                     case JTokenType.String:
                     case JTokenType.TimeSpan:
                     case JTokenType.Uri:
                         return SimpleValueDiff(path, identifier, content1.Value<string>(), content2.Value<string>()).AsList();
+
                     default: break;
                 }
             }

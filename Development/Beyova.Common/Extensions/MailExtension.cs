@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Mail;
-using System.Net.Mime;
-using System.Text;
+﻿using System.Text;
 
 namespace Beyova
 {

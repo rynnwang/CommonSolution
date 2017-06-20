@@ -16,7 +16,7 @@ namespace Beyova.AOP
     /// </returns>
     public delegate IMethodReturnMessage OverrideMethodReturnMessageDelegate(IMethodCallMessage methodCallInfo, IMethodReturnMessage returnMessage, Exception exception);
 
-    #endregion
+    #endregion Delegate
 
     /// <summary>
     /// Class MethodInjectionDelegates.

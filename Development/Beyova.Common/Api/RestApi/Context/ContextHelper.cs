@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Net;
-using System.Web;
-using Beyova.ApiTracking;
-using Beyova;
-using Beyova.RestApi;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
+using System.Web;
+using Beyova.RestApi;
 
 namespace Beyova
 {
@@ -237,7 +235,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion ConsistContext
 
         /// <summary>
         /// Clears this instance.

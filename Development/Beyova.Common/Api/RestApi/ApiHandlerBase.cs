@@ -60,7 +60,7 @@ namespace Beyova.RestApi
         /// <value>The default rest API settings.</value>
         public static RestApiSettings DefaultRestApiSettings { get { return defaultRestApiSettings; } }
 
-        #endregion
+        #endregion Protected static fields
 
         #region Property
 
@@ -76,7 +76,7 @@ namespace Beyova.RestApi
         /// <value><c>true</c> if [allow options]; otherwise, <c>false</c>.</value>
         public bool AllowOptions { get; protected set; }
 
-        #endregion
+        #endregion Property
 
         /// <summary>
         /// Specifies the global json serialization converters.
@@ -179,6 +179,9 @@ namespace Beyova.RestApi
                         //Access-Control-Allow-Origin: *
                         //Access-Control-Allow-Headers: Content-Type
                         //Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+
+                        context.Response.Headers.Add(HttpConstants.HttpHeader.SERVEREXITTIME, DateTime.UtcNow.ToFullDateTimeTzString());
+
                         return;
                     }
                 }
@@ -378,21 +381,27 @@ namespace Beyova.RestApi
                 case "server":
                     result = Framework.AboutService();
                     break;
+
                 case "machine":
                     result = SystemManagementExtension.GetMachineHealth();
                     break;
+
                 case "cache":
                     result = CacheRealm.GetSummary();
                     break;
+
                 case "clearcache":
                     result = isLocalhost ? CacheRealm.ClearAll() : "This API is available at localhost machine." as object;
                     break;
+
                 case "gravity":
-                    result = Gravity.GravityHost.Host?.Info;
+                    result = Gravity.GravityShell.Host?.Info;
                     break;
+
                 case "i18n":
                     result = GlobalCultureResourceCollection.Instance?.AvailableCultureInfo ?? new Collection<CultureInfo>();
                     break;
+
                 case "mirror":
                     var apiContext = ContextHelper.ApiContext;
                     var headers = new Dictionary<string, string>();
@@ -412,9 +421,11 @@ namespace Beyova.RestApi
                         CultureCode = apiContext.CultureCode
                     };
                     break;
+
                 case "assemblyhash":
                     result = EnvironmentCore.GetAssemblyHash();
                     break;
+
                 case "dll":
                     var dllName = httpRequest.QueryString.Get("name");
                     if (!string.IsNullOrWhiteSpace(dllName) && httpRequest.HttpMethod.MeaningfulEquals(HttpConstants.HttpMethod.Post, StringComparison.OrdinalIgnoreCase))
@@ -431,6 +442,7 @@ namespace Beyova.RestApi
                         catch { }
                     }
                     break;
+
                 default:
                     break;
             }
@@ -446,7 +458,7 @@ namespace Beyova.RestApi
             ThreadExtension.Clear();
         }
 
-        #endregion
+        #endregion IHttpHandler
 
         #region Protected virtual methods
 
@@ -584,7 +596,6 @@ namespace Beyova.RestApi
             }
         }
 
-
         /// <summary>
         /// Processes the route. More than 1 parameters, from either query string or body json.
         /// </summary>
@@ -592,7 +603,7 @@ namespace Beyova.RestApi
         /// <returns>Exception.</returns>
         protected abstract RuntimeContext ProcessRoute(HttpRequest request);
 
-        #endregion
+        #endregion Protected virtual methods
 
         #region PackageResponse
 
@@ -727,8 +738,7 @@ namespace Beyova.RestApi
             }
         }
 
-
-        #endregion
+        #endregion PackageResponse
 
         /// <summary>
         /// Adds the setting.

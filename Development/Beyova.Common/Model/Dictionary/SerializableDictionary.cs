@@ -15,13 +15,13 @@ namespace Beyova
     /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     [XmlRoot("Dictionary")]
-    [Obsolete("Suggest to use JSON instead of XML.")]
+    [Obsolete("Suggest to use JSON instead of XML.", true)]
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, System.Xml.Serialization.IXmlSerializable
     {
         /// <summary>
         /// The XML_ root
         /// </summary>
-        const string xml_Root = "Dictionary";
+        private const string xml_Root = "Dictionary";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SerializableDictionary{TKey, TValue}"/> class.
@@ -127,7 +127,7 @@ namespace Beyova
             }
             catch (Exception ex)
             {
-                throw ex.Handle( xmlString);
+                throw ex.Handle(xmlString);
             }
         }
 

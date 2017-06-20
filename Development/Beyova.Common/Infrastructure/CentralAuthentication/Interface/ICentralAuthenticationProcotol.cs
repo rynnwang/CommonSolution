@@ -22,7 +22,7 @@ namespace Beyova.Gravity
         /// </summary>
         /// <param name="token">The token.</param>
         /// <returns>AdminUserInfoBase.</returns>
-        AdminUserInfoBase GetUserByToken(string token);
+        AdminUserInfo GetUserByToken(string token);
 
         /// <summary>
         /// Disposes the session.

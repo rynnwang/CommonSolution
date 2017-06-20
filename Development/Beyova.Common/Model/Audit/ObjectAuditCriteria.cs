@@ -1,5 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json.Linq;
 
 namespace Beyova
 {
@@ -8,7 +7,6 @@ namespace Beyova
     /// </summary>
     public class ObjectAuditCriteria : ObjectAuditCriteria<long>
     {
-
     }
 
     /// <summary>

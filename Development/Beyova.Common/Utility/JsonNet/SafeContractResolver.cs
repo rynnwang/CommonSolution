@@ -30,7 +30,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Creates properties for the given 
+        /// Creates properties for the given
         /// <see cref="T:Newtonsoft.Json.Serialization.JsonContract" />.
         /// </summary>
         /// <param name="type">The type to create properties for.</param>
@@ -62,7 +62,6 @@ namespace Beyova
 
             //else if (type == typeof(HttpRequest) || type == typeof(HttpRequestBase) || type == typeof(HttpListenerRequest))
             //{
-
             //}
 
             return result;

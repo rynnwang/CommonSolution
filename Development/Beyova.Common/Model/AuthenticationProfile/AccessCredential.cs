@@ -38,7 +38,7 @@
         /// </summary>
         /// <param name="credential">The credential.</param>
         /// <returns>The result of the conversion.</returns>
-        public static explicit operator string (AccessCredential credential)
+        public static explicit operator string(AccessCredential credential)
         {
             return credential.SafeToString(string.Format("{0}{1}{2}{3}{4}", credential.AccessIdentifier,
                 credential.Token.SafeToString(":"),

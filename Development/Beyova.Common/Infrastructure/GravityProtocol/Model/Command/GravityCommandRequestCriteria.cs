@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-
-namespace Beyova.Gravity
+﻿namespace Beyova.Gravity
 {
     /// <summary>
     /// Class GravityCommandRequestCriteria.

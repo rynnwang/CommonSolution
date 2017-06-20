@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using Beyova.Api;
 
 namespace Beyova.Cache
 {
     /// <summary>
     /// Class ApiCacheContainer.
     /// </summary>
-    public class ApiCacheContainer : CacheContainer<string, string>
+    public class ApiCacheContainer : CacheContainer<ApiRouteIdentifier, string>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ApiCacheContainer" /> class.
@@ -25,7 +23,7 @@ namespace Beyova.Cache
         /// <param name="key">The key.</param>
         /// <param name="result">The result.</param>
         /// <returns></returns>
-        internal bool GetCacheResult(string key, out string result)
+        internal bool GetCacheResult(ApiRouteIdentifier key, out string result)
         {
             return InternalGet(key, out result);
         }

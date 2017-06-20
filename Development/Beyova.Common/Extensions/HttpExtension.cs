@@ -4,15 +4,15 @@ using System.Collections.Specialized;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using Beyova.ExceptionSystem;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using Beyova.RestApi;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
 
 namespace Beyova
 {
@@ -35,12 +35,12 @@ namespace Beyova
         /// <summary>
         /// The domain credential regex
         /// </summary>
-        static Regex domainCredentialRegex = new Regex(@"^((?<Domain>([0-9a-zA-Z_-]+))\\)?(?<AccessIdentifier>([0-9a-zA-Z\._-]+))(:(?<Token>(.+)))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static Regex domainCredentialRegex = new Regex(@"^((?<Domain>([0-9a-zA-Z_-]+))\\)?(?<AccessIdentifier>([0-9a-zA-Z\._-]+))(:(?<Token>(.+)))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// The URI credential regex
         /// </summary>
-        static Regex uriCredentialRegex = new Regex(@"^((?<AccessIdentifier>([0-9a-zA-Z\._-]+))(:(?<Token>(.+)))?@(?<Domain>([0-9a-zA-Z_\.-]+)))$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static Regex uriCredentialRegex = new Regex(@"^((?<AccessIdentifier>([0-9a-zA-Z\._-]+))(:(?<Token>(.+)))?@(?<Domain>([0-9a-zA-Z_\.-]+)))$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Gets the primary URI. Get primary part like: http://google.com/, ignore the rest.
@@ -112,7 +112,7 @@ namespace Beyova
             return null;
         }
 
-        #endregion
+        #endregion Uri and Credential
 
         #region Read response
 
@@ -331,7 +331,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion As Text Async
 
         #region WebResponse Extension
 
@@ -468,9 +468,9 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion WebResponse Extension
 
-        #endregion
+        #endregion Read response
 
         #region Fill Data On HttpWebRequest
 
@@ -759,7 +759,7 @@ namespace Beyova
             InternalFillData(httpWebRequest, method, byteArray, contentType);
         }
 
-        #endregion
+        #endregion Fill Data On HttpWebRequest
 
         #region Fill Data On HttpWebRequest async
 
@@ -891,7 +891,6 @@ namespace Beyova
                         var value = dataMappings[key] ?? string.Empty;
                         stringBuilder.Append(key + "=" + value.Trim() + "&");
                     }
-
                 }
                 if (stringBuilder.Length > 0)
                 {
@@ -1017,7 +1016,7 @@ namespace Beyova
             await InternalFillDataAsync(httpWebRequest, method, byteArray, contentType);
         }
 
-        #endregion
+        #endregion Fill Data On HttpWebRequest async
 
         #region Get Post Data/Json
 
@@ -1166,7 +1165,7 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion Get Post Data/Json
 
         #region Response Write
 
@@ -1256,7 +1255,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Response Write
 
         #region CreateHttpWebRequestByRaw
 
@@ -1365,49 +1364,9 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion CreateHttpWebRequestByRaw
 
         #region CreateHttpWebRequest
-
-        /// <summary>
-        /// To the raw.
-        /// </summary>
-        /// <param name="httpRequest">The HTTP request.</param>
-        /// <returns>System.String.</returns>
-        public static string ToRaw(this HttpWebRequest httpRequest)
-        {
-            StringBuilder builder = new StringBuilder();
-
-            if (httpRequest != null)
-            {
-                //Write destination
-                builder.Append(httpRequest.Method);
-                builder.Append(" ");
-                builder.Append(httpRequest.RequestUri.PathAndQuery);
-                builder.Append(" ");
-                builder.Append(httpRequest.ProtocolVersion);
-                builder.AppendLine();
-                builder.AppendLine();
-
-                //Write headers
-                foreach (string key in httpRequest.Headers.Keys)
-                {
-                    builder.AppendLineWithFormat("{0}: {1}", key, httpRequest.Headers.Get(key));
-                }
-
-                builder.AppendLine();
-
-                if (httpRequest.Method.IsInString(HttpConstants.HttpMethod.Post, HttpConstants.HttpMethod.Put))
-                {
-                    var bytes = httpRequest.GetRequestStream().ReadStreamToBytes();
-                    builder.AppendLine(Encoding.UTF8.GetString(bytes));
-                }
-
-                builder.AppendLine();
-            }
-
-            return builder.ToString();
-        }
 
         /// <summary>
         /// Omits the remote certificate validation callback.
@@ -1499,7 +1458,60 @@ namespace Beyova
             return null;
         }
 
-        #endregion
+        #endregion CreateHttpWebRequest
+
+        /// <summary>
+        /// Fills the headers.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="headerCollection">The header collection.</param>
+        internal static void FillHeaders(this StringBuilder builder, WebHeaderCollection headerCollection)
+        {
+            if (builder != null && headerCollection != null)
+            {
+                foreach (string key in headerCollection.Keys)
+                {
+                    builder.AppendLineWithFormat("{0}: {1}", key, headerCollection.Get(key));
+                }
+            }
+        }
+
+        /// <summary>
+        /// To the raw.
+        /// </summary>
+        /// <param name="httpRequest">The HTTP request.</param>
+        /// <returns>System.String.</returns>
+        public static string ToRaw(this HttpWebRequest httpRequest)
+        {
+            StringBuilder builder = new StringBuilder(512);
+
+            if (httpRequest != null)
+            {
+                //Write destination
+                builder.Append(httpRequest.Method);
+                builder.Append(StringConstants.WhiteSpace);
+                builder.Append(httpRequest.RequestUri.PathAndQuery);
+                builder.Append(StringConstants.WhiteSpace);
+                builder.Append(httpRequest.ProtocolVersion);
+                builder.AppendLine();
+                builder.AppendLine();
+
+                //Write headers
+                FillHeaders(builder, httpRequest.Headers);
+
+                builder.AppendLine();
+
+                if (httpRequest.Method.IsInString(HttpConstants.HttpMethod.Post, HttpConstants.HttpMethod.Put))
+                {
+                    var bytes = httpRequest.GetRequestStream().ReadStreamToBytes();
+                    builder.AppendLine(Encoding.UTF8.GetString(bytes));
+                }
+
+                builder.AppendLine();
+            }
+
+            return builder.ToString();
+        }
 
         /// <summary>
         /// Sets the basic authentication.
@@ -1712,6 +1724,7 @@ namespace Beyova
         /// <param name="keyValuePairString">The key value pair string.</param>
         /// <param name="separator">The separator.</param>
         /// <returns>System.Collections.Generic.List&lt;System.Collections.Generic.KeyValuePair&lt;System.String, System.String&gt;&gt;.</returns>
+        [Obsolete("Use ParseToDictonary instead")]
         public static List<KeyValuePair<string, string>> ParseToKeyValuePairCollection(this string keyValuePairString, char separator = '&')
         {
             var result = new List<KeyValuePair<string, string>>();
@@ -1735,6 +1748,50 @@ namespace Beyova
                                 if (!string.IsNullOrWhiteSpace(key))
                                 {
                                     result.Add(new KeyValuePair<string, string>(key, value.SafeToString()));
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw ex.Handle(new { keyValuePairString, separator = separator.ToString() });
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Parses to dictonary.
+        /// </summary>
+        /// <param name="keyValuePairString">The key value pair string.</param>
+        /// <param name="separator">The separator.</param>
+        /// <param name="keyEqualityComparer">The key equality comparer.</param>
+        /// <returns></returns>
+        public static Dictionary<string, string> ParseToDictonary(this string keyValuePairString, char separator = '&', IEqualityComparer<string> keyEqualityComparer = null)
+        {
+            var result = new Dictionary<string, string>(keyEqualityComparer ?? StringComparer.OrdinalIgnoreCase);
+
+            if (!string.IsNullOrWhiteSpace(keyValuePairString))
+            {
+                try
+                {
+                    var pairs = keyValuePairString.Split(separator);
+                    foreach (var one in pairs)
+                    {
+                        if (!string.IsNullOrWhiteSpace(one))
+                        {
+                            var keyValuePair = one.Split(new char[] { '=' }, 2);
+
+                            if (keyValuePair.Length == 2)
+                            {
+                                var key = keyValuePair[0];
+                                var value = keyValuePair[1];
+
+                                if (!string.IsNullOrWhiteSpace(key))
+                                {
+                                    result.Add(key, value.SafeToString());
                                 }
                             }
                         }
@@ -1852,7 +1909,7 @@ namespace Beyova
 
                     ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), this.Request, this.Timeout, true);
 
-                    // The response came in the allowed time. The work processing will happen in the 
+                    // The response came in the allowed time. The work processing will happen in the
                     // callback function.
                     allDone.WaitOne();
 
@@ -1927,8 +1984,7 @@ namespace Beyova
             }
         }
 
-
-        #endregion
+        #endregion Http Async
 
         /// <summary>
         /// Tries the get header.
@@ -2095,27 +2151,35 @@ namespace Beyova
                     case "accept":
                         httpRequest.Accept = value.SafeToString();
                         break;
+
                     case "content-type":
                         httpRequest.ContentType = value.SafeToString();
                         break;
+
                     case "date":
                         httpRequest.Date = (DateTime)value;
                         break;
+
                     case "expect":
                         httpRequest.Expect = value.SafeToString();
                         break;
+
                     case "if-modified-since":
                         httpRequest.IfModifiedSince = (DateTime)value;
                         break;
+
                     case "referer":
                         httpRequest.Referer = value.SafeToString();
                         break;
+
                     case "transfer-encoding":
                         httpRequest.TransferEncoding = value.SafeToString();
                         break;
+
                     case "user-agent":
                         httpRequest.UserAgent = value.SafeToString();
                         break;
+
                     case "host":
                     case "connection":
                     case "close":
@@ -2124,6 +2188,7 @@ namespace Beyova
                     case "range":
                         //do nothing
                         break;
+
                     default:
                         httpRequest.Headers[headerKey] = value.SafeToString();
                         break;
@@ -2146,6 +2211,7 @@ namespace Beyova
                     case "content-type":
                         httpResponse.ContentType = value.SafeToString();
                         break;
+
                     case "host":
                     //case "connection":
                     case "close":
@@ -2154,6 +2220,7 @@ namespace Beyova
                     case "range":
                         //do nothing
                         break;
+
                     default:
                         httpResponse.Headers[headerKey] = value.SafeToString();
                         break;
@@ -2161,7 +2228,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Http proxy
 
         /// <summary>
         /// Converts the HTTP status code to exception code.
@@ -2184,33 +2251,43 @@ namespace Beyova
                 case HttpStatusCode.BadRequest://400
                     result.Major = ExceptionCode.MajorCode.NullOrInvalidValue;
                     break;
+
                 case HttpStatusCode.Unauthorized://401
                     result.Major = ExceptionCode.MajorCode.UnauthorizedOperation;
                     break;
+
                 case HttpStatusCode.PaymentRequired://402
                     result.Major = ExceptionCode.MajorCode.CreditNotAfford;
                     break;
+
                 case HttpStatusCode.Forbidden://403
                     result.Major = ExceptionCode.MajorCode.OperationForbidden;
                     break;
+
                 case HttpStatusCode.NotFound: //404
                     result.Major = ExceptionCode.MajorCode.ResourceNotFound;
                     break;
+
                 case HttpStatusCode.Conflict: //409
                     result.Major = ExceptionCode.MajorCode.DataConflict;
                     break;
+
                 case HttpStatusCode.InternalServerError: //500
                     result.Major = ExceptionCode.MajorCode.OperationFailure;
                     break;
+
                 case HttpStatusCode.NotImplemented: //501
                     result.Major = ExceptionCode.MajorCode.NotImplemented;
                     break;
+
                 case HttpStatusCode.ServiceUnavailable: //503
                     result.Major = ExceptionCode.MajorCode.ServiceUnavailable;
                     break;
+
                 case HttpStatusCode.HttpVersionNotSupported: //505
                     result.Major = ExceptionCode.MajorCode.Unsupported;
                     break;
+
                 default:
                     result.Major = ExceptionCode.MajorCode.HttpBlockError;
                     break;
@@ -2262,7 +2339,6 @@ namespace Beyova
                     var value = dataMappings[key] ?? string.Empty;
                     stringBuilder.Append(key + "=" + value.Trim() + "&");
                 }
-
             }
             if (stringBuilder.Length > 0)
             {
@@ -2270,6 +2346,78 @@ namespace Beyova
             }
 
             return (encoding ?? Encoding.ASCII).GetBytes(stringBuilder.ToString());
+        }
+
+        /// <summary>
+        /// Sets the query string.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static Uri SetQueryString(this Uri uri, string key, string value)
+        {
+            return SetQueryString(uri, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { key, value } });
+        }
+
+        /// <summary>
+        /// Sets the query string.
+        /// </summary>
+        /// <param name="uri">The URI.</param>
+        /// <param name="updates">The updates.</param>
+        /// <returns></returns>
+        public static Uri SetQueryString(this Uri uri, Dictionary<string, string> updates)
+        {
+            var parts = uri.ToString().Split('?'.AsArray(), 2);
+            return parts.Length > 1 ? new Uri(string.Format("{0}?{1}", parts[0], InternalGenerateNewQueryString(parts[1], updates))) : new Uri(string.Format("{0}?{1}", parts[0], updates.ToKeyValuePairString()));
+        }
+
+        /// <summary>
+        /// Sets the query string.
+        /// </summary>
+        /// <param name="uriOrPath">The URI or path.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static string SetQueryString(this string uriOrPath, string key, string value)
+        {
+            return SetQueryString(uriOrPath, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { key, value } });
+        }
+
+        /// <summary>
+        /// Sets the query string.
+        /// </summary>
+        /// <param name="uriOrPath">The URI.</param>
+        /// <param name="updates">The updates.</param>
+        /// <returns></returns>
+        public static string SetQueryString(this string uriOrPath, Dictionary<string, string> updates)
+        {
+            if (string.IsNullOrWhiteSpace(uriOrPath))
+            {
+                return uriOrPath;
+            }
+            var parts = uriOrPath.ToString().Split('?'.AsArray(), 2);
+            return parts.Length > 1 ? string.Format("{0}?{1}", parts[0], InternalGenerateNewQueryString(parts[1], updates)) : string.Format("{0}?{1}", parts[0], updates.ToKeyValuePairString());
+        }
+
+        /// <summary>
+        /// Internals the generate new query string.
+        /// </summary>
+        /// <param name="originalPureQueryString">The original pure query string. Like: a=b&amp;c=d</param>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        private static string InternalGenerateNewQueryString(string originalPureQueryString, Dictionary<string, string> updates)
+        {
+            if (string.IsNullOrWhiteSpace(originalPureQueryString))
+            {
+                return string.Empty;
+            }
+
+            var orignal = originalPureQueryString.ParseToDictonary();
+            orignal.Merge(updates, true);
+
+            return orignal.ToKeyValuePairString(encodeKeyValue: false);
         }
     }
 }

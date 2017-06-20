@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SqlClient;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {

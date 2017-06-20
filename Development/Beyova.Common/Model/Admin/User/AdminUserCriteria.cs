@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminUserCriteria.
     /// </summary>
-    public class AdminUserCriteria : AdminUserInfoBase, ICriteria
+    public class AdminUserCriteria : AdminUserInfo, ICriteria
     {
         /// <summary>
         /// Gets or sets the count.

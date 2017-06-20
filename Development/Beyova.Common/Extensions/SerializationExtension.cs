@@ -1,13 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using Beyova.ExceptionSystem;
 using Newtonsoft.Json;
 
 namespace Beyova
@@ -321,6 +318,6 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Serialization
     }
 }

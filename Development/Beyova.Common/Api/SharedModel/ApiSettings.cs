@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using Newtonsoft.Json;
-
-namespace Beyova.Api
+﻿namespace Beyova.Api
 {
     /// <summary>
     /// Class ApiSettings.

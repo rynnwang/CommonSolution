@@ -1,14 +1,12 @@
 ﻿using System;
-using Beyova;
 
 namespace Beyova
 {
     /// <summary>
     /// Class SessionCriteria.
     /// </summary>
-    public class SessionCriteria: SessionCriteria<string>
+    public class SessionCriteria : SessionCriteria<string>
     {
-
     }
 
     /// <summary>

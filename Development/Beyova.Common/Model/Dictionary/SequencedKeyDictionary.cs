@@ -79,7 +79,8 @@ namespace Beyova
         /// <param name="comparer">The comparer.</param>
         public SequencedKeyDictionary(IDictionary<TKey, TValue> baseDictionary, IEqualityComparer<TKey> comparer)
         {
-            this.dictionary = baseDictionary == null ? new Dictionary<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default)
+            this.dictionary = baseDictionary == null ?
+                new Dictionary<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default)
                 : new Dictionary<TKey, TValue>(dictionary, comparer ?? EqualityComparer<TKey>.Default);
             keys = new List<TKey>();
         }

@@ -60,7 +60,7 @@ namespace Beyova.Api
             return methodCallMessage != null ? new ApiTraceLogPiece(parent, methodCallMessage.MethodFullName) : null;
         }
 
-        #region ToMethodParameters 
+        #region ToMethodParameters
 
         ///// <summary>
         ///// To the method parameters.
@@ -99,8 +99,7 @@ namespace Beyova.Api
         //    return result;
         //}
 
-        #endregion
-
+        #endregion ToMethodParameters
 
         /// <summary>
         /// To the flat.

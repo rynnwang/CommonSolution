@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Beyova;
 using Beyova.Api;
 using Beyova.RestApi;
 
 namespace Beyova.CommonServiceInterface
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <typeparam name="TAppVersion">The type of the application version.</typeparam>
     [TokenRequired]
@@ -29,7 +28,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="snapshotKey">The snapshot key.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppVersion, HttpConstants.HttpMethod.Get, CommonServiceConstants.ResourceName.Snapshot)]
-        [ApiPermission(CommonServiceConstants.Permission.AppVersionAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppVersionAdministration)]
         TAppVersion GetAppVersionSnapshot(Guid? snapshotKey);
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="criteria">The criteria.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppVersion, HttpConstants.HttpMethod.Post)]
-        [ApiPermission(CommonServiceConstants.Permission.AppVersionAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppVersionAdministration)]
         List<TAppVersion> QueryAppVersion(AppVersionCriteria criteria);
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="criteria">The criteria.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppVersion, HttpConstants.HttpMethod.Post, CommonServiceConstants.ResourceName.Snapshot)]
-        [ApiPermission(CommonServiceConstants.Permission.AppVersionAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppVersionAdministration)]
         List<TAppVersion> QueryAppVersionSnapshots(AppVersionCriteria criteria);
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="appVersion">The application version.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppVersion, HttpConstants.HttpMethod.Put)]
-        [ApiPermission(CommonServiceConstants.Permission.AppVersionAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppVersionAdministration)]
         TAppVersion CreateOrUpdateAppVersion(AppVersionBase appVersion);
     }
 }

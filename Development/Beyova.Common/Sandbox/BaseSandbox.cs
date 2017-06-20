@@ -92,7 +92,7 @@ namespace Beyova
                     assemblyNameToLoad.Add(Path.GetFileNameWithoutExtension(one.Location));
                 }
 
-                // Load assemblies 
+                // Load assemblies
                 foreach (var one in assemblyNameToLoad)
                 {
                     var destinationPath = Path.Combine(applicationDirectory, GetAssemblyFileNameWithExtension(one));
@@ -213,7 +213,7 @@ namespace Beyova
             return string.Format("{0}.dll", pureName);
         }
 
-        #endregion
+        #endregion Static methods
 
         /// <summary>
         /// Wraps to current application domain.

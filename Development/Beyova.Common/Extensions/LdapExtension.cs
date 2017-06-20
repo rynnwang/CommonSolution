@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.ActiveDirectory;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -11,9 +10,9 @@ namespace Beyova
     /// </summary>
     public static class LdapExtension
     {
-        const string ldapProtocol = "LDAP://";
+        private const string ldapProtocol = "LDAP://";
 
-        const string cn = "CN=";
+        private const string cn = "CN=";
 
         /// <summary>
         /// Gets the LDAP path.
@@ -235,7 +234,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Extension
 
         #region LDAP Account
 
@@ -311,6 +310,6 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion LDAP Account
     }
 }

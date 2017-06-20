@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting.Messaging;
 
 namespace Beyova.AOP
 {
@@ -26,7 +25,7 @@ namespace Beyova.AOP
     /// </returns>
     public delegate Exception ProcessExceptionDelegate(MethodCallInfo methodCallInfo);
 
-    #endregion
+    #endregion Delegate
 
     /// <summary>
     /// Class MethodInjectionDelegates.
@@ -54,6 +53,5 @@ namespace Beyova.AOP
         /// </summary>
         /// <value>The exception delegate.</value>
         public ProcessExceptionDelegate ExceptionDelegate { get; set; }
-
     }
 }

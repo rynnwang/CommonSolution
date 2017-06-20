@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Beyova.BooleanSearch
+﻿namespace Beyova.BooleanSearch
 {
     /// <summary>
     /// Interface IRelationshipOperatorComputable

@@ -87,7 +87,7 @@ namespace Beyova
             protected set;
         }
 
-        #endregion
+        #endregion Properties
 
         #region Constructor
 
@@ -120,7 +120,7 @@ namespace Beyova
         {
         }
 
-        #endregion
+        #endregion Constructor
 
         #region Public methods
 
@@ -178,7 +178,7 @@ namespace Beyova
             SendMail(mailMessage);
         }
 
-        #endregion
+        #endregion Public methods
 
         #region GenerateMailMessage
 
@@ -245,7 +245,6 @@ namespace Beyova
             return mailMessage;
         }
 
-
         /// <summary>
         /// Generates the mail message.
         /// </summary>
@@ -290,7 +289,7 @@ namespace Beyova
             return GenerateMailMessage(subject, body, true, Encoding.UTF8, toList, ccList, null, null, MailPriority.Normal);
         }
 
-        #endregion
+        #endregion GenerateMailMessage
 
         /// <summary>
         /// Sets the password.

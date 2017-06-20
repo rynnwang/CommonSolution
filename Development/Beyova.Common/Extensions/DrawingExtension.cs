@@ -4,7 +4,6 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -37,7 +36,7 @@ namespace Beyova
             return squareImage;
         }
 
-        #endregion
+        #endregion Image
 
         #region Bitmap
 
@@ -91,7 +90,6 @@ namespace Beyova
                     var newWidth = 0;
                     var newHeight = 0;
 
-
                     if (keepRatio)
                     {
                         decimal ratio;
@@ -116,7 +114,6 @@ namespace Beyova
                         newWidth = (image.Width > maxWidth) ? maxWidth : image.Width;
                         newHeight = (image.Height > maxHeight) ? maxHeight : image.Height;
                     }
-
 
                     bmpOut = new Bitmap(newWidth, newHeight);
                     var g = Graphics.FromImage(bmpOut);
@@ -216,6 +213,6 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Bitmap
     }
 }

@@ -18,12 +18,12 @@ namespace Beyova
         /// <summary>
         /// The start symbol
         /// </summary>
-        const string startSymbol = "^";
+        private const string startSymbol = "^";
 
         /// <summary>
         /// The end symbol
         /// </summary>
-        const string endSymbol = "$";
+        private const string endSymbol = "$";
 
         /// <summary>
         /// Ases the quoted string.
@@ -158,7 +158,7 @@ namespace Beyova
             return builder.ToString();
         }
 
-        #endregion
+        #endregion Regular Expression Extensions
 
         #region Format regex
 
@@ -177,7 +177,7 @@ namespace Beyova
         /// </summary>
         private static Regex macAddressRegex = new Regex("^[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        #endregion
+        #endregion Format regex
 
         #region Trim
 
@@ -284,7 +284,7 @@ namespace Beyova
             return InternalTrim(anyString, factor, true, true, ignoreCase);
         }
 
-        #endregion
+        #endregion Trim
 
         /// <summary>
         /// As secure string.
@@ -688,7 +688,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Capitalizes the specified any string. 
+        /// Capitalizes the specified any string.
         /// </summary>
         /// <param name="anyString">Any string.</param>
         /// <returns>System.String.</returns>
@@ -981,7 +981,7 @@ namespace Beyova
         /// <summary>
         /// The space lines
         /// </summary>
-        static char[] spaceLines = new char[] { ' ', '\r', '\n', '\t' };
+        private static char[] spaceLines = new char[] { ' ', '\r', '\n', '\t' };
 
         /// <summary>
         /// Removes the last char if it equals to specific char from parameter.
@@ -992,7 +992,6 @@ namespace Beyova
         /// <returns>StringBuilder.</returns>
         public static StringBuilder RemoveLastIfMatch(this StringBuilder builder, char charToMatch, bool trimEndSpacesOrLines = false)
         {
-
             if (builder != null && builder.Length > 0)
             {
                 if (trimEndSpacesOrLines)
@@ -1038,7 +1037,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion StringBuilder
 
         /// <summary>
         /// Inners the string.
@@ -1189,6 +1188,6 @@ namespace Beyova
             return string.Empty;
         }
 
-        #endregion
+        #endregion Regex convert
     }
 }

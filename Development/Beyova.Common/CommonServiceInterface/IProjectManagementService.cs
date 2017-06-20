@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Beyova;
 using Beyova.Api;
 using Beyova.RestApi;
 
@@ -36,6 +35,6 @@ namespace Beyova.CommonServiceInterface
         [ApiPermission(CommonServiceConstants.Permission.Administrator, ApiPermission.Required)]
         List<TProjectInfo> QueryProjectInfo(TProjectCriteria criteria);
 
-        #endregion
+        #endregion Project
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-using Beyova;
-
-namespace Beyova
+﻿namespace Beyova
 {
     /// <summary>
     /// Class BinaryStorageMetaData.
@@ -12,7 +8,7 @@ namespace Beyova
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
-        /// <value>The name.</value>        
+        /// <value>The name.</value>
         public string Name { get; set; }
 
         /// <summary>
@@ -21,7 +17,7 @@ namespace Beyova
         /// http://www.w3.org/wiki/Evolution/MIME
         /// </remarks>
         /// </summary>
-        /// <value>The MIME.</value>        
+        /// <value>The MIME.</value>
         public string Mime { get; set; }
 
         /// <summary>

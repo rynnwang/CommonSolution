@@ -4,7 +4,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using Beyova.ProgrammingIntelligence;
-using Newtonsoft.Json.Linq;
 
 namespace Beyova.Configuration
 {
@@ -99,7 +98,7 @@ namespace Beyova.Configuration
             }
         }
 
-        #endregion
+        #endregion Initialization
 
         /// <summary>
         /// Refreshes the settings.
@@ -132,6 +131,6 @@ namespace Beyova.Configuration
             get { return _defaultConfigurationReader; }
         }
 
-        #endregion
+        #endregion Singleton
     }
 }

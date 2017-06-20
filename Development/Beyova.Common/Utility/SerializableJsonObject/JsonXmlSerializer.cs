@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Text;
-using System.Xml.Linq;
-using Newtonsoft.Json;
 using System.Xml;
+using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova
 {
     /// <summary>
     /// Class JsonXmlSerializer, which is used for converting between Json and Xml
-    /// </summary> 
+    /// </summary>
+    [Obsolete("use JsonXmlizer instead")]
     public static class JsonXmlSerializer
     {
         /// <summary>
@@ -132,9 +132,11 @@ namespace Beyova
                             FillXml(writer, one.Value, name);
                         }
                         break;
+
                     case JTokenType.TimeSpan:
                         writer.WriteValue(jToken.Value<TimeSpan>().TotalMilliseconds);
                         break;
+
                     case JTokenType.Property:
                     case JTokenType.Raw:
                     case JTokenType.String:
@@ -202,10 +204,12 @@ namespace Beyova
                         case JTokenType.Date:
                             result = JToken.FromObject(Convert.ToDateTime(xml.Value));
                             break;
+
                         case JTokenType.Integer:
                         case JTokenType.Float:
                             result = JToken.Parse(xml.Value);
                             break;
+
                         case JTokenType.Boolean:
                             result = JToken.FromObject(xml.Value.ToBoolean(false));
                             break;
@@ -220,24 +224,31 @@ namespace Beyova
                             }
                             result = jObject;
                             break;
+
                         case JTokenType.Property:
                         case JTokenType.Raw:
                             break;
+
                         case JTokenType.TimeSpan:
                             result = JToken.FromObject(new TimeSpan(xml.Value.ToInt64()));
                             break;
+
                         case JTokenType.String:
                             result = JToken.FromObject(xml.Value);
                             break;
+
                         case JTokenType.Uri:
                             result = JToken.FromObject(new Uri(xml.Value));
                             break;
+
                         case JTokenType.Bytes:
                             result = JToken.FromObject(Encoding.UTF8.GetBytes(xml.Value));
                             break;
+
                         case JTokenType.Null:
                             result = NullJToken;
                             break;
+
                         case JTokenType.Undefined:
                             result = UndefinedJToken;
                             break;
@@ -249,10 +260,8 @@ namespace Beyova
                             break;
                     }
                 }
-
             }
             return result;
         }
     }
-
 }

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Web;
-using System.Xml.Linq;
-using Beyova.ExceptionSystem;
-using Beyova;
+﻿using System.Text;
 
 namespace Beyova
 {
@@ -25,7 +16,7 @@ namespace Beyova
         {
             if (stringBuilder != null)
             {
-                foreach(var one in rowItems)
+                foreach (var one in rowItems)
                 {
                     stringBuilder.Append(one);
                     stringBuilder.Append(StringConstants.CommaChar);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
@@ -53,7 +52,7 @@ namespace Beyova.ExceptionSystem
         /// <value>The scene.</value>
         public ExceptionScene Scene { get; protected set; }
 
-        #endregion
+        #endregion Properties
 
         #region Constructor
 
@@ -104,8 +103,6 @@ namespace Beyova.ExceptionSystem
             this.Hint = hint;
         }
 
-        #endregion
+        #endregion Constructor
     }
 }
-
-

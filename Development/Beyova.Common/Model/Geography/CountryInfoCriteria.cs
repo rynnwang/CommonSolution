@@ -34,6 +34,6 @@ namespace Beyova
         /// e.g.: zh-CN, en-US, pt-PT, etc.</value>
         public string CultureCode { get; set; }
 
-        #endregion
+        #endregion Properties
     }
 }

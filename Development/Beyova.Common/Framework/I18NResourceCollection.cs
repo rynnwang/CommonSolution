@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
@@ -96,7 +94,7 @@ namespace Beyova
             return string.Empty;
         }
 
-        #endregion
+        #endregion GetResourceString
 
         /// <summary>
         /// Gets the resource strings by culture code.
@@ -163,6 +161,6 @@ namespace Beyova
             return cultureInfo != null && this.ResourceManager.GetResourceSet(cultureInfo, false, true) != null;
         }
 
-        #endregion
+        #endregion Public methods
     }
 }

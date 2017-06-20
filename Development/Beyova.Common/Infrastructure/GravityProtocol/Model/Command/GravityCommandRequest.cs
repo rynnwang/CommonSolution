@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.Gravity
@@ -7,7 +6,7 @@ namespace Beyova.Gravity
     /// <summary>
     /// Class GravityCommandRequest.
     /// </summary>
-    public class GravityCommandRequest : GravityCommandRequestBase
+    public class GravityCommandRequest : GravityCommandRequestBase, IExpirable
     {
         /// <summary>
         /// Gets or sets the parameters.

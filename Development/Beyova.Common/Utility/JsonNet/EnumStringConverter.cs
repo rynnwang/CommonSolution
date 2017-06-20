@@ -17,14 +17,17 @@ namespace Beyova
             /// The default
             /// </summary>
             Default = 0,
+
             /// <summary>
             /// The lower camel case
             /// </summary>
             LowerCamelCase = 1,
+
             /// <summary>
             /// The by slash
             /// </summary>
             BySlash = 2,
+
             /// <summary>
             /// The lower cases
             /// </summary>
@@ -53,7 +56,7 @@ namespace Beyova
         /// Determines whether this instance can convert the specified object type.
         /// </summary>
         /// <param name="objectType">Type of the object.</param>
-        /// <returns><c>true</c> if this instance can convert the specified object type; otherwise, 
+        /// <returns><c>true</c> if this instance can convert the specified object type; otherwise,
         /// <c>false</c>.</returns>
         public override bool CanConvert(Type objectType)
         {
@@ -97,9 +100,11 @@ namespace Beyova
                     case EnumStringNamingRule.BySlash:
                         text = StringRegexExtension.SplitByUpperCases(text, "-");
                         break;
+
                     case EnumStringNamingRule.LowerCamelCase:
                         text = Convert.ToString(Char.ToLowerInvariant(text[0])) + (text.Length > 1 ? text.Substring(1) : string.Empty);
                         break;
+
                     case EnumStringNamingRule.LowerCases:
                         text = text.ToLowerInvariant();
                         break;

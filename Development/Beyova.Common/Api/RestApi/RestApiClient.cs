@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Beyova.Api;
 using Beyova.ExceptionSystem;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.RestApi
@@ -90,7 +89,7 @@ namespace Beyova.RestApi
         {
         }
 
-        #endregion
+        #endregion Constructor
 
         #region Common usage
 
@@ -129,7 +128,7 @@ namespace Beyova.RestApi
             return InvokeAsJToken(realm, version, httpMethod, resourceName, resourceAction, key, queryString, bodyJson, this.Timeout, methodNameForTrace);
         }
 
-        #endregion
+        #endregion Common usage
 
         #region Programming Intelligence usage
 
@@ -216,6 +215,8 @@ namespace Beyova.RestApi
                     httpRequest.FillData(httpMethod, bodyJson.SafeToString());
                 }
 
+                ApiTraceContext.WriteHttpRequestRaw(httpRequest);
+
                 WebHeaderCollection headers;
                 CookieCollection cookie;
                 HttpStatusCode httpStatusCode;
@@ -226,10 +227,13 @@ namespace Beyova.RestApi
                     return null;
                 }
 
+                ApiTraceContext.WriteHttpResponseRaw(headers, response);
                 return response != null ? JToken.Parse(response) : null;
             }
             catch (HttpOperationException httpEx)
             {
+                ApiTraceContext.WriteHttpResponseRaw(null, httpEx.ExceptionReference.ResponseText);
+
                 ExceptionInfo externalExceptionInfo = JsonExtension.TryConvertJsonToObject<ExceptionInfo>(httpEx.ExceptionReference.ResponseText);
 
                 exception = httpEx.Handle(new { httpMethod, resourceName, resourceAction, key, queryString, externalExceptionInfo });
@@ -248,7 +252,7 @@ namespace Beyova.RestApi
             }
         }
 
-        #endregion
+        #endregion Programming Intelligence usage
 
         #region Util
 
@@ -318,6 +322,6 @@ namespace Beyova.RestApi
             }
         }
 
-        #endregion
+        #endregion Util
     }
 }

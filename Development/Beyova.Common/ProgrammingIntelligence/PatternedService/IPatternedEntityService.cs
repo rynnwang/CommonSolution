@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Beyova.ProgrammingIntelligence
+﻿namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
     /// Interface IPatternedEntityService
@@ -9,6 +7,5 @@ namespace Beyova.ProgrammingIntelligence
     /// <typeparam name="TCriteria">The type of the t criteria.</typeparam>
     public interface IPatternedEntityService<TEntity, TCriteria>
     {
-
     }
 }

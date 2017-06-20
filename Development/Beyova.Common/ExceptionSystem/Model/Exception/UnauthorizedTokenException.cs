@@ -18,6 +18,6 @@
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

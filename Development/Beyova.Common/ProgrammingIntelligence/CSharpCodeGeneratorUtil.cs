@@ -7,7 +7,7 @@ using System.Text;
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class CSharpCodeGenerateUtil
     {
@@ -60,7 +60,6 @@ namespace Beyova.ProgrammingIntelligence
 
         #region ToCodeLook
 
-
         /// <summary>
         /// To the generic constraints code look.
         /// </summary>
@@ -70,13 +69,13 @@ namespace Beyova.ProgrammingIntelligence
 #if DEBUG
         public
 #else
+
         internal
 # endif
             static string ToGenericConstraintsCodeLook(this Type type, string indent = null)
         {
             return type.IsGenericType ? InternalToGenericConstraintsCodeLook(type.GetGenericArguments(), indent) : string.Empty;
         }
-
 
         /// <summary>
         /// To the generic constraints code look.
@@ -87,6 +86,7 @@ namespace Beyova.ProgrammingIntelligence
 #if DEBUG
         public
 #else
+
         internal
 # endif
             static string ToGenericConstraintsCodeLook(this MethodInfo methodInfo, string indent = null)
@@ -162,6 +162,7 @@ namespace Beyova.ProgrammingIntelligence
 #if DEBUG
         public
 #else
+
         internal
 #endif
             static string ToDeclarationCodeLook(this MethodInfo methodInfo)
@@ -195,6 +196,7 @@ namespace Beyova.ProgrammingIntelligence
 #if DEBUG
         public
 #else
+
         internal
 #endif
             static string ToInvokeCodeLook(this MethodInfo methodInfo, Type[] genericTypes, ParameterInfo[] inputParameters)
@@ -205,6 +207,7 @@ namespace Beyova.ProgrammingIntelligence
 #if DEBUG
         public
 #else
+
         internal
 #endif
             static string ToInvokeCodeLook(this MethodInfo methodInfo, Type[] genericTypes, string[] inputParameterNames)
@@ -269,7 +272,6 @@ namespace Beyova.ProgrammingIntelligence
                         result = omitNamespace ?
                                 string.Format("{0}<{1}>", type.Name.SubStringBeforeFirstMatch('`'), builder) :
                                 string.Format("{0}{1}{2}<{3}>", type.Namespace, string.IsNullOrWhiteSpace(type.Namespace) ? string.Empty : separator, type.Name.SubStringBeforeFirstMatch('`'), builder);
-
                     }
                     else
                     {
@@ -286,7 +288,7 @@ namespace Beyova.ProgrammingIntelligence
             return result;
         }
 
-        #endregion
+        #endregion ToCodeLook
 
         /// <summary>
         /// Methods the generic arguments to code look.
@@ -374,7 +376,6 @@ namespace Beyova.ProgrammingIntelligence
             }
 
             return string.Empty;
-
         }
     }
 }

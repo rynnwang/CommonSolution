@@ -56,7 +56,7 @@ namespace Beyova.CommonServiceInterface
         [ApiOperation(CommonServiceConstants.ResourceName.SSOAuthorizationPartner, HttpConstants.HttpMethod.Post)]
         List<TSSOAuthorizationPartner> QuerySSOAuthorizationPartner(TSSOAuthorizationPartnerCriteria criteria);
 
-        #endregion
+        #endregion Authorization Partner
 
         #region SSO - Exchange Token
 
@@ -76,7 +76,7 @@ namespace Beyova.CommonServiceInterface
         [ApiOperation(CommonServiceConstants.ResourceName.SSOTokenExchange, HttpConstants.HttpMethod.Post)]
         SessionInfo ExchangeToken(SSOAuthorizationBase authorization);
 
-        #endregion
+        #endregion SSO - Exchange Token
 
         #region SSO - OAuth
 
@@ -104,7 +104,7 @@ namespace Beyova.CommonServiceInterface
         [ApiOperation(CommonServiceConstants.ResourceName.OAuth, HttpConstants.HttpMethod.Post, "Verify")]
         TUserInfo VerifyOAuth(TSSOAuthorization authorization);
 
-        #endregion
+        #endregion SSO - OAuth
 
         /// <summary>
         /// Queries the sso authorization.

@@ -47,6 +47,14 @@ namespace Beyova.ApiTracking
         public List<ApiTraceLogPiece> InnerTraces { get; set; }
 
         /// <summary>
+        /// Gets or sets the debug information.
+        /// </summary>
+        /// <value>
+        /// The debug information.
+        /// </value>
+        public Beyova.Diagnostic.DebugInfo DebugInfo { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApiTraceLogPiece"/> class.
         /// </summary>
         /// <param name="parent">The parent.</param>
@@ -66,6 +74,7 @@ namespace Beyova.ApiTracking
         public ApiTraceLogPiece()
         {
             this.InnerTraces = new List<ApiTraceLogPiece>();
+            this.DebugInfo = new Diagnostic.DebugInfo();
         }
     }
 }

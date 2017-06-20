@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Beyova.ApiTracking;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -53,7 +49,7 @@ namespace Beyova
             set;
         }
 
-        #endregion
+        #endregion Properties
 
         /// <summary>
         /// Gets the next occurrence.
@@ -148,6 +144,7 @@ namespace Beyova
                         result = this.HitReference;
                     }
                     break;
+
                 default:
                     break;
             }

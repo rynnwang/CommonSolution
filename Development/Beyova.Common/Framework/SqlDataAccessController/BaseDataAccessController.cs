@@ -152,11 +152,6 @@ namespace Beyova
         protected const string column_Token = "Token";
 
         /// <summary>
-        /// The SQL connection
-        /// </summary>
-        private const string configurationKey_sqlConnection = "SqlConnection";
-
-        /// <summary>
         /// The column_ ip address
         /// </summary>
         protected const string column_IpAddress = "IpAddress";
@@ -309,9 +304,9 @@ namespace Beyova
         /// <summary>
         /// The column URL
         /// </summary>
-        protected const string column_Url= "Url";
+        protected const string column_Url = "Url";
 
-        #endregion
+        #endregion Constants
 
         #region Constructor
 
@@ -319,7 +314,7 @@ namespace Beyova
         /// Initializes a new instance of the <see cref="BaseDataAccessController{T}"/> class.
         /// </summary>
         protected BaseDataAccessController()
-            : this(Framework.GetConfiguration(configurationKey_sqlConnection))
+            : this(Framework.PrimarySqlConnection)
         {
         }
 
@@ -343,7 +338,7 @@ namespace Beyova
         {
         }
 
-        #endregion
+        #endregion Constructor
 
         #region Fill interface based object.
 
@@ -382,7 +377,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Fill interface based object.
 
         /// <summary>
         /// Executes the reader as base object.

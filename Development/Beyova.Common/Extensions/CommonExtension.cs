@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
-using Beyova.ExceptionSystem;
 
 namespace Beyova
 {
@@ -15,7 +14,7 @@ namespace Beyova
     /// </summary>
     public static class CommonExtension
     {
-        const string emptyString = "";
+        private const string emptyString = "";
 
         #region Format Constants
 
@@ -44,7 +43,7 @@ namespace Beyova
         /// </summary>
         public const string fullDateTimeTZFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
-        #endregion
+        #endregion Format Constants
 
         #region Or + And
 
@@ -116,7 +115,7 @@ namespace Beyova
             return false;
         }
 
-        #endregion
+        #endregion Or + And
 
         #region Extensions for all objects
 
@@ -141,7 +140,7 @@ namespace Beyova
         /// <returns><c>true</c> if equals, <c>false</c> otherwise.</returns>
         public static bool SafeEquals(this string stringA, string stringB, StringComparison comparisonType = StringComparison.Ordinal)
         {
-            //Use safe strategy like Nullable equals. 
+            //Use safe strategy like Nullable equals.
             // http://referencesource.microsoft.com/#mscorlib/system/nullable.cs,ec76599b875ff1b7,references
 
             if (stringA == null)
@@ -188,7 +187,7 @@ namespace Beyova
         /// <returns><c>true</c> if equals, <c>false</c> otherwise.</returns>
         public static bool SafeEquals<T>(this T objectA, T objectB)
         {
-            //Use safe strategy like Nullable equals. 
+            //Use safe strategy like Nullable equals.
             // http://referencesource.microsoft.com/#mscorlib/system/nullable.cs,ec76599b875ff1b7,references
 
             if (objectA == null)
@@ -397,7 +396,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Extensions for all objects
 
         #region Type Convert Extensions
 
@@ -722,7 +721,7 @@ namespace Beyova
             return defaultXml;
         }
 
-        #endregion
+        #endregion Object To XXX
 
         /// <summary>
         /// To the int32.
@@ -969,7 +968,7 @@ namespace Beyova
                 : defaultDate;
         }
 
-        #endregion
+        #endregion Type Convert Extensions
 
         #region DateTime Extensions
 
@@ -1314,7 +1313,7 @@ namespace Beyova
                 dateTimeObject.Second).AddMonths(1).AddDays(-1);
         }
 
-        #endregion
+        #endregion DateTime Extensions
 
         #region XElement Extension
 
@@ -1648,7 +1647,7 @@ namespace Beyova
             return null;
         }
 
-        #endregion
+        #endregion XElement Extension
 
         #region Random
 
@@ -1750,7 +1749,7 @@ namespace Beyova
             return sb.ToString();
         }
 
-        #endregion
+        #endregion Random
 
         #region Enum
 
@@ -1862,7 +1861,7 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion Enum
 
         #region Ensure & Testify
 
@@ -1897,12 +1896,12 @@ namespace Beyova
         /// <summary>
         /// The is int32 natural
         /// </summary>
-        static Func<int, bool> isInt32Natural = x => x >= 0;
+        private static Func<int, bool> isInt32Natural = x => x >= 0;
 
         /// <summary>
         /// The is int64 natural
         /// </summary>
-        static Func<long, bool> isInt64Natural = x => x >= 0;
+        private static Func<long, bool> isInt64Natural = x => x >= 0;
 
         /// <summary>
         /// Ensures the natural number.
@@ -1946,7 +1945,7 @@ namespace Beyova
             Testify(value, objectName, isInt64Natural);
         }
 
-        #endregion
+        #endregion Ensure & Testify
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
@@ -1957,6 +1956,48 @@ namespace Beyova
         public static string ToString(this DateTime? dateTime, string format)
         {
             return dateTime.HasValue ? dateTime.ToString(format.SafeToString(fullDateTimeTZFormat)) : string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the underlying objects.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objects">The objects.</param>
+        /// <returns></returns>
+        public static List<T> GetUnderlyingObjects<T>(this IEnumerable<BaseObject<T>> objects)
+        {
+            var list = new List<T>();
+
+            if (objects.HasItem())
+            {
+                foreach (var one in objects)
+                {
+                    list.Add(one.Object);
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Gets the underlying objects.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objects">The objects.</param>
+        /// <returns></returns>
+        public static List<T> GetUnderlyingObjects<T>(this IEnumerable<SimpleBaseObject<T>> objects)
+        {
+            var list = new List<T>();
+
+            if (objects.HasItem())
+            {
+                foreach (var one in objects)
+                {
+                    list.Add(one.Object);
+                }
+            }
+
+            return list;
         }
     }
 }

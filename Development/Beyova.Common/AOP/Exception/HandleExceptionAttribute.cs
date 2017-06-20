@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
-using Beyova.ExceptionSystem;
 
 namespace Beyova.AOP
 {
@@ -9,6 +6,7 @@ namespace Beyova.AOP
     /// Class HandleExceptionAttribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    [Obsolete("MarshalObject Based AOP is retired. Proxy based AOP can customize injection implementation when it is wrapped.")]
     public class HandleExceptionAttribute : BaseAOPAttribute
     {
         /// <summary>
@@ -68,6 +66,6 @@ namespace Beyova.AOP
             return methodCallInfo?.InArgs;
         }
 
-        #endregion
+        #endregion Handle exception
     }
 }

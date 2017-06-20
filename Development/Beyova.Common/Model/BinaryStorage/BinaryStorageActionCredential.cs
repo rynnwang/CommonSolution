@@ -10,7 +10,7 @@ namespace Beyova
         /// <summary>
         /// Gets or sets the storage URI.
         /// </summary>
-        /// <value>The storage URI.</value>        
+        /// <value>The storage URI.</value>
         public string StorageUri { get; set; }
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Beyova
         /// <summary>
         /// Gets or sets the credential expired stamp.
         /// </summary>
-        /// <value>The credential expired stamp.</value>        
+        /// <value>The credential expired stamp.</value>
         public DateTime? CredentialExpiredStamp { get; set; }
     }
 }

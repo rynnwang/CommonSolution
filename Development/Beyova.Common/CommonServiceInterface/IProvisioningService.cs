@@ -20,7 +20,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="configuration">The configuration.</param>
         /// <returns>System.Nullable&lt;Guid&gt;.</returns>
         [ApiOperation(CommonServiceConstants.ResourceName.Configuration, HttpConstants.HttpMethod.Put)]
-        [ApiPermission(CommonServiceConstants.Permission.RemoteConfigurationAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.RemoteConfigurationAdministrator)]
         Guid? CreateOrUpdateConfiguration(RemoteConfigurationObject configuration);
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;RemoteConfigurationObject&gt;.</returns>
         [ApiOperation(CommonServiceConstants.ResourceName.Configuration, HttpConstants.HttpMethod.Post)]
-        [ApiPermission(CommonServiceConstants.Permission.RemoteConfigurationAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.RemoteConfigurationAdministrator)]
         List<RemoteConfigurationObject> QueryConfiguration(RemoteConfigurationCriteria criteria);
 
         /// <summary>
@@ -38,10 +38,10 @@ namespace Beyova.CommonServiceInterface
         /// <param name="criteria">The criteria.</param>
         /// <returns>List&lt;RemoteConfigurationObject&gt;.</returns>
         [ApiOperation(CommonServiceConstants.ResourceName.Configuration, HttpConstants.HttpMethod.Post, CommonServiceConstants.ActionName.Snapshot)]
-        [ApiPermission(CommonServiceConstants.Permission.RemoteConfigurationAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.RemoteConfigurationAdministrator)]
         List<RemoteConfigurationObject> QueryConfigurationSnapshot(RemoteConfigurationCriteria criteria);
 
-        #endregion
+        #endregion Service Configuration management
 
         #region App Provisioning
 
@@ -51,7 +51,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="criteria">The criteria.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppProvisioning, HttpConstants.HttpMethod.Post)]
-        [ApiPermission(CommonServiceConstants.Permission.AppProvisioningAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppProvisioningAdministration)]
         List<TAppProvisioning> QueryAppProvisioning(AppProvisioningCriteria criteria);
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="criteria">The criteria.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppProvisioning, HttpConstants.HttpMethod.Post, CommonServiceConstants.ResourceName.Snapshot)]
-        [ApiPermission(CommonServiceConstants.Permission.AppProvisioningAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppProvisioningAdministration)]
         List<TAppProvisioning> QueryAppProvisioningSnapshot(AppProvisioningCriteria criteria);
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Beyova.CommonServiceInterface
         /// <param name="appProvisioning">The application provisioning.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppProvisioning, HttpConstants.HttpMethod.Put)]
-        [ApiPermission(CommonServiceConstants.Permission.AppProvisioningAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppProvisioningAdministration)]
         Guid? CreateOrUpdateAppProvisioning(TAppProvisioning appProvisioning);
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Beyova.CommonServiceInterface
         /// </summary>
         /// <param name="key">The key.</param>
         [ApiOperation(CommonServiceConstants.ResourceName.AppProvisioning, HttpConstants.HttpMethod.Delete)]
-        [ApiPermission(CommonServiceConstants.Permission.AppProvisioningAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppProvisioningAdministration)]
         void DeleteAppProvisioning(Guid? key);
 
         /// <summary>
@@ -87,10 +87,10 @@ namespace Beyova.CommonServiceInterface
         /// <param name="name">The name.</param>
         /// <returns></returns>
         [ApiOperation(CommonServiceConstants.ResourceName.AppProvisioning, HttpConstants.HttpMethod.Get)]
-        [ApiPermission(CommonServiceConstants.Permission.AppProvisioningAdministration)]
+        [ApiPermission(CommonServiceConstants.Permission.ProvisioningSystem.AppProvisioningAdministration)]
         [TokenRequired(false)]
         TAppProvisioning GetAppProvisioning(Guid? platformKey, string name = null);
 
-        #endregion
+        #endregion App Provisioning
     }
 }

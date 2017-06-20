@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Xml.Linq;
-using Beyova.ExceptionSystem;
 using Beyova;
+using Beyova.ExceptionSystem;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova
@@ -20,7 +20,7 @@ namespace Beyova
         /// <summary>
         /// The format
         /// </summary>
-        const string keyValueFormat = "&{0}={1}";
+        private const string keyValueFormat = "&{0}={1}";
 
         #region Add If Not xxx
 
@@ -189,7 +189,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Add If Not xxx
 
         #region IEnumerable, ICollection, IList, IDictionary, HashSet
 
@@ -829,7 +829,7 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Converts SQL the json to simple list.        
+        /// Converts SQL the json to simple list.
         /// Example: Input [{item:x},{item:y}] + "item", then get [x,y]
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -977,7 +977,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion IEnumerable, ICollection, IList, IDictionary, HashSet
 
         /// <summary>
         /// To the key value string.
@@ -1732,6 +1732,6 @@ namespace Beyova
             return builder.ToString().TrimEnd(separatorChar);
         }
 
-        #endregion
+        #endregion Dictionary Extensions
     }
 }

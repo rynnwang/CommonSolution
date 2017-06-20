@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using Beyova.Api;
+﻿using Beyova.Api;
 using Newtonsoft.Json;
 
 namespace Beyova.RestApi

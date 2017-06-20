@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using Beyova.Gravity;
-using Beyova.ProgrammingIntelligence;
-using Newtonsoft.Json.Linq;
 
 namespace Beyova.Configuration
 {
@@ -47,7 +44,7 @@ namespace Beyova.Configuration
         /// <returns>Dictionary&lt;System.String, ConfigurationItem&gt;.</returns>
         protected override Dictionary<string, ConfigurationItem> Initialize(bool throwException = false)
         {
-            var componentAttribute = GravityHost.Host?.ComponentAttribute;
+            var componentAttribute = GravityShell.Host?.ComponentAttribute;
             Dictionary<string, ConfigurationItem> settingContainer = null;
 
             try
@@ -80,7 +77,7 @@ namespace Beyova.Configuration
             return settingContainer;
         }
 
-        #endregion
+        #endregion Initialization
 
         /// <summary>
         /// Refreshes the settings.
@@ -92,9 +89,9 @@ namespace Beyova.Configuration
 
         #region Backup
 
-        const string backupFileName = "config.bak";
+        private const string backupFileName = "config.bak";
 
-        const string processingBackupFileName = "config.bak.processing";
+        private const string processingBackupFileName = "config.bak.processing";
 
         /// <summary>
         /// Saves the configuration backup.
@@ -139,6 +136,6 @@ namespace Beyova.Configuration
             return null;
         }
 
-        #endregion
+        #endregion Backup
     }
 }

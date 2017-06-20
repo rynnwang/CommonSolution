@@ -111,7 +111,7 @@ namespace Beyova.RestApi
             return data;
         }
 
-        #endregion
+        #endregion RebuildOutputObject
 
         /// <summary>
         /// Determines whether [is return type matched] [the specified type].
@@ -145,6 +145,6 @@ namespace Beyova.RestApi
             return stamp.HasValue ? stamp.ToFullDateTimeTzString() : null;
         }
 
-        #endregion
+        #endregion Default Func
     }
 }

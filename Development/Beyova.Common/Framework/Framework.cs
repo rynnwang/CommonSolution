@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Beyova.Configuration;
-using System.Reflection;
-using Beyova.ProgrammingIntelligence;
 using System.Globalization;
+using System.Reflection;
+using Beyova.Configuration;
 using Beyova.Gravity;
+using Beyova.ProgrammingIntelligence;
 
 namespace Beyova
 {
@@ -16,7 +16,7 @@ namespace Beyova
         /// <summary>
         /// The configuration reader
         /// </summary>
-        internal readonly static IConfigurationReader ConfigurationReader = (GravityHost.Host?.ConfigurationReader) ?? JsonConfigurationReader.Default as IConfigurationReader;
+        internal readonly static IConfigurationReader ConfigurationReader = (GravityShell.Host?.ConfigurationReader) ?? JsonConfigurationReader.Default as IConfigurationReader;
 
         /// <summary>
         /// The global culture resource collection
@@ -29,6 +29,20 @@ namespace Beyova
         private static Dictionary<string, object> AssemblyVersion;
 
         #region Public
+
+        /// <summary>
+        /// Gets the primary SQL connection.
+        /// </summary>
+        /// <value>
+        /// The primary SQL connection.
+        /// </value>
+        public static string PrimarySqlConnection
+        {
+            get
+            {
+                return GetConfiguration("SqlConnection").SafeToString(GetConfiguration("PrimarySqlConnection"));
+            }
+        }
 
         /// <summary>
         /// Sets the global default api tracking.
@@ -54,7 +68,7 @@ namespace Beyova
                 var result = new EnvironmentInfo { AssemblyVersion = AssemblyVersion };
 
                 result.ConfigurationBelongs = ConfigurationReader == null ? new Dictionary<string, string>() : ConfigurationReader.ConfigurationBelongs;
-                result.SqlDatabaseEnvironment = ConfigurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(ConfigurationReader.SqlConnection);
+                result.SqlDatabaseEnvironment = ConfigurationReader == null ? string.Empty : DatabaseOperator.AboutSqlServer(ConfigurationReader.PrimarySqlConnection);
                 result.MemoryUsage = SystemManagementExtension.GetProcessMemoryUsage();
                 result.GCMemory = SystemManagementExtension.GetGCMemory();
                 result.CpuUsage = SystemManagementExtension.GetCpuUsage();
@@ -128,7 +142,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Public
 
         /// <summary>
         /// Initializes static members of the <see cref="Framework"/> class.
@@ -212,7 +226,6 @@ namespace Beyova
             return result;
         }
 
-        #endregion
-
+        #endregion Initializes
     }
 }

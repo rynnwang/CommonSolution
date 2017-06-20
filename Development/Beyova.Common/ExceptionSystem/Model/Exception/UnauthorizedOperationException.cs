@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Beyova.Api;
-using Beyova.RestApi;
 using Newtonsoft.Json.Linq;
 
 namespace Beyova.ExceptionSystem
@@ -76,6 +75,6 @@ namespace Beyova.ExceptionSystem
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

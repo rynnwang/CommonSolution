@@ -11,9 +11,9 @@
         public class Permission
         {
             /// <summary>
-            /// The remote configuration administration
+            /// The remote configuration administrator
             /// </summary>
-            public const string RemoteConfigurationAdministration = "RemoteConfigurationAdministration";
+            public const string RemoteConfigurationAdministrator = "RemoteConfigurationAdministrator";
 
             /// <summary>
             /// The binary storage data administrator
@@ -40,20 +40,41 @@
             /// </summary>
             public const string Administrator = "Administrator";
 
-            /// <summary>
-            /// The application version administration
-            /// </summary>
-            public const string AppVersionAdministration = "AppVersionAdministration";
+            public static class ProvisioningSystem
+            {
+                /// <summary>
+                /// The application version administration
+                /// </summary>
+                public const string AppVersionAdministration = "AppVersionAdministration";
 
-            /// <summary>
-            /// The application platform administration
-            /// </summary>
-            public const string AppPlatformAdministration = "AppPlatformAdministration";
+                /// <summary>
+                /// The application platform administration
+                /// </summary>
+                public const string AppPlatformAdministration = "AppPlatformAdministration";
 
-            /// <summary>
-            /// The application provisioning administration
-            /// </summary>
-            public const string AppProvisioningAdministration = "AppProvisioningAdministration";
+                /// <summary>
+                /// The application provisioning administration
+                /// </summary>
+                public const string AppProvisioningAdministration = "AppProvisioningAdministration";
+            }
+
+            public static class AdminSystem
+            {
+                /// <summary>
+                /// The admin user administration. Used for operate user, user-role mapping.
+                /// </summary>
+                public const string AdminUserAdministration = "AdminUserAdministration";
+
+                /// <summary>
+                /// The admin role permission administration. Used for operate role & permission, role-permission mapping.
+                /// </summary>
+                public const string AdminRolePermissionAdministration = "AdminRolePermissionAdministration";
+
+                /// <summary>
+                /// The admin user role view
+                /// </summary>
+                public const string AdminUserRoleView = "AdminUserRoleView";
+            }
         }
 
         /// <summary>

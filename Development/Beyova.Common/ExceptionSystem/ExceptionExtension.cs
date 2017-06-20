@@ -236,7 +236,7 @@ namespace Beyova
             return result;
         }
 
-        #endregion
+        #endregion GenerateDataString
 
         #region Handle exception
 
@@ -301,8 +301,10 @@ namespace Beyova
                         {
                             case ExceptionCode.MajorCode.UnauthorizedOperation:
                                 return new UnauthorizedOperationException(baseException, baseException.Code.Minor, data, scene: scene) as BaseException;
+
                             case ExceptionCode.MajorCode.OperationForbidden:
                                 return new OperationForbiddenException(operationName, baseException.Code?.Minor, baseException, data, scene: scene) as BaseException;
+
                             case ExceptionCode.MajorCode.NullOrInvalidValue:
                             case ExceptionCode.MajorCode.DataConflict:
                             case ExceptionCode.MajorCode.NotImplemented:
@@ -310,6 +312,7 @@ namespace Beyova
                             case ExceptionCode.MajorCode.CreditNotAfford:
                             case ExceptionCode.MajorCode.ServiceUnavailable:
                                 return baseException;
+
                             default:
                                 break;
                         }
@@ -338,7 +341,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion Handle exception
 
         /// <summary>
         /// To the exception information.
@@ -438,8 +441,10 @@ namespace Beyova
                 {
                     case "Beyova.ExceptionSystem.HttpOperationException":
                         return new HttpOperationException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
+
                     case "Beyova.ExceptionSystem.SqlStoredProcedureException":
                         return new SqlStoredProcedureException(exceptionInfo.Message, exceptionInfo.Code);
+
                     default:
                         break;
                 }
@@ -449,36 +454,47 @@ namespace Beyova
                     case ExceptionCode.MajorCode.CreditNotAfford:
                         result = new CreditNotAffordException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.DataConflict:
                         result = new DataConflictException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.NotImplemented:
                         result = new UnimplementedException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.NullOrInvalidValue:
                         result = new InvalidObjectException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.OperationFailure:
                         result = new OperationFailureException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.OperationForbidden:
                         result = new OperationForbiddenException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.ResourceNotFound:
                         result = new ResourceNotFoundException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.ServiceUnavailable:
                         result = new ServiceUnavailableException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.UnauthorizedOperation:
                         result = new UnauthorizedOperationException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.HttpBlockError:
                         result = new HttpOperationException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     case ExceptionCode.MajorCode.Unsupported:
                         result = new UnsupportedException(exceptionInfo.Key ?? Guid.NewGuid(), exceptionInfo.CreatedStamp ?? DateTime.UtcNow, exceptionInfo.Message, exceptionInfo.Scene, exceptionInfo.Code, ToException(innerException), exceptionInfo.OperatorCredential, exceptionInfo.Data, exceptionInfo.Hint);
                         break;
+
                     default:
                         result = new Exception(exceptionInfo.Message);
                         break;
@@ -504,15 +520,19 @@ namespace Beyova
                     case ExceptionCode.MajorCode.NullOrInvalidValue:
                         result = new InvalidObjectException(sqlException, reason: sqlException.Code.Minor);
                         break;
+
                     case ExceptionCode.MajorCode.UnauthorizedOperation:
                         result = new UnauthorizedOperationException(sqlException, reason: sqlException.Code.Minor);
                         break;
+
                     case ExceptionCode.MajorCode.OperationForbidden:
                         result = new OperationForbiddenException(sqlException.Code.Minor, sqlException);
                         break;
+
                     case ExceptionCode.MajorCode.DataConflict:
                         result = new DataConflictException(sqlException.Code.Minor, innerException: sqlException);
                         break;
+
                     default:
                         result = sqlException;
                         break;
@@ -554,6 +574,6 @@ namespace Beyova
             };
         }
 
-        #endregion
+        #endregion Http To Exception Scene
     }
 }

@@ -65,7 +65,7 @@ namespace Beyova
         /// <value>The sequence.</value>
         public int Sequence { get; set; }
 
-        #endregion
+        #endregion Properties
 
         #region Constructor
 
@@ -77,6 +77,6 @@ namespace Beyova
         {
         }
 
-        #endregion
+        #endregion Constructor
     }
 }

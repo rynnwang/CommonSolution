@@ -17,46 +17,57 @@ namespace Beyova.ExceptionSystem
             /// Value indicating it is undefined
             /// </summary>
             Undefined = 0,
+
             /// <summary>
             /// Value indicating it is null or invalid value
             /// </summary>
             NullOrInvalidValue = 400,
+
             /// <summary>
             /// Value indicating it is unauthorized operation
             /// </summary>
             UnauthorizedOperation = 401,
+
             /// <summary>
             /// Value indicating it is credit not afford
             /// </summary>
             CreditNotAfford = 402,
+
             /// <summary>
             /// Value indicating it is operation forbidden
             /// </summary>
             OperationForbidden = 403,
+
             /// <summary>
             /// Value indicating it is resource not found
             /// </summary>
             ResourceNotFound = 404,
+
             /// <summary>
             /// Value indicating it is data conflict
             /// </summary>
             DataConflict = 409,
+
             /// <summary>
             /// Value indicating it is operation failure
             /// </summary>
             OperationFailure = 500,
+
             /// <summary>
             /// Value indicating it is not implemented
             /// </summary>
             NotImplemented = 501,
+
             /// <summary>
             /// Value indicating it is service unavailable
             /// </summary>
             ServiceUnavailable = 503,
+
             /// <summary>
             /// Value indicating it is HTTP block error
             /// </summary>
             HttpBlockError = 504,
+
             /// <summary>
             /// Value indicating it is Unsupported
             /// </summary>
@@ -96,7 +107,6 @@ namespace Beyova.ExceptionSystem
         public ExceptionCode()
             : this(MajorCode.Undefined, null)
         {
-
         }
 
         /// <summary>
@@ -122,7 +132,7 @@ namespace Beyova.ExceptionSystem
             this.Minor = parts.Length > 1 ? parts[1] : null;
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
@@ -170,11 +180,13 @@ namespace Beyova.ExceptionSystem
                 case MajorCode.NotImplemented:
                     result = EventLogEntryType.Error;
                     break;
+
                 case MajorCode.DataConflict:
                 case MajorCode.CreditNotAfford:
                 case MajorCode.ResourceNotFound:
                     result = EventLogEntryType.Warning;
                     break;
+
                 default:
                     break;
             }

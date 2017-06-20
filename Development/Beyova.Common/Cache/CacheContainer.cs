@@ -1,6 +1,6 @@
-﻿using Beyova.ExceptionSystem;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Beyova.ExceptionSystem;
 
 namespace Beyova.Cache
 {
@@ -17,7 +17,7 @@ namespace Beyova.Cache
         /// Class CacheItem.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        protected class CacheItem<T>
+        protected class CacheItem<T> : IExpirable
         {
             /// <summary>
             /// Gets or sets the value.
@@ -41,7 +41,7 @@ namespace Beyova.Cache
             }
         }
 
-        #endregion
+        #endregion Inner Container
 
         /// <summary>
         /// The container
@@ -132,7 +132,7 @@ namespace Beyova.Cache
         {
         }
 
-        #endregion
+        #endregion Constructors
 
         #region protected methods
 
@@ -190,7 +190,7 @@ namespace Beyova.Cache
             return result;
         }
 
-        #endregion
+        #endregion protected methods
 
         /// <summary>
         /// Updates the specified key.

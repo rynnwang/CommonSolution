@@ -39,7 +39,7 @@ namespace Beyova
         /// <value>The identifier.</value>
         public string Identifier { get; set; }
 
-        #endregion
+        #endregion Properties
 
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.

@@ -263,33 +263,43 @@ namespace Beyova
             {
                 case "System.String":
                     return GetStringDataConverter(isNullable);
+
                 case "System.Int16":
                 case "System.UInt16":
                 case "System.Int32":
                 case "System.UInt32":
                     return GetInt32DataConverter(isNullable);
+
                 case "System.Int64":
                 case "System.UInt64":
                     return GetInt64DataConverter(isNullable);
+
                 case "System.DateTime":
                     return GetDateTimeDataConverter(isNullable);
+
                 case "System.Double":
                     return GetDoubleDataConverter(isNullable);
+
                 case "System.Single":
                     return GetFloatDataConverter(isNullable);
+
                 case "System.Guid":
                     return GetGuidDataConverter(isNullable);
+
                 case "System.Boolean":
                     return GetBooleanDataConverter(isNullable);
+
                 case "System.Xml.Linq.XElement":
                     return GetXElementDataConverter(isNullable);
+
                 case "Newtonsoft.Json.Linq.JToken":
                     return GetJTokenDataConverter(isNullable);
+
                 default:
                     throw new UnimplementedException(string.Format("GetDefaultSqlDataConverterByType.{0}", fullName));
             }
         }
 
-        #endregion
+        #endregion Default
     }
 }

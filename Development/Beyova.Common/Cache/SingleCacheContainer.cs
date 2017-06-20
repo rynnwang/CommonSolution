@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Beyova.ExceptionSystem;
 
 namespace Beyova.Cache
@@ -54,14 +53,14 @@ namespace Beyova.Cache
         /// <param name="cacheParameter">The cache parameter.</param>
         /// <param name="handleException">The handle exception. Bool value indicating whether needs to throw it.</param>
         public SingleCacheContainer(string name, Func<T> retrieveEntity, CacheParameter cacheParameter, Func<BaseException, bool> handleException = null)
-            : base(name, retrieveEntity, 
-                    expirationInSecond: cacheParameter.ExpirationInSecond, 
-                    failureExpirationInSecond: cacheParameter.FailureExpirationInSecond, 
+            : base(name, retrieveEntity,
+                    expirationInSecond: cacheParameter.ExpirationInSecond,
+                    failureExpirationInSecond: cacheParameter.FailureExpirationInSecond,
                     handleException: handleException)
         {
         }
 
-        #endregion
+        #endregion Constructors
 
         /// <summary>
         /// Gets this instance.

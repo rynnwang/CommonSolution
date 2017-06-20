@@ -24,14 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Common.UnitTest", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.Elastic", "Beyova.Elastic\Beyova.Elastic.csproj", "{BDFD06DA-0CE3-426B-927E-8BD99152DE9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.CommonService", "Beyova.CommonService\Beyova.CommonService.csproj", "{D5D5A086-8848-4785-B35F-C44518A6888B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.CommonAdminService", "Beyova.CommonAdminService\Beyova.CommonAdminService.csproj", "{B2EC21FE-4D98-4766-A155-CD6CC285A854}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.RestClientGenerator", "Beyova.RestClientGenerator\Beyova.RestClientGenerator.csproj", "{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.TeamManagementService", "Beyova.TeamManagementService\Beyova.TeamManagementService.csproj", "{F5166AAA-D7D3-4CA0-9E58-28342F3CCC7D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beyova.ProgrammingIntelligence", "Beyova.ProgrammingIntelligence\Beyova.ProgrammingIntelligence.csproj", "{850BB9DE-3075-47F6-BD44-829B27CAAEB1}"
 EndProject
 Global
@@ -68,22 +60,6 @@ Global
 		{BDFD06DA-0CE3-426B-927E-8BD99152DE9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDFD06DA-0CE3-426B-927E-8BD99152DE9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDFD06DA-0CE3-426B-927E-8BD99152DE9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D5D5A086-8848-4785-B35F-C44518A6888B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D5D5A086-8848-4785-B35F-C44518A6888B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D5D5A086-8848-4785-B35F-C44518A6888B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D5D5A086-8848-4785-B35F-C44518A6888B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B2EC21FE-4D98-4766-A155-CD6CC285A854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B2EC21FE-4D98-4766-A155-CD6CC285A854}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B2EC21FE-4D98-4766-A155-CD6CC285A854}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B2EC21FE-4D98-4766-A155-CD6CC285A854}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C09055C9-0912-411B-B4E0-82B5BA8BE3C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5166AAA-D7D3-4CA0-9E58-28342F3CCC7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5166AAA-D7D3-4CA0-9E58-28342F3CCC7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5166AAA-D7D3-4CA0-9E58-28342F3CCC7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5166AAA-D7D3-4CA0-9E58-28342F3CCC7D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{850BB9DE-3075-47F6-BD44-829B27CAAEB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{850BB9DE-3075-47F6-BD44-829B27CAAEB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{850BB9DE-3075-47F6-BD44-829B27CAAEB1}.Release|Any CPU.ActiveCfg = Release|Any CPU

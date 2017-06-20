@@ -1,5 +1,4 @@
 ﻿using System;
-using Beyova;
 
 namespace Beyova
 {
@@ -16,6 +15,6 @@ namespace Beyova
         /// <value>The snapshot key.</value>
         Guid? SnapshotKey { get; set; }
 
-        #endregion
+        #endregion Properties
     }
 }

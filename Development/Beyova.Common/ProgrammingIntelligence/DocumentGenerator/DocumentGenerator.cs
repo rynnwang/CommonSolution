@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Reflection;
-using System.Text;
-using Beyova.RestApi;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 using System.Net;
-using Newtonsoft.Json;
+using System.Reflection;
+using System.Text;
 using Beyova.Api;
+using Beyova.RestApi;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Beyova.ProgrammingIntelligence
 {
@@ -62,13 +62,13 @@ namespace Beyova.ProgrammingIntelligence
         //<pre class="CodeContainer">
         // <span class="ObjectBrace">{</span>
         //    <span class="PropertyName">"A"</span>: <span class="ObjectBrace">{</span>
-        //        <span class="PropertyName">"B"</span>: <span class="ObjectBrace">{ }</span><span class="Comma">,</span> 
+        //        <span class="PropertyName">"B"</span>: <span class="ObjectBrace">{ }</span><span class="Comma">,</span>
         //        <span class="PropertyName">"C"</span>: <span class="String">"string"</span>
         //    <span class="ObjectBrace">}</span>
         //<span class="ObjectBrace">}</span>
         //</pre>
 
-        #endregion
+        #endregion Format
 
         #region CSS
 
@@ -178,11 +178,9 @@ url{
 }
 ";
 
-        #endregion
+        #endregion CSS
 
-        #region JS
 
-        #endregion
 
         #region Fields
 
@@ -192,7 +190,7 @@ url{
         /// <value>The token key.</value>
         public string TokenKey { get; protected set; }
 
-        #endregion
+        #endregion Fields
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DocumentGenerator" /> class.
@@ -211,10 +209,28 @@ url{
         public byte[] WriteHtmlDocumentToZipByType(params Type[] types)
         {
             var container = new Dictionary<string, byte[]>();
-            WriteHtmlDocument<Dictionary<string, byte[]>>((c, name, b) =>
+            WriteHtmlDocumentByType<Dictionary<string, byte[]>>((c, name, b) =>
             {
                 c.Add(name, b);
             }, container, types.HasItem() ? types : GetAssemblyType().ToArray());
+
+            return container.Any() ? container.ZipAsBytes() : null;
+        }
+
+        /// <summary>
+        /// Writes the HTML document to zip by routes.
+        /// </summary>
+        /// <param name="routes">The routes.</param>
+        /// <returns></returns>
+        public byte[] WriteHtmlDocumentToZipByRoutes(params RuntimeRoute[] routes)
+        {
+            var container = new Dictionary<string, byte[]>();
+            WriteHtmlDocumentByType<Dictionary<string, byte[]>>((c, name, b) =>
+            {
+                c.Add(name, b);
+            }, container, (routes.HasItem() ? routes : RestApiRouter.RuntimeRoutes as IEnumerable<RuntimeRoute>)
+            .Distinct(new LambdaEqualityComparer<RuntimeRoute>((x, y) => { return x?.InstanceType == y?.InstanceType; }, x => x?.InstanceType?.GetHashCode() ?? 0))
+            .Select(x => new KeyValuePair<Type, IApiContractOptions>(x.InstanceType, x.ApiRouteIdentifier)).ToArray());
 
             return container.Any() ? container.ZipAsBytes() : null;
         }
@@ -235,7 +251,7 @@ url{
                 types = types.FindAll(x => typeFullNames.Contains(x.GetFullName()));
             }
 
-            WriteHtmlDocument<Dictionary<string, byte[]>>((c, name, b) =>
+            WriteHtmlDocumentByType<Dictionary<string, byte[]>>((c, name, b) =>
             {
                 c.Add(name, b);
             }, container, types.ToArray());
@@ -250,7 +266,7 @@ url{
         /// <param name="types">The types.</param>
         public void WriteHtmlDocumentToFile(string containerPath, params Type[] types)
         {
-            WriteHtmlDocument<string>((c, name, b) =>
+            WriteHtmlDocumentByType<string>((c, name, b) =>
             {
                 File.WriteAllBytes(Path.Combine(c, name), b);
             }, containerPath, types.HasItem() ? types : GetAssemblyType().ToArray());
@@ -279,6 +295,30 @@ url{
         }
 
         /// <summary>
+        /// Writes the type of the HTML document by.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="packageDocumentDelegate">The package document delegate.</param>
+        /// <param name="container">The container.</param>
+        /// <param name="types">The types.</param>
+        /// <returns></returns>
+        private T WriteHtmlDocumentByType<T>(Action<T, string, byte[]> packageDocumentDelegate, T container, params Type[] types)
+        {
+            List<KeyValuePair<Type, IApiContractOptions>> info = new List<KeyValuePair<Type, IApiContractOptions>>();
+
+            foreach (var one in types)
+            {
+                var apiContractAttribute = one.GetCustomAttribute<ApiContractAttribute>(true);
+                if (apiContractAttribute != null)
+                {
+                    info.Add(new KeyValuePair<Type, IApiContractOptions>(one, apiContractAttribute));
+                }
+            }
+
+            return WriteHtmlDocumentByType(packageDocumentDelegate, container, info.ToArray());
+        }
+
+        /// <summary>
         /// Writes the HTML document.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -286,36 +326,30 @@ url{
         /// <param name="container">The container.</param>
         /// <param name="types">The types.</param>
         /// <returns>T.</returns>
-        private T WriteHtmlDocument<T>(Action<T, string, byte[]> packageDocumentDelegate, T container, params Type[] types)
+        private T WriteHtmlDocumentByType<T>(Action<T, string, byte[]> packageDocumentDelegate, T container, params KeyValuePair<Type, IApiContractOptions>[] types)
         {
             var zipFiles = new Dictionary<string, byte[]>();
 
-            var serviceTypes = new List<KeyValuePair<Type, ApiContractAttribute>>();
             HashSet<Type> enumSets = new HashSet<Type>();
             //HashSet<string> apiOperationHash = new HashSet<string>();
 
             //Service List
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder(types.Length * 1024);
 
             foreach (var one in types)
             {
-                var apiContractAttribute = one.GetCustomAttribute<ApiContractAttribute>(true);
-                if (apiContractAttribute != null)
+                if (one.Value != null)
                 {
-                    serviceTypes.Add(new KeyValuePair<Type, ApiContractAttribute>(one, apiContractAttribute));
-                    WriteApiServiceHtmlDocumentPanel(builder, one, apiContractAttribute);
+                    WriteApiServiceHtmlDocumentPanel(builder, one.Key, one.Value);
                 }
             }
 
-            if (packageDocumentDelegate != null)
-            {
-                packageDocumentDelegate(container, "index.html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API Documentation")));
-            }
+            packageDocumentDelegate?.Invoke(container, "index.html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API Documentation")));
 
             //Api Files.
-            foreach (var one in serviceTypes)
+            foreach (var one in types)
             {
-                builder = new StringBuilder();
+                builder = new StringBuilder(1024);
                 builder.AppendLineWithFormat("<div style=\"display:block; background-color:#000000; color: #eeeeee\"><h1>{0} ({1})</h1></div>", one.Key.Name, one.Key.Namespace);
                 WriteApiHtmlDocument(builder, one.Key, one.Value, one.Key.GetCustomAttribute<TokenRequiredAttribute>(true), enumSets);
                 packageDocumentDelegate?.Invoke(container, one.Key.FullName + ".html", Encoding.UTF8.GetBytes(WriteAsEntireHtmlFile(builder.ToString(), "API - " + one.Key.Name)));
@@ -337,10 +371,10 @@ url{
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="apiServiceType">Type of the API service.</param>
-        /// <param name="apiContractAttribute">The API class attribute.</param>
-        protected void WriteApiServiceHtmlDocumentPanel(StringBuilder builder, Type apiServiceType, ApiContractAttribute apiContractAttribute)
+        /// <param name="apiContractOptions">The API router identifier.</param>
+        protected void WriteApiServiceHtmlDocumentPanel(StringBuilder builder, Type apiServiceType, IApiContractOptions apiContractOptions)
         {
-            if (builder != null && apiServiceType != null && apiContractAttribute != null)
+            if (builder != null && apiServiceType != null && apiContractOptions != null)
             {
                 HashSet<string> apiOperationHash = new HashSet<string>();
 
@@ -358,7 +392,7 @@ url{
                     {
                         bodyBuilder.Append("<li>");
                         bodyBuilder.AppendFormat("<a href=\"{0}\" title=\"{1}\">{1}</a> <span style=\"font-weight: bold;font-style: italic;color: #666666;\">({2})</span>", baseUrl + one.Name, one.Name
-                            , string.Format("{0}: /api/{1}/{2}/{3}", apiOperationAttribute.HttpMethod, apiContractAttribute.Version, apiOperationAttribute.ResourceName, apiOperationAttribute.Action).TrimEnd('/') + "/");
+                            , string.Format("{0}: /api/{1}/{2}/{3}", apiOperationAttribute.HttpMethod, apiContractOptions.Version, apiOperationAttribute.ResourceName, apiOperationAttribute.Action).TrimEnd('/') + "/");
                         bodyBuilder.Append("</li>");
 
                         apiOperationHash.Add(id);
@@ -394,7 +428,7 @@ url{
         {
             if (enumType != null)
             {
-                StringBuilder builder = new StringBuilder();
+                StringBuilder builder = new StringBuilder(1024);
                 WriteEnumHtmlTable(builder, enumType);
 
                 return WriteAsEntireHtmlFile(string.Format(panel, string.Format("Enum: {0} ({1})", enumType.Name, enumType.Namespace), builder.ToString(), enumType.Name, enumType.FullName), "API Enum - " + enumType.Name);
@@ -429,12 +463,12 @@ url{
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="apiServiceType">Type of the API service.</param>
-        /// <param name="apiClass">The API class.</param>
+        /// <param name="apiRouterIdentifier">The API class.</param>
         /// <param name="classTokenRequiredAttribute">The class token required attribute.</param>
         /// <param name="enumSets">The enum sets.</param>
-        protected void WriteApiHtmlDocument(StringBuilder builder, Type apiServiceType, ApiContractAttribute apiClass, TokenRequiredAttribute classTokenRequiredAttribute, HashSet<Type> enumSets)
+        protected void WriteApiHtmlDocument(StringBuilder builder, Type apiServiceType, IApiContractOptions apiContractOptions, TokenRequiredAttribute classTokenRequiredAttribute, HashSet<Type> enumSets)
         {
-            if (builder != null && apiServiceType != null && apiClass != null)
+            if (builder != null && apiServiceType != null && apiContractOptions != null)
             {
                 foreach (MethodInfo one in apiServiceType.GetMethodInfoWithinAttribute<ApiOperationAttribute>(true, BindingFlags.Instance | BindingFlags.Public))
                 {
@@ -444,7 +478,7 @@ url{
                     var apiOperationAttribute = one.GetCustomAttribute<ApiOperationAttribute>(true);
                     if (apiOperationAttribute != null)
                     {
-                        StringBuilder bodyBuilder = new StringBuilder();
+                        StringBuilder bodyBuilder = new StringBuilder(4096);
 
                         #region Entity Synchronization Status
 
@@ -454,7 +488,7 @@ url{
                             entitySynchronizationAttribute = null;
                         }
 
-                        #endregion
+                        #endregion Entity Synchronization Status
 
                         //Original declaration
 
@@ -502,13 +536,13 @@ url{
                         bodyBuilder.Append("<h3>Request</h3><hr />");
                         bodyBuilder.Append("<url>");
 
-                        if (string.IsNullOrWhiteSpace(apiClass.Realm))
+                        if (string.IsNullOrWhiteSpace(apiContractOptions.Realm))
                         {
-                            bodyBuilder.AppendFormat("{0} /api/{1}/{2}/", apiOperationAttribute.HttpMethod, apiClass.Version, apiOperationAttribute.ResourceName);
+                            bodyBuilder.AppendFormat("{0} /api/{1}/{2}/", apiOperationAttribute.HttpMethod, apiContractOptions.Version, apiOperationAttribute.ResourceName);
                         }
                         else
                         {
-                            bodyBuilder.AppendFormat("{0} /{1}/api/{2}/{3}/", apiClass.Realm, apiOperationAttribute.HttpMethod, apiClass.Version, apiOperationAttribute.ResourceName);
+                            bodyBuilder.AppendFormat("{0} /{1}/api/{2}/{3}/", apiContractOptions.Realm, apiOperationAttribute.HttpMethod, apiContractOptions.Version, apiOperationAttribute.ResourceName);
                         }
 
                         if (!string.IsNullOrWhiteSpace(apiOperationAttribute.Action))
@@ -591,7 +625,7 @@ url{
 
                         bodyBuilder.Append("</pre>");
 
-                        #endregion
+                        #endregion Request
 
                         #region Response
 
@@ -623,7 +657,7 @@ url{
 
                         bodyBuilder.Append("</pre>");
 
-                        #endregion
+                        #endregion Response
 
                         #region Http Status
 
@@ -659,7 +693,7 @@ url{
                         bodyBuilder.AppendFormat(httpStatusFormat, (int)HttpStatusCode.NotImplemented, HttpStatusCode.NotImplemented.ToString(), "If server feature is not implemented yet.", "red");
                         bodyBuilder.Append("</ul>");
 
-                        #endregion
+                        #endregion Http Status
 
                         builder.AppendFormat(panel, one.Name, bodyBuilder.ToString(), one.Name, "#");
                     }
@@ -782,6 +816,7 @@ url{
                             }
                             builder.Append("<span class=\"Boolean\">true</span>");
                             break;
+
                         case "System.String":
                             if (!followingProperty)
                             {
@@ -790,6 +825,7 @@ url{
                             fieldName = string.IsNullOrWhiteSpace(fieldName) ? "AnyString" : fieldName + "String";
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", ignoreQuote ? fieldName : fieldName.SplitSentenceByUpperCases());
                             break;
+
                         case "System.Guid":
                             if (!followingProperty)
                             {
@@ -797,6 +833,7 @@ url{
                             }
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", Guid.NewGuid());
                             break;
+
                         case "System.UInt16":
                         case "System.UInt32":
                         case "System.UInt64":
@@ -809,6 +846,7 @@ url{
                             }
                             builder.AppendFormat("<span class=\"Number\" style=\"color: #AA00AA;\">123</span>");
                             break;
+
                         case "System.Single":
                         case "System.Double":
                         case "System.Decimal":
@@ -818,6 +856,7 @@ url{
                             }
                             builder.AppendFormat("<span class=\"Number\" style=\"color: #AA00AA;\">1.5</span>");
                             break;
+
                         case "System.DateTime":
                             if (!followingProperty)
                             {
@@ -825,6 +864,7 @@ url{
                             }
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", ignoreQuote ? DateTime.Now.ToFullDateTimeTzString().ToUrlPathEncodedText() : DateTime.Now.ToFullDateTimeTzString());
                             break;
+
                         case "System.TimeSpan":
                             if (!followingProperty)
                             {
@@ -832,6 +872,7 @@ url{
                             }
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", ignoreQuote ? new TimeSpan(1234).ToString().ToUrlPathEncodedText() : new TimeSpan(1234).ToString());
                             break;
+
                         default:
                             if (!followingProperty)
                             {
@@ -884,7 +925,7 @@ url{
         /// <returns>System.String.</returns>
         protected string WriteAsEntireHtmlFile(string bodyContent, string title)
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder(bodyContent?.Length ?? 0 + 512);
 
             builder.AppendLine("<html><head>");
             builder.Append("<title>");

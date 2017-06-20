@@ -48,7 +48,7 @@ namespace Beyova
             _criteriaEntityConverter = TryInitialize(typeof(TCriteria), fieldConverters);
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Generates the criteria SQL parameters.
@@ -108,7 +108,7 @@ namespace Beyova
         /// </summary>
         protected const string column_OperatorKey = "OperatorKey";
 
-        #region  SqlFieldConverter
+        #region SqlFieldConverter
 
         /// <summary>
         /// The field converters
@@ -157,7 +157,7 @@ namespace Beyova
             return cacheFieldConverters[entityFullName];
         }
 
-        #endregion
+        #endregion SqlFieldConverter
 
         /// <summary>
         /// </summary>
@@ -189,7 +189,7 @@ namespace Beyova
             _entityConverter = TryInitialize(typeof(TEntityBase), fieldConverters);
         }
 
-        #endregion
+        #endregion Constructor
 
         /// <summary>
         /// Generates the SQL parameters.

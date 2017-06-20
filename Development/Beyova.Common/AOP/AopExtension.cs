@@ -5,7 +5,7 @@ using System.Runtime.Remoting.Messaging;
 namespace Beyova.AOP
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class AopExtension
     {

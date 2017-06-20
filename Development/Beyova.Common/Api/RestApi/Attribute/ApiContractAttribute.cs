@@ -1,4 +1,5 @@
 ﻿using System;
+using Beyova.Api;
 
 namespace Beyova.RestApi
 {
@@ -6,7 +7,7 @@ namespace Beyova.RestApi
     /// Class ApiContractAttribute. It is used to define interface which used as REST API.
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
-    public class ApiContractAttribute : Attribute
+    public class ApiContractAttribute : Attribute, IApiContractOptions
     {
         /// <summary>
         /// Gets or sets the version.

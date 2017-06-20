@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AccountSecurityUpdateToken.
     /// </summary>
-    public class AccountSecurityUpdateToken
+    public class AccountSecurityUpdateToken : IExpirable
     {
         /// <summary>
         /// Gets or sets the access identifier.
