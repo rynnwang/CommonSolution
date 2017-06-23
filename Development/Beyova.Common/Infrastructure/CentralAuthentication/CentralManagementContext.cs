@@ -43,7 +43,7 @@ namespace Beyova.Gravity
         /// Ensures the project scope.
         /// </summary>
         /// <param name="projectBasedObject">The project based object.</param>
-        /// <param name="forceApplyUrlParameterProjectKey">if set to <c>true</c> [force apply URL parameter project key].</param>
+        /// <exception cref="UnauthorizedOperationException">ProjectOwnership</exception>
         public static void EnsureProjectScope(this IProjectBased projectBasedObject)
         {
             if (projectBasedObject != null)

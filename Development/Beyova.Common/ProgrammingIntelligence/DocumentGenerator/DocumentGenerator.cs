@@ -463,7 +463,7 @@ url{
         /// </summary>
         /// <param name="builder">The builder.</param>
         /// <param name="apiServiceType">Type of the API service.</param>
-        /// <param name="apiRouterIdentifier">The API class.</param>
+        /// <param name="apiContractOptions">The API contract options.</param>
         /// <param name="classTokenRequiredAttribute">The class token required attribute.</param>
         /// <param name="enumSets">The enum sets.</param>
         protected void WriteApiHtmlDocument(StringBuilder builder, Type apiServiceType, IApiContractOptions apiContractOptions, TokenRequiredAttribute classTokenRequiredAttribute, HashSet<Type> enumSets)

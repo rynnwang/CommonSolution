@@ -50,12 +50,13 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Converts list of <see cref="FinancialItemDetail"/> as <see cref="FinancialItemSummary"/>.
+        /// Converts list of <see cref="FinancialItemDetail" /> as <see cref="FinancialItemSummary" />.
         /// </summary>
         /// <param name="details">The details.</param>
         /// <param name="summaryName">Name of the summary.</param>
-        /// <returns>FinancialItemSummary.</returns>
-        /// <exception cref="InvalidObjectException">Currency</exception>
+        /// <returns>
+        /// FinancialItemSummary.
+        /// </returns>
         public static FinancialItemSummary AsSummary(this IEnumerable<FinancialItemDetail> details, string summaryName)
         {
             FinancialItemSummary result = null;

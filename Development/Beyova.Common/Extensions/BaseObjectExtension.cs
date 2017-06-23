@@ -31,8 +31,7 @@ namespace Beyova
 
             if (baseObjects.HasItem())
             {
-                DateTime? latestStamp = null;
-                Guid? latestKey = null;
+                SimpleBaseObject<T> maxObject = null;
 
                 foreach (var one in baseObjects)
                 {
@@ -48,10 +47,11 @@ namespace Beyova
                         result.Upserts.Add(one.Object);
                     }
 
-                    latestStamp = latestStamp.Max(one.LastUpdatedStamp);
+                    maxObject.Max(one, x => x.LastUpdatedStamp as DateTime?, out maxObject);
                 }
 
-                
+                result.LastStamp = maxObject.LastUpdatedStamp;
+                result.LastKey = maxObject.Key;
             }
 
             return result;
@@ -71,7 +71,8 @@ namespace Beyova
 
             if (baseObjects.HasItem())
             {
-                DateTime? latestStamp = null;
+                T maxObject = null;
+
                 foreach (var one in baseObjects)
                 {
                     if (IsRemoval(one))
@@ -86,8 +87,11 @@ namespace Beyova
                         result.Upserts.Add(one);
                     }
 
-                    latestStamp = latestStamp.Max(one.LastUpdatedStamp);
+                    maxObject.Max(one, x => x.LastUpdatedStamp as DateTime?, out maxObject);
                 }
+
+                result.LastStamp = maxObject.LastUpdatedStamp;
+                result.LastKey = maxObject.Key;
             }
 
             return result;

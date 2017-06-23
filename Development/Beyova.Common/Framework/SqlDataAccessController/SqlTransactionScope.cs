@@ -59,7 +59,6 @@ namespace Beyova
         /// <summary>
         /// Commits this instance.
         /// </summary>
-        /// <exception cref="OperationFailureException">Commit;null</exception>
         public void Commit()
         {
             var sqlTransaction = _sqlTransaction;
@@ -86,7 +85,6 @@ namespace Beyova
         /// <summary>
         /// Rollbacks this instance.
         /// </summary>
-        /// <exception cref="OperationFailureException">Rollback;null</exception>
         internal void Rollback()
         {
             var sqlTransaction = _sqlTransaction;

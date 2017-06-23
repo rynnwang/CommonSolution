@@ -68,8 +68,9 @@ namespace Beyova
         /// </summary>
         /// <param name="iso">The iso.</param>
         /// <param name="transactionName">Name of the transaction.</param>
-        /// <returns>SqlTransactionScope.</returns>
-        /// <exception cref="DataConflictException">sqlTransaction</exception>
+        /// <returns>
+        /// SqlTransactionScope.
+        /// </returns>
         internal SqlTransactionScope BeginTransaction(IsolationLevel iso = IsolationLevel.Unspecified, string transactionName = null)
         {
             //Default value follows Microsoft: http://referencesource.microsoft.com/#System.Data/System/Data/SqlClient/SqlConnection.cs
