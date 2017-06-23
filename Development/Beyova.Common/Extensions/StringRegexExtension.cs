@@ -964,6 +964,22 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Get last N char. If given count is larger than builder count, return string.Empty.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="count">The count.</param>
+        /// <returns></returns>
+        public static string Last(this StringBuilder builder, int count = 1)
+        {
+            if (builder != null && builder.Length >= count && count > 0)
+            {
+                return builder.ToString(builder.Length - count, count);
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Removes the last.
         /// </summary>
         /// <param name="builder">The builder.</param>
@@ -1009,6 +1025,39 @@ namespace Beyova
                 if (builder.Length > 0 && builder[builder.Length - 1].Equals(charToMatch))
                 {
                     builder = builder.Remove(builder.Length - 1, 1);
+                }
+            }
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Removes the last if match.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="stringToMatch">The string to match.</param>
+        /// <param name="stringComparison">The string comparison.</param>
+        /// <param name="trimEndSpacesOrLines">if set to <c>true</c> [trim end spaces or lines].</param>
+        /// <returns></returns>
+        public static StringBuilder RemoveLastIfMatch(this StringBuilder builder, string stringToMatch, StringComparison stringComparison = StringComparison.Ordinal, bool trimEndSpacesOrLines = false)
+        {
+            if (builder != null && !string.IsNullOrEmpty(stringToMatch) && builder.Length > stringToMatch.Length)
+            {
+                if (trimEndSpacesOrLines)
+                {
+                    for (var i = builder.Length - 1; i >= 0; i--)
+                    {
+                        if (!spaceLines.Contains(builder[i]))
+                        {
+                            builder.Remove(i + 1, builder.Length - 1 - i);
+                            break;
+                        }
+                    }
+                }
+
+                if (builder.Length > stringToMatch.Length && builder.Last(stringToMatch.Length).Equals(stringToMatch, stringComparison))
+                {
+                    builder = builder.RemoveLast(stringToMatch.Length);
                 }
             }
 

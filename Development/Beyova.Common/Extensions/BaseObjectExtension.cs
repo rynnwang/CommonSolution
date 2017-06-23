@@ -32,6 +32,8 @@ namespace Beyova
             if (baseObjects.HasItem())
             {
                 DateTime? latestStamp = null;
+                Guid? latestKey = null;
+
                 foreach (var one in baseObjects)
                 {
                     if (IsRemoval(one))
@@ -48,6 +50,8 @@ namespace Beyova
 
                     latestStamp = latestStamp.Max(one.LastUpdatedStamp);
                 }
+
+                
             }
 
             return result;

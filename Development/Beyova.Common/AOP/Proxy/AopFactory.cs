@@ -134,7 +134,7 @@ namespace Beyova.AOP
                     code.CheckEmptyString(nameof(code));
 
                     TempAssemblyProvider assemblyProvider = new TempAssemblyProvider();
-                    assemblyProvider.CreateTempAssembly(code.AsArray(), new HashSet<string>(EnvironmentCore.DescendingAssemblyDependencyChain.Select(x => x.Location)));
+                    assemblyProvider.CreateTempAssembly(code.AsArray(), TempAssemblyProvider.GetCurrentAppDomainAssemblyLocations());
 
                     proxyOptions.ProxiedType = ReflectionExtension.SmartGetType(typeName);
                 }

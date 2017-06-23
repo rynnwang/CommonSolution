@@ -161,5 +161,14 @@ namespace Beyova
 
             return result;
         }
+
+        /// <summary>
+        /// Gets the current application domain assembly locations.
+        /// </summary>
+        /// <returns></returns>
+        public static HashSet<string> GetCurrentAppDomainAssemblyLocations()
+        {
+            return new HashSet<string>(EnvironmentCore.DescendingAssemblyDependencyChain.Select(x => x.Location));
+        }
     }
 }

@@ -188,6 +188,7 @@
     <Compile Include="Infrastructure\GravityProtocol\Model\ProjectCriteria.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\ProjectInfo.cs" />
     <Compile Include="Infrastructure\SaasPlatform\Model\ProjectCriteria.cs" />
+    <Compile Include="Interfaces\IDeepEquality.cs" />
     <Compile Include="Interfaces\IExpirable.cs" />
     <Compile Include="Interfaces\IAppPlatform.cs" />
     <Compile Include="Interfaces\IProjectBased.cs" />
@@ -277,6 +278,9 @@
     <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartnerCriteria.cs" />
     <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartner.cs" />
     <Compile Include="Model\Configuration\RemoteConfigurationInfo.cs" />
+    <Compile Include="Utility\DeepEquality\DeepEqualityGenerator.cs" />
+    <Compile Include="Utility\DeepEquality\DeepEquality.cs" />
+    <Compile Include="Utility\DeepEquality\DeepEqualityIgnoreAttribute.cs" />
     <Compile Include="Utility\DualHttpWebRequest.cs" />
     <Compile Include="Model\BitStream.cs" />
     <Compile Include="Model\EntitySynchronization\EntitySynchronizationResponse.cs" />

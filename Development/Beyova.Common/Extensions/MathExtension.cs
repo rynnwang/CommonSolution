@@ -10,6 +10,56 @@ namespace Beyova
         #region Max
 
         /// <summary>
+        /// Internals the maximum.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item1">The item1.</param>
+        /// <param name="item2">The item2.</param>
+        /// <returns></returns>
+        internal static T InternalMax<T>(this T item1, T item2) where T : struct, IComparable
+        {
+            return item1.CompareTo(item2) > 0 ? item1 : item2;
+        }
+
+        /// <summary>
+        /// Maximums the specified item2.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TComparible">The type of the comparible.</typeparam>
+        /// <param name="item1">The item1.</param>
+        /// <param name="item2">The item2.</param>
+        /// <param name="getComparer">The get comparer.</param>
+        /// <param name="maxResult">The maximum result.</param>
+        /// <returns><c>true</c> if item1 is Max, <c>false</c> otherwise.</returns>
+        public static bool Max<TEntity, TComparible>(this TEntity item1, TEntity item2, Func<TEntity, TComparible> getComparer, out TEntity maxResult)
+            where TComparible : struct, IComparable
+        {
+            if (getComparer == null)
+            {
+                maxResult = default(TEntity);
+                return false;
+            }
+
+            if (item1 != null)
+            {
+                maxResult = item2;
+                return false;
+            }
+            else if (item2 != null)
+            {
+                maxResult = item1;
+                return false;
+            }
+            else
+            {
+                var result = getComparer(item1).CompareTo(getComparer(item2)) > 0;
+                maxResult = result ? item1 : item2;
+
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Maximums the specified item2.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -18,7 +68,7 @@ namespace Beyova
         /// <returns>T.</returns>
         public static T Max<T>(this T item1, T item2) where T : struct, IComparable
         {
-            return item1.CompareTo(item2) > 0 ? item1 : item2;
+            return InternalMax(item1, item2);
         }
 
         /// <summary>
@@ -56,39 +106,86 @@ namespace Beyova
             }
             else
             {
-                return Max(item1.Value, item2.Value);
+                return InternalMax(item1.Value, item2.Value);
             }
         }
 
         /// <summary>
         /// Maximums the specified item2.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TComparible">The type of the comparible.</typeparam>
         /// <param name="item1">The item1.</param>
         /// <param name="item2">The item2.</param>
+        /// <param name="getComparer">The get comparer.</param>
         /// <param name="maxResult">The maximum result.</param>
-        /// <returns><c>true</c> if item1 is max, <c>false</c> otherwise.</returns>
-        public static bool Max<T>(this T? item1, T? item2, out T? maxResult) where T : struct, IComparable
+        /// <returns></returns>
+        public static TEntity Max<TEntity, TComparible>(this TEntity item1, TEntity item2, Func<TEntity, TComparible> getComparer)
+            where TComparible : struct, IComparable
         {
-            if (!item1.HasValue)
+            var maxResult = default(TEntity);
+
+            if (getComparer != null)
             {
-                maxResult = item2;
-                return false;
+                Max(item1, item2, getComparer, out maxResult);
             }
-            else if (!item2.HasValue)
-            {
-                maxResult = item1;
-                return false;
-            }
-            else
-            {
-                return Max(item1.Value, item2.Value, out maxResult);
-            }
+
+            return maxResult;
         }
 
         #endregion Max
 
         #region Min
+
+        /// <summary>
+        /// Internals the minimum.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item1">The item1.</param>
+        /// <param name="item2">The item2.</param>
+        /// <returns></returns>
+        internal static T InternalMin<T>(this T item1, T item2) where T : struct, IComparable
+        {
+            return item1.CompareTo(item2) < 0 ? item1 : item2;
+        }
+
+        /// <summary>
+        /// Minimums the specified item2.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TComparible">The type of the comparible.</typeparam>
+        /// <param name="item1">The item1.</param>
+        /// <param name="item2">The item2.</param>
+        /// <param name="getComparer">The get comparer.</param>
+        /// <param name="minResult">The minimum result.</param>
+        /// <returns><c>true</c> if item1 is Min, <c>false</c> otherwise.</returns>
+        public static bool Min<TEntity, TComparible>(this TEntity item1, TEntity item2, Func<TEntity, TComparible> getComparer, out TEntity minResult)
+         where TComparible : struct, IComparable
+        {
+            if (getComparer == null)
+            {
+                minResult = default(TEntity);
+                return false;
+            }
+
+            if (item1 != null)
+            {
+                minResult = item2;
+                return false;
+            }
+            else if (item2 != null)
+            {
+                minResult = item1;
+                return false;
+            }
+            else
+            {
+                var result = getComparer(item1).CompareTo(getComparer(item2)) < 0;
+                minResult = result ? item1 : item2;
+
+                return result;
+            }
+        }
 
         /// <summary>
         /// Minimums the specified item2.
@@ -99,7 +196,7 @@ namespace Beyova
         /// <returns>T.</returns>
         public static T Min<T>(this T item1, T item2) where T : struct, IComparable
         {
-            return item1.CompareTo(item2) < 0 ? item1 : item2;
+            return InternalMin(item1, item2);
         }
 
         /// <summary>
@@ -144,27 +241,23 @@ namespace Beyova
         /// <summary>
         /// Minimums the specified item2.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TComparible">The type of the comparible.</typeparam>
         /// <param name="item1">The item1.</param>
         /// <param name="item2">The item2.</param>
-        /// <param name="minResult">The minimum result.</param>
-        /// <returns><c>true</c> if item1 is min, <c>false</c> otherwise.</returns>
-        public static bool Min<T>(this T? item1, T? item2, out T? minResult) where T : struct, IComparable
+        /// <param name="getComparer">The get comparer.</param>
+        /// <returns></returns>
+        public static TEntity Min<TEntity, TComparible>(this TEntity item1, TEntity item2, Func<TEntity, TComparible> getComparer)
+       where TComparible : struct, IComparable
         {
-            if (!item1.HasValue)
+            var minResult = default(TEntity);
+
+            if (getComparer != null)
             {
-                minResult = item2;
-                return false;
+                Min(item1, item2, getComparer, out minResult);
             }
-            else if (!item2.HasValue)
-            {
-                minResult = item1;
-                return false;
-            }
-            else
-            {
-                return Min(item1.Value, item2.Value, out minResult);
-            }
+
+            return minResult;
         }
 
         #endregion Min

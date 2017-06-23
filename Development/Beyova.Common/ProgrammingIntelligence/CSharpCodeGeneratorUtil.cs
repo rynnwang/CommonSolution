@@ -27,7 +27,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Appends the end brace.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        private static void AppendEndBrace(this StringBuilder builder)
+        internal static void AppendEndBrace(this StringBuilder builder)
         {
             if (builder != null)
             {
