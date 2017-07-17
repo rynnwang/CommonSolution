@@ -1411,10 +1411,11 @@ namespace Beyova
         /// <param name="item1">The item1.</param>
         /// <param name="item2">The item2.</param>
         /// <param name="allowDuplicated">if set to <c>true</c> [allow duplicated].</param>
+        /// <param name="equalityComparer">The equality comparer.</param>
         /// <returns></returns>
-        public static ICollection<T> Union<T>(this IEnumerable<T> item1, IEnumerable<T> item2, bool allowDuplicated = false)
+        public static ICollection<T> Union<T>(this IEnumerable<T> item1, IEnumerable<T> item2, bool allowDuplicated = false, IEqualityComparer<T> equalityComparer = null)
         {
-            var container = allowDuplicated ? new List<T>() : new HashSet<T>() as ICollection<T>;
+            var container = allowDuplicated ? new List<T>(item1?.Count() ?? 0 + item2?.Count() ?? 0) : new HashSet<T>(equalityComparer) as ICollection<T>;
 
             if (item1 != null)
             {
@@ -1686,7 +1687,7 @@ namespace Beyova
         public static bool SafeTryGetValue<TKey, TValue>(this Dictionary<TKey, TValue> instance, TKey key, out TValue value)
         {
             value = default(TValue);
-            return key != null && instance.TryGetValue(key, out value);
+            return key != null && instance != null && instance.TryGetValue(key, out value);
         }
 
         /// <summary>

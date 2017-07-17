@@ -27,7 +27,7 @@ namespace Beyova.Concurrent
         {
             try
             {
-                key.CheckEmptyString("key");
+                key.CheckEmptyString(nameof(key));
 
                 var list = this.GetCollectionByKey(key, true);
                 list.Add(value);

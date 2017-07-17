@@ -1,4 +1,4 @@
-﻿namespace Beyova.WebExtension
+﻿namespace Beyova.Web
 {
     /// <summary>
     /// Enum GuidIconGenerator

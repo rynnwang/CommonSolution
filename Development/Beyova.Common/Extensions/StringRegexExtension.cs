@@ -358,6 +358,21 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Likes the specified term.
+        /// </summary>
+        /// <param name="sourceString">The source string.</param>
+        /// <param name="term">The term.</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <returns></returns>
+        public static bool Like(this string sourceString, string term, bool ignoreCase = false)
+        {
+            return !string.IsNullOrEmpty(sourceString) && !string.IsNullOrEmpty(term) &&
+                (ignoreCase ?
+                    sourceString.ToLowerInvariant().IndexOf(term.ToLowerInvariant()) > -1
+                    : sourceString.IndexOf(term) > -1);
+        }
+
+        /// <summary>
         /// Splits the by upper cases.
         /// </summary>
         /// <param name="anyString">Any string.</param>
@@ -365,7 +380,7 @@ namespace Beyova
         /// <returns></returns>
         public static string SplitByUpperCases(this string anyString, string seperator = StringConstants.WhiteSpace)
         {
-            var builder = new StringBuilder();
+            var builder = new StringBuilder(anyString.Length * 2);
 
             if (seperator == null)
             {
@@ -902,6 +917,34 @@ namespace Beyova
         #region StringBuilder
 
         /// <summary>
+        /// Appends the line.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="indent">The indent.</param>
+        /// <param name="value">The value.</param>
+        public static void AppendLine(this StringBuilder builder, int indent, string value)
+        {
+            if (builder != null)
+            {
+                builder.AppendIndent(indent);
+                builder.AppendLine(value);
+            }
+        }
+
+        /// <summary>
+        /// Appends the indent.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="indent">The indent.</param>
+        public static void AppendIndent(this StringBuilder builder, int indent)
+        {
+            if (builder != null && indent > 0)
+            {
+                builder.Append(new string(StringConstants.WhiteSpaceChar, indent * 4));
+            }
+        }
+
+        /// <summary>
         /// Appends the indent.
         /// </summary>
         /// <param name="builder">The builder.</param>
@@ -921,6 +964,7 @@ namespace Beyova
         /// <param name="builder">The builder.</param>
         /// <param name="indentString">The indent string.</param>
         /// <param name="amount">The amount.</param>
+        [Obsolete]
         public static void AppendIndent(this StringBuilder builder, string indentString, int amount)
         {
             if (builder != null && amount > 0 && !string.IsNullOrEmpty(indentString))
@@ -950,16 +994,31 @@ namespace Beyova
         /// Appends the line with format.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="indentChar">The indent character.</param>
         /// <param name="indentAmount">The indent amount.</param>
         /// <param name="format">The format.</param>
         /// <param name="args">The arguments.</param>
-        public static void AppendLineWithFormat(this StringBuilder builder, char indentChar, int indentAmount, string format, params object[] args)
+        public static void AppendLineWithFormat(this StringBuilder builder, int indentAmount, string format, params object[] args)
         {
             if (builder != null && !string.IsNullOrWhiteSpace(format))
             {
-                builder.AppendIndent(indentChar, indentAmount);
+                builder.AppendIndent(indentAmount);
                 builder.AppendLineWithFormat(format, args);
+            }
+        }
+
+        /// <summary>
+        /// Appends the with format.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="indentAmount">The indent amount.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public static void AppendWithFormat(this StringBuilder builder, int indentAmount, string format, params object[] args)
+        {
+            if (builder != null && !string.IsNullOrWhiteSpace(format))
+            {
+                builder.AppendIndent(indentAmount);
+                builder.Append(string.Format(format, args));
             }
         }
 

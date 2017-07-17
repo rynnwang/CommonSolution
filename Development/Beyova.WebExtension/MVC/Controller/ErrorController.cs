@@ -1,14 +1,35 @@
 ﻿using System.Web.Mvc;
+using System.Web.Routing;
 using Beyova;
+using Beyova.Api;
 using Beyova.ExceptionSystem;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class ErrorController.
     /// </summary>
-    public abstract class ErrorBaseController : BeyovaBaseController
+    [TokenRequired(false)]
+    public class ErrorController : BeyovaPortalController
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ErrorController"/> class.
+        /// </summary>
+        public ErrorController()
+         : this(null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:Beyova.Web.BeyovaBaseController" /> class.
+        /// </summary>
+        /// <param name="apiTracking">The API tracking.</param>
+        /// <param name="returnExceptionAsFriendly">if set to <c>true</c> [return exception as friendly].</param>
+        public ErrorController(IApiTracking apiTracking, bool returnExceptionAsFriendly = false)
+            : base("Error", apiTracking, returnExceptionAsFriendly)
+        {
+        }
+
         /// <summary>
         /// Indexes the specified error code.
         /// </summary>
@@ -29,6 +50,31 @@ namespace Beyova.WebExtension
             };
 
             return View(ErrorView, exceptionInfo);
+        }
+
+        /// <summary>
+        /// Forbiddens the by ownership.
+        /// </summary>
+        /// <returns>ActionResult.</returns>
+        public ActionResult ForbiddenByOwnership()
+        {
+            return View("ForbiddenByOwnership");
+        }
+
+        /// <summary>
+        /// Registers to route.
+        /// </summary>
+        /// <param name="routes">The routes.</param>
+        public static void RegisterToRoute(RouteCollection routes)
+        {
+            var type = typeof(ErrorController);
+
+            routes.MapRoute(
+                name: "Error",
+                url: "Error/{code}",
+                defaults: new { controller = "Error", action = "Index", code = UrlParameter.Optional },
+                namespaces: new string[] { type.Namespace }
+            );
         }
     }
 }

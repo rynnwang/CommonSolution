@@ -384,7 +384,6 @@ namespace Beyova
         /// <param name="anyXml">Any XML.</param>
         /// <param name="nodeName">Name of the node.</param>
         /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
-        /// <exception cref="InvalidObjectException">Invalid xml name;null</exception>
         public static void CheckXmlNodeName(this XElement anyXml, string nodeName = null, bool ignoreCase = false)
         {
             nodeName.CheckEmptyString("nodeName");

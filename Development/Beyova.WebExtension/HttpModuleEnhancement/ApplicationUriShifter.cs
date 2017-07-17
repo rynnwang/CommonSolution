@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class ApplicationUriShifter.

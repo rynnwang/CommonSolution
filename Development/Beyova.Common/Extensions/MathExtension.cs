@@ -42,8 +42,8 @@ namespace Beyova
                 return false;
             }
 
-            var comparibleItem1 = getComparer?.Invoke(item1);
-            var comparibleItem2 = getComparer?.Invoke(item2);
+            var comparibleItem1 = item1 == null ? null : getComparer(item1);
+            var comparibleItem2 = item2 == null ? null : getComparer(item2);
             if (!comparibleItem1.HasValue)
             {
                 maxResult = item2;
@@ -128,7 +128,10 @@ namespace Beyova
         /// <param name="item1">The item1.</param>
         /// <param name="item2">The item2.</param>
         /// <param name="getComparer">The get comparer.</param>
-        /// <returns><c>true</c> if item1 is Min, <c>false</c> otherwise.</returns>
+        /// <param name="minResult">The minimum result.</param>
+        /// <returns>
+        ///   <c>true</c> if item1 is Min, <c>false</c> otherwise.
+        /// </returns>
         public static bool Min<TEntity, TComparible>(this TEntity item1, TEntity item2, Func<TEntity, TComparible?> getComparer, out TEntity minResult)
             where TComparible : struct, IComparable
         {

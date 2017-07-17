@@ -47,7 +47,7 @@ namespace Beyova.ApiTracking
         internal ApiTraceLog(string serverName = null, string serviceName = null, DateTime? entryStamp = null) : this()
         {
             this.ServerName = serverName.SafeToString(EnvironmentCore.ServerName);
-            this.ServiceName = serviceName.SafeToString(EnvironmentCore.ProjectName);
+            this.ServiceName = serviceName.SafeToString(EnvironmentCore.ProductName);
             this.EntryStamp = entryStamp ?? DateTime.UtcNow;
         }
 

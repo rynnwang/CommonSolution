@@ -29,7 +29,7 @@ namespace Beyova
         public static Guid GetCurrentOperatorKey()
         {
             var credential = ApiContext.CurrentCredential;
-            credential.CheckNullObject("credential");
+            credential.CheckNullObject(nameof(credential));
             credential.Key.CheckNullObject("credential.Key");
 
             return credential.Key.Value;

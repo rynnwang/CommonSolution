@@ -131,7 +131,9 @@
     <Compile Include="Cache\CacheContainer.cs" />
     <Compile Include="CommonServiceInterface\IAppVersionService.cs" />
     <Compile Include="CommonServiceInterface\IAppPlatformService.cs" />
-    <Compile Include="CommonServiceInterface\IProjectManagementService.cs" />
+    <Compile Include="Console\ConsoleLogger.cs" />
+    <Compile Include="Interfaces\ISearchTerm.cs" />
+    <Compile Include="SaasPlatform\Interface\IProductManagementService.cs" />
     <Compile Include="ExceptionSystem\Model\Exception\ServiceUnavailableException.cs" />
     <Compile Include="Extensions\CultureExtension.cs" />
     <Compile Include="Framework\FeatureSwitch\FeatureModuleSwitchObject.cs" />
@@ -185,21 +187,20 @@
     <Compile Include="Infrastructure\GravityProtocol\Model\Configuration\RemoteConfigurationReceipt.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\GravityEventHook.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Model\Heartbeat\HeartbeatEcho.cs" />
-    <Compile Include="Infrastructure\GravityProtocol\Model\ProjectCriteria.cs" />
-    <Compile Include="Infrastructure\GravityProtocol\Model\ProjectInfo.cs" />
-    <Compile Include="Infrastructure\SaasPlatform\Model\ProjectCriteria.cs" />
+    <Compile Include="Infrastructure\GravityProtocol\Model\ProductCriteria.cs" />
+    <Compile Include="Infrastructure\GravityProtocol\Model\ProductInfo.cs" />
+    <Compile Include="SaasPlatform\Model\BusinessPartition.cs" />
+    <Compile Include="SaasPlatform\Model\BusinessPartitionCriteria.cs" />
+    <Compile Include="SaasPlatform\Model\ProductCriteria.cs" />
     <Compile Include="Interfaces\IDeepEquality.cs" />
     <Compile Include="Interfaces\IExpirable.cs" />
     <Compile Include="Interfaces\IAppPlatform.cs" />
-    <Compile Include="Interfaces\IProjectBased.cs" />
+    <Compile Include="Interfaces\IProjectIdentifier.cs" />
+    <Compile Include="Interfaces\IProductIdentifier.cs" />
     <Compile Include="Interfaces\IThirdPartyIdentifier.cs" />
     <Compile Include="Interfaces\Web\IRoutable.cs" />
     <Compile Include="Model\ApiTracking\Entity\DebugInfo.cs" />
     <Compile Include="Model\AuthenticationProfile\AccountSecurityUpdateToken.cs" />
-    <Compile Include="Model\EnterpriseBusiness\EnterpriseCustomerContract.cs" />
-    <Compile Include="Model\EnterpriseBusiness\EnterpriseCustomerContractIdentity.cs" />
-    <Compile Include="Model\EnterpriseBusiness\EnterpriseCustomerIdentity.cs" />
-    <Compile Include="Model\EnterpriseBusiness\BusinessUnit.cs" />
     <Compile Include="Model\EntityConnection.cs" />
     <Compile Include="Model\FractionObject.cs" />
     <Compile Include="Model\Geography\GeoCoordinate.cs" />
@@ -214,7 +215,7 @@
     <Compile Include="Model\Configuration\ConfigurationRawItem.cs" />
     <Compile Include="Model\Configuration\ConfigurationDetail.cs" />
     <Compile Include="Model\ProcessCommandParameterBase.cs" />
-    <Compile Include="Infrastructure\SaasPlatform\Model\ProjectBase.cs" />
+    <Compile Include="SaasPlatform\Model\ProductBase.cs" />
     <Compile Include="Infrastructure\ServiceGeneric\AuthenticationResult.cs" />
     <Compile Include="Infrastructure\ServiceGeneric\UserInfo.cs" />
     <Compile Include="Model\WindowsProcessCommandParameter.cs" />
@@ -278,6 +279,7 @@
     <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartnerCriteria.cs" />
     <Compile Include="Model\AuthenticationProfile\SSO\SSOAuthorizationPartner.cs" />
     <Compile Include="Model\Configuration\RemoteConfigurationInfo.cs" />
+    <Compile Include="ProgrammingIntelligence\CSharpCodeGenerator.cs" />
     <Compile Include="Utility\DeepEquality\DeepEqualityGenerator.cs" />
     <Compile Include="Utility\DeepEquality\DeepEquality.cs" />
     <Compile Include="Utility\DeepEquality\DeepEqualityIgnoreAttribute.cs" />
@@ -287,12 +289,6 @@
     <Compile Include="Model\EntitySynchronization\EntitySynchronizationRequest.cs" />
     <Compile Include="Model\RsaKeys.cs" />
     <Compile Include="ProgrammingIntelligence\CSharpCodeGeneratorUtil.cs" />
-    <Compile Include="ProgrammingIntelligence\Generator\CSharpCodeGenerator.cs" />
-    <Compile Include="ProgrammingIntelligence\PatternedService\IPatternedEntityService.cs" />
-    <Compile Include="ProgrammingIntelligence\SqlScriptUtil\SqlScriptGenerator.cs" />
-    <Compile Include="ProgrammingIntelligence\SqlScriptUtil\SqlTableScriptGenerationRule.cs" />
-    <Compile Include="ProgrammingIntelligence\SqlScriptUtil\SqlScriptType.cs" />
-    <Compile Include="ProgrammingIntelligence\SqlScriptUtil\SqlScriptMerger.cs" />
     <Compile Include="Utility\BooleanSearch\BooleanSearchExpressionReader.cs" />
     <Compile Include="Utility\BooleanSearch\ComputeOperator.cs" />
     <Compile Include="Utility\BooleanSearch\CriteriaOperatorComputable.cs" />
@@ -340,7 +336,6 @@
     <Compile Include="Extensions\SentenceExtension.cs" />
     <Compile Include="Extensions\ThreadExtension.cs" />
     <Compile Include="Framework\EnvironmentCore.cs" />
-    <Compile Include="Interfaces\IXmlSerializable.cs" />
     <Compile Include="Interfaces\AuthenticationProfile\IAuthenticationResult.cs" />
     <Compile Include="CommonServiceInterface\IBinaryStorageService.cs" />
     <Compile Include="CommonServiceInterface\IAuthenticationProfileService.cs" />
@@ -410,8 +405,6 @@
     <Compile Include="Api\Trace\ApiTraceExtension.cs" />
     <Compile Include="Api\RestApi\RestApiEventHandlers.cs" />
     <Compile Include="Api\RestApi\Model\RestApiSettings.cs" />
-    <Compile Include="ProgrammingIntelligence\Generator\RestApiJavaScriptClientGenerator.cs" />
-    <Compile Include="ProgrammingIntelligence\Generator\RestApiClientGenerator.cs" />
     <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Sandbox\RemoteRuntimeCompileResult.cs" />
     <Compile Include="Sandbox\Sandbox.cs" />
@@ -497,7 +490,6 @@
     <Compile Include="Extensions\WinFormUIExtension.cs" />
     <Compile Include="Extensions\StringRegexExtension.cs" />
     <Compile Include="Extensions\HttpExtension.cs" />
-    <Compile Include="Extensions\MailExtension.cs" />
     <Compile Include="Extensions\CommonExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\Assembly.cs" />
@@ -510,7 +502,6 @@
     <Compile Include="Utility\JsonNet\GuidConverter.cs" />
     <Compile Include="Utility\JsonNet\SafeContractResolver.cs" />
     <Compile Include="Extensions\EncodingOrSecurityExtension.cs" />
-    <Compile Include="Utility\MailSender.cs" />
     <Compile Include="Utility\StringEnhancements\RegexPatternBuilder.cs" />
     <Compile Include="Utility\StringEnhancements\StringShifterExtension.cs" />
     <Compile Include="Utility\StringEnhancements\StringShift\StringShiftShard.cs" />
@@ -540,6 +531,7 @@
     <Content Include="SqlScripts\StoredProcedures\sp_ExportTableValueToJSON.sql" />
     <Content Include="SqlScripts\StoredProcedures\sp_ImportTableValueUsingJSON.sql" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -12,102 +12,102 @@ namespace Beyova.Gravity
         /// <summary>
         /// </summary>
         [ThreadStatic]
-        private static Guid? _parameterProjectKey;
+        private static Guid? _parameterProductKey;
 
         /// <summary>
-        /// Gets the parameter project key.
+        /// Gets the parameter product key.
         /// </summary>
-        /// <value>The parameter project key.</value>
-        public static Guid? ParameterProjectKey
+        /// <value>The parameter product key.</value>
+        public static Guid? ParameterProductKey
         {
-            get { return _parameterProjectKey; }
-            internal set { _parameterProjectKey = value; }
+            get { return _parameterProductKey; }
+            internal set { _parameterProductKey = value; }
         }
 
         /// <summary>
-        /// Gets the project key.
+        /// Gets the product key.
         /// </summary>
-        /// <value>The project key.</value>
-        public static Guid? ProjectKey
+        /// <value>The product key.</value>
+        public static Guid? ProductKey
         {
             get
             {
                 var adminUser = ContextHelper.CurrentUserInfo as AdminUserInfo;
                 adminUser.CheckNullObject(nameof(adminUser));
 
-                return adminUser.ProjectKey ?? _parameterProjectKey;
+                return adminUser.ProductKey ?? _parameterProductKey;
             }
         }
 
         /// <summary>
-        /// Ensures the project scope.
+        /// Ensures the product scope.
         /// </summary>
-        /// <param name="projectBasedObject">The project based object.</param>
-        /// <exception cref="UnauthorizedOperationException">ProjectOwnership</exception>
-        public static void EnsureProjectScope(this IProjectBased projectBasedObject)
+        /// <param name="productBasedObject">The product based object.</param>
+        /// <exception cref="UnauthorizedOperationException">ProductOwnership</exception>
+        public static void EnsureProductScope(this IProductIdentifier productBasedObject)
         {
-            if (projectBasedObject != null)
+            if (productBasedObject != null)
             {
                 var adminUser = ContextHelper.CurrentUserInfo as AdminUserInfo;
                 adminUser.CheckNullObject(nameof(adminUser));
 
-                if (_parameterProjectKey.HasValue)
+                if (_parameterProductKey.HasValue)
                 {
-                    if (!adminUser.ProjectKey.HasValue || adminUser.ProjectKey.Value == _parameterProjectKey.Value)
+                    if (!adminUser.ProductKey.HasValue || adminUser.ProductKey.Value == _parameterProductKey.Value)
                     {
-                        projectBasedObject.ProjectKey = _parameterProjectKey;
+                        productBasedObject.ProductKey = _parameterProductKey;
                     }
                     else
                     {
-                        throw new UnauthorizedOperationException("ProjectOwnership", new { ProjectKey = projectBasedObject?.ProjectKey });
+                        throw new UnauthorizedOperationException("ProductOwnership", new { ProductKey = productBasedObject?.ProductKey });
                     }
                 }
                 else
                 {
-                    projectBasedObject.ProjectKey = adminUser.ProjectKey ?? projectBasedObject.ProjectKey;
+                    productBasedObject.ProductKey = adminUser.ProductKey ?? productBasedObject.ProductKey;
                 }
             }
         }
 
         /// <summary>
-        /// Ensures the project scope.
+        /// Ensures the product scope.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="projectBasedObjects">The project based objects.</param>
-        /// <param name="forceApplyUrlParameterProjectKey">if set to <c>true</c> [force apply URL parameter project key].</param>
-        public static void EnsureProjectScope<T>(this IEnumerable<T> projectBasedObjects, bool forceApplyUrlParameterProjectKey = false)
-            where T : IProjectBased
+        /// <param name="productBasedObjects">The product based objects.</param>
+        /// <param name="forceApplyUrlParameterProductKey">if set to <c>true</c> [force apply URL parameter product key].</param>
+        public static void EnsureProductScope<T>(this IEnumerable<T> productBasedObjects, bool forceApplyUrlParameterProductKey = false)
+            where T : IProductIdentifier
         {
-            if (projectBasedObjects.HasItem())
+            if (productBasedObjects.HasItem())
             {
                 var adminUser = ContextHelper.CurrentUserInfo as AdminUserInfo;
                 adminUser.CheckNullObject(nameof(adminUser));
 
-                foreach (var projectBasedObject in projectBasedObjects)
+                foreach (var productBasedObject in productBasedObjects)
                 {
-                    if (forceApplyUrlParameterProjectKey && _parameterProjectKey.HasValue)
+                    if (forceApplyUrlParameterProductKey && _parameterProductKey.HasValue)
                     {
-                        projectBasedObject.ProjectKey = _parameterProjectKey;
+                        productBasedObject.ProductKey = _parameterProductKey;
                     }
 
-                    projectBasedObject.ProjectKey = adminUser.ProjectKey ?? projectBasedObject.ProjectKey;
+                    productBasedObject.ProductKey = adminUser.ProductKey ?? productBasedObject.ProductKey;
                 }
             }
         }
 
         /// <summary>
-        /// Validates the project scope.
+        /// Validates the product scope.
         /// </summary>
-        /// <param name="projectBasedObject">The project based object.</param>
+        /// <param name="productBasedObject">The product based object.</param>
         /// <returns>Return true if validation passed.</returns>
-        public static bool ValidateProjectScope(this IProjectBased projectBasedObject)
+        public static bool ValidateProductScope(this IProductIdentifier productBasedObject)
         {
-            if (projectBasedObject != null)
+            if (productBasedObject != null)
             {
                 var adminUser = ContextHelper.CurrentUserInfo as AdminUserInfo;
                 adminUser.CheckNullObject(nameof(adminUser));
 
-                if (!adminUser.ProjectKey.HasValue || adminUser.ProjectKey.Value == projectBasedObject.ProjectKey)
+                if (!adminUser.ProductKey.HasValue || adminUser.ProductKey.Value == productBasedObject.ProductKey)
                 {
                     return true;
                 }
@@ -121,7 +121,7 @@ namespace Beyova.Gravity
         /// </summary>
         internal static void Dispose()
         {
-            _parameterProjectKey = null;
+            _parameterProductKey = null;
         }
     }
 }

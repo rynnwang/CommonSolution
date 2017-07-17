@@ -6,7 +6,7 @@ namespace Beyova
     /// <summary>
     /// Class EnvironmentEndpoint.
     /// </summary>
-    public class EnvironmentEndpoint : ApiEndpoint, IIdentifier, IProjectBased
+    public class EnvironmentEndpoint : ApiEndpoint, IIdentifier, IProductIdentifier
     {
         /// <summary>
         /// Gets or sets the name.
@@ -33,9 +33,9 @@ namespace Beyova
         public Guid? Key { get; set; }
 
         /// <summary>
-        /// Gets or sets the project key.
+        /// Gets or sets the product key.
         /// </summary>
-        /// <value>The project key.</value>
-        public Guid? ProjectKey { get; set; }
+        /// <value>The product key.</value>
+        public Guid? ProductKey { get; set; }
     }
 }

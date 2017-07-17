@@ -7,7 +7,7 @@ using System.Web.Mvc;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class CsvResult.

@@ -3,14 +3,16 @@
 namespace Beyova
 {
     /// <summary>
-    /// Interface IProjectBased
+    /// Interface IProjectIdentifier
     /// </summary>
-    public interface IProjectBased
+    public interface IProjectIdentifier
     {
         /// <summary>
         /// Gets or sets the project key.
         /// </summary>
-        /// <value>The project key.</value>
+        /// <value>
+        /// The project key.
+        /// </value>
         Guid? ProjectKey { get; set; }
     }
 }

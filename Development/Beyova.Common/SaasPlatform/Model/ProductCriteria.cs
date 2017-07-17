@@ -3,10 +3,18 @@
 namespace Beyova.SaasPlatform
 {
     /// <summary>
-    /// Class ProjectBase.
+    /// Class ProductCriteria.
     /// </summary>
-    public abstract class ProjectBase : SimpleBaseObject, IRsaKeys, IExpirable
+    public class ProductCriteria : IIdentifier
     {
+        /// <summary>
+        /// Gets or sets the key.
+        /// </summary>
+        /// <value>
+        /// The key.
+        /// </value>
+        public Guid? Key { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
@@ -24,17 +32,5 @@ namespace Beyova.SaasPlatform
         /// </summary>
         /// <value>The public key.</value>
         public string PublicKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets the private key.
-        /// </summary>
-        /// <value>The private key.</value>
-        public string PrivateKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets the expired stamp.
-        /// </summary>
-        /// <value>The expired stamp.</value>
-        public DateTime? ExpiredStamp { get; set; }
     }
 }

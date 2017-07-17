@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class GuidIconGenerator.

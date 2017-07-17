@@ -1,4 +1,6 @@
-﻿namespace Beyova
+﻿using System.Windows.Forms;
+
+namespace Beyova
 {
     /// <summary>
     /// Class StringConstants
@@ -9,6 +11,11 @@
         /// The white space
         /// </summary>
         public const string WhiteSpace = " ";
+
+        /// <summary>
+        /// The comma
+        /// </summary>
+        public const string Comma = ",";
 
         /// <summary>
         /// The white space character
@@ -54,5 +61,15 @@
         /// The slash
         /// </summary>
         public const char Slash = '/';
+
+        /// <summary>
+        /// The enter
+        /// </summary>
+        public const char Enter = (char)13;
+
+        /// <summary>
+        /// The backspace
+        /// </summary>
+        public const char Backspace = (char)8;
     }
 }

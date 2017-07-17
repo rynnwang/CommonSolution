@@ -8,32 +8,32 @@ namespace Beyova.Gravity
     public static class GravityContext
     {
         [ThreadStatic]
-        private static ProjectInfo _currentProjectInfo = null;
+        private static ProductInfo _currentProductInfo = null;
 
         /// <summary>
-        /// The project key
+        /// The product key
         /// </summary>
         [ThreadStatic]
-        private static Guid? _projectKey;
+        private static Guid? _productKey;
 
         /// <summary>
-        /// Gets or sets the project key.
+        /// Gets or sets the product key.
         /// </summary>
-        /// <value>The project key.</value>
-        public static Guid? ProjectKey
+        /// <value>The product key.</value>
+        public static Guid? ProductKey
         {
-            get { return _projectKey; }
-            internal set { _projectKey = value; }
+            get { return _productKey; }
+            internal set { _productKey = value; }
         }
 
         /// <summary>
-        /// Gets the project information.
+        /// Gets the product information.
         /// </summary>
-        /// <value>The project information.</value>
-        public static ProjectInfo ProjectInfo
+        /// <value>The product information.</value>
+        public static ProductInfo ProductInfo
         {
-            get { return _currentProjectInfo; }
-            internal set { _currentProjectInfo = value; }
+            get { return _currentProductInfo; }
+            internal set { _currentProductInfo = value; }
         }
 
         /// <summary>
@@ -41,8 +41,8 @@ namespace Beyova.Gravity
         /// </summary>
         internal static void Dispose()
         {
-            _projectKey = null;
-            _currentProjectInfo = null;
+            _productKey = null;
+            _currentProductInfo = null;
         }
     }
 }

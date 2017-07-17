@@ -8,9 +8,9 @@ namespace Beyova.Gravity
     public class GravityCommandResultCriteria : GravityCommandResultBase
     {
         /// <summary>
-        /// Gets or sets the project key.
+        /// Gets or sets the product key.
         /// </summary>
-        /// <value>The project key.</value>
-        public Guid? ProjectKey { get; set; }
+        /// <value>The product key.</value>
+        public Guid? ProductKey { get; set; }
     }
 }

@@ -12,6 +12,46 @@ namespace Beyova
 {
     public static partial class ReflectionExtension
     {
+        #region PropertyInfoEquailtyComparer
+
+        /// <summary>
+        /// Class PropertyInfoEquailtyComparer
+        /// </summary>
+        class PropertyInfoEquailtyComparer : IEqualityComparer<PropertyInfo>
+        {
+            /// <summary>
+            /// Determines whether the specified objects are equal.
+            /// </summary>
+            /// <param name="x">The first object of type <see cref="PropertyInfo"/> to compare.</param>
+            /// <param name="y">The second object of type <see cref="PropertyInfo"/> to compare.</param>
+            /// <returns>
+            /// true if the specified objects are equal; otherwise, false.
+            /// </returns>
+            public bool Equals(PropertyInfo x, PropertyInfo y)
+            {
+                if (x == null || y == null)
+                {
+                    return false;
+                }
+
+                return x.Name.Equals(y.Name) && x.PropertyType == y.PropertyType;
+            }
+
+            /// <summary>
+            /// Returns a hash code for this instance.
+            /// </summary>
+            /// <param name="obj">The object.</param>
+            /// <returns>
+            /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            /// </returns>
+            public int GetHashCode(PropertyInfo obj)
+            {
+                return obj?.Name?.GetHashCode() ?? 0 + obj?.PropertyType?.GetHashCode() ?? 0;
+            }
+        }
+
+        #endregion
+
         #region Constant
 
         /// <summary>
@@ -144,7 +184,7 @@ namespace Beyova
             {
                 if (inherit)
                 {
-                    var properties = new HashSet<PropertyInfo>();
+                    var properties = new HashSet<PropertyInfo>(new PropertyInfoEquailtyComparer());
                     InternalFillProperties(properties, type, bindingFlags, filter);
                     return properties.ToList();
                 }
@@ -600,6 +640,18 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Determines whether this instance is identifier.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified type is identifier; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsIdentifier(this Type type)
+        {
+            return type != null && typeof(IIdentifier).IsAssignableFrom(type);
+        }
+
+        /// <summary>
         /// Determines whether the specified type is nullable.
         /// </summary>
         /// <param name="type">The type.</param>
@@ -973,6 +1025,17 @@ namespace Beyova
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Gets the constant fields.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="isPublic">if set to <c>true</c> [is public].</param>
+        /// <returns></returns>
+        public static FieldInfo[] GetConstantFields(this Type type, bool isPublic)
+        {
+            return type?.GetFields(BindingFlags.Static | (isPublic ? BindingFlags.Public : BindingFlags.NonPublic) | BindingFlags.GetField)?.Where(x => x.IsLiteral)?.ToArray();
         }
 
         #region Assembly Dependency Chain

@@ -7,7 +7,7 @@ using Beyova.ProgrammingIntelligence;
 namespace Beyova
 {
     /// <summary>
-    ///
+    /// Class DeepEqualityGenerator
     /// </summary>
     internal static class DeepEqualityGenerator
     {

@@ -22,6 +22,28 @@ namespace Beyova.AOP
         }
 
         /// <summary>
+        /// Writes the namespaces.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        protected override void WriteNamespaces(StringBuilder builder)
+        {
+            if (builder != null)
+            {
+                builder.AppendLine("using System;");
+                builder.AppendLine("using System.Collections.Generic;");
+                builder.AppendLine("using System.Linq;");
+                builder.AppendLine("using System.Net;");
+                builder.AppendLine("using System.Reflection;");
+                builder.AppendLine("using System.Text;");
+                builder.AppendLine("using Beyova.ProgrammingIntelligence;");
+                builder.AppendLine("using Beyova.ExceptionSystem;");
+                builder.AppendLine("using Beyova;");
+                builder.AppendLine("using Newtonsoft.Json;");
+                builder.AppendLine("using Newtonsoft.Json.Linq;");
+            }
+        }
+
+        /// <summary>
         /// Generates the code.
         /// </summary>
         /// <returns></returns>
@@ -74,11 +96,11 @@ namespace Beyova.AOP
                 builder.AppendLine("{");
 
                 // write class declaration
-                builder.AppendIndent(CodeIndent, 1);
+                builder.AppendIndent(1);
 
                 builder.Append(GenerateClassDeclarationPart(ClassName, selfClass.GetInterfaces()));
 
-                builder.AppendIndent(CodeIndent, 1);
+                builder.AppendIndent(1);
                 builder.AppendLine("{");
 
                 // write constructor
@@ -90,7 +112,7 @@ namespace Beyova.AOP
                 }
 
                 // End of class
-                builder.AppendIndent(CodeIndent, 1);
+                builder.AppendIndent(1);
                 builder.AppendLine("}");
 
                 // End of namespace
@@ -115,11 +137,11 @@ namespace Beyova.AOP
         {
             if (builder != null)
             {
-                builder.AppendIndent(CodeIndent, 2);
+                builder.AppendIndent(2);
                 builder.AppendLineWithFormat("public {0}({1} instance, {2} injectionDelegates):base(instance, injectionDelegates)", className, typeof(T).ToCodeLook(), typeof(MethodInjectionDelegates).ToCodeLook());
-                builder.AppendIndent(CodeIndent, 2);
+                builder.AppendIndent(2);
                 builder.AppendLine("{");
-                builder.AppendIndent(CodeIndent, 2);
+                builder.AppendIndent(2);
                 builder.AppendLine("}");
                 builder.AppendLine();
             }
@@ -139,7 +161,7 @@ namespace Beyova.AOP
                 var tmpMethodCallInfo = new MethodCallInfo();
                 tmpMethodCallInfo.Fill(methodInfo);
 
-                builder.AppendIndent(CodeIndent, indent);
+                builder.AppendIndent(indent);
                 builder.Append(string.Format("{0} {1} = new {0}(", typeof(MethodCallInfo).ToCodeLook(), methodCallInfoVariableName));
                 builder.Append(string.Format("\"{0}\",", tmpMethodCallInfo.MethodFullName));
                 builder.Append(" new Dictionary<string, object>{");
@@ -155,14 +177,14 @@ namespace Beyova.AOP
                 builder.Append("}");
                 builder.AppendLine(")");
 
-                this.BeginCodeScope(builder, ref indent);
+                builder.AppendBraceBegin(ref indent);
 
-                builder.AppendIndent(CodeIndent, indent);
+                builder.AppendIndent(indent);
                 builder.Append("SerializableArgNames = new System.Collections.Generic.List<System.String> {");
                 builder.Append(CSharpCodeGenerateUtil.CombineCode(tmpMethodCallInfo.SerializableArgNames, (x) => { return x.AsQuotedString(); }, 16));
                 builder.AppendLine("}");
 
-                this.EndCodeScope(builder, ref indent);
+                builder.AppendBraceEnd( ref indent);
                 builder.AppendLine(";");
             }
         }
@@ -180,30 +202,30 @@ namespace Beyova.AOP
         {
             if (builder != null && !string.IsNullOrWhiteSpace(injectionMethodName) && !string.IsNullOrWhiteSpace(methodCallInfoVariableName))
             {
-                builder.AppendIndent(CodeIndent, indent);
+                builder.AppendIndent(indent);
                 builder.AppendLineWithFormat("if(this._injectionDelegates.{0} != null)", injectionMethodName);
-                this.BeginCodeScope(builder, ref indent);
+                builder.AppendBraceBegin( ref indent);
 
-                builder.AppendIndent(CodeIndent, indent);
+                builder.AppendIndent(indent);
                 builder.AppendLineWithFormat("this._injectionDelegates.{0}({1});", injectionMethodName, methodCallInfoVariableName);
 
                 if (!string.IsNullOrWhiteSpace(callAfterInjection))
                 {
-                    builder.AppendIndent(CodeIndent, indent);
+                    builder.AppendIndent(indent);
                     builder.AppendLine(callAfterInjection);
                 }
-                this.EndCodeScope(builder, ref indent);
+                builder.AppendBraceEnd( ref indent);
 
                 if (!string.IsNullOrWhiteSpace(ifNullCall))
                 {
-                    builder.AppendIndent(CodeIndent, indent);
+                    builder.AppendIndent(indent);
                     builder.AppendLineWithFormat("else");
 
-                    this.BeginCodeScope(builder, ref indent);
+                    builder.AppendBraceBegin( ref indent);
 
-                    builder.AppendIndent(CodeIndent, indent);
+                    builder.AppendIndent(indent);
                     builder.AppendLine(ifNullCall);
-                    this.EndCodeScope(builder, ref indent);
+                    builder.AppendBraceEnd( ref indent);
                 }
             }
         }
@@ -221,10 +243,10 @@ namespace Beyova.AOP
             if (builder != null && methodInfo != null)
             {
                 //Declaration
-                builder.AppendIndent(CodeIndent, currentIndent);
+                builder.AppendIndent(currentIndent);
                 builder.AppendLineWithFormat("public virtual {0}", methodInfo.ToDeclarationCodeLook());
 
-                this.BeginCodeScope(builder, ref currentIndent);
+                builder.AppendBraceBegin( ref currentIndent);
 
                 //Invoke body
 
@@ -232,54 +254,54 @@ namespace Beyova.AOP
 
                 GenerateMethodCallInfoDeclarition(builder, methodInfo, currentIndent, methodCallInfoVariableName);
 
-                builder.AppendIndent(CodeIndent, currentIndent);
+                builder.AppendIndent(currentIndent);
                 builder.AppendLine("try");
 
                 #region try
 
-                this.BeginCodeScope(builder, ref currentIndent);
+                builder.AppendBraceBegin( ref currentIndent);
 
                 //Injection of before event
                 GenerateMethodInjectionInvoke(builder, "MethodInvokingEvent", methodCallInfoVariableName, currentIndent);
 
                 //Core
-                builder.AppendIndent(CodeIndent, currentIndent);
+                builder.AppendIndent(currentIndent);
                 if (methodInfo.ReturnParameter.ParameterType != typeof(void))
                 {
                     builder.Append("return ");
                 }
                 builder.AppendLineWithFormat("_instance.{0};", methodInfo.ToInvokeCodeLook(methodInfo.GetGenericArguments(), methodInfo.GetParameters()));
 
-                this.EndCodeScope(builder, ref currentIndent);
+                builder.AppendBraceEnd( ref currentIndent);
 
                 #endregion try
 
-                builder.AppendIndent(CodeIndent, currentIndent);
+                builder.AppendIndent(currentIndent);
                 builder.AppendLine("catch (Exception ex)");
 
                 #region catch
 
-                this.BeginCodeScope(builder, ref currentIndent);
+                builder.AppendBraceBegin( ref currentIndent);
 
-                builder.AppendIndent(CodeIndent, currentIndent);
+                builder.AppendIndent(currentIndent);
                 builder.AppendLineWithFormat("{0}.Exception = ex;", methodCallInfoVariableName);
 
                 // Injection of exception handle
                 GenerateMethodInjectionInvoke(builder, "ExceptionDelegate", methodCallInfoVariableName, currentIndent, string.Format("throw ex.Handle((from item in {0}.InArgs where {0}.SerializableArgNames.Contains(item.Key) select item).ToDictionary());", methodCallInfoVariableName), callAfterInjection: methodInfo.ReturnType.IsVoid(false) ? string.Empty : string.Format("return default({0});", methodInfo.ReturnType.ToCodeLook()));
 
-                this.EndCodeScope(builder, ref currentIndent);
+                builder.AppendBraceEnd( ref currentIndent);
 
                 #endregion catch
 
-                builder.AppendIndent(CodeIndent, currentIndent);
+                builder.AppendIndent(currentIndent);
                 builder.AppendLine("finally");
 
                 #region finally
 
-                this.BeginCodeScope(builder, ref currentIndent);
+                builder.AppendBraceBegin( ref currentIndent);
                 //Injection of after event
                 GenerateMethodInjectionInvoke(builder, "MethodInvokedEvent", methodCallInfoVariableName, currentIndent);
-                this.EndCodeScope(builder, ref currentIndent);
+                builder.AppendBraceEnd( ref currentIndent);
 
                 #endregion finally
 
@@ -287,7 +309,7 @@ namespace Beyova.AOP
 
                 #endregion method body
 
-                this.EndCodeScope(builder, ref currentIndent);
+                builder.AppendBraceEnd( ref currentIndent);
 
                 builder.AppendLine();
             }

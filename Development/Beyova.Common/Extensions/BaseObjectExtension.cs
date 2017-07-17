@@ -47,7 +47,7 @@ namespace Beyova
                         result.Upserts.Add(one.Object);
                     }
 
-                    maxObject.Max(one, x => x.LastUpdatedStamp as DateTime?, out maxObject);
+                    maxObject.Max(one, x => x.LastUpdatedStamp, out maxObject);
                 }
 
                 result.LastStamp = maxObject.LastUpdatedStamp;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Routing;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class MVCExtension.

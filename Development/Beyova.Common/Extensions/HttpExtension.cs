@@ -198,6 +198,23 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Reads the response as redirection.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="statusCode">The status code.</param>
+        /// <returns></returns>
+        public static string ReadResponseAsRedirection(this HttpWebRequest httpWebRequest, out HttpStatusCode statusCode)
+        {
+            CookieCollection cookieCollection;
+            WebHeaderCollection headers;
+
+            httpWebRequest.AllowAutoRedirect = false;
+            ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsText(webResponse, Encoding.UTF8, false); }, out statusCode, out headers, out cookieCollection);
+
+            return (statusCode == HttpStatusCode.Redirect) ? headers.Get(HttpConstants.HttpHeader.Location) : null;
+        }
+
+        /// <summary>
         /// Reads the response as text.
         /// </summary>
         /// <param name="httpWebRequest">The HTTP web request.</param>
@@ -210,6 +227,20 @@ namespace Beyova
         public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode, out WebHeaderCollection headers, out CookieCollection cookieCollection)
         {
             return ReadResponseAsT<string>(httpWebRequest, (webResponse) => { return HttpExtension.ReadAsText(webResponse, encoding, false); }, out statusCode, out headers, out cookieCollection);
+        }
+
+        /// <summary>
+        /// Reads the response as text.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="statusCode">The status code.</param>
+        /// <returns></returns>
+        public static string ReadResponseAsText(this HttpWebRequest httpWebRequest, Encoding encoding, out HttpStatusCode statusCode)
+        {
+            CookieCollection cookieCollection;
+            WebHeaderCollection headers;
+            return ReadResponseAsText(httpWebRequest, encoding, out statusCode, out headers, out cookieCollection);
         }
 
         /// <summary>
@@ -588,9 +619,23 @@ namespace Beyova
         {
             if (httpWebRequest != null)
             {
+                httpWebRequest.Method = method;
+                FillData(httpWebRequest, dataMappings, encoding);
+            }
+        }
+
+        /// <summary>
+        /// Fills the data.
+        /// </summary>
+        /// <param name="httpWebRequest">The HTTP web request.</param>
+        /// <param name="dataMappings">The data mappings.</param>
+        /// <param name="encoding">The encoding.</param>
+        public static void FillData(this HttpWebRequest httpWebRequest, Dictionary<string, string> dataMappings, Encoding encoding = null)
+        {
+            if (httpWebRequest != null)
+            {
                 var data = FormDataToBytes(dataMappings, encoding);
 
-                httpWebRequest.Method = method;
                 httpWebRequest.ContentType = HttpConstants.ContentType.FormSubmit;
                 httpWebRequest.ContentLength = data.Length;
                 using (var stream = httpWebRequest.GetRequestStream())
@@ -2404,8 +2449,7 @@ namespace Beyova
         /// Internals the generate new query string.
         /// </summary>
         /// <param name="originalPureQueryString">The original pure query string. Like: a=b&amp;c=d</param>
-        /// <param name="key">The key.</param>
-        /// <param name="value">The value.</param>
+        /// <param name="updates">The updates.</param>
         /// <returns></returns>
         private static string InternalGenerateNewQueryString(string originalPureQueryString, Dictionary<string, string> updates)
         {

@@ -49,7 +49,7 @@ namespace Beyova.RestApi
         /// <summary>
         /// The base client version
         /// </summary>
-        internal const int BaseClientVersion = 4;
+        public const int BaseClientVersion = 4;
 
         /// <summary>
         /// The client generated version

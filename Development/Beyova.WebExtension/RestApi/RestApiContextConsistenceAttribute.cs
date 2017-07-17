@@ -9,7 +9,7 @@ using Beyova.ApiTracking;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class RestApiContextConsistenceAttribute.
@@ -44,6 +44,12 @@ namespace Beyova.WebExtension
         /// </summary>
         [ThreadStatic]
         internal static ApiEventLog ApiEvent;
+
+        /// <summary>
+        /// The depth
+        /// </summary>
+        [ThreadStatic]
+        internal static int Depth = 0;
 
         #region Constructor
 
@@ -87,48 +93,53 @@ namespace Beyova.WebExtension
                 filterContext.Exception = baseException;
             }
 
-            if (ApiTracking != null)
+            if (Depth < 2)
             {
-                DateTime exitStamp = DateTime.UtcNow;
-
-                // API EXCEPTION
-                if (baseException != null)
+                if (ApiTracking != null)
                 {
+                    DateTime exitStamp = DateTime.UtcNow;
+
+                    // API EXCEPTION
+                    if (baseException != null)
+                    {
+                        try
+                        {
+                            ApiTracking.LogException(baseException.ToExceptionInfo());
+                        }
+                        catch { }
+                    }
+
+                    // API EVENT
+                    if (ApiEvent != null)
+                    {
+                        try
+                        {
+                            ApiEvent.ExitStamp = exitStamp;
+                            ApiEvent.ExceptionKey = baseException?.Key;
+
+                            ApiTracking.LogApiEvent(ApiEvent);
+                        }
+                        catch { }
+                    }
+
+                    // API TRACE
                     try
                     {
-                        ApiTracking.LogException(baseException.ToExceptionInfo());
+                        ApiTraceContext.Exit((ApiEvent?.ExceptionKey) ?? (baseException?.Key), exitStamp);
+                        var traceLog = ApiTraceContext.GetCurrentTraceLog(true);
+
+                        if (traceLog != null)
+                        {
+                            ApiTracking.LogApiTraceLog(traceLog);
+                        }
                     }
                     catch { }
                 }
 
-                // API EVENT
-                if (ApiEvent != null)
-                {
-                    try
-                    {
-                        ApiEvent.ExitStamp = exitStamp;
-                        ApiEvent.ExceptionKey = baseException?.Key;
-
-                        ApiTracking.LogApiEvent(ApiEvent);
-                    }
-                    catch { }
-                }
-
-                // API TRACE
-                try
-                {
-                    ApiTraceContext.Exit((ApiEvent?.ExceptionKey) ?? (baseException?.Key), exitStamp);
-                    var traceLog = ApiTraceContext.GetCurrentTraceLog(true);
-
-                    if (traceLog != null)
-                    {
-                        ApiTracking.LogApiTraceLog(traceLog);
-                    }
-                }
-                catch { }
+                ThreadExtension.Clear();
             }
 
-            ThreadExtension.Clear();
+            Depth--;
         }
 
         /// <summary>
@@ -139,71 +150,78 @@ namespace Beyova.WebExtension
         {
             base.OnActionExecuting(filterContext);
 
-            DateTime entryStamp = DateTime.UtcNow;
-            var request = filterContext.HttpContext.Request;
-
-            var traceId = request.TryGetHeader(HttpConstants.HttpHeader.TRACEID);
-            var traceSequence = request.TryGetHeader(HttpConstants.HttpHeader.TRACESEQUENCE).ObjectToNullableInt32();
-            var methodInfo = (filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo;
-
-            ContextHelper.ConsistContext(request, this.settings?.Name);
-
-            if (!string.IsNullOrWhiteSpace(traceId))
+            if (Depth < 1)
             {
-                ApiTraceContext.Initialize(traceId, traceSequence, entryStamp);
-            }
+                Depth = 0;
 
-            if (settings != null && settings.TrackingEvent)
-            {
-                var context = filterContext.HttpContext;
-                ApiEvent = new ApiEventLog
+                DateTime entryStamp = DateTime.UtcNow;
+                var request = filterContext.HttpContext.Request;
+
+                var traceId = request.TryGetHeader(HttpConstants.HttpHeader.TRACEID);
+                var traceSequence = request.TryGetHeader(HttpConstants.HttpHeader.TRACESEQUENCE).ObjectToNullableInt32();
+                var methodInfo = (filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo;
+
+                ContextHelper.ConsistContext(request, this.settings?.Name);
+
+                if (!string.IsNullOrWhiteSpace(traceId))
                 {
-                    ApiFullName = methodInfo?.GetFullName(),
-                    RawUrl = context.Request.RawUrl,
-                    EntryStamp = entryStamp,
-                    UserAgent = context.Request.UserAgent,
-                    TraceId = traceId,
-                    // If request came from ApiTransport or other proxy ways, ORIGINAL stands for the IP ADDRESS from original requester.
-                    IpAddress = context.Request.TryGetHeader(settings?.OriginalIpAddressHeaderKey.SafeToString(HttpConstants.HttpHeader.ORIGINAL)).SafeToString(context.Request.UserHostAddress),
-                    CultureCode = ContextHelper.ApiContext.CultureCode,
-                    ContentLength = context.Request.ContentLength,
-                    OperatorCredential = ContextHelper.CurrentCredential as BaseCredential,
-                    Protocol = context.Request.Url.Scheme,
-                    ReferrerUrl = context.Request.UrlReferrer?.ToString(),
-                    ServerIdentifier = EnvironmentCore.ServerName,
-                    ServiceIdentifier = EnvironmentCore.ProjectName
-                };
-            }
-
-            var controllerType = methodInfo?.DeclaringType;
-
-            var tokenRequiredAttribute = methodInfo?.GetCustomAttribute<TokenRequiredAttribute>(true) ?? controllerType?.GetCustomAttribute<TokenRequiredAttribute>(true);
-            var permissionAttributes = controllerType?.GetCustomAttributes<ApiPermissionAttribute>(true).ToDictionary();
-            permissionAttributes.Merge(methodInfo?.GetCustomAttributes<ApiPermissionAttribute>(true).ToDictionary(), true);
-
-            var tokenRequired = tokenRequiredAttribute != null && tokenRequiredAttribute.TokenRequired;
-
-            if (tokenRequired)
-            {
-                if (!ContextHelper.IsUser)
-                {
-                    var baseException = (new UnauthorizedTokenException(ContextHelper.Token)).Handle(
-                   filterContext.HttpContext.Request.ToExceptionScene(filterContext.RouteData?.GetControllerName()), data: new { filterContext.HttpContext.Request.RawUrl });
-
-                    HandleUnauthorizedAction(filterContext, baseException);
+                    ApiTraceContext.Initialize(traceId, traceSequence, entryStamp);
                 }
-                else if (permissionAttributes.HasItem())
-                {
-                    var baseException = ContextHelper.CurrentUserInfo?.Permissions.ValidateApiPermission(permissionAttributes, ContextHelper.Token, methodInfo?.GetFullName());
 
-                    if (baseException != null)
+                if (settings != null && settings.TrackingEvent)
+                {
+                    var context = filterContext.HttpContext;
+                    ApiEvent = new ApiEventLog
                     {
+                        ApiFullName = methodInfo?.GetFullName(),
+                        RawUrl = context.Request.RawUrl,
+                        EntryStamp = entryStamp,
+                        UserAgent = context.Request.UserAgent,
+                        TraceId = traceId,
+                        // If request came from ApiTransport or other proxy ways, ORIGINAL stands for the IP ADDRESS from original requester.
+                        IpAddress = context.Request.TryGetHeader(settings?.OriginalIpAddressHeaderKey.SafeToString(HttpConstants.HttpHeader.ORIGINAL)).SafeToString(context.Request.UserHostAddress),
+                        CultureCode = ContextHelper.ApiContext.CultureCode,
+                        ContentLength = context.Request.ContentLength,
+                        OperatorCredential = ContextHelper.CurrentCredential as BaseCredential,
+                        Protocol = context.Request.Url.Scheme,
+                        ReferrerUrl = context.Request.UrlReferrer?.ToString(),
+                        ServerIdentifier = EnvironmentCore.ServerName,
+                        ServiceIdentifier = EnvironmentCore.ProductName
+                    };
+                }
+
+                var controllerType = methodInfo?.DeclaringType;
+
+                var tokenRequiredAttribute = methodInfo?.GetCustomAttribute<TokenRequiredAttribute>(true) ?? controllerType?.GetCustomAttribute<TokenRequiredAttribute>(true);
+                var permissionAttributes = controllerType?.GetCustomAttributes<ApiPermissionAttribute>(true).ToDictionary();
+                permissionAttributes.Merge(methodInfo?.GetCustomAttributes<ApiPermissionAttribute>(true).ToDictionary(), true);
+
+                var tokenRequired = tokenRequiredAttribute != null && tokenRequiredAttribute.TokenRequired;
+
+                if (tokenRequired)
+                {
+                    if (!ContextHelper.IsUser)
+                    {
+                        var baseException = (new UnauthorizedTokenException(ContextHelper.Token)).Handle(
+                       filterContext.HttpContext.Request.ToExceptionScene(filterContext.RouteData?.GetControllerName()), data: new { filterContext.HttpContext.Request.RawUrl });
+
                         HandleUnauthorizedAction(filterContext, baseException);
                     }
+                    else if (permissionAttributes.HasItem())
+                    {
+                        var baseException = ContextHelper.CurrentUserInfo?.Permissions.ValidateApiPermission(permissionAttributes, ContextHelper.Token, methodInfo?.GetFullName());
+
+                        if (baseException != null)
+                        {
+                            HandleUnauthorizedAction(filterContext, baseException);
+                        }
+                    }
                 }
+
+                ApiTraceContext.Enter(methodInfo.GetFullName(), setNameAsMajor: true);
             }
 
-            ApiTraceContext.Enter(methodInfo.GetFullName(), setNameAsMajor: true);
+            Depth++;
         }
 
         /// <summary>
@@ -215,7 +233,7 @@ namespace Beyova.WebExtension
         {
             if (filterContext.HttpContext.Request.IsAjaxRequest())
             {
-                ApiHandlerBase.PackageResponse(filterContext.HttpContext.Response, null, baseException, settings: settings);
+                ApiHandlerBase.PackageResponse(filterContext.HttpContext.Response, null, null, baseException, settings: settings);
                 filterContext.Result = null;
             }
             else

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class Extension.
@@ -21,11 +21,7 @@ namespace Beyova.WebExtension
         /// <returns><c>true</c> if [is user agent from mobile] [the specified HTTP request]; otherwise, <c>false</c>.</returns>
         public static bool IsUserAgentFromMobile(this HttpRequest httpRequest)
         {
-            return httpRequest != null && !string.IsNullOrWhiteSpace(httpRequest.UserAgent) && (
-                    httpRequest.UserAgent.IndexOf("pad", StringComparison.InvariantCultureIgnoreCase) > -1
-                        || httpRequest.UserAgent.IndexOf("android", StringComparison.InvariantCultureIgnoreCase) > -1
-                        || httpRequest.UserAgent.IndexOf("phone", StringComparison.InvariantCultureIgnoreCase) > -1
-                    );
+            return httpRequest != null && httpRequest.UserAgent.IsMobileUserAgent();
         }
 
         /// <summary>
@@ -35,6 +31,18 @@ namespace Beyova.WebExtension
         public static HttpContextBase GetCurrentHttpContext()
         {
             return new HttpContextWrapper(System.Web.HttpContext.Current);
+        }
+
+        /// <summary>
+        /// Gets the default name of the module.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="controller">The controller.</param>
+        /// <returns></returns>
+        public static string GetDefaultModuleName<T>(this T controller)
+            where T : System.Web.Mvc.Controller
+        {
+            return (controller != null ? controller.GetType() : typeof(T)).Name.TrimEnd("controller", true);
         }
     }
 }

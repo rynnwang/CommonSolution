@@ -189,6 +189,11 @@
             /// The content type
             /// </summary>
             public const string ContentType = "Content-Type";
+
+            /// <summary>
+            /// The location
+            /// </summary>
+            public const string Location = "Location";
         }
 
         /// <summary>

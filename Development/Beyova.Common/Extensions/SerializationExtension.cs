@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Beyova.ExceptionSystem;
 using Newtonsoft.Json;
 
 namespace Beyova

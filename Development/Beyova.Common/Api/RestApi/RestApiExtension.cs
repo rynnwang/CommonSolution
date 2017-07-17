@@ -43,13 +43,13 @@ namespace Beyova.RestApi
         {
             if (builder != null && log != null)
             {
-                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendIndent(level);
                 builder.AppendLineWithFormat("Entry: {0}", log.EntryStamp.ToFullDateTimeString());
-                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendIndent(level);
                 builder.AppendLineWithFormat("Exit: {0}", log.ExitStamp.ToFullDateTimeString());
-                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendIndent(level);
                 builder.AppendLineWithFormat("Exception Key: {0}", log.ExceptionKey);
-                builder.AppendIndent(' ', 2 * (level + 1));
+                builder.AppendIndent(level);
 
                 foreach (var one in log.InnerTraces)
                 {

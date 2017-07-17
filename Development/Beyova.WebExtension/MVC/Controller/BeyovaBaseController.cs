@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Web;
 using System.Web.Mvc;
@@ -6,7 +7,7 @@ using System.Web.Routing;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class BeyovaBaseController.
@@ -96,7 +97,7 @@ namespace Beyova.WebExtension
             [CallerLineNumber] int sourceLineNumber = 0)
         {
             var baseExceptionInfo = ex == null ? null : GetException(ex, exceptionObject, hint, operationName, sourceFilePath, sourceLineNumber);
-            return Json(baseExceptionInfo == null ? returnObject : baseExceptionInfo);
+            return Json(baseExceptionInfo == null ? returnObject ?? string.Empty : baseExceptionInfo);
         }
 
         /// <summary>
@@ -155,6 +156,16 @@ namespace Beyova.WebExtension
         }
 
         /// <summary>
+        /// Redirects to not found page.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns>RedirectResult.</returns>
+        public RedirectResult RedirectToNotFoundPage(string message = null)
+        {
+            return Redirect("~/Error/?code=404&message=" + message.SafeToString("Resource is not found").ToUrlPathEncodedText());
+        }
+
+        /// <summary>
         /// Renders as action forbidden page.
         /// </summary>
         /// <param name="message">The message.</param>
@@ -169,6 +180,36 @@ namespace Beyova.WebExtension
                 },
                 Message = message.SafeToString("Action is forbidden.")
             });
+        }
+
+        /// <summary>
+        /// APIs the proxy.
+        /// </summary>
+        /// <param name="method">The method.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="cookieTokenKey">The cookie token key.</param>
+        /// <returns>System.Object.</returns>
+        public object ApiProxy(string method, string url, string cookieTokenKey = null)
+        {
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                var headers = this.Request.Headers;
+
+                if (!string.IsNullOrWhiteSpace(cookieTokenKey))
+                {
+                    headers.Add(cookieTokenKey, this.Request.Cookies.Get(cookieTokenKey)?.Value);
+                }
+
+                var context = RestApiRouter.FirstInstance?.ProcessRequestToRuntimeContext(method.SafeToString(HttpConstants.HttpMethod.Get), new Uri(this.Request.Url.GetPrimaryUri() + url.TrimStart(new char[] { '/', ' ' })), headers, true);
+
+                if (context != null)
+                {
+                    string jsonBody;
+                    return ApiHandlerBase.InternalInvoke(context.ApiInstance, context.ApiMethod, Request.GetPostData(), this.Request.Url, context.EntityKey, out jsonBody);
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -267,7 +308,7 @@ namespace Beyova.WebExtension
         /// <param name="ex">The ex.</param>
         protected void PackageResponse(HttpResponseBase response, object data, BaseException ex = null)
         {
-            ApiHandlerBase.PackageResponse(Response, data, ex, settings: setting);
+            ApiHandlerBase.PackageResponse(Response, data, null, ex, settings: setting);
         }
     }
 }

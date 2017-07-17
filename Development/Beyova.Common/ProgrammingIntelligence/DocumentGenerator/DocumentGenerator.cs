@@ -738,7 +738,7 @@ url{
                     enumSets.Add(type);
                     if (!followingProperty)
                     {
-                        AppendIndent(builder, indent);
+                        builder.AppendIndent(indent);
                     }
                     builder.AppendFormat(enumFormat, (firstEnum == null) ? string.Empty : ((int)firstEnum).ToString(), type.FullName);
                 }
@@ -768,7 +768,7 @@ url{
 
                         if (!followingProperty)
                         {
-                            AppendIndent(builder, indent);
+                            builder.AppendIndent(indent);
                         }
 
                         builder.AppendLineWithFormat(objectBrace, "{");
@@ -778,7 +778,7 @@ url{
                         FillSampleValue(builder, valueType, enumSets, indent + 1, fieldName: "Value", followingProperty: true, objectChain: AppendChain(objectChain, type));
                         builder.AppendLine();
 
-                        AppendIndent(builder, indent);
+                        builder.AppendIndent(indent);
                         builder.AppendLineWithFormat(objectBrace, "}");
                     }
                 }
@@ -788,21 +788,21 @@ url{
 
                     if (!followingProperty)
                     {
-                        AppendIndent(builder, indent);
+                        builder.AppendIndent(indent);
                     }
                     builder.AppendLineWithFormat(arrayBrace, "[");
 
                     if (!OverThreshold(objectChain, subType))
                     {
                         FillSampleValue(builder, subType, enumSets, indent + 1, "Item1", followingProperty: false, objectChain: AppendChain(objectChain, type));
-                        AppendIndent(builder, indent + 1);
+                        builder.AppendIndent(indent + 1);
                         AppendComma(builder);
                         FillSampleValue(builder, subType, enumSets, indent + 1, "Item2", followingProperty: false, objectChain: AppendChain(objectChain, type));
 
                         builder.AppendLine();
                     }
 
-                    AppendIndent(builder, indent);
+                    builder.AppendIndent(indent);
                     builder.AppendLineWithFormat(arrayBrace, "]");
                 }
                 else
@@ -812,7 +812,7 @@ url{
                         case "System.Boolean":
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             builder.Append("<span class=\"Boolean\">true</span>");
                             break;
@@ -820,7 +820,7 @@ url{
                         case "System.String":
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             fieldName = string.IsNullOrWhiteSpace(fieldName) ? "AnyString" : fieldName + "String";
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", ignoreQuote ? fieldName : fieldName.SplitSentenceByUpperCases());
@@ -829,7 +829,7 @@ url{
                         case "System.Guid":
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", Guid.NewGuid());
                             break;
@@ -842,7 +842,7 @@ url{
                         case "System.Int64":
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             builder.AppendFormat("<span class=\"Number\" style=\"color: #AA00AA;\">123</span>");
                             break;
@@ -852,7 +852,7 @@ url{
                         case "System.Decimal":
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             builder.AppendFormat("<span class=\"Number\" style=\"color: #AA00AA;\">1.5</span>");
                             break;
@@ -860,7 +860,7 @@ url{
                         case "System.DateTime":
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", ignoreQuote ? DateTime.Now.ToFullDateTimeTzString().ToUrlPathEncodedText() : DateTime.Now.ToFullDateTimeTzString());
                             break;
@@ -868,7 +868,7 @@ url{
                         case "System.TimeSpan":
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             builder.AppendFormat(ignoreQuote ? "{0}" : "\"{0}\"", ignoreQuote ? new TimeSpan(1234).ToString().ToUrlPathEncodedText() : new TimeSpan(1234).ToString());
                             break;
@@ -876,7 +876,7 @@ url{
                         default:
                             if (!followingProperty)
                             {
-                                AppendIndent(builder, indent);
+                                builder.AppendIndent(indent);
                             }
                             builder.AppendLineWithFormat(objectBrace, "{");
 
@@ -884,7 +884,7 @@ url{
                             {
                                 var valueType = one.PropertyType;
 
-                                AppendIndent(builder, indent + 1);
+                                builder.AppendIndent(indent + 1);
                                 FillProperty(builder, one.Name, one.PropertyType);
 
                                 AppendColon(builder);
@@ -897,7 +897,7 @@ url{
                             {
                                 var valueType = one.FieldType;
 
-                                AppendIndent(builder, indent + 1);
+                                builder.AppendIndent(indent + 1);
                                 FillProperty(builder, one.Name, one.FieldType);
 
                                 AppendColon(builder);
@@ -908,7 +908,7 @@ url{
 
                             RemoveUnnecessaryColon(builder);
 
-                            AppendIndent(builder, indent);
+                            builder.AppendIndent(indent);
                             builder.AppendLineWithFormat(objectBrace, "}");
 
                             break;
@@ -975,16 +975,6 @@ url{
             var nullable = propertyType.IsFieldNullable();
             var title = string.Format("C# Type: {0}, {1}", propertyType.ToCodeLook(), nullable ? "Nullable" : "Not Null");
             builder.AppendFormat(propertyNameFormat, propertyName, title, nullable ? "nullable" : string.Empty);
-        }
-
-        /// <summary>
-        /// Appends the indent.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="indent">The indent.</param>
-        private static void AppendIndent(StringBuilder builder, int indent)
-        {
-            builder.AppendIndent("    ", indent);
         }
 
         /// <summary>

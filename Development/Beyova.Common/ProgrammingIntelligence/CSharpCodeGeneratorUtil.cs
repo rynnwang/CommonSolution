@@ -7,7 +7,7 @@ using System.Text;
 namespace Beyova.ProgrammingIntelligence
 {
     /// <summary>
-    ///
+    /// Class CSharpCodeGenerateUtil
     /// </summary>
     public static class CSharpCodeGenerateUtil
     {
@@ -15,7 +15,7 @@ namespace Beyova.ProgrammingIntelligence
         /// Appends the begin brace.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        internal static void AppendBeginBrace(this StringBuilder builder)
+        public static void AppendBeginBrace(this StringBuilder builder)
         {
             if (builder != null)
             {
@@ -24,14 +24,45 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
+        /// Appends the brace begin.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="indent">The indent.</param>
+        public static void AppendBraceBegin(this StringBuilder builder, ref int indent)
+        {
+            if (builder != null)
+            {
+                builder.AppendIndent(indent);
+                builder.AppendLine("{");
+                indent++;
+            }
+        }
+
+        /// <summary>
         /// Appends the end brace.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        internal static void AppendEndBrace(this StringBuilder builder)
+        public static void AppendEndBrace(this StringBuilder builder)
         {
             if (builder != null)
             {
                 builder.Append("}");
+            }
+        }
+
+        /// <summary>
+        /// Appends the brace end.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="indent">The indent.</param>
+        /// <param name="appendStatementEnd">if set to <c>true</c> [append statement end].</param>
+        public static void AppendBraceEnd(this StringBuilder builder, ref int indent, bool appendStatementEnd = false)
+        {
+            if (builder != null)
+            {
+                indent--;
+                builder.AppendIndent(indent);
+                builder.AppendLine(appendStatementEnd ? "};" : "}");                
             }
         }
 
@@ -41,7 +72,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="methodInfo">The method information.</param>
         /// <param name="includeType">Type of the include.</param>
         /// <returns>System.String.</returns>
-        internal static string MethodInputParametersToCodeLook(this MethodInfo methodInfo, bool includeType = true)
+        public static string MethodInputParametersToCodeLook(this MethodInfo methodInfo, bool includeType = true)
         {
             Func<ParameterInfo, string> func;
             if (includeType)
@@ -83,13 +114,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <param name="methodInfo">The method information.</param>
         /// <param name="indent">The indent.</param>
         /// <returns></returns>
-#if DEBUG
-        public
-#else
-
-        internal
-# endif
-            static string ToGenericConstraintsCodeLook(this MethodInfo methodInfo, string indent = null)
+        public static string ToGenericConstraintsCodeLook(this MethodInfo methodInfo, string indent = null)
         {
             return methodInfo.IsGenericMethod ? InternalToGenericConstraintsCodeLook(methodInfo.GetGenericArguments(), indent) : string.Empty;
         }
@@ -159,13 +184,7 @@ namespace Beyova.ProgrammingIntelligence
         /// <returns>
         /// System.String.
         /// </returns>
-#if DEBUG
-        public
-#else
-
-        internal
-#endif
-            static string ToDeclarationCodeLook(this MethodInfo methodInfo)
+        public static string ToDeclarationCodeLook(this MethodInfo methodInfo)
         {
             if (methodInfo != null)
             {
@@ -377,5 +396,147 @@ namespace Beyova.ProgrammingIntelligence
 
             return string.Empty;
         }
+
+        /// <summary>
+        /// Usings the namespaces.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="namespaceNames">The namespace names.</param>
+        public static void UsingNamespaces(StringBuilder builder, IEnumerable<string> namespaceNames)
+        {
+            if (builder != null && namespaceNames.HasItem())
+            {
+                foreach (var item in namespaceNames)
+                {
+                    builder.AppendLineWithFormat("using {0};", item);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes the programming intelligence file description.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        public static void WriteProgrammingIntelligenceFileDescription(StringBuilder builder)
+        {
+            if (builder != null)
+            {
+                builder.AppendIndent('/', 30);
+                builder.AppendLine();
+
+                builder.AppendLineWithFormat("// This code is generated by Beyova Programming Intelligence Components.");
+                builder.AppendLineWithFormat("// UTC: {0}", DateTime.UtcNow.ToFullDateTimeString());
+                builder.AppendLine("// https://github.com/rynnwang/CommonSolution");
+
+                builder.AppendIndent('/', 30);
+                builder.AppendLine();
+            }
+        }
+
+        #region Append Check statement
+
+        /// <summary>
+        /// Smarts the append check null or empty statement.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="instanceType">Type of the instance.</param>
+        /// <param name="instanceName">Name of the instance.</param>
+        /// <param name="indent">The indent.</param>
+        public static void SmartAppendCheckNullOrEmptyStatement(this StringBuilder builder, Type instanceType, string instanceName, int indent = 0)
+        {
+            if (builder != null && instanceType != null && !string.IsNullOrWhiteSpace(instanceName))
+            {
+                if (instanceType == typeof(string))
+                {
+                    ApppendCheckEmptyStringStatement(builder, instanceName, indent);
+                }
+                else if (instanceType.IsCollection())
+                {
+                    ApppendCheckNullOrEmptyCollectionStatement(builder, instanceName, indent);
+                }
+                else if (instanceType.IsClass || instanceType.IsNullable())
+                {
+                    ApppendCheckNullObjectStatement(builder, instanceName, indent);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Apppends the check null object statement.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="variableName">Name of the variable.</param>
+        /// <param name="indent">The indent.</param>
+        public static void ApppendCheckNullObjectStatement(this StringBuilder builder, string variableName, int indent = 0)
+        {
+            ApppendCheckStatement(builder, "CheckNullObject", variableName, indent);
+        }
+
+        /// <summary>
+        /// Apppends the check empty string statement.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="variableName">Name of the variable.</param>
+        /// <param name="indent">The indent.</param>
+        public static void ApppendCheckEmptyStringStatement(this StringBuilder builder, string variableName, int indent = 0)
+        {
+            ApppendCheckStatement(builder, "CheckEmptyString", variableName, indent);
+        }
+
+        /// <summary>
+        /// Apppends the check null or empty collection statement.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="variableName">Name of the variable.</param>
+        /// <param name="indent">The indent.</param>
+        public static void ApppendCheckNullOrEmptyCollectionStatement(this StringBuilder builder, string variableName, int indent = 0)
+        {
+            ApppendCheckStatement(builder, "CheckNullOrEmptyCollection", variableName, indent);
+        }
+
+        /// <summary>
+        /// Apppends the check statement.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="methodName">Name of the method.</param>
+        /// <param name="variableName">Name of the variable.</param>
+        /// <param name="indent">The indent.</param>
+        private static void ApppendCheckStatement(this StringBuilder builder, string methodName, string variableName, int indent = 0)
+        {
+            if (builder != null && !string.IsNullOrWhiteSpace(methodName) && !string.IsNullOrWhiteSpace(variableName))
+            {
+                builder.AppendIndent(indent);
+                builder.AppendLineWithFormat("{0}.{1}(nameof({0}));", variableName, methodName);
+            }
+        }
+
+        #endregion
+
+        #region AppendThrowExceptionStatement
+
+        /// <summary>
+        /// Appends the throw exception statement.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="methodInfo">The method information.</param>
+        public static void AppendThrowExceptionStatement(this StringBuilder builder, MethodInfo methodInfo)
+        {
+            AppendThrowExceptionStatement(builder, methodInfo.GetParameters().Where(x => !x.ParameterType.IsContextful).Select(x => x.Name));
+        }
+
+        /// <summary>
+        /// Appends the throw exception statement.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="identifiers">The identifiers.</param>
+        public static void AppendThrowExceptionStatement(this StringBuilder builder, IEnumerable<string> identifiers)
+        {
+            if (builder != null)
+            {
+                builder.AppendLine(identifiers.HasItem() ? "throw ex.Handle(new { " + CombineCode(identifiers, x => x, 16) + " });" : "throw ex.Handle();");
+            }
+        }
+
+        #endregion
     }
 }

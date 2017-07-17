@@ -412,7 +412,6 @@ namespace Beyova
         /// <param name="stringObject">The string object.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>System.String.</returns>
-        /// <exception cref="OperationFailureException">ToSHA1</exception>
         public static string ToSHA1(this string stringObject, Encoding encoding = null)
         {
             try
@@ -838,18 +837,19 @@ namespace Beyova
                 try
                 {
                     byte[] keyBytes = GenerateTripleDESKey();
-                    TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
+                    using (TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider())
+                    {
+                        DES.Key = keyBytes;
+                        DES.Mode = CipherMode.ECB;
+                        DES.Padding = PaddingMode.PKCS7;
 
-                    DES.Key = keyBytes;
-                    DES.Mode = CipherMode.ECB;
-                    DES.Padding = PaddingMode.PKCS7;
+                        ICryptoTransform DESEncrypt = DES.CreateEncryptor();
 
-                    ICryptoTransform DESEncrypt = DES.CreateEncryptor();
-
-                    var buffer = DESEncrypt.TransformFinalBlock(content, 0, content.Length);
-                    List<byte> data = new List<byte>(keyBytes);
-                    data.AddRange(buffer);
-                    return data.ToArray();
+                        var buffer = DESEncrypt.TransformFinalBlock(content, 0, content.Length);
+                        List<byte> data = new List<byte>(keyBytes);
+                        data.AddRange(buffer);
+                        return data.ToArray();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -897,16 +897,17 @@ namespace Beyova
                 try
                 {
                     List<byte> bytes = new List<byte>(content);
-                    TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
+                    using (TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider())
+                    {
+                        DES.Key = bytes.GetRange(0, tripleDesKeyLength).ToArray();
+                        var buffer = bytes.GetRange(tripleDesKeyLength, bytes.Count - tripleDesKeyLength).ToArray();
+                        DES.Mode = CipherMode.ECB;
+                        DES.Padding = PaddingMode.PKCS7;
 
-                    DES.Key = bytes.GetRange(0, tripleDesKeyLength).ToArray();
-                    var buffer = bytes.GetRange(tripleDesKeyLength, bytes.Count - tripleDesKeyLength).ToArray();
-                    DES.Mode = CipherMode.ECB;
-                    DES.Padding = PaddingMode.PKCS7;
-
-                    ICryptoTransform DESDecrypt = DES.CreateDecryptor();
-                    buffer = DESDecrypt.TransformFinalBlock(buffer, 0, buffer.Length);
-                    return buffer;
+                        ICryptoTransform DESDecrypt = DES.CreateDecryptor();
+                        buffer = DESDecrypt.TransformFinalBlock(buffer, 0, buffer.Length);
+                        return buffer;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -933,16 +934,17 @@ namespace Beyova
                 {
                     byte[] buffer = Convert.FromBase64String(content);
                     List<byte> bytes = new List<byte>(buffer);
-                    TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider();
+                    using (TripleDESCryptoServiceProvider DES = new TripleDESCryptoServiceProvider())
+                    {
+                        DES.Key = bytes.GetRange(0, tripleDesKeyLength).ToArray();
+                        buffer = bytes.GetRange(tripleDesKeyLength, bytes.Count - tripleDesKeyLength).ToArray();
+                        DES.Mode = CipherMode.ECB;
+                        DES.Padding = PaddingMode.PKCS7;
 
-                    DES.Key = bytes.GetRange(0, tripleDesKeyLength).ToArray();
-                    buffer = bytes.GetRange(tripleDesKeyLength, bytes.Count - tripleDesKeyLength).ToArray();
-                    DES.Mode = CipherMode.ECB;
-                    DES.Padding = PaddingMode.PKCS7;
-
-                    ICryptoTransform DESDecrypt = DES.CreateDecryptor();
-                    buffer = DESDecrypt.TransformFinalBlock(buffer, 0, buffer.Length);
-                    result = (encoding ?? Encoding.UTF8).GetString(buffer);
+                        ICryptoTransform DESDecrypt = DES.CreateDecryptor();
+                        buffer = DESDecrypt.TransformFinalBlock(buffer, 0, buffer.Length);
+                        result = (encoding ?? Encoding.UTF8).GetString(buffer);
+                    }
                 }
                 catch (Exception ex)
                 {

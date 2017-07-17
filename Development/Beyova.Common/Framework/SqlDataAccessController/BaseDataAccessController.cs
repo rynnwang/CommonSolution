@@ -292,9 +292,9 @@ namespace Beyova
         protected const string column_SnapshotKey = "SnapshotKey";
 
         /// <summary>
-        /// The column_ project key
+        /// The column_ product key
         /// </summary>
-        protected const string column_ProjectKey = "ProjectKey";
+        protected const string column_ProductKey = "ProductKey";
 
         /// <summary>
         /// The column platform key

@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminSessionBase.
     /// </summary>
-    public class AdminSessionBase : IOwnerIdentifiable, IProjectBased
+    public class AdminSessionBase : IOwnerIdentifiable, IProductIdentifier
     {
         /// <summary>
         /// Gets or sets the owner key.
@@ -26,9 +26,9 @@ namespace Beyova
         public string IpAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets the project key.
+        /// Gets or sets the product key.
         /// </summary>
-        /// <value>The project key.</value>
-        public Guid? ProjectKey { get; set; }
+        /// <value>The product key.</value>
+        public Guid? ProductKey { get; set; }
     }
 }

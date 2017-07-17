@@ -393,35 +393,6 @@ namespace Beyova
             }
         }
 
-        #region InitializeCustomizedSqlErrorStoredProcedure
-
-        /// <summary>
-        /// Initializes the customized SQL error stored procedure.
-        /// </summary>
-        /// <param name="sqlConnection">The SQL connection.</param>
-        public static void InitializeCustomizedSqlErrorStoredProcedure(string sqlConnection)
-        {
-            if (string.IsNullOrWhiteSpace(sqlConnection))
-            {
-                return;
-            }
-
-            try
-            {
-                using (var databaseOperator = new DatabaseOperator(sqlConnection))
-                {
-                    var throwExceptionSp = ProgrammingIntelligence.SqlScriptGenerator.GenerateDefaultStoredProcedure("dbo");
-                    databaseOperator.ExecuteSqlTextNonQuery(throwExceptionSp);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex.Handle(sqlConnection);
-            }
-        }
-
-        #endregion InitializeCustomizedSqlErrorStoredProcedure
-
         #region GenerateSqlSpParameter
 
         /// <summary>

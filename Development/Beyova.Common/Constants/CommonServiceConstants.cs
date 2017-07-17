@@ -40,6 +40,9 @@
             /// </summary>
             public const string Administrator = "Administrator";
 
+            /// <summary>
+            /// Class ProvisioningSystem.
+            /// </summary>
             public static class ProvisioningSystem
             {
                 /// <summary>
@@ -58,6 +61,9 @@
                 public const string AppProvisioningAdministration = "AppProvisioningAdministration";
             }
 
+            /// <summary>
+            /// Class AdminSystem.
+            /// </summary>
             public static class AdminSystem
             {
                 /// <summary>
@@ -66,7 +72,7 @@
                 public const string AdminUserAdministration = "AdminUserAdministration";
 
                 /// <summary>
-                /// The admin role permission administration. Used for operate role & permission, role-permission mapping.
+                /// The admin role permission administration. Used for operate role &amp; permission, role-permission mapping.
                 /// </summary>
                 public const string AdminRolePermissionAdministration = "AdminRolePermissionAdministration";
 
@@ -109,9 +115,9 @@
         public class ResourceName
         {
             /// <summary>
-            /// The project
+            /// The product
             /// </summary>
-            public const string Project = "Project";
+            public const string Product = "Product";
 
             /// <summary>
             /// The user information

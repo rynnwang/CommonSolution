@@ -150,7 +150,7 @@ namespace Beyova
         static Framework()
         {
             Initialize();
-            ApiTracking?.LogMessage(string.Format("{0}: {1} is initialized.", DateTime.UtcNow.ToFullDateTimeString(), EnvironmentCore.ProjectName));
+            ApiTracking?.LogMessage(string.Format("{0} is initialized.", EnvironmentCore.ProductName));
         }
 
         #region Initializes

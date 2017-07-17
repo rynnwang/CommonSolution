@@ -16,7 +16,7 @@ using Beyova.ProgrammingIntelligence;
 [assembly: AssemblyTrademark(BeyovaPropertyConstants.AssemblyTrademark)]
 [assembly: AssemblyProduct("Beyova.Common")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.Common", "3.13.6")]
+[assembly: BeyovaComponent("Beyova.Common", "3.14.0")]
 [assembly: InternalsVisibleTo("Beyova.WebExtension, PublicKey=002400000480000094000000060200000024000052534131000400000100010043cc5930e5bede"
 + "45da5820d2c00fe5afd1018228c56bf2a5363be550010faa493fe913e64c9ec1ee68e069ae3a0d"
 + "cf188c8b65572edb15e860d53f393bc44292b3218e760ed1300c3a954dcc5140c81d54ab047c17"

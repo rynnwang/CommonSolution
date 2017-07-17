@@ -7,7 +7,7 @@ using System.Text;
 namespace Beyova.Cache
 {
     /// <summary>
-    /// Class ApiCacheAttribute. It would take effects when <see cref="ApiOperationAttribute"/> take effects.
+    /// Class ApiCacheAttribute. It would take effects when <see cref="Beyova.RestApi.ApiOperationAttribute"/> take effects.
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
     public class ApiCacheAttribute : Attribute

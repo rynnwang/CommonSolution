@@ -3,7 +3,7 @@
 namespace Beyova
 {
     /// <summary>
-    ///
+    /// Class DeepEquality
     /// </summary>
     public class DeepEquality
     {

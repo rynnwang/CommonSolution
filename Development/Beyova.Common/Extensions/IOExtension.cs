@@ -51,7 +51,7 @@ namespace Beyova
         {
             if (directory == null || !directory.Exists)
             {
-                ExceptionFactory.CreateInvalidObjectException(nameof(directory), directory?.FullName);
+                throw ExceptionFactory.CreateInvalidObjectException(nameof(directory), directory?.FullName);
             }
         }
 
@@ -416,6 +416,21 @@ namespace Beyova
             if (sourceStream != null && destinationStream != null)
             {
                 sourceStream.CopyTo(destinationStream);
+            }
+        }
+
+        /// <summary>
+        /// Ensures the existance.
+        /// </summary>
+        /// <param name="directoryInfo">The directory information.</param>
+        public static void EnsureExistance(this DirectoryInfo directoryInfo)
+        {
+            if (directoryInfo != null)
+            {
+                if (!directoryInfo.Exists)
+                {
+                    directoryInfo.Create();
+                }
             }
         }
     }

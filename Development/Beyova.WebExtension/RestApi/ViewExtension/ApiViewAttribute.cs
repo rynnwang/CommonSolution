@@ -8,7 +8,7 @@ using Beyova.Api;
 using Beyova.ExceptionSystem;
 using Beyova.RestApi;
 
-namespace Beyova.WebExtension
+namespace Beyova.Web
 {
     /// <summary>
     /// Class ApiViewAttribute.

@@ -2,21 +2,23 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Web;
+using Beyova;
 using Beyova.ProgrammingIntelligence;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Beyova.WebExtension")]
+[assembly: AssemblyTitle("Beyova.Web")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyDescription("All Rights reserved.")]
-[assembly: AssemblyCompany("Beyova Co.,Ltd.")]
-[assembly: AssemblyProduct("Beyova.WebExtension")]
-[assembly: AssemblyCopyright("Copyright © 2014 - 2016")]
-[assembly: AssemblyTrademark("Beyova")]
+[assembly: AssemblyProduct("Beyova.Web")]
 [assembly: AssemblyCulture("")]
-[assembly: BeyovaComponent("Beyova.WebExtension", "2.4.1")]
+[assembly: BeyovaComponent("Beyova.Web", "2.6.2")]
 //[assembly: PreApplicationStartMethod(typeof(WebInfrastructureEnhancement), "Initialize")]
+
+[assembly: AssemblyDescription(BeyovaPropertyConstants.AssemblyDescription)]
+[assembly: AssemblyCompany(BeyovaPropertyConstants.Company)]
+[assembly: AssemblyCopyright(BeyovaPropertyConstants.Copyright)]
+[assembly: AssemblyTrademark(BeyovaPropertyConstants.AssemblyTrademark)]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

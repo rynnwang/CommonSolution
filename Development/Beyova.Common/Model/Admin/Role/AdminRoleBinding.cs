@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminRoleBinding.
     /// </summary>
-    public class AdminRoleBinding : IOwnerIdentifiable, IProjectBased
+    public class AdminRoleBinding : IOwnerIdentifiable, IProductIdentifier
     {
         /// <summary>
         /// Gets or sets the owner key.
@@ -20,9 +20,9 @@ namespace Beyova
         public Guid? RoleKey { get; set; }
 
         /// <summary>
-        /// Gets or sets the project key.
+        /// Gets or sets the product key.
         /// </summary>
-        /// <value>The project key.</value>
-        public Guid? ProjectKey { get; set; }
+        /// <value>The product key.</value>
+        public Guid? ProductKey { get; set; }
     }
 }

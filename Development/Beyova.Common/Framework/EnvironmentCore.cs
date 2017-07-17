@@ -49,10 +49,10 @@ namespace Beyova
         public static readonly string LocalMachineIpAddress = string.Empty;
 
         /// <summary>
-        /// Gets the name of the project.
+        /// Gets the name of the product.
         /// </summary>
-        /// <value>The name of the project.</value>
-        public static string ProjectName { get; private set; }
+        /// <value>The name of the product.</value>
+        public static string ProductName { get; private set; }
 
         /// <summary>
         /// The descending assembly dependency chain. Descending here means order by referenced amount.
@@ -115,20 +115,20 @@ namespace Beyova
             {
                 if (AppDomain.CurrentDomain != null)
                 {
-                    ProjectName = AppDomain.CurrentDomain.FriendlyName;
+                    ProductName = AppDomain.CurrentDomain.FriendlyName;
                 }
 
-                if (string.IsNullOrWhiteSpace(ProjectName) || ProjectName.IndexOfAny(new char[] { '/', '\\', ':', '*' }) > -1)
+                if (string.IsNullOrWhiteSpace(ProductName) || ProductName.IndexOfAny(new char[] { '/', '\\', ':', '*' }) > -1)
                 {
-                    ProjectName = Assembly.GetEntryAssembly()?.FullName;
+                    ProductName = Assembly.GetEntryAssembly()?.FullName;
                 }
 
-                if (string.IsNullOrWhiteSpace(ProjectName))
+                if (string.IsNullOrWhiteSpace(ProductName))
                 {
-                    ProjectName = FindProjectName();
+                    ProductName = FindProductName();
                 }
             }
-            catch { ProjectName = string.Empty; }
+            catch { ProductName = string.Empty; }
         }
 
         /// <summary>
@@ -144,10 +144,10 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Finds the name of the project.
+        /// Finds the name of the product.
         /// </summary>
         /// <returns>System.String.</returns>
-        private static string FindProjectName()
+        private static string FindProductName()
         {
             try
             {

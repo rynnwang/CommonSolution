@@ -5,7 +5,7 @@ namespace Beyova
     /// <summary>
     /// Class AdminPermissionBinding.
     /// </summary>
-    public class AdminPermissionBinding : IOwnerIdentifiable, IProjectBased
+    public class AdminPermissionBinding : IOwnerIdentifiable, IProductIdentifier
     {
         /// <summary>
         /// Gets or sets the owner key.
@@ -14,10 +14,10 @@ namespace Beyova
         public Guid? OwnerKey { get; set; }
 
         /// <summary>
-        /// Gets or sets the project key.
+        /// Gets or sets the product key.
         /// </summary>
-        /// <value>The project key.</value>
-        public Guid? ProjectKey { get; set; }
+        /// <value>The product key.</value>
+        public Guid? ProductKey { get; set; }
 
         /// <summary>
         /// Gets or sets the permission key.

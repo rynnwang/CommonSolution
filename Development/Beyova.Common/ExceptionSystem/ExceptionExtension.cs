@@ -125,11 +125,11 @@ namespace Beyova
             {
                 BaseException baseException = exception as BaseException;
 
-                stringBuilder.AppendIndent(level).AppendLineWithFormat("Exception Type: {0}", exception.GetType().ToString());
+                stringBuilder.AppendLineWithFormat(level, "Exception Type: {0}", exception.GetType().ToString());
 
                 if (baseException != null)
                 {
-                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Exception Code: {0}({1})", baseException.Code.ToString(), (int)baseException.Code);
+                    stringBuilder.AppendLineWithFormat(level, "Exception Code: {0}({1})", baseException.Code.ToString(), (int)baseException.Code);
                 }
 
                 SqlException sqlException = exception as SqlException;
@@ -137,43 +137,43 @@ namespace Beyova
                 {
                     int i = 0;
 
-                    stringBuilder.AppendIndent(level).AppendLineWithFormat("SQL error. Count = {0}", sqlException.Errors.Count);
+                    stringBuilder.AppendLineWithFormat(level, "SQL error. Count = {0}", sqlException.Errors.Count);
 
                     foreach (SqlError sqlError in sqlException.Errors)
                     {
                         i++;
                         int tempLevel = level + 1;
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("---------- Error #{0} ----------", i);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->Class: {0}", sqlError.Class);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->Number: {0}", sqlError.Number);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->Server: {0}", sqlError.Server);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->Source: {0}", sqlError.Source);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->Procedure: {0}", sqlError.Procedure);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->LineNumber: {0}", sqlError.LineNumber);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->State: {0}", sqlError.State);
-                        stringBuilder.AppendIndent(tempLevel).AppendLineWithFormat("->Message: {0}", sqlError.Message);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "---------- Error #{0} ----------", i);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->Class: {0}", sqlError.Class);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->Number: {0}", sqlError.Number);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->Server: {0}", sqlError.Server);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->Source: {0}", sqlError.Source);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->Procedure: {0}", sqlError.Procedure);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->LineNumber: {0}", sqlError.LineNumber);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->State: {0}", sqlError.State);
+                        stringBuilder.AppendLineWithFormat(tempLevel, "->Message: {0}", sqlError.Message);
                     }
                 }
 
-                stringBuilder.AppendIndent(level).AppendLineWithFormat("Exception Message: {0}", exception.Message);
-                stringBuilder.AppendIndent(level).AppendLineWithFormat("Source: {0}", exception.Source);
-                stringBuilder.AppendIndent(level).AppendLineWithFormat("Site: {0}", exception.TargetSite);
-                stringBuilder.AppendIndent(level).AppendLineWithFormat("StackTrace: {0}", exception.StackTrace);
+                stringBuilder.AppendLineWithFormat(level, "Exception Message: {0}", exception.Message);
+                stringBuilder.AppendLineWithFormat(level, "Source: {0}", exception.Source);
+                stringBuilder.AppendLineWithFormat(level, "Site: {0}", exception.TargetSite);
+                stringBuilder.AppendLineWithFormat(level, "StackTrace: {0}", exception.StackTrace);
 
                 if (baseException != null)
                 {
-                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Exception Code: {0}({1})", baseException.Code.ToString(), (int)baseException.Code);
-                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Operator Credential: {0}", baseException.OperatorCredential.ToJson());
-                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Scene: {0}", baseException.Scene.ToJson());
-                    stringBuilder.AppendIndent(level).AppendLineWithFormat("Hint: {0}", baseException.Hint.ToJson());
+                    stringBuilder.AppendLineWithFormat(level, "Exception Code: {0}({1})", baseException.Code.ToString(), (int)baseException.Code);
+                    stringBuilder.AppendLineWithFormat(level, "Operator Credential: {0}", baseException.OperatorCredential.ToJson());
+                    stringBuilder.AppendLineWithFormat(level, "Scene: {0}", baseException.Scene.ToJson());
+                    stringBuilder.AppendLineWithFormat(level, "Hint: {0}", baseException.Hint.ToJson());
                 }
 
-                stringBuilder.AppendIndent(level).AppendLineWithFormat("Data Reference: {0}", GenerateDataString(baseException?.ReferenceData?.ToJson()));
+                stringBuilder.AppendLineWithFormat(level, "Data Reference: {0}", GenerateDataString(baseException?.ReferenceData?.ToJson()));
 
                 if (exception.InnerException != null)
                 {
                     level++;
-                    stringBuilder.AppendIndent(level).AppendLine("--------------------  Inner Exception  --------------------");
+                    stringBuilder.AppendLine(level, "--------------------  Inner Exception  --------------------");
                     FormatToString(stringBuilder, exception.InnerException, level);
                 }
             }
@@ -379,7 +379,7 @@ namespace Beyova
                     ExceptionType = exception.GetType()?.GetFullName(),
                     Level = level,
                     ServerIdentifier = EnvironmentCore.ServerName,
-                    ServiceIdentifier = EnvironmentCore.ProjectName,
+                    ServiceIdentifier = EnvironmentCore.ProductName,
                     ServerHost = string.Format("{0} {1}", EnvironmentCore.LocalMachineHostName, EnvironmentCore.LocalMachineIpAddress),
                     Message = exception.Message,
                     Source = exception.Source,
