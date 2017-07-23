@@ -39,6 +39,21 @@ namespace Beyova.ProgrammingIntelligence
         }
 
         /// <summary>
+        /// Appends the SQL section begin.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="indent">The indent.</param>
+        public static void AppendSqlSectionBegin(this StringBuilder builder, ref int indent)
+        {
+            if (builder != null)
+            {
+                builder.AppendIndent(indent);
+                builder.AppendLine("BEGIN");
+                indent++;
+            }
+        }
+
+        /// <summary>
         /// Appends the end brace.
         /// </summary>
         /// <param name="builder">The builder.</param>
@@ -62,7 +77,22 @@ namespace Beyova.ProgrammingIntelligence
             {
                 indent--;
                 builder.AppendIndent(indent);
-                builder.AppendLine(appendStatementEnd ? "};" : "}");                
+                builder.AppendLine(appendStatementEnd ? "};" : "}");
+            }
+        }
+
+        /// <summary>
+        /// Appends the SQL section end.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="indent">The indent.</param>
+        public static void AppendSqlSectionEnd(this StringBuilder builder, ref int indent)
+        {
+            if (builder != null)
+            {
+                indent--;
+                builder.AppendIndent(indent);
+                builder.AppendLine("END");
             }
         }
 

@@ -128,7 +128,7 @@ namespace Beyova.Api
         /// </returns>
         public override int GetHashCode()
         {
-            return this.ToString().GetHashCode();
+            return this.ToString().ToLowerInvariant().GetHashCode();
         }
 
         /// <summary>

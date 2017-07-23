@@ -359,7 +359,7 @@ namespace Beyova
                 }
             }
 
-            return default(T);
+            return defaultValue;
         }
     }
 }

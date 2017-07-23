@@ -8,6 +8,16 @@ namespace Beyova
     public static class StringConstants
     {
         /// <summary>
+        /// The equal operator
+        /// </summary>
+        public const string EqualOperator = "=";
+
+        /// <summary>
+        /// The not equal operator
+        /// </summary>
+        public const string NotEqualOperator = "!=";
+
+        /// <summary>
         /// The white space
         /// </summary>
         public const string WhiteSpace = " ";

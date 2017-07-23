@@ -972,7 +972,7 @@ url{
         /// <param name="propertyType">Type of the property.</param>
         private static void FillProperty(StringBuilder builder, string propertyName, Type propertyType)
         {
-            var nullable = propertyType.IsFieldNullable();
+            var nullable = propertyType.CanBeNull();
             var title = string.Format("C# Type: {0}, {1}", propertyType.ToCodeLook(), nullable ? "Nullable" : "Not Null");
             builder.AppendFormat(propertyNameFormat, propertyName, title, nullable ? "nullable" : string.Empty);
         }

@@ -244,10 +244,6 @@
     <Compile Include="Interfaces\BooleanSearch\IRelationshipOperatorComputable.cs" />
     <Compile Include="Framework\SqlDataAccessController\BaseDataAccessController.cs" />
     <Compile Include="Framework\SqlDataAccessController\DatabaseOperator.cs" />
-    <Compile Include="Framework\SqlDataAccessController\Smart\SmartSqlDataAccessController.cs" />
-    <Compile Include="Framework\SqlDataAccessController\Smart\SqlDataConverter.cs" />
-    <Compile Include="Framework\SqlDataAccessController\Smart\SqlEntityConverter.cs" />
-    <Compile Include="Framework\SqlDataAccessController\Smart\SqlFieldConverter.cs" />
     <Compile Include="Framework\SqlDataAccessController\SqlDataAccessController.cs" />
     <Compile Include="Framework\SqlDataAccessController\SqlTransactionScope.cs" />
     <Compile Include="Infrastructure\GravityProtocol\Interface\IGravityServiceProtocol.cs" />

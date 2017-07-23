@@ -17,7 +17,7 @@ namespace Beyova
         /// <summary>
         /// Class PropertyInfoEquailtyComparer
         /// </summary>
-        class PropertyInfoEquailtyComparer : IEqualityComparer<PropertyInfo>
+        private class PropertyInfoEquailtyComparer : IEqualityComparer<PropertyInfo>
         {
             /// <summary>
             /// Determines whether the specified objects are equal.
@@ -42,7 +42,7 @@ namespace Beyova
             /// </summary>
             /// <param name="obj">The object.</param>
             /// <returns>
-            /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
             /// </returns>
             public int GetHashCode(PropertyInfo obj)
             {
@@ -50,7 +50,7 @@ namespace Beyova
             }
         }
 
-        #endregion
+        #endregion PropertyInfoEquailtyComparer
 
         #region Constant
 
@@ -169,6 +169,16 @@ namespace Beyova
         }
 
         #region Property Info
+
+        /// <summary>
+        /// Gets the public properties.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public static List<PropertyInfo> GetPublicProperties(this Type type)
+        {
+            return type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty, true);
+        }
 
         /// <summary>
         /// Gets the properties.
@@ -387,6 +397,26 @@ namespace Beyova
             {
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assemblyObject.Location);
                 return fvi.FileVersion;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the assembly component version.
+        /// </summary>
+        /// <param name="assemblyObject">The assembly object.</param>
+        /// <returns></returns>
+        public static string GetAssemblyComponentVersion(this Assembly assemblyObject)
+        {
+            if (assemblyObject != null)
+            {
+                var beyovaComponentAttribute = assemblyObject.GetCustomAttribute<BeyovaComponentAttribute>();
+
+                if (beyovaComponentAttribute != null)
+                {
+                    return beyovaComponentAttribute.Version;
+                }
             }
 
             return string.Empty;
@@ -616,11 +646,11 @@ namespace Beyova
         #region Extensions
 
         /// <summary>
-        /// Determines whether [is base object].
+        /// Determines whether this type is <see cref="IBaseObject"/>.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
-        ///   <c>true</c> if [is base object] [the specified type]; otherwise, <c>false</c>.
+        ///   <c>true</c> if type is <see cref="IBaseObject"/>; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsBaseObject(this Type type)
         {
@@ -628,11 +658,11 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Determines whether [is simple base object].
+        /// Determines whether this type is <see cref="ISimpleBaseObject"/>.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
-        ///   <c>true</c> if [is simple base object] [the specified type]; otherwise, <c>false</c>.
+        ///   <c>true</c> if type is <see cref="ISimpleBaseObject"/>; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsSimpleBaseObject(this Type type)
         {
@@ -640,34 +670,78 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Determines whether this instance is identifier.
+        /// Determines whether this type is <see cref="Nullable"/>.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>
-        ///   <c>true</c> if the specified type is identifier; otherwise, <c>false</c>.
+        ///   <c>true</c> if type is <see cref="Nullable"/>; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsIdentifier(this Type type)
-        {
-            return type != null && typeof(IIdentifier).IsAssignableFrom(type);
-        }
-
-        /// <summary>
-        /// Determines whether the specified type is nullable.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns><c>true</c> if the specified type is nullable; otherwise, <c>false</c>.</returns>
         public static bool IsNullable(this Type type)
         {
             return type != null && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         /// <summary>
-        /// Determines whether the specified type is nullable&lt;&gt; type..
+        /// Ensures the type of the underlying.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public static Type EnsureUnderlyingType(this Type type)
+        {
+            return (type != null && type.IsNullable()) ? Nullable.GetUnderlyingType(type) : type;
+        }
+
+        /// <summary>
+        /// Acts the on type with nullable underlying.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="action">The action.</param>
+        /// <returns></returns>
+        public static T ActOnTypeWithNullableUnderlying<T>(this Type type, Func<Type, T> action)
+        {
+            if (type != null && action != null)
+            {
+                return action(EnsureUnderlyingType(type));
+            }
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// Checks the type with nullable underlying. return action(type) || action(Nullable.GetUnderlyingType(type));
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="action">The action.</param>
+        /// <returns>
+        /// return action(type) || action(Nullable.GetUnderlyingType(type));
+        /// </returns>
+        public static bool CheckTypeWithNullableUnderlying(this Type type, Func<Type, bool> action)
+        {
+            return ActOnTypeWithNullableUnderlying(type, action);
+        }
+
+        /// <summary>
+        /// Determines whether this instance is enum.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified type is enum; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsEnum(this Type type)
+        {
+            return CheckTypeWithNullableUnderlying(type, t => t.IsEnum);
+        }
+
+        /// <summary>
+        /// Determines whether this instance [can be null] the specified object.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj">The object.</param>
-        /// <returns>System.Boolean.</returns>
-        public static bool IsNullable<T>(this T obj)
+        /// <returns>
+        ///   <c>true</c> if this instance [can be null] the specified object; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool CanBeNull<T>(this T obj)
         {
             //Smart way copy from stackoverflow and msdn
             // http://stackoverflow.com/questions/374651/how-to-check-if-an-object-is-nullable
@@ -677,24 +751,13 @@ namespace Beyova
         }
 
         /// <summary>
-        /// Gets the nullable value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj">The object.</param>
-        /// <returns>T.</returns>
-        public static T GetNullableValue<T>(this T? obj)
-                    where T : struct
-        {
-            obj.CheckNullObject(nameof(obj));
-            return obj.Value;
-        }
-
-        /// <summary>
-        /// Determines whether is field nullable (is class or is nullable&lt;&gt;).
+        /// Determines whether this instance [can be null] the specified type.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <returns><c>true</c> if [is field nullable] [the specified type]; otherwise, <c>false</c>.</returns>
-        public static bool IsFieldNullable(this Type type)
+        /// <returns>
+        ///   <c>true</c> if this instance [can be null] the specified type; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool CanBeNull(this Type type)
         {
             return type != null && (type.IsClass || type.IsNullable());
         }
@@ -771,9 +834,87 @@ namespace Beyova
         /// <returns><c>true</c> if [is simple type] [the specified type]; otherwise, <c>false</c>.</returns>
         public static bool IsSimpleType(this Type type)
         {
-            return type != null &&
-                type.IsNullable() ? IsSimpleType(type.GetNullableType())
-                : (type.IsPrimitive || (typeof(string) == type) || typeof(Guid) == type || typeof(DateTime) == type || typeof(decimal) == type || typeof(TimeSpan) == type || typeof(Uri) == type || type.IsEnum);
+            return IsPrimitiveType(type);
+        }
+
+        /// <summary>
+        /// Determines whether [is primitive type].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is primitive type] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsPrimitiveType(this Type type)
+        {
+            return CheckTypeWithNullableUnderlying(type, InternalIsPrimitiveType);
+        }
+
+        /// <summary>
+        /// Internals the type of the is primitive.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        private static bool InternalIsPrimitiveType(Type type)
+        {
+            return type != null && (type.IsPrimitive
+               || typeof(string) == type
+               || typeof(Guid) == type
+               || typeof(DateTime) == type
+               || typeof(decimal) == type
+               || typeof(TimeSpan) == type
+               || typeof(Uri) == type
+               || type.IsEnum);
+        }
+
+        /// <summary>
+        /// Determines whether [is integer based type].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is integer based type] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsIntegerBasedType(this Type type)
+        {
+            return CheckTypeWithNullableUnderlying(type, InternalIsIntegerBasedType);
+        }
+
+        /// <summary>
+        /// Internals the type of the is integer based.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        private static bool InternalIsIntegerBasedType(Type type)
+        {
+            return type != null && (type.IsEnum
+                || type.FullName.StartsWith("System.Int")
+                || type.FullName.StartsWith("System.UInt"));
+        }
+
+        /// <summary>
+        /// Determines whether [is numeric primitive type].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is numeric primitive type] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsNumericPrimitiveType(this Type type)
+        {
+            return CheckTypeWithNullableUnderlying(type, InternalIsNumericPrimitiveType);
+        }
+
+        /// <summary>
+        /// Internals the type of the is numeric primitive.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        private static bool InternalIsNumericPrimitiveType(Type type)
+        {
+            return type != null && (IsIntegerBasedType(type)
+                   || typeof(decimal) == type
+                   || typeof(float) == type
+                   || typeof(double) == type
+                   || typeof(Boolean) == type
+                   || typeof(FractionObject) == type);
         }
 
         /// <summary>

@@ -442,6 +442,58 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Indexes the of.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="predicate">The predicate.</param>
+        /// <returns></returns>
+        public static int IndexOf<T>(this IEnumerable<T> collection, Func<T, bool> predicate)
+        {
+            if (collection.HasItem() && predicate != null)
+            {
+                int index = 0;
+                foreach (var one in collection)
+                {
+                    if (predicate(one))
+                    {
+                        return index;
+                    }
+                    index++;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Indexes the of.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <typeparam name="TFactor">The type of the factor.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="factorValue">The factor value.</param>
+        /// <param name="predicate">The predicate.</param>
+        /// <returns></returns>
+        public static int IndexOf<TEntity, TFactor>(this IEnumerable<TEntity> collection, TFactor factorValue, Func<TEntity, TFactor, bool> predicate)
+        {
+            if (collection.HasItem() && predicate != null)
+            {
+                int index = 0;
+                foreach (var one in collection)
+                {
+                    if (predicate(one, factorValue))
+                    {
+                        return index;
+                    }
+                    index++;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
         /// Sorts the specified comparable selector.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1079,6 +1131,20 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Determines whether the specified predicate has item.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="predicate">The predicate.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified predicate has item; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool HasItem<TEntity>(this IEnumerable<TEntity> collection, Func<TEntity, bool> predicate)
+        {
+            return collection != null && predicate != null && collection.Any(predicate);
+        }
+
+        /// <summary>
         /// Determines whether [contains] [the specified collection]. Rules: exists any item where equalityComparer.Equals(selector(x), factor) == true
         /// </summary>
         /// <typeparam name="TEntity">The type of the t entity.</typeparam>
@@ -1088,7 +1154,7 @@ namespace Beyova
         /// <param name="selector">The selector.</param>
         /// <param name="equalityComparer">The equality comparer.</param>
         /// <returns>System.Boolean.</returns>
-        public static bool Contains<TEntity, TFactor>(this IEnumerable<TEntity> collection, TFactor factor, Func<TEntity, TFactor> selector, IEqualityComparer<TFactor> equalityComparer = null)
+        public static bool HasItem<TEntity, TFactor>(this IEnumerable<TEntity> collection, TFactor factor, Func<TEntity, TFactor> selector, IEqualityComparer<TFactor> equalityComparer = null)
         {
             return (collection.HasItem() && selector != null)
                 && collection.Any(x =>
@@ -1473,10 +1539,11 @@ namespace Beyova
         /// <typeparam name="TValue">T of the value.</typeparam>
         /// <param name="instance">The instance.</param>
         /// <param name="key">The key.</param>
+        /// <param name="defaultValue">The default value.</param>
         /// <returns></returns>
-        public static TValue SafeGetValue<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key)
+        public static TValue SafeGetValue<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue defaultValue = default(TValue))
         {
-            return (instance != null && key != null && instance.ContainsKey(key)) ? instance[key] : default(TValue);
+            return (instance != null && key != null && instance.ContainsKey(key)) ? instance[key] : defaultValue;
         }
 
         /// <summary>
@@ -1688,21 +1755,6 @@ namespace Beyova
         {
             value = default(TValue);
             return key != null && instance != null && instance.TryGetValue(key, out value);
-        }
-
-        /// <summary>
-        /// Safes the try get value.
-        /// </summary>
-        /// <typeparam name="TKey">The type of the t key.</typeparam>
-        /// <typeparam name="TValue">The type of the t value.</typeparam>
-        /// <param name="instance">The instance.</param>
-        /// <param name="key">The key.</param>
-        /// <returns>TValue.</returns>
-        public static TValue SafeTryGetValue<TKey, TValue>(this Dictionary<TKey, TValue> instance, TKey key)
-        {
-            TValue result;
-            SafeTryGetValue(instance, key, out result);
-            return result;
         }
 
         /// <summary>

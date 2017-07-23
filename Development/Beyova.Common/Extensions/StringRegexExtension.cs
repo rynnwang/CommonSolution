@@ -1023,6 +1023,20 @@ namespace Beyova
         }
 
         /// <summary>
+        /// Appends the with format.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="format">The format.</param>
+        /// <param name="args">The arguments.</param>
+        public static void AppendWithFormat(this StringBuilder builder, string format, params object[] args)
+        {
+            if (builder != null && !string.IsNullOrWhiteSpace(format))
+            {
+                builder.Append(string.Format(format, args));
+            }
+        }
+
+        /// <summary>
         /// Get last N char. If given count is larger than builder count, return string.Empty.
         /// </summary>
         /// <param name="builder">The builder.</param>
